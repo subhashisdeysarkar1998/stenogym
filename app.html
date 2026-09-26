@@ -51,6 +51,10 @@
                     <option value="">Select Track...</option>
                 </select>
 
+                <select id="wordLimitSelect" class="bg-indigo-800 text-white border border-indigo-500 rounded-lg p-2 text-sm font-bold outline-none cursor-pointer w-full">
+                    <option value="full">📄 Full Passage</option>
+                </select>
+
                 <select id="wpmSelect" class="bg-indigo-800 text-white border border-indigo-500 rounded-lg p-2 text-sm font-bold outline-none cursor-pointer w-full">
                     <option value="50">⏱️ 50 WPM</option>
                     <option value="60">⏱️ 60 WPM</option>
@@ -149,14 +153,23 @@
             </div>
         </div>
         
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+            <button id="btnRevealPassage" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold py-3 px-8 rounded-xl shadow-sm transition text-sm flex items-center gap-2">
+                <span>👁️</span> Reveal Original Passage
+            </button>
+            <div id="revealContainer" class="hidden w-full mt-4 p-6 bg-[#FCFBF7] border border-slate-200 rounded-xl text-lg font-serif leading-relaxed shadow-inner text-slate-800"></div>
+        </div>
+
          <div id="evaluationPanel" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-lg mb-12">
-                <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Dictated Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
-            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct Words</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
-            <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes Detected</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
-            <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy Index</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
-         </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 text-center">
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
+                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
+                <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
+                <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="text-xs font-bold text-blue-600 uppercase mb-1">Typing Time</div><div id="evalTypingTime" class="text-2xl font-black text-blue-600">00:00</div></div>
+                <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl"><div class="text-xs font-bold text-amber-600 uppercase mb-1">Typing WPM</div><div id="evalTypingSpeed" class="text-2xl font-black text-amber-600">0</div></div>
+            </div>
 
             <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-600 shadow-sm">
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></span> Correct</span>
@@ -183,7 +196,6 @@
         }
         const db = firebase.firestore();
 
-        // Active Auth Tracker for Session Sync
         let activeUser = null;
         firebase.auth().onAuthStateChanged((user) => {
             activeUser = user;
@@ -191,18 +203,23 @@
 
         let LIVE_EXAM_BANK = [];
         
+        let rawPassageText = ""; 
+        let activePassageText = ""; 
+        window.currentUtterance = null; 
+        
         const categorySelect = document.getElementById('categorySelect');
         const subCategorySelect = document.getElementById('subCategorySelect');
         const lessonSelect = document.getElementById('lessonSelect');
         const wpmSelect = document.getElementById('wpmSelect');
+        const wordLimitSelect = document.getElementById('wordLimitSelect'); 
         const progressContainer = document.getElementById('progressContainer');
         const progressBar = document.getElementById('progressBar');
         const timeDisplay = document.getElementById('timeDisplay');
         const liveWordCount = document.getElementById('liveWordCount');
+        
+        const btnRevealPassage = document.getElementById('btnRevealPassage');
+        const revealContainer = document.getElementById('revealContainer');
 
-        // ==========================================
-        // PITMAN MASTER PHRASEOGRAPHY DICTIONARY
-        // ==========================================
         const PITMAN_PHRASES = [
             "from the point of view", "for the purpose of", "as a matter of fact",
             "in the matter of", "taking into consideration", "in accordance with the",
@@ -252,7 +269,7 @@
             .map(p => p.toLowerCase().split(' '))
             .sort((a, b) => b.length - a.length);
 
-        let currentPassageText = ""; let phraseArray = []; let currentPhraseIndex = 0;
+        let phraseArray = []; let currentPhraseIndex = 0;
         let isPlaying = false; let isPaused = false; let isCountingDown = false;
         let countdownInterval = null; let clockUpdateInterval = null; let targetWPM = 90;
         let totalTargetWords = 0; let totalExpectedDurationMs = 0; let executionStartTime = 0;
@@ -280,6 +297,58 @@
             return div.innerHTML;
         }
 
+        function updateWordLimitOptions(totalWords) {
+            if (!wordLimitSelect) return;
+            const prevValue = wordLimitSelect.value;
+            wordLimitSelect.innerHTML = '';
+            
+            if (totalWords === 0) {
+                wordLimitSelect.innerHTML = '<option value="full">📄 Full Passage</option>';
+                return;
+            }
+
+            for (let i = 50; i < totalWords; i += 50) {
+                wordLimitSelect.innerHTML += `<option value="${i}">✂️ First ${i} Words</option>`;
+            }
+            wordLimitSelect.innerHTML += `<option value="full">📄 Full Passage (${totalWords} Words)</option>`;
+            
+            if (prevValue !== "full" && parseInt(prevValue) < totalWords) {
+                wordLimitSelect.value = prevValue;
+            } else {
+                wordLimitSelect.value = "full";
+            }
+        }
+
+        function applySmartTruncation(text, limitStr) {
+            if (!text) return "";
+            if (limitStr === "full") return text;
+
+            const limit = parseInt(limitStr, 10);
+            if (isNaN(limit) || limit <= 0) return text;
+
+            const words = text.trim().split(/\s+/).filter(w => w);
+            if (words.length <= limit) return text;
+
+            let truncated = [];
+            let puncRegex = /[.,:;?!]/; 
+
+            for (let i = 0; i < limit; i++) {
+                truncated.push(words[i]);
+            }
+
+            if (puncRegex.test(truncated[truncated.length - 1])) {
+                return truncated.join(" ");
+            }
+
+            for (let i = limit; i < words.length; i++) {
+                let w = words[i];
+                truncated.push(w);
+                if (puncRegex.test(w)) break;
+            }
+
+            return truncated.join(" ");
+        }
+
         function initApp() {
             loadVoices();
             window.speechSynthesis.onvoiceschanged = loadVoices;
@@ -288,12 +357,29 @@
             subCategorySelect.addEventListener('change', populateLessons);    
             lessonSelect.addEventListener('change', buildActiveTrackData);
             
+            wordLimitSelect.addEventListener('change', () => {
+                activePassageText = applySmartTruncation(rawPassageText, wordLimitSelect.value);
+                if (!revealContainer.classList.contains('hidden')) revealContainer.textContent = activePassageText;
+                resetAudioEngine();
+            });
+
             wpmSelect.addEventListener('change', () => {
                 targetWPM = parseInt(wpmSelect.value);
-                if (currentPassageText && currentPassageText.trim() !== "") {
+                if (activePassageText && activePassageText.trim() !== "") {
                     resetAudioEngine(); 
                 } else {
                     compileTrackMetrics("");
+                }
+            });
+
+            btnRevealPassage.addEventListener('click', () => {
+                if (revealContainer.classList.contains('hidden')) {
+                    revealContainer.classList.remove('hidden');
+                    revealContainer.textContent = activePassageText || "No passage loaded.";
+                    btnRevealPassage.innerHTML = '<span>🙈</span> Hide Original Passage';
+                } else {
+                    revealContainer.classList.add('hidden');
+                    btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
                 }
             });
 
@@ -341,7 +427,8 @@
                 lessonSelect.value = "0";
                 buildActiveTrackData();
             } else {
-                currentPassageText = "";
+                rawPassageText = ""; activePassageText = "";
+                updateWordLimitOptions(0);
                 compileTrackMetrics("");
             }
         }
@@ -354,9 +441,18 @@
             const filtered = LIVE_EXAM_BANK.filter(item => item.mainCategory === selectedCat && item.subCategory === selectedSubCat);
             filtered.sort((a, b) => (a.title || "").localeCompare((b.title || ""), undefined, { numeric: true, sensitivity: 'base' }));
             
-            currentPassageText = (filtered.length > 0 && !isNaN(idx)) ? filtered[idx].text : "";
+            rawPassageText = (filtered.length > 0 && !isNaN(idx) && filtered[idx].text) ? String(filtered[idx].text) : "";
+            
+            let totalWords = rawPassageText.trim().split(/\s+/).filter(w => w).length;
+            updateWordLimitOptions(totalWords);
+            
+            activePassageText = applySmartTruncation(rawPassageText, wordLimitSelect.value);
+            if (!revealContainer.classList.contains('hidden')) {
+                revealContainer.textContent = activePassageText || "No passage loaded.";
+            }
+
             targetWPM = parseInt(wpmSelect.value);
-            compileTrackMetrics(currentPassageText);
+            compileTrackMetrics(activePassageText);
         }
 
         function loadVoices() {
@@ -385,9 +481,6 @@
             updateProgressBarUI(0, 0);
         }
 
-        // ==========================================
-        // THE 5-TIER CHUNKING ENGINE
-        // ==========================================
         function compileBreathGroupPhrases(text) {
             phraseArray = [];
             const words = text.split(/\s+/).filter(w => w.length > 0);
@@ -434,16 +527,16 @@
                 let maxTotalLetters = 8;
                 
                 if (targetWPM === 60 || targetWPM === 70) {
-                    maxAdditionalWords = 2; // Total 3 words
+                    maxAdditionalWords = 2; 
                     maxTotalLetters = 10;
                 } else if (targetWPM === 80) {
-                    maxAdditionalWords = 3; // Total 4 words
+                    maxAdditionalWords = 3; 
                     maxTotalLetters = 12;
                 } else if (targetWPM === 90 || targetWPM === 100) {
-                    maxAdditionalWords = 5; // Total 6 words
+                    maxAdditionalWords = 5; 
                     maxTotalLetters = 20;
                 } else if (targetWPM === 110 || targetWPM === 120) {
-                    maxAdditionalWords = 7; // Total 8 words max (5-8 words per group)
+                    maxAdditionalWords = 7; 
                     maxTotalLetters = 25;
                 }
 
@@ -458,7 +551,6 @@
                         currentCleanLength += nextCleanLength;
                         i++;
                         
-                        // Always break immediately on punctuation across ALL tiers!
                         if (hasPunc(nextWord)) break;
                     }
                 }
@@ -481,12 +573,16 @@
                 }
             }
 
-            let silentUtterance = new SpeechSynthesisUtterance('');
-            silentUtterance.volume = 0; window.speechSynthesis.speak(silentUtterance);
+            window.speechSynthesis.cancel(); 
+
+            let wakeup = new SpeechSynthesisUtterance(' '); 
+            wakeup.volume = 0; 
+            window.speechSynthesis.speak(wakeup);
             
             if(isCountingDown) {
                 clearInterval(countdownInterval); isCountingDown = false;
-                setPlayButtonLabel("Play", "bg-indigo-600 hover:bg-indigo-700"); return;
+                setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700"); 
+                return;
             }
 
             if(isPlaying) {
@@ -499,7 +595,10 @@
                 totalAccumulatedPauseTimeMs += (Date.now() - singlePauseStartTime);
                 fireEngineCycle();
             } else {
-                if(phraseArray.length === 0) return;
+                if(phraseArray.length === 0) { 
+                    alert("Audio is not ready yet! Please wait one second for the text to load from the database."); 
+                    return; 
+                }
                 resetTranscriptionState();
                 
                 isCountingDown = true; let step = 3;
@@ -512,6 +611,8 @@
                         clearInterval(countdownInterval); isCountingDown = false;
                         executionStartTime = Date.now(); totalAccumulatedPauseTimeMs = 0;
                         currentPhraseIndex = 0; trackingWordsSpokenCount = 0;
+                        
+                        window.speechSynthesis.cancel(); 
                         fireEngineCycle();
                     }
                 }, 1000);
@@ -525,9 +626,6 @@
             executeSpeechStream();
         }
 
-        // ==========================================
-        // DYNAMIC MATH & PUNCTUATION HARD PAUSES
-        // ==========================================
         function executeSpeechStream() {
             if(!isPlaying || currentPhraseIndex >= phraseArray.length) {
                 if(currentPhraseIndex >= phraseArray.length) finishDictationExecution();
@@ -537,26 +635,22 @@
             const targetChunk = phraseArray[currentPhraseIndex];
             const utterance = new SpeechSynthesisUtterance(targetChunk.text);
             
+            window.currentUtterance = utterance; 
+
             if (chosenVoice) utterance.voice = chosenVoice;
             else utterance.lang = 'en-IN'; 
 
-            // === THE REVERSION: AGGRESSIVE LOCAL MATH ===
-            // We calculate the exact millisecond THIS specific chunk MUST finish by.
             let targetWordsAfterChunk = trackingWordsSpokenCount + targetChunk.wordsCount;
             let expectedTimeAfterChunkMs = (targetWordsAfterChunk / (targetWPM / 60)) * 1000;
             let actualElapsedTimeMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
             
-            // How much time do we have left to speak this chunk to stay perfectly on the clock?
             let timeRemainingForChunkMs = expectedTimeAfterChunkMs - actualElapsedTimeMs;
             
-            // Safety buffer
             if (timeRemainingForChunkMs < 500) timeRemainingForChunkMs = 500; 
 
-            // Force the engine to speak fast enough to hit THIS milestone exactly.
             let wordsPerSecondNeeded = targetChunk.wordsCount / (timeRemainingForChunkMs / 1000);
             let requiredRate = wordsPerSecondNeeded / (140 / 60);
 
-            // === 5-TIER SPEED LIMITS ===
             let minRate = 0.40; 
             let maxRate = 1.6;
             
@@ -578,7 +672,6 @@
                 trackingWordsSpokenCount += targetChunk.wordsCount;
                 currentPhraseIndex++; 
                 
-                // === PURE MATHEMATICAL TIMELINE SYNC ===
                 let expectedElapsedMs = (trackingWordsSpokenCount / (targetWPM / 60)) * 1000;
                 let newActualElapsedMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
                 
@@ -594,7 +687,14 @@
             };
             
             utterance.onerror = (e) => {
-                if(e.error !== 'canceled') console.error("Speech Error:", e);
+                if(e.error !== 'canceled' && e.error !== 'interrupted') {
+                    console.error("Browser Audio Error, skipping chunk:", e);
+                    if(isPlaying) {
+                        trackingWordsSpokenCount += targetChunk.wordsCount;
+                        currentPhraseIndex++;
+                        setTimeout(() => executeSpeechStream(), 100);
+                    }
+                }
             };
 
             window.speechSynthesis.speak(utterance);
@@ -645,14 +745,14 @@
             
             isPlaying = false; isPaused = false; isCountingDown = false;
             currentPhraseIndex = 0; trackingWordsSpokenCount = 0;
-            setPlayButtonLabel("Play", "bg-indigo-600 hover:bg-indigo-700");
-            compileTrackMetrics(currentPassageText);
+            setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
+            compileTrackMetrics(activePassageText);
             resetTranscriptionState();
         }
 
         function finishDictationExecution() {
             clearInterval(clockUpdateInterval); isPlaying = false; isPaused = false;
-            setPlayButtonLabel("Play", "bg-indigo-600 hover:bg-indigo-700");
+            setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
             updateProgressBarUI(totalExpectedDurationMs, totalTargetWords);
             gateOverlay.classList.remove('hidden');
         }
@@ -689,6 +789,16 @@
             typingTimerDisplay.className = "bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded font-mono text-sm border border-indigo-200";
             
             isFirstKeystrokeFired = false; isTypingActive = true;
+        });
+
+        typingArea.addEventListener('focus', () => {
+            const evalPanel = document.getElementById('evaluationPanel');
+            if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
+
+            if (revealContainer && !revealContainer.classList.contains('hidden')) {
+                revealContainer.classList.add('hidden');
+                btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
+            }
         });
 
         typingArea.addEventListener('input', () => {
@@ -740,18 +850,18 @@
             }
         });
 
-        typingArea.addEventListener('focus', () => {
-            const evalPanel = document.getElementById('evaluationPanel');
-            if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
-        });
-
         btnSubmit.addEventListener('click', evaluateTypingScore);
 
         function evaluateTypingScore() {
             const typedText = typingArea.value.trim();
             if(!typedText) { alert("Please transcribe your shorthand response notes into the input field workspace canvas first."); return; }
 
-            const originalRaw = currentPassageText.trim().split(/\s+/).filter(w => w);
+            let typingDurationMs = Date.now() - transcriptionStartTime;
+            if (typingDurationMs < 1000) typingDurationMs = 1000; 
+            let minutesElapsed = typingDurationMs / 60000;
+            let grossWPM = Math.round((typedText.length / 5) / minutesElapsed);
+
+            const originalRaw = activePassageText.trim().split(/\s+/).filter(w => w);
             const typedRaw = typedText.split(/\s+/).filter(w => w);
 
             const normalize = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -766,12 +876,12 @@
             for (let i = 1; i <= originalWords.length; i++) {
                 for (let j = 1; j <= typedWords.length; j++) {
                     if (originalWords[i - 1] === typedWords[j - 1] && originalWords[i - 1] !== "") {
-                        dp[i][j] = dp[i - 1][j - 1]; // Match
+                        dp[i][j] = dp[i - 1][j - 1]; 
                     } else {
                         dp[i][j] = Math.min(
-                            dp[i - 1][j - 1] + 1, // Substitution
-                            dp[i][j - 1] + 1,     // Insertion
-                            dp[i - 1][j] + 1      // Omission
+                            dp[i - 1][j - 1] + 1, 
+                            dp[i][j - 1] + 1,     
+                            dp[i - 1][j] + 1      
                         );
                     }
                 }
@@ -826,6 +936,8 @@
             document.getElementById("evalCorrect").textContent = correctWordsCount;
             document.getElementById("evalErrors").textContent = totalErrors;
             document.getElementById("evalAccuracy").textContent = `${accuracyPercentage.toFixed(1)}%`;
+            document.getElementById("evalTypingTime").textContent = formatTime(typingDurationMs);
+            document.getElementById("evalTypingSpeed").textContent = grossWPM;
             document.getElementById("transcriptOutput").innerHTML = diffPath.join("");
 
             const evalPanel = document.getElementById('evaluationPanel');
@@ -839,20 +951,19 @@
                     wpm: targetWPM, 
                     accuracy: parseFloat(accuracyPercentage.toFixed(1)),
                     mistakes: totalErrors,
+                    typingWpm: grossWPM, 
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => console.log("Preset Room score successfully sent to dashboard!"))
                   .catch(err => console.error("Failed to save score:", err));
             }
         }
 
+        window.onload = initApp;
         
         document.getElementById('btnPlayPause').addEventListener('click', toggleAudioEngine);
         document.getElementById('btnStop').addEventListener('click', resetAudioEngine);
         progressContainer.addEventListener('click', handleScrubberNavigation);
-        
-        window.onload = initApp;
 
-        // --- MOBILE TAP-TO-REVEAL TOOLTIP FIX ---
         const transcriptContainer = document.getElementById("transcriptOutput");
 
         if (transcriptContainer) {

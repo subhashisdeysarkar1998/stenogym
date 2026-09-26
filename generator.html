@@ -184,13 +184,16 @@
             </div>
             
             <div id="evaluationPanel" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-lg mb-12">
-                <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Dictated Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
-            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct Words</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
-            <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes Detected</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
-            <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy Index</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
-         </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 text-center">
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
+                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
+                <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
+                <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="text-xs font-bold text-blue-600 uppercase mb-1">Typing Time</div><div id="evalTypingTime" class="text-2xl font-black text-blue-600">00:00</div></div>
+                <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl"><div class="text-xs font-bold text-amber-600 uppercase mb-1">Typing WPM</div><div id="evalTypingSpeed" class="text-2xl font-black text-amber-600">0</div></div>
+            </div>
 
             <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-600 shadow-sm">
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></span> Correct</span>
@@ -693,6 +696,12 @@
         typingArea.addEventListener('focus', () => {
             const evalPanel = document.getElementById('evaluationPanel');
             if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
+
+            // NEW: Anti-Cheat Mechanism - Instantly hide passage when user clicks canvas to type
+            if (revealContainer && !revealContainer.classList.contains('hidden')) {
+                revealContainer.classList.add('hidden');
+                btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
+            }
         });
 
         // --- PASSAGE TOGGLE LOGIC ---
@@ -709,11 +718,17 @@
 
         btnSubmit.addEventListener('click', evaluateTypingScore);
 
-        function evaluateTypingScore() {
+       function evaluateTypingScore() {
             const typedText = typingArea.value.trim();
             if(!typedText) { alert("Please transcribe your shorthand response notes into the input field workspace canvas first."); return; }
 
-            const originalRaw = currentPassageText.trim().split(/\s+/).filter(w => w);
+            // NEW MATH: Calculate Transcription Typing Speed (WPM)
+            let typingDurationMs = Date.now() - transcriptionStartTime;
+            if (typingDurationMs < 1000) typingDurationMs = 1000; // Prevent division by zero
+            let minutesElapsed = typingDurationMs / 60000;
+            let grossWPM = Math.round((typedText.length / 5) / minutesElapsed); // Standard 5-chars = 1 word formula
+
+            const originalRaw = activePassageText.trim().split(/\s+/).filter(w => w);
             const typedRaw = typedText.split(/\s+/).filter(w => w);
 
             const normalize = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -728,12 +743,12 @@
             for (let i = 1; i <= originalWords.length; i++) {
                 for (let j = 1; j <= typedWords.length; j++) {
                     if (originalWords[i - 1] === typedWords[j - 1] && originalWords[i - 1] !== "") {
-                        dp[i][j] = dp[i - 1][j - 1]; // Match
+                        dp[i][j] = dp[i - 1][j - 1]; 
                     } else {
                         dp[i][j] = Math.min(
-                            dp[i - 1][j - 1] + 1, // Substitution
-                            dp[i][j - 1] + 1,     // Insertion
-                            dp[i - 1][j] + 1      // Omission
+                            dp[i - 1][j - 1] + 1, 
+                            dp[i][j - 1] + 1,     
+                            dp[i - 1][j] + 1      
                         );
                     }
                 }
@@ -784,30 +799,33 @@
             const totalErrors = fullErrors + halfErrors;
             const accuracyPercentage = originalRaw.length === 0 ? 0 : Math.max(0, ((originalRaw.length - totalErrors) / originalRaw.length) * 100);
             
+            // DOM UPDATES
             document.getElementById("evalTotal").textContent = originalRaw.length;
             document.getElementById("evalCorrect").textContent = correctWordsCount;
             document.getElementById("evalErrors").textContent = totalErrors;
             document.getElementById("evalAccuracy").textContent = `${accuracyPercentage.toFixed(1)}%`;
+            document.getElementById("evalTypingTime").textContent = formatTime(typingDurationMs);
+            document.getElementById("evalTypingSpeed").textContent = grossWPM;
             document.getElementById("transcriptOutput").innerHTML = diffPath.join("");
 
             const evalPanel = document.getElementById('evaluationPanel');
             evalPanel.classList.remove('hidden');
             window.scrollTo({ top: evalPanel.offsetTop, behavior: 'smooth' });
 
-            if (typeof firebase !== 'undefined') {
-                const user = activeUser || firebase.auth().currentUser;
-                if (user) {
-                    db.collection("users").doc(user.uid).collection("practice_history").add({
-                        source: "AI Studio",
-                        wpm: targetWPM,
-                        accuracy: parseFloat(accuracyPercentage.toFixed(1)),
-                        mistakes: totalErrors,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => console.log("AI Score saved!"))
-                      .catch(err => console.error("Save failed:", err));
-                }
+            // SEND ALL DATA TO DASHBOARD
+            const user = activeUser || firebase.auth().currentUser;
+            if (user) {
+                db.collection("users").doc(user.uid).collection("practice_history").add({
+                    source: document.title.includes("Scanner") ? "Scanner Room" : "Preset Room",
+                    wpm: targetWPM, 
+                    accuracy: parseFloat(accuracyPercentage.toFixed(1)),
+                    mistakes: totalErrors,
+                    typingWpm: grossWPM, // Logs their keyboard speed!
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                }).then(() => console.log("Complete score logged to dashboard!"))
+                  .catch(err => console.error("Failed to save score:", err));
             }
-        }
+        } 
 
         document.getElementById('btnPlayPause').addEventListener('click', toggleAudioEngine);
         document.getElementById('btnStop').addEventListener('click', resetAudioEngine);
