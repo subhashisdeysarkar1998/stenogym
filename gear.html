@@ -1,0 +1,261 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Recommended Stenography Gear | Stenogym</title>
+    <meta name="title" content="Recommended Stenography Gear | Stenogym">
+    <meta name="description" content="Discover the best pencils, notebooks, and audio gear recommended for SSC stenography students to maximize shorthand speed.">
+    <link rel="canonical" href="https://stenogym.com/gear.html">
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col pt-20">
+
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 border-b border-white/10 shadow-sm transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center text-white">
+            <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl uppercase shadow-sm">
+                <span class="text-yellow-400">✏️</span> STENOGYM
+            </a>
+            
+            <div class="hidden md:flex items-center gap-8 font-semibold text-sm">
+                <a href="index.html" class="text-slate-300 hover:text-white transition">Home</a>
+                <a href="blog.html" class="text-slate-300 hover:text-white transition">SSC Exam Guide</a>
+                <a href="dashboard.html" id="navDashboard" class="hidden text-slate-300 hover:text-white transition font-bold text-indigo-300">Dashboard</a>
+                <a href="login.html" id="navLogin" class="text-slate-300 hover:text-white transition">Login</a>
+                <button id="btnLogout" class="hidden text-sm font-bold text-slate-400 hover:text-rose-500 transition border border-slate-600 px-3 py-1 rounded-md">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <header class="bg-indigo-900 text-white py-16 px-4 border-b-4 border-indigo-500">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-4xl md:text-5xl font-black mb-4 tracking-tight">Stenographer's Toolkit</h1>
+            <p class="text-lg text-indigo-200 max-w-2xl mx-auto mb-6">The exact pencils, notebooks, and audio gear we recommend to achieve 100+ WPM without hand fatigue.</p>
+            
+            <div class="inline-block bg-indigo-950/50 border border-indigo-500/30 rounded-lg px-4 py-2 text-xs text-indigo-300 font-medium">
+                Stenogym is reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto px-6 py-10 w-full">
+        
+        <div id="loadingState" class="flex flex-col items-center justify-center py-20 text-slate-400">
+            <div class="text-4xl animate-bounce mb-4">📦</div>
+            <p class="font-bold tracking-wider uppercase text-sm">Loading Store Inventory...</p>
+        </div>
+
+        <div id="storeContainer" class="hidden"></div>
+
+    </main>
+
+   <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            
+            <div class="space-y-4">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
+                    <span class="text-yellow-400">✏️</span> STENOGYM
+                </a>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                </p>
+                <div class="flex gap-4 pt-2">
+    <!-- Real Instagram Logo -->
+    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+        </svg>
+    </a> 
+    
+    <!-- Real YouTube Logo -->
+    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+        </svg>
+    </a>
+    
+    <!-- Real Envelope (Contact) Logo -->
+    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+            <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+        </svg>
+    </a>
+</div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
+            <div>&copy; 2026 Stenogym. All rights reserved.</div>
+           <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 1. Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
+            authDomain: "stenogym.firebaseapp.com",
+            projectId: "stenogym",
+            storageBucket: "stenogym.firebasestorage.app",
+            messagingSenderId: "227346319026",
+            appId: "1:227346319026:web:bd37156b931923532eabab"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        }
+
+        function sanitizeUrl(value) {
+            try {
+                const url = new URL(value, window.location.href);
+                return ['http:', 'https:'].includes(url.protocol) ? url.href : '';
+            } catch {
+                return '';
+            }
+        }
+
+        // 2. Smart Navigation Auth
+        firebase.auth().onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('navLogin')?.classList.add('hidden');
+                document.getElementById('navDashboard')?.classList.remove('hidden');
+                document.getElementById('btnLogout')?.classList.remove('hidden');
+                document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
+            } else {
+                document.getElementById('navLogin')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.add('hidden');
+                document.getElementById('btnLogout')?.classList.add('hidden');
+            }
+        });
+
+        // 3. Fetch Products and Build UI
+        async function loadStorefront() {
+            try {
+                // Get all products from database
+                const snapshot = await db.collection("store_products").orderBy("timestamp", "desc").get();
+                
+                const storeContainer = document.getElementById('storeContainer');
+                const loadingState = document.getElementById('loadingState');
+                
+                if (snapshot.empty) {
+                    loadingState.innerHTML = `<div class="text-4xl mb-4">🛒</div><p class="font-bold">Store is currently empty.</p>`;
+                    return;
+                }
+
+                // Organize products by category
+                const productsByCategory = {};
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!productsByCategory[data.category]) {
+                        productsByCategory[data.category] = [];
+                    }
+                    productsByCategory[data.category].push(data);
+                });
+
+                // Generate HTML for each Category Aisle
+                let htmlBuffer = "";
+                
+                for (const [categoryName, products] of Object.entries(productsByCategory)) {
+                    const safeCategoryName = escapeHtml(categoryName);
+                    // Create Category Header
+                    htmlBuffer += `
+                        <div class="mb-12">
+                            <h2 class="text-2xl md:text-3xl font-black text-slate-800 mb-6 pb-2 border-b-2 border-indigo-100 flex items-center gap-3">
+                                ${safeCategoryName}
+                            </h2>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    `;
+
+                    // Create Product Cards inside this category
+                    products.forEach(p => {
+                        const safeName = escapeHtml(p.name || 'Recommended Product');
+                        const safeImage = sanitizeUrl(p.image || '');
+                        const safeLink = sanitizeUrl(p.link || '#') || '#';
+                        // Badge logic if you checked "Feature on Dashboard" in admin
+                        const featureBadge = p.featured 
+                            ? `<span class="absolute top-3 right-3 bg-rose-500 text-white text-[10px] font-black px-2 py-1 rounded-sm uppercase tracking-widest shadow-sm z-10">Highly Recommended</span>` 
+                            : '';
+
+                        htmlBuffer += `
+                            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col hover:-translate-y-1 hover:shadow-xl transition-all duration-300 group relative">
+                                ${featureBadge}
+                                
+                                <div class="h-56 bg-white p-6 flex items-center justify-center border-b border-slate-100 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-slate-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                    <img src="${safeImage}" alt="${safeName}" class="max-h-full max-w-full object-contain mix-blend-multiply relative z-10 group-hover:scale-105 transition-transform duration-500">
+                                </div>
+                                
+                                <div class="p-6 flex flex-col flex-grow bg-slate-50/50">
+                                    <h3 class="text-lg font-black text-slate-900 mb-4 line-clamp-2 leading-tight">${safeName}</h3>
+                                    <div class="flex-grow"></div>
+                                    <a href="${safeLink}" target="_blank" rel="noopener noreferrer" class="w-full bg-slate-900 hover:bg-indigo-600 text-white font-bold py-3.5 rounded-xl text-center shadow-md hover:shadow-lg transition-all duration-200 tracking-wide text-sm">
+                                        Check Latest Price &rarr;
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    // Close the Grid & Category section
+                    htmlBuffer += `</div></div>`;
+                }
+
+                // Inject into page
+                storeContainer.innerHTML = htmlBuffer;
+                loadingState.classList.add('hidden');
+                storeContainer.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("Error loading store:", error);
+                document.getElementById('loadingState').innerHTML = `<p class="text-rose-500 font-bold">Error loading inventory. Please check connection.</p>`;
+            }
+        }
+
+        // Run the function when page loads
+        document.addEventListener('DOMContentLoaded', loadStorefront);
+    </script>
+</body>
+</html>

@@ -1,0 +1,471 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stenogym | Master Admin Dashboard</title>
+    <meta name="description" content="Stenogym blog admin dashboard.">
+    <link rel="canonical" href="https://stenogym.com/admin-blog.html">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        textarea::-webkit-scrollbar { width: 8px; }
+        textarea::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 8px; }
+        textarea::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        .modal-bg { background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); }
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex selection:bg-emerald-100 selection:text-emerald-900 overflow-hidden">
+
+    <div id="securityOverlay" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="text-6xl mb-6 animate-pulse">🔒</div>
+        <h2 class="text-2xl font-black text-white tracking-wider">Verifying Admin Credentials...</h2>
+        <p class="text-slate-400 mt-2 text-sm">Please wait while we check your authorization.</p>
+    </div>
+
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-20 hidden md:flex fixed h-full">
+        <div class="h-16 flex items-center px-6 border-b border-slate-800 bg-slate-950">
+            <span class="font-black tracking-wider text-xl text-white">⚙️ STENOGYM</span>
+        </div>
+        
+        <div class="p-4 flex-grow space-y-1">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-2">Core Tools</p>
+            
+            <a href="admin.html" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                <span>🎙️</span> Dictation Upload
+            </a>
+            
+            <button id="nav-blog" class="admin-tab-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 transition">
+                <span>📝</span> Add New Post
+            </button>
+
+            <button id="nav-manage" class="admin-tab-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition mt-2">
+                <span>📚</span> Manage Blogs
+            </button>
+
+            <button id="nav-settings" class="admin-tab-btn w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition mt-8">
+                <span>🔧</span> Site Settings
+            </button>
+        </div>
+        
+        <div class="p-4 border-t border-slate-800 text-xs font-bold text-slate-500">
+            Admin: subhashisdeysarkar1998@gmail.com
+        </div>
+    </aside>
+
+    <main class="flex-grow md:ml-64 p-4 md:p-8 flex flex-col h-screen overflow-y-auto">
+        <header class="flex justify-between items-center mb-8">
+            <h1 id="pageTitle" class="text-2xl md:text-3xl font-black text-slate-900">Publish New Blog Post</h1>
+            <a href="blog.html" class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-emerald-100 shadow-sm transition">
+                View Live Blog &rarr;
+            </a>
+        </header>
+
+        <div id="tab-blog" class="tab-content active">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div class="xl:col-span-2 space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <input type="text" id="blogTitle" placeholder="Enter Article Title Here..." class="w-full text-3xl font-black text-slate-900 border-none outline-none placeholder-slate-300 mb-4 bg-transparent">
+                        
+                        <div class="flex flex-wrap gap-2 mb-2 p-2 bg-slate-50 border border-slate-200 rounded-t-lg">
+                            <button type="button" onclick="formatText('**', '**')" class="px-3 py-1 bg-white border border-slate-200 rounded text-sm font-bold hover:bg-slate-100">Bold</button>
+                            <button type="button" onclick="formatText('<h2>', '</h2>')" class="px-3 py-1 bg-white border border-slate-200 rounded text-sm font-bold hover:bg-slate-100">Main Heading (H2)</button>
+                            <button type="button" onclick="formatText('<h3>', '</h3>')" class="px-3 py-1 bg-white border border-slate-200 rounded text-sm font-bold hover:bg-slate-100">Sub Heading (H3)</button>
+                            <button type="button" onclick="formatText('\n• ', '')" class="px-3 py-1 bg-white border border-slate-200 rounded text-sm font-bold hover:bg-slate-100">Bullet Point</button>
+                        </div>
+                        
+                        <textarea id="blogContent" rows="20" placeholder="Start writing your masterpiece..." class="w-full bg-white border border-slate-200 border-t-0 rounded-b-lg p-4 outline-none focus:border-emerald-500 leading-relaxed text-lg resize-y"></textarea>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">SEO Setup</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">URL Slug</label>
+                                <input type="text" id="blogSlug" placeholder="how-to-increase-speed" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:border-emerald-500 text-sm font-mono text-emerald-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Meta Description</label>
+                                <textarea id="blogMeta" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:border-emerald-500 text-sm resize-none"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Tags / Keywords</label>
+                                <input type="text" id="blogTags" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:border-emerald-500 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                        <h3 class="text-sm font-black text-slate-900 uppercase tracking-wider mb-4 border-b pb-2">Post Details</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Category</label>
+                                <select id="blogCategory" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:border-emerald-500 text-sm font-bold">
+                                    <option value="Speed Strategy">Speed Strategy</option>
+                                    <option value="Exam Prep">Exam Prep</option>
+                                    <option value="Fundamentals">Fundamentals</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Featured Cover Image URL</label>
+                                <input type="text" id="blogImage" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 outline-none focus:border-emerald-500 text-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900 p-6 rounded-2xl shadow-xl border border-slate-800">
+                        <button id="btnPublish" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black py-4 rounded-xl shadow-[0_0_15px_rgba(16,185,129,0.3)] transition text-lg uppercase tracking-wider">
+                            Publish to Live Site
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-manage" class="tab-content bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-900">Blog Library</h2>
+                    <p class="text-slate-500 text-sm mt-1">Edit or delete live articles from your database.</p>
+                </div>
+                <button id="btnRefreshBlogs" class="text-sm font-bold text-emerald-600 bg-emerald-50 px-4 py-2 rounded-lg hover:bg-emerald-100 transition">🔄 Refresh List</button>
+            </div>
+
+            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-4 font-bold">Article Title & Category</th>
+                            <th class="px-6 py-4 font-bold">Publish Date</th>
+                            <th class="px-6 py-4 font-bold text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogTableBody" class="divide-y divide-slate-100">
+                        <tr><td colspan="3" class="text-center py-8 text-slate-400">Loading articles...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="tab-settings" class="tab-content bg-white p-8 rounded-2xl shadow-sm border border-slate-200 max-w-3xl">
+            <h2 class="text-2xl font-black text-slate-900 mb-6">Global Announcements</h2>
+            <form id="settingsForm" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Announcement Banner Text</label>
+                    <input type="text" id="bannerText" placeholder="e.g. New SSC Mock Test Series is Live Now!" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 outline-none focus:border-emerald-500 transition">
+                </div>
+                <div class="flex items-center gap-3 bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                    <input type="checkbox" id="bannerActive" class="w-5 h-5 accent-emerald-600 cursor-pointer">
+                    <div>
+                        <label for="bannerActive" class="font-bold text-emerald-900 cursor-pointer select-none">Enable Banner on Student Dashboard</label>
+                        <p class="text-xs text-emerald-700 mt-0.5">Check this to push the message above to all users immediately.</p>
+                    </div>
+                </div>
+                <div class="pt-4 border-t border-slate-100">
+                    <button type="submit" id="btnSaveSettings" class="bg-slate-900 text-white font-bold py-3 px-8 rounded-xl shadow-md hover:bg-slate-800 transition">
+                        Update Settings
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+    <div id="editBlogModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" id="editModalCloseBg"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl relative z-10 flex flex-col max-h-[95vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-black text-slate-800">Edit Blog Post</h3>
+                <button id="btnModalClose" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto flex-grow space-y-6 bg-slate-50">
+                <input type="hidden" id="editDocId">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Article Title</label>
+                            <input type="text" id="editTitle" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Article Content</label>
+                            <textarea id="editContent" rows="12" class="w-full bg-white border border-slate-200 rounded-xl p-4 text-base leading-relaxed outline-none focus:border-emerald-500 resize-y"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label>
+                            <select id="editCategory" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500">
+                                <option value="Speed Strategy">Speed Strategy</option>
+                                <option value="Exam Prep">Exam Prep</option>
+                                <option value="Fundamentals">Fundamentals</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL Slug</label>
+                            <input type="text" id="editSlug" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-mono outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Image URL</label>
+                            <input type="text" id="editImage" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Meta Description</label>
+                            <textarea id="editMeta" rows="3" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tags</label>
+                            <input type="text" id="editTags" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t border-slate-100 bg-white rounded-b-2xl flex justify-end gap-3">
+                <button id="btnModalCancel" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100 transition">Cancel</button>
+                <button id="btnModalSave" class="px-6 py-2 rounded-xl text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-700 shadow-md transition">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tabs = [
+            { nav: document.getElementById('nav-blog'), content: document.getElementById('tab-blog'), title: "Publish New Blog Post" },
+            { nav: document.getElementById('nav-manage'), content: document.getElementById('tab-manage'), title: "Manage Blogs" },
+            { nav: document.getElementById('nav-settings'), content: document.getElementById('tab-settings'), title: "Site Settings" }
+        ];
+
+        const pageTitle = document.getElementById('pageTitle');
+
+        tabs.forEach(tab => {
+            tab.nav.addEventListener('click', () => {
+                tabs.forEach(t => {
+                    t.nav.className = "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition";
+                    t.content.classList.remove('active');
+                });
+                tab.nav.className = "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-bold bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 transition";
+                tab.content.classList.add('active');
+                pageTitle.textContent = tab.title;
+
+                if(tab.title === "Manage Blogs") document.dispatchEvent(new Event('loadBlogs'));
+            });
+        });
+
+        // Setup format text functionality
+        function formatText(openTag, closeTag) {
+            const textArea = document.getElementById("blogContent");
+            const start = textArea.selectionStart;
+            const end = textArea.selectionEnd;
+            const selectedText = textArea.value.substring(start, end);
+            const replacement = openTag + selectedText + closeTag;
+            textArea.value = textArea.value.substring(0, start) + replacement + textArea.value.substring(end);
+            textArea.focus();
+        }
+
+        const titleInput = document.getElementById('blogTitle');
+        if(titleInput) {
+            titleInput.addEventListener('input', function(e) {
+                const title = e.target.value;
+                const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+                document.getElementById('blogSlug').value = slug;
+            });
+        }
+    </script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, query, orderBy, doc, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
+            authDomain: "stenogym.firebaseapp.com",
+            projectId: "stenogym",
+            storageBucket: "stenogym.firebasestorage.app",
+            messagingSenderId: "227346319026",
+            appId: "1:227346319026:web:bd37156b931923532eabab"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const MASTER_ADMIN_EMAIL = "subhashisdeysarkar1998@gmail.com"; 
+
+        // THE BOUNCER
+        onAuthStateChanged(auth, (user) => {
+            if (user && user.email === MASTER_ADMIN_EMAIL) {
+                const overlay = document.getElementById('securityOverlay');
+                if(overlay) {
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 500);
+                }
+            } else if (user) { window.location.href = "index.html"; } 
+            else { window.location.href = "login.html"; }
+        });
+
+        // 1. BLOG UPLOAD LOGIC
+        const btnPublish = document.getElementById('btnPublish');
+        if (btnPublish) {
+            btnPublish.addEventListener('click', async () => {
+                const title = document.getElementById('blogTitle').value.trim();
+                const content = document.getElementById('blogContent').value.trim();
+                const slug = document.getElementById('blogSlug').value.trim();
+                const meta = document.getElementById('blogMeta').value.trim();
+                const tags = document.getElementById('blogTags').value.trim();
+                const category = document.getElementById('blogCategory').value;
+                const image = document.getElementById('blogImage').value.trim();
+
+                if (!title || !content || !slug) return alert("Please fill out the Title, Content, and Slug.");
+
+                btnPublish.innerHTML = `<span class="animate-spin">🔄</span> Publishing...`; btnPublish.disabled = true;
+
+                try {
+                    await addDoc(collection(db, "blogs"), {
+                        title, content, slug, meta, tags, category, image,
+                        createdAt: serverTimestamp() 
+                    });
+                    alert("Success! Your blog post is now live.");
+                    
+                    document.getElementById('blogTitle').value = ''; document.getElementById('blogContent').value = '';
+                    document.getElementById('blogSlug').value = ''; document.getElementById('blogMeta').value = '';
+                    document.getElementById('blogTags').value = ''; document.getElementById('blogImage').value = '';
+                } catch (err) { alert("Error publishing: " + err.message); } 
+                finally { btnPublish.innerHTML = `Publish to Live Site`; btnPublish.disabled = false; }
+            });
+        }
+
+        // 2. MANAGE BLOGS LOGIC
+        const blogTableBody = document.getElementById('blogTableBody');
+        
+        async function fetchBlogs() {
+            blogTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-400 animate-pulse">Fetching articles...</td></tr>';
+            try {
+                const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
+                const snap = await getDocs(q);
+                let html = "";
+                snap.forEach(doc => {
+                    const data = doc.data();
+                    const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Just now';
+                    
+                    // Safely handle quotes in strings for data attributes
+                    const safeEscape = (str) => (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+                    html += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                            <td class="px-6 py-4">
+                                <div class="font-bold text-slate-900 line-clamp-1">${data.title}</div>
+                                <div class="text-xs text-emerald-600 font-bold mt-1">${data.category}</div>
+                            </td>
+                            <td class="px-6 py-4 text-slate-500 text-sm">${dateStr}</td>
+                            <td class="px-6 py-4 text-right">
+                                <button class="btn-edit text-amber-600 hover:text-amber-800 font-bold mr-3" 
+                                    data-id="${doc.id}" 
+                                    data-title="${safeEscape(data.title)}" 
+                                    data-content="${safeEscape(data.content)}"
+                                    data-slug="${safeEscape(data.slug)}"
+                                    data-meta="${safeEscape(data.meta)}"
+                                    data-tags="${safeEscape(data.tags)}"
+                                    data-category="${safeEscape(data.category)}"
+                                    data-image="${safeEscape(data.image)}">Edit</button>
+                                <button class="btn-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${doc.id}">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                blogTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">No blog posts found.</td></tr>';
+                attachBlogListeners();
+            } catch (err) {
+                blogTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function attachBlogListeners() {
+            // Delete
+            document.querySelectorAll('.btn-delete').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    if(confirm("Are you sure you want to permanently delete this blog post?")) {
+                        const id = e.target.getAttribute('data-id');
+                        await deleteDoc(doc(db, "blogs", id));
+                        fetchBlogs();
+                    }
+                });
+            });
+
+            // Edit
+            document.querySelectorAll('.btn-edit').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.getElementById('editDocId').value = e.target.getAttribute('data-id');
+                    document.getElementById('editTitle').value = e.target.getAttribute('data-title');
+                    document.getElementById('editContent').value = e.target.getAttribute('data-content');
+                    document.getElementById('editSlug').value = e.target.getAttribute('data-slug');
+                    document.getElementById('editMeta').value = e.target.getAttribute('data-meta');
+                    document.getElementById('editTags').value = e.target.getAttribute('data-tags');
+                    document.getElementById('editCategory').value = e.target.getAttribute('data-category');
+                    document.getElementById('editImage').value = e.target.getAttribute('data-image');
+                    
+                    document.getElementById('editBlogModal').classList.remove('hidden');
+                });
+            });
+        }
+
+        // Modal Controls
+        const closeBlogModal = () => document.getElementById('editBlogModal').classList.add('hidden');
+        document.getElementById('btnModalClose').addEventListener('click', closeBlogModal);
+        document.getElementById('btnModalCancel').addEventListener('click', closeBlogModal);
+        document.getElementById('editModalCloseBg').addEventListener('click', closeBlogModal);
+
+        // Save Edits
+        document.getElementById('btnModalSave').addEventListener('click', async () => {
+            const id = document.getElementById('editDocId').value;
+            const btn = document.getElementById('btnModalSave');
+            btn.textContent = "Saving..."; btn.disabled = true;
+
+            try {
+                await updateDoc(doc(db, "blogs", id), { 
+                    title: document.getElementById('editTitle').value.trim(),
+                    content: document.getElementById('editContent').value.trim(),
+                    slug: document.getElementById('editSlug').value.trim(),
+                    meta: document.getElementById('editMeta').value.trim(),
+                    tags: document.getElementById('editTags').value.trim(),
+                    category: document.getElementById('editCategory').value,
+                    image: document.getElementById('editImage').value.trim()
+                });
+                closeBlogModal();
+                fetchBlogs();
+            } catch (err) { alert("Error saving: " + err.message); }
+            finally { btn.textContent = "Save Changes"; btn.disabled = false; }
+        });
+
+        document.getElementById('btnRefreshBlogs').addEventListener('click', fetchBlogs);
+        document.addEventListener('loadBlogs', fetchBlogs);
+
+        // 3. SITE SETTINGS LOGIC
+        const settingsForm = document.getElementById('settingsForm');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btnSave = document.getElementById('btnSaveSettings');
+                btnSave.innerHTML = `<span class="animate-spin">🔄</span> Updating...`; btnSave.disabled = true;
+
+                try {
+                    await addDoc(collection(db, "settings"), {
+                        bannerText: document.getElementById('bannerText').value.trim(),
+                        isActive: document.getElementById('bannerActive').checked,
+                        timestamp: serverTimestamp()
+                    });
+                    alert("✅ Site Settings Updated Successfully!");
+                } catch (err) { alert("Error updating settings: " + err.message); } 
+                finally { btnSave.innerHTML = `Update Settings`; btnSave.disabled = false; }
+            });
+        }
+    </script>
+</body>
+</html>

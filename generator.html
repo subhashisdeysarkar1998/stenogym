@@ -1,0 +1,910 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>AI Shorthand Dictation Generator | Unlimited Steno Audio | Stenogym</title>
+    <meta name="title" content="AI Shorthand Dictation Generator | Unlimited Steno Audio | Stenogym">
+    <meta name="description" content="Generate infinite, unique shorthand dictations at your exact target WPM. Use our AI studio to practice fresh legal and parliamentary passages every day.">
+    <link rel="canonical" href="https://stenogym.com/generator.html">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Modern Firebase v10 Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+
+    <style>
+        .premium-glow { box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
+        #gateOverlay {
+            backdrop-filter: blur(4px);
+            background-color: rgba(255, 255, 255, 0.85);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 text-slate-800 font-sans min-h-screen flex flex-col">
+    <h1 class="sr-only">AI Shorthand Dictation Generator</h1>
+
+    <nav class="bg-emerald-700 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-xl">
+                    <span>🏠</span> STENOGYM
+                </a>
+                <span class="hidden sm:inline-block bg-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500">🤖 AI Studio</span>
+            </div>
+            
+            <div class="flex items-center gap-3">
+                <select id="countrySelect" class="bg-emerald-900 md:bg-emerald-800 text-white border border-emerald-500 rounded-lg p-2 text-sm font-bold outline-none cursor-pointer">
+                    <option value="India 🇮🇳">🇮🇳 India</option>
+                    <option value="United States 🇺🇸">🇺🇸 USA</option>
+                    <option value="United Kingdom 🇬🇧">🇬🇧 UK</option>
+                    <option value="Philippines 🇵🇭">🇵🇭 Philippines</option>
+                    <option value="Global 🌐">🌐 Global</option>
+                </select>
+
+                <select id="wpmSelect" class="bg-emerald-900 md:bg-emerald-800 text-white border border-emerald-500 rounded-lg p-2 text-sm font-bold outline-none cursor-pointer">
+                    <option value="50">⏱️ 50 WPM</option>
+                    <option value="60">⏱️ 60 WPM</option>
+                    <option value="70">⏱️ 70 WPM</option>
+                    <option value="80" selected>⏱️ 80 WPM</option>
+                    <option value="90">⏱️ 90 WPM</option>
+                    <option value="100">⏱️ 100 WPM</option>
+                    <option value="110">⏱️ 110 WPM</option>
+                    <option value="120">⏱️ 120 WPM</option>
+                </select>
+            </div>
+        </div>
+    </nav>
+
+    <div class="bg-slate-900 border-b border-slate-800 flex justify-center overflow-x-auto shadow-inner w-full sticky top-[64px] z-40">
+        <div class="flex space-x-2 p-2 text-sm font-bold">
+            <a href="app.html" class="px-4 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+                <span>🎧</span> Preset Room
+            </a>
+            <a href="generator.html" class="px-4 py-2 rounded-lg bg-slate-800 text-white shadow-md flex items-center gap-2">
+                <span>🧠</span> AI Studio
+            </a>
+            <a href="scanner.html" class="px-4 py-2 rounded-lg text-fuchsia-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+                <span>📄</span> Scanner
+            </a>
+             <div class="w-px bg-slate-700 mx-2 my-1"></div>
+            <a href="index.html" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+                Home 🏠
+            </a>
+            <a href="dashboard.html" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
+                Dashboard 📊
+            </a>
+        </div>
+    </div>
+    
+    <main class="flex-grow max-w-5xl mx-auto w-full p-4 flex flex-col gap-6 mt-4">
+        
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+            <h2 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
+                <span class="text-emerald-600">🧠</span> Generate Infinite Dictations
+            </h2>
+            <p class="text-slate-500 text-sm mb-6">Configure your parameters below. Our AI will instantly write a brand new, never-before-seen dictation tailored exactly to your needs.</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dictation Theme</label>
+                    <select id="aiTheme" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition cursor-pointer">
+                        <!-- Themes populated dynamically by JS based on Country -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Difficulty Level</label>
+                    <select id="aiDifficulty" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition cursor-pointer">
+                        <option value="Standard">Standard (General Vocabulary)</option>
+                        <option value="Advanced">Advanced (Complex Phrasing)</option>
+                        <option value="Expert">Expert (Heavy Technical Terms)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Target Word Count</label>
+                    <input type="number" id="aiWordCount" value="100" min="50" max="1050" step="50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition">
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-100">
+                <div id="aiStatusMsg" class="text-sm font-bold text-slate-400">Ready to generate.</div>
+                <button id="btnGenerate" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition flex items-center gap-2 w-full sm:w-auto justify-center">
+                    <span>✨</span> Generate AI Passage
+                </button>
+            </div>
+        </div>
+
+        <div id="practiceUI" class="hidden flex-col gap-6">
+            
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex justify-between items-end mb-2">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dictation Timeline Tracking</div>
+                    <div id="liveWordCount" class="text-base font-bold text-emerald-600">0 / 0 Words</div>
+                </div>
+                
+                <div id="progressContainer" class="w-full bg-slate-100 rounded-full h-3.5 mb-5 relative overflow-hidden cursor-pointer border border-slate-200">
+                    <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full w-0 premium-glow transition-all duration-200 ease-linear"></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div id="timeDisplay" class="font-mono text-xl font-bold text-slate-700 bg-slate-50 border border-slate-200 px-4 py-1.5 rounded-xl shadow-inner">00:00 / 00:00</div>
+                    <div class="flex gap-3 w-full sm:w-auto">
+                        <button id="btnPlayPause" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow transition w-full sm:w-40 text-center uppercase tracking-wider text-sm">Play</button>
+                        <button id="btnStop" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl shadow transition uppercase tracking-wider text-sm">Reset</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[400px] flex flex-col relative overflow-hidden">
+                <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+                    <span class="font-bold text-slate-400 tracking-wider text-xs uppercase flex items-center gap-2">
+                        📝 Student Transcription Canvas
+                        <span id="typingTimerDisplay" class="hidden bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200">00:00</span>
+                    </span>
+                    <div class="flex gap-2 w-full sm:w-auto">
+                        <button id="btnTogglePassage" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition hidden w-full sm:w-auto items-center justify-center gap-2">
+                            <span>👁️</span> View Passage
+                        </button>
+                        <button id="btnClear" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition w-full sm:w-auto" disabled>Clear Canvas</button>
+                        <button id="btnSubmit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg shadow text-sm transition w-full sm:w-auto" disabled>Submit for Evaluation</button>
+                    </div>
+                </div>
+                
+                <div id="passageViewer" class="hidden bg-indigo-50 border-b border-indigo-100 p-6 text-lg font-serif text-slate-800 leading-relaxed shadow-inner overflow-y-auto max-h-48"></div>
+
+                <textarea id="typingArea" onpaste="return false;" class="w-full flex-grow p-6 outline-none resize-none text-xl font-serif leading-relaxed bg-[#FCFBF7] shadow-inner text-slate-800" placeholder="Transcription canvas is locked. Listen to the audio first." disabled></textarea>
+
+                <div id="gateOverlay" class="hidden absolute inset-0 z-10 flex flex-col items-center justify-center p-6 border-t border-slate-200">
+                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-emerald-100 max-w-md w-full text-center">
+                        <div class="text-3xl mb-3">⏱️</div>
+                        <h3 class="text-lg font-black text-slate-800 mb-1">Audio Complete</h3>
+                        <p class="text-sm text-slate-500 mb-6">Select your exam parameters to unlock the typing canvas. The timer starts on your first keystroke.</p>
+                        
+                        <div class="flex flex-col gap-4 mb-6 text-left">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mode Selection</label>
+                                <select id="gateModeSelect" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition">
+                                    <option value="free">Free Practice (Count-Up, No Limit)</option>
+                                    <option value="strict">Strict Exam (Countdown to Hard Stop)</option>
+                                </select>
+                            </div>
+                            <div id="strictTimeContainer" class="hidden">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Time Limit (Minutes)</label>
+                                <input type="number" id="gateTimeInput" value="10" min="1" max="120" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition">
+                            </div>
+                        </div>
+                        
+                        <button id="btnUnlockCanvas" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition uppercase tracking-wider text-sm">
+                            Unlock Canvas & Ready
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="evaluationPanel" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-lg mb-12">
+                <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
+            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Dictated Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
+            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct Words</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
+            <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes Detected</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
+            <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy Index</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
+         </div>
+
+            <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-600 shadow-sm">
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></span> Correct</span>
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-sm"></span> Wrong / Extra</span>
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-400 shadow-sm"></span> Half Mistake</span>
+                <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500 shadow-sm"></span> Missed Word</span>
+            </div>
+            <div id="transcriptOutput" class="p-6 bg-[#FCFBF7] border border-slate-200 rounded-xl text-lg font-serif leading-relaxed shadow-inner text-slate-800"></div>
+        </div>
+    </main>
+
+   <script type="module">
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
+            authDomain: "stenogym.firebaseapp.com",
+            projectId: "stenogym",
+            storageBucket: "stenogym.firebasestorage.app",
+            messagingSenderId: "227346319026",
+            appId: "1:227346319026:web:bd37156b931923532eabab"
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+
+        let activeUser = null;
+        firebase.auth().onAuthStateChanged((user) => {
+            activeUser = user;
+        });
+
+        let currentPassageText = ""; let phraseArray = []; let currentPhraseIndex = 0;
+        let isPlaying = false; let isPaused = false; let isCountingDown = false;
+        let countdownInterval = null; let clockUpdateInterval = null; let targetWPM = 90;
+        let totalTargetWords = 0; let totalExpectedDurationMs = 0; let executionStartTime = 0;
+        let totalAccumulatedPauseTimeMs = 0; let singlePauseStartTime = 0; let trackingWordsSpokenCount = 0; let nextAudioTimeout = null;
+        
+        let systemVoices = []; let chosenVoice = null;
+
+        let typingTimerInterval = null; let transcriptionStartTime = 0;
+        let isTypingActive = false; let isFirstKeystrokeFired = false;
+        let strictTimeLimitMs = 0; let isStrictMode = false;
+
+        const aiTheme = document.getElementById('aiTheme');
+        const aiDifficulty = document.getElementById('aiDifficulty');
+        const aiWordCount = document.getElementById('aiWordCount');
+        const btnGenerate = document.getElementById('btnGenerate');
+        const aiStatusMsg = document.getElementById('aiStatusMsg');
+        const practiceUI = document.getElementById('practiceUI');
+        const wpmSelect = document.getElementById('wpmSelect');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const liveWordCount = document.getElementById('liveWordCount');
+        
+        const countrySelect = document.getElementById('countrySelect');
+        const btnTogglePassage = document.getElementById('btnTogglePassage');
+        const passageViewer = document.getElementById('passageViewer');
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        }
+
+        // --- DYNAMIC THEMES & SAVE PREFERENCE ---
+        const themeMap = {
+            "India 🇮🇳": ["🏛️ SSC Parliamentary Debate", "⚖️ High Court & Legal Ruling", "🎙️ Official Ministerial Speech", "📰 National Editorials"],
+            "United States 🇺🇸": ["🏛️ Congressional & Senate Debate", "⚖️ Federal Court & Deposition", "🎙️ Presidential & State Address", "📰 National Op-Ed / Analysis"],
+            "United Kingdom 🇬🇧": ["🏛️ Hansard Parliamentary Debate", "⚖️ Crown Court & Legal Hearing", "🎙️ Ministerial Address", "📰 Broadsheet Editorial"],
+            "Philippines 🇵🇭": ["🏛️ Senate & House Floor Debate", "⚖️ Court of Appeals & RTC Ruling", "🎙️ Government Executive Speech", "📰 National Editorial"],
+            "Global 🌐": ["🏛️ UN & Global Assembly Debate", "⚖️ International Arbitration", "🎙️ Diplomatic & Summit Address", "📰 Global Affairs Analysis"]
+        };
+
+        const savedCountry = localStorage.getItem("stenogym_country") || "India 🇮🇳";
+        countrySelect.value = savedCountry;
+
+        function updateThemes() {
+            const selected = countrySelect.value;
+            localStorage.setItem("stenogym_country", selected);
+            
+            aiTheme.innerHTML = ""; 
+            themeMap[selected].forEach(theme => {
+                const option = document.createElement('option');
+                option.value = theme;
+                option.textContent = theme;
+                aiTheme.appendChild(option);
+            });
+            loadVoices(); 
+        }
+        countrySelect.addEventListener('change', updateThemes);
+        updateThemes();
+
+        // --- SMART AUDIO FALLBACKS ---
+        function loadVoices() {
+            systemVoices = window.speechSynthesis.getVoices();
+            if (systemVoices.length === 0) return;
+            
+            const country = countrySelect.value;
+            let targetLang = 'en-IN'; 
+            if (country.includes('United States')) targetLang = 'en-US';
+            else if (country.includes('United Kingdom')) targetLang = 'en-GB';
+            else if (country.includes('Philippines')) targetLang = 'en-PH';
+            
+            let preferred = systemVoices.find(v => v.lang.includes(targetLang));
+            if (!preferred) preferred = systemVoices.find(v => v.lang.includes('en-')); 
+            chosenVoice = preferred || systemVoices[0]; 
+        }
+        window.speechSynthesis.onvoiceschanged = loadVoices;
+
+       btnGenerate.addEventListener('click', async () => {
+            const user = activeUser || firebase.auth().currentUser;
+            if (!user) {
+                const today = new Date().toDateString();
+                const savedDate = localStorage.getItem("guest_ai_date");
+                let tally = parseInt(localStorage.getItem("guest_ai_tally") || "0");
+
+                if (savedDate !== today) {
+                    tally = 0;
+                    localStorage.setItem("guest_ai_date", today);
+                }
+
+                if (tally >= 3) {
+                    alert("🔒 Daily Limit Reached!\n\nYou've used your 3 free AI generations for today.\n\nPlease log in or create a 100% free account for unlimited 24/7 access!");
+                    window.location.href = "login.html";
+                    return; 
+                }
+                
+                localStorage.setItem("guest_ai_tally", tally + 1);
+            }
+            
+            const theme = aiTheme.value;
+            const difficulty = aiDifficulty.value;
+            const country = countrySelect.value;
+
+            let wordCount = parseInt(aiWordCount.value) || 100;
+            if (wordCount > 1050) {
+                wordCount = 1050;
+                aiWordCount.value = 1050; 
+            } else if (wordCount < 50) {
+                wordCount = 50;
+                aiWordCount.value = 50;
+            }
+
+            aiStatusMsg.textContent = "🧠 AI is writing your dictation... Please wait.";
+            aiStatusMsg.className = "text-sm font-bold text-orange-500 animate-pulse";
+            btnGenerate.disabled = true;
+
+            try {
+                const response = await fetch("/api/generate-dictation", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ theme, difficulty, wordCount, country })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Generation request failed");
+                }
+
+                currentPassageText = data.text.replace(/[\r\n]+/g, " ").trim();
+                targetWPM = parseInt(wpmSelect.value);
+                compileTrackMetrics(currentPassageText);
+                
+                aiStatusMsg.textContent = `✨ Success! Generated exactly ${totalTargetWords} words.`;
+                aiStatusMsg.className = "text-sm font-bold text-emerald-600";
+                
+                practiceUI.classList.remove('hidden'); 
+                practiceUI.classList.add('flex');
+                if (typeof resetTranscriptionState === 'function') resetTranscriptionState();
+
+            } catch (error) {
+                console.error("Dictation Generation Error:", error);
+                aiStatusMsg.textContent = `❌ Generation failed: ${error.message}`;
+                aiStatusMsg.className = "text-sm font-bold text-rose-600";
+            } finally {
+                btnGenerate.disabled = false;
+            }
+        });
+
+       function compileTrackMetrics(text) {
+            if(typeof resetTranscriptionState === 'function') resetTranscriptionState();
+            const evalPanel = document.getElementById('evaluationPanel');
+            if(evalPanel) evalPanel.classList.add('hidden');
+            phraseArray = []; currentPhraseIndex = 0; trackingWordsSpokenCount = 0;
+
+            if(!text || text.trim() === "") {
+                totalTargetWords = 0; totalExpectedDurationMs = 0;
+                updateProgressBarUI(0, 0); return;
+            }
+
+            const words = text.split(/\s+/).filter(w => w.length > 0);
+            totalTargetWords = words.length;
+            totalExpectedDurationMs = (totalTargetWords / targetWPM) * 60000;
+
+            let i = 0;
+            const hasPunc = (w) => /[.,:;?!]/.test(w);
+            const cleanWord = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+            while (i < words.length) {
+                let chunk = [];
+                let word = words[i];
+                chunk.push(word);
+                let currentCleanLength = cleanWord(word).length;
+                let puncHit = hasPunc(word);
+                i++;
+
+                let maxAdditionalWords = 1; 
+                let maxTotalLetters = 8;
+                
+                if (targetWPM === 60 || targetWPM === 70) {
+                    maxAdditionalWords = 2; 
+                    maxTotalLetters = 10;
+                } else if (targetWPM === 80) {
+                    maxAdditionalWords = 3; 
+                    maxTotalLetters = 12;
+                } else if (targetWPM === 90 || targetWPM === 100) {
+                    maxAdditionalWords = 5; 
+                    maxTotalLetters = 20;
+                } else if (targetWPM >= 110) {
+                    maxAdditionalWords = 7; 
+                    maxTotalLetters = 25;
+                }
+
+                if (!puncHit) {
+                    while (i < words.length && chunk.length <= maxAdditionalWords) {
+                        let nextWord = words[i];
+                        let nextCleanLength = cleanWord(nextWord).length;
+                        
+                        if (currentCleanLength + nextCleanLength > maxTotalLetters) break;
+                        
+                        chunk.push(nextWord);
+                        currentCleanLength += nextCleanLength;
+                        i++;
+                        
+                        if (hasPunc(nextWord)) break;
+                    }
+                }
+                phraseArray.push({ text: chunk.join(" "), wordsCount: chunk.length });
+            }
+            updateProgressBarUI(0, 0);
+        }
+
+        function toggleAudioEngine() {
+            let silentUtterance = new SpeechSynthesisUtterance('');
+            silentUtterance.volume = 0; window.speechSynthesis.speak(silentUtterance);
+
+            if(isCountingDown) {
+                clearInterval(countdownInterval); isCountingDown = false;
+                setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700"); return;
+            }
+
+            if(isPlaying) {
+                window.speechSynthesis.cancel(); isPlaying = false; isPaused = true;
+                clearTimeout(nextAudioTimeout);
+                singlePauseStartTime = Date.now(); clearInterval(clockUpdateInterval);
+                setPlayButtonLabel("Resume", "bg-amber-500 hover:bg-amber-600");
+            } else if(isPaused) {
+                totalAccumulatedPauseTimeMs += (Date.now() - singlePauseStartTime);
+                fireEngineCycle();
+            } else {
+                if(phraseArray.length === 0) return;
+                if(typeof resetTranscriptionState === 'function') resetTranscriptionState();
+                
+                isCountingDown = true; let step = 3;
+                setPlayButtonLabel(`Get Set (${step})`, "bg-orange-500 hover:bg-orange-600");
+                
+                countdownInterval = setInterval(() => {
+                    step--;
+                    if(step > 0) setPlayButtonLabel(`Get Set (${step})`, "bg-orange-500 hover:bg-orange-600");
+                    else {
+                        clearInterval(countdownInterval); isCountingDown = false;
+                        executionStartTime = Date.now(); totalAccumulatedPauseTimeMs = 0;
+                        currentPhraseIndex = 0; trackingWordsSpokenCount = 0;
+                        fireEngineCycle();
+                    }
+                }, 1000);
+            }
+        }
+
+        function fireEngineCycle() {
+            isPlaying = true; isPaused = false;
+            setPlayButtonLabel("Pause", "bg-slate-700 hover:bg-slate-800");
+            clockUpdateInterval = setInterval(refreshClockCycle, 100);
+            executeSpeechStream();
+        }
+
+        function executeSpeechStream() {
+            if(!isPlaying || currentPhraseIndex >= phraseArray.length) {
+                if(currentPhraseIndex >= phraseArray.length) finishDictationExecution();
+                return;
+            }
+            
+            const targetChunk = phraseArray[currentPhraseIndex];
+            const utterance = new SpeechSynthesisUtterance(targetChunk.text);
+            
+            if (chosenVoice) utterance.voice = chosenVoice;
+            else utterance.lang = 'en-IN'; 
+
+            let targetWordsAfterChunk = trackingWordsSpokenCount + targetChunk.wordsCount;
+            let expectedTimeAfterChunkMs = (targetWordsAfterChunk / (targetWPM / 60)) * 1000;
+            let actualElapsedTimeMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
+            
+            let timeRemainingForChunkMs = expectedTimeAfterChunkMs - actualElapsedTimeMs;
+            
+            if (timeRemainingForChunkMs < 500) timeRemainingForChunkMs = 500; 
+
+            let wordsPerSecondNeeded = targetChunk.wordsCount / (timeRemainingForChunkMs / 1000);
+            let requiredRate = wordsPerSecondNeeded / (140 / 60);
+
+            let minRate = 0.40; 
+            let maxRate = 1.6;
+            
+            if (targetWPM === 60 || targetWPM === 70) {
+                minRate = 0.50; maxRate = 1.7;
+            } else if (targetWPM === 80) {
+                minRate = 0.60; maxRate = 1.8;
+            } else if (targetWPM === 90 || targetWPM === 100) {
+                minRate = 0.70; maxRate = 2.2;
+            } else if (targetWPM >= 110) {
+                minRate = 0.80; maxRate = 2.5;
+            }
+
+            utterance.rate = Math.max(minRate, Math.min(requiredRate, maxRate));
+            
+            utterance.onend = () => {
+                if(!isPlaying) return;
+                
+                trackingWordsSpokenCount += targetChunk.wordsCount;
+                currentPhraseIndex++; 
+                
+                let expectedElapsedMs = (trackingWordsSpokenCount / (targetWPM / 60)) * 1000;
+                let newActualElapsedMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
+                
+                let timeToWaitMs = expectedElapsedMs - newActualElapsedMs - 20;
+
+                if (timeToWaitMs > 30) {
+                    nextAudioTimeout = setTimeout(() => {
+                        if(isPlaying) executeSpeechStream();
+                    }, timeToWaitMs);
+                } else {
+                    executeSpeechStream(); 
+                }
+            };
+            
+            utterance.onerror = (e) => {
+                if(e.error !== 'canceled') console.error("Speech Error:", e);
+            };
+
+            window.speechSynthesis.speak(utterance);
+        }
+        
+        function refreshClockCycle() {
+            if(!isPlaying) return;
+            let elapsed = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
+            if(elapsed > totalExpectedDurationMs) elapsed = totalExpectedDurationMs;
+            updateProgressBarUI(elapsed, trackingWordsSpokenCount);
+        }
+
+        function updateProgressBarUI(elapsedMs, wordsCount) {
+            let percentage = (elapsedMs / totalExpectedDurationMs) * 100;
+            progressBar.style.width = `${Math.min(isNaN(percentage) ? 0 : percentage, 100)}%`;
+            timeDisplay.textContent = `${formatTime(elapsedMs)} / ${formatTime(totalExpectedDurationMs)}`;
+            liveWordCount.textContent = `${wordsCount} / ${totalTargetWords} Words`;
+        }
+
+        function handleScrubberNavigation(e) {
+            if(!isPlaying && !isPaused) return;
+            const frame = progressContainer.getBoundingClientRect();
+            let safeRatio = Math.max(0, Math.min((e.clientX - frame.left) / frame.width, 1));
+            window.speechSynthesis.cancel();
+            clearTimeout(nextAudioTimeout);
+            let estimatedWordsTarget = Math.floor(totalTargetWords * safeRatio);
+            let incrementalSum = 0; let selectedIndex = 0;
+            for(let i=0; i<phraseArray.length; i++) {
+                if(incrementalSum + phraseArray[i].wordsCount > estimatedWordsTarget) { selectedIndex = i; break; }
+                incrementalSum += phraseArray[i].wordsCount;
+            }
+            currentPhraseIndex = selectedIndex; trackingWordsSpokenCount = incrementalSum;
+            let forwardElapsedMs = totalExpectedDurationMs * safeRatio;
+            executionStartTime = Date.now() - forwardElapsedMs; totalAccumulatedPauseTimeMs = 0;
+            updateProgressBarUI(forwardElapsedMs, trackingWordsSpokenCount);
+            if(isPlaying) executeSpeechStream();
+        }
+
+        function resetAudioEngine() {
+            clearInterval(countdownInterval); clearInterval(clockUpdateInterval);
+            window.speechSynthesis.cancel();
+            clearTimeout(nextAudioTimeout);
+            isPlaying = false; isPaused = false; isCountingDown = false;
+            currentPhraseIndex = 0; trackingWordsSpokenCount = 0;
+            setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
+            compileTrackMetrics(currentPassageText);
+            if(typeof resetTranscriptionState === 'function') resetTranscriptionState();
+        }
+
+        function finishDictationExecution() {
+            clearInterval(clockUpdateInterval); isPlaying = false; isPaused = false;
+            setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
+            updateProgressBarUI(totalExpectedDurationMs, totalTargetWords);
+            document.getElementById('gateOverlay').classList.remove('hidden');
+
+            btnTogglePassage.classList.remove('hidden');
+            btnTogglePassage.classList.add('flex');
+            passageViewer.classList.add('hidden'); 
+            btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
+        }
+
+        function setPlayButtonLabel(txt, classes) {
+            const btnPlayPause = document.getElementById('btnPlayPause');
+            btnPlayPause.textContent = txt;
+            btnPlayPause.className = `${classes} text-white font-bold py-3 px-8 rounded-xl shadow transition w-full sm:w-40 text-center uppercase tracking-wider text-sm`;
+        }
+
+        function formatTime(ms) {
+            let s = Math.floor(ms / 1000);
+            let m = Math.floor(s / 60).toString().padStart(2, '0');
+            let remainingSec = (s % 60).toString().padStart(2, '0');
+            return `${m}:${remainingSec}`;
+        }
+        
+        const gateOverlay = document.getElementById('gateOverlay');
+        const gateModeSelect = document.getElementById('gateModeSelect');
+        const strictTimeContainer = document.getElementById('strictTimeContainer');
+        const gateTimeInput = document.getElementById('gateTimeInput');
+        const typingTimerDisplay = document.getElementById('typingTimerDisplay');
+        const typingArea = document.getElementById('typingArea');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const btnClear = document.getElementById('btnClear');
+
+        gateModeSelect.addEventListener('change', () => { strictTimeContainer.classList.toggle('hidden', gateModeSelect.value === 'free'); });
+
+        document.getElementById('btnUnlockCanvas').addEventListener('click', () => {
+            isStrictMode = gateModeSelect.value === 'strict';
+            strictTimeLimitMs = isStrictMode ? parseInt(gateTimeInput.value) * 60000 : 0;
+            gateOverlay.classList.add('hidden');
+            typingArea.disabled = false; typingArea.placeholder = "Waiting for first keystroke to start timer...";
+            typingArea.value = ""; typingArea.focus();
+            btnSubmit.disabled = false; btnClear.disabled = false;
+            typingTimerDisplay.classList.remove('hidden');
+            typingTimerDisplay.textContent = isStrictMode ? formatTime(strictTimeLimitMs) : "00:00";
+            typingTimerDisplay.className = "bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200";
+            isFirstKeystrokeFired = false; isTypingActive = true;
+        });
+
+        typingArea.addEventListener('input', () => {
+            if(!isTypingActive || isFirstKeystrokeFired) return;
+            isFirstKeystrokeFired = true; transcriptionStartTime = Date.now();
+            typingArea.placeholder = "Transcribing in progress...";
+            clearInterval(typingTimerInterval);
+            typingTimerInterval = setInterval(() => {
+                let elapsed = Date.now() - transcriptionStartTime;
+                if(isStrictMode) {
+                    let remaining = strictTimeLimitMs - elapsed;
+                    if(remaining <= 0) {
+                        clearInterval(typingTimerInterval);
+                        typingTimerDisplay.textContent = "00:00";
+                        typingTimerDisplay.className = "bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-mono text-sm border border-rose-200";
+                        forceHardStop();
+                    } else {
+                        typingTimerDisplay.textContent = formatTime(remaining);
+                        if(remaining < 60000) typingTimerDisplay.className = "bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-mono text-sm border border-rose-200 animate-pulse";
+                    }
+                } else typingTimerDisplay.textContent = formatTime(elapsed);
+            }, 200);
+        });
+
+        function forceHardStop() {
+            isTypingActive = false; typingArea.disabled = true;
+            alert("Time is up! Your transcript will now be evaluated.");
+            evaluateTypingScore();
+        }
+
+        function resetTranscriptionState() {
+            clearInterval(typingTimerInterval); gateOverlay.classList.add('hidden');
+            typingArea.value = ""; typingArea.disabled = true;
+            typingArea.placeholder = "Transcription canvas is locked. Listen to the audio first.";
+            btnSubmit.disabled = true; btnClear.disabled = true;
+            typingTimerDisplay.classList.add('hidden');
+            isTypingActive = false; isFirstKeystrokeFired = false;
+            
+            btnTogglePassage.classList.add('hidden');
+            btnTogglePassage.classList.remove('flex');
+            passageViewer.classList.add('hidden');
+        }
+
+        btnClear.addEventListener('click', () => {
+            if(confirm("Are you sure you want to clear your text and reset the timer?")) {
+                typingArea.value = ""; typingArea.focus();
+                clearInterval(typingTimerInterval); isFirstKeystrokeFired = false;
+                document.getElementById('evaluationPanel').classList.add('hidden');
+                typingTimerDisplay.textContent = isStrictMode ? formatTime(strictTimeLimitMs) : "00:00";
+                typingTimerDisplay.className = "bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200";
+                typingArea.placeholder = "Waiting for first keystroke to start timer...";
+            }
+        });
+
+        typingArea.addEventListener('focus', () => {
+            const evalPanel = document.getElementById('evaluationPanel');
+            if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
+        });
+
+        // --- PASSAGE TOGGLE LOGIC ---
+        btnTogglePassage.addEventListener('click', () => {
+            if (passageViewer.classList.contains('hidden')) {
+                passageViewer.classList.remove('hidden');
+                passageViewer.textContent = currentPassageText;
+                btnTogglePassage.innerHTML = `<span>🙈</span> Hide Passage`;
+            } else {
+                passageViewer.classList.add('hidden');
+                btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
+            }
+        });
+
+        btnSubmit.addEventListener('click', evaluateTypingScore);
+
+        function evaluateTypingScore() {
+            const typedText = typingArea.value.trim();
+            if(!typedText) { alert("Please transcribe your shorthand response notes into the input field workspace canvas first."); return; }
+
+            const originalRaw = currentPassageText.trim().split(/\s+/).filter(w => w);
+            const typedRaw = typedText.split(/\s+/).filter(w => w);
+
+            const normalize = (w) => w.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const originalWords = originalRaw.map(normalize);
+            const typedWords = typedRaw.map(normalize);
+
+            const dp = Array(originalWords.length + 1).fill(null).map(() => Array(typedWords.length + 1).fill(0));
+
+            for (let i = 0; i <= originalWords.length; i++) dp[i][0] = i;
+            for (let j = 0; j <= typedWords.length; j++) dp[0][j] = j;
+
+            for (let i = 1; i <= originalWords.length; i++) {
+                for (let j = 1; j <= typedWords.length; j++) {
+                    if (originalWords[i - 1] === typedWords[j - 1] && originalWords[i - 1] !== "") {
+                        dp[i][j] = dp[i - 1][j - 1]; // Match
+                    } else {
+                        dp[i][j] = Math.min(
+                            dp[i - 1][j - 1] + 1, // Substitution
+                            dp[i][j - 1] + 1,     // Insertion
+                            dp[i - 1][j] + 1      // Omission
+                        );
+                    }
+                }
+            }
+
+            let i = originalWords.length;
+            let j = typedWords.length;
+            let diffPath = [];
+            let fullErrors = 0;
+            let halfErrors = 0;
+            let correctWordsCount = 0;
+
+            while (i > 0 || j > 0) {
+                if (i > 0 && j > 0 && originalWords[i - 1] === typedWords[j - 1]) {
+                    diffPath.unshift(`<span class="text-emerald-600 font-semibold">${escapeHtml(originalRaw[i - 1])} </span>`);
+                    correctWordsCount++;
+                    i--; j--;
+                } else if (j > 0 && (i === 0 || dp[i][j] === dp[i][j - 1] + 1)) {
+                    diffPath.unshift(`<span class="text-rose-500 line-through" title="Extra Word Added">${escapeHtml(typedRaw[j - 1])} </span>`);
+                    fullErrors++;
+                    j--;
+                } else if (i > 0 && (j === 0 || dp[i][j] === dp[i - 1][j] + 1)) {
+                    let cleanPitmanWord = originalWords[i - 1];
+                    diffPath.unshift(`<a href="https://steno.tu-clausthal.de/Pitman.php?string=${encodeURIComponent(cleanPitmanWord)}" target="_blank" rel="noopener noreferrer" class="text-orange-500 font-bold hover:underline cursor-pointer" title="Missed Word - Click for Pitman Outline">${escapeHtml(originalRaw[i - 1])} </a>`);
+                    fullErrors++;
+                    i--;
+                } else {
+                    let origWord = originalWords[i - 1];
+                    let typedWord = typedWords[j - 1];
+                    
+                    let isHalfMistake = false;
+                    if (origWord.length >= 3 && typedWord.length >= 3 && Math.abs(origWord.length - typedWord.length) <= 2 && 
+                       (origWord.startsWith(typedWord.substring(0, 3)) || typedWord.startsWith(origWord.substring(0, 3)))) {
+                        isHalfMistake = true;
+                    }
+
+                    if (isHalfMistake) {
+                        diffPath.unshift(`<span class="text-yellow-600 font-bold border-b-2 border-yellow-400 pb-0.5" title="Half Mistake. Expected: ${escapeHtml(originalRaw[i - 1])}">${escapeHtml(typedRaw[j - 1])} </span>`);
+                        halfErrors += 0.5;
+                    } else {
+                        diffPath.unshift(`<span class="text-rose-600 font-bold border-b-2 border-rose-500 pb-0.5" title="Wrong Word. Expected: ${escapeHtml(originalRaw[i - 1])}">${escapeHtml(typedRaw[j - 1])} </span>`);
+                        fullErrors++;
+                    }
+                    i--; j--;
+                }
+            }
+
+            const totalErrors = fullErrors + halfErrors;
+            const accuracyPercentage = originalRaw.length === 0 ? 0 : Math.max(0, ((originalRaw.length - totalErrors) / originalRaw.length) * 100);
+            
+            document.getElementById("evalTotal").textContent = originalRaw.length;
+            document.getElementById("evalCorrect").textContent = correctWordsCount;
+            document.getElementById("evalErrors").textContent = totalErrors;
+            document.getElementById("evalAccuracy").textContent = `${accuracyPercentage.toFixed(1)}%`;
+            document.getElementById("transcriptOutput").innerHTML = diffPath.join("");
+
+            const evalPanel = document.getElementById('evaluationPanel');
+            evalPanel.classList.remove('hidden');
+            window.scrollTo({ top: evalPanel.offsetTop, behavior: 'smooth' });
+
+            if (typeof firebase !== 'undefined') {
+                const user = activeUser || firebase.auth().currentUser;
+                if (user) {
+                    db.collection("users").doc(user.uid).collection("practice_history").add({
+                        source: "AI Studio",
+                        wpm: targetWPM,
+                        accuracy: parseFloat(accuracyPercentage.toFixed(1)),
+                        mistakes: totalErrors,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    }).then(() => console.log("AI Score saved!"))
+                      .catch(err => console.error("Save failed:", err));
+                }
+            }
+        }
+
+        document.getElementById('btnPlayPause').addEventListener('click', toggleAudioEngine);
+        document.getElementById('btnStop').addEventListener('click', resetAudioEngine);
+        progressContainer.addEventListener('click', handleScrubberNavigation);
+        wpmSelect.addEventListener('change', () => {
+            targetWPM = parseInt(wpmSelect.value);
+            if (currentPassageText) compileTrackMetrics(currentPassageText);
+        });
+
+        const transcriptContainer = document.getElementById("transcriptOutput");
+
+        if (transcriptContainer) {
+            const mobileTooltip = document.createElement("div");
+            mobileTooltip.className = "hidden absolute bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl z-50 transition-opacity duration-200 max-w-xs pointer-events-none border border-slate-700";
+            document.body.appendChild(mobileTooltip);
+
+            transcriptContainer.addEventListener("click", (e) => {
+                const target = e.target;
+                
+                if (target.hasAttribute("title")) {
+                    const titleText = target.getAttribute("title");
+                    mobileTooltip.textContent = titleText;
+                    mobileTooltip.classList.remove("hidden");
+                    
+                    const rect = target.getBoundingClientRect();
+                    mobileTooltip.style.left = `${Math.max(10, rect.left + window.scrollX - 20)}px`;
+                    mobileTooltip.style.top = `${rect.top + window.scrollY - 40}px`;
+
+                    setTimeout(() => {
+                        mobileTooltip.classList.add("hidden");
+                    }, 3000);
+                }
+            });
+        }
+    </script>
+
+     <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            
+            <div class="space-y-4">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
+                    <span class="text-yellow-400">✏️</span> STENOGYM
+                </a>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                </p>
+               <div class="flex gap-4 pt-2">
+                    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+                        </svg>
+                    </a> 
+                    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg>
+                    </a>
+                    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg>
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
+            <div>&copy; 2026 Stenogym. All rights reserved.</div>
+           <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

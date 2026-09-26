@@ -1,0 +1,278 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stenogym | Student Login</title>
+    <meta name="description" content="Sign in to your Stenogym student account.">
+    <link rel="canonical" href="https://stenogym.com/login.html">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <nav class="bg-indigo-700 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
+            <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-xl hover:opacity-90 transition">
+                <span>🏠</span> STENOGYM
+            </a>
+            <a href="index.html" class="text-sm bg-indigo-800 hover:bg-indigo-900 border border-indigo-500/50 px-4 py-2 rounded-lg transition">
+                Return to Home
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <div class="bg-white border border-slate-200 p-8 rounded-2xl shadow-lg max-w-md w-full relative overflow-hidden">
+            
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-100 rounded-full blur-2xl opacity-60"></div>
+            
+            <div class="text-center mb-6 relative z-10">
+                <div class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 shadow-sm">🔒</div>
+                <h1 id="formTitle" class="text-2xl font-black text-slate-900">Welcome Back</h1>
+                <p class="text-slate-500 text-sm mt-2">Sign in to track your shorthand speed progress.</p>
+            </div>
+
+            <div class="relative z-10 space-y-4">
+                
+                <button id="googleSignInBtn" class="w-full bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold py-3 rounded-lg shadow-sm transition flex items-center justify-center gap-3">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Continue with Google
+                </button>
+
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink-0 mx-4 text-slate-400 text-xs font-bold uppercase tracking-wider">Or email</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email Address</label>
+                    <input type="email" id="emailInput" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" placeholder="student@example.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Password</label>
+                    <input type="password" id="passwordInput" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" placeholder="••••••••">
+                </div>
+                
+                <button id="authBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg shadow-md transition mt-2">
+                    Sign In
+                </button>
+                
+                <div class="mt-6 text-center text-sm text-slate-500">
+                    <span id="toggleText">Don't have an account?</span> 
+                    <button id="toggleAuthModeBtn" class="text-indigo-600 font-bold hover:underline focus:outline-none">
+                        Create a free account
+                    </button>
+                </div>
+            </div>
+            
+            <div id="errorMessage" class="hidden mt-4 text-rose-500 text-sm font-semibold text-center bg-rose-50 p-2 rounded relative z-10"></div>
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            
+            <div class="space-y-4">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
+                    <span class="text-yellow-400">✏️</span> STENOGYM
+                </a>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                </p>
+                <div class="flex gap-4 pt-2">
+    <!-- Real Instagram Logo -->
+    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+        </svg>
+    </a> 
+    
+    <!-- Real YouTube Logo -->
+    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+        </svg>
+    </a>
+    
+    <!-- Real Envelope (Contact) Logo -->
+    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+            <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+        </svg>
+    </a>
+</div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
+            <div>&copy; 2026 Stenogym. All rights reserved.</div>
+           <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            </div>
+        </div>
+    </footer>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
+            authDomain: "stenogym.firebaseapp.com",
+            projectId: "stenogym",
+            storageBucket: "stenogym.firebasestorage.app",
+            messagingSenderId: "227346319026",
+            appId: "1:227346319026:web:bd37156b931923532eabab"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        const errorMessage = document.getElementById('errorMessage');
+        let isLoginMode = true;
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const authBtn = document.getElementById('authBtn');
+        const toggleAuthModeBtn = document.getElementById('toggleAuthModeBtn');
+        const toggleText = document.getElementById('toggleText');
+        const googleSignInBtn = document.getElementById('googleSignInBtn');
+
+        const MASTER_ADMIN_EMAIL = "subhashisdeysarkar1998@gmail.com";
+
+        // Helper function to create user document in database
+        async function createUserDoc(user) {
+            try {
+                await setDoc(doc(db, "users", user.uid), {
+                    email: user.email,
+                    createdAt: serverTimestamp()
+                }, { merge: true }); // Using merge so we don't overwrite existing users on re-login
+            } catch (e) {
+                console.error("Error creating user doc: ", e);
+            }
+        }
+
+        // ---------------- GOOGLE SIGN IN LOGIC ----------------
+        googleSignInBtn.addEventListener('click', () => {
+            errorMessage.classList.add('hidden');
+            signInWithPopup(auth, googleProvider)
+                .then(async (result) => {
+                    // Ensure they have a database document recorded BEFORE redirect
+                    await createUserDoc(result.user);
+
+                    if (result.user.email === MASTER_ADMIN_EMAIL) {
+                        window.location.href = "admin.html";
+                    } else {
+                        window.location.href = "app.html";
+                    }
+                }).catch((error) => {
+                    showError(error.message.replace("Firebase: ", ""));
+                });
+        });
+
+        // ---------------- EMAIL / PASSWORD LOGIC ----------------
+        toggleAuthModeBtn.addEventListener('click', () => {
+            isLoginMode = !isLoginMode;
+            errorMessage.classList.add('hidden');
+            
+            if(isLoginMode) {
+                authBtn.textContent = "Sign In";
+                toggleText.textContent = "Don't have an account?";
+                toggleAuthModeBtn.textContent = "Create a free account";
+            } else {
+                authBtn.textContent = "Create Account";
+                toggleText.textContent = "Already have an account?";
+                toggleAuthModeBtn.textContent = "Sign In instead";
+            }
+        });
+
+        authBtn.addEventListener('click', () => {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+
+            if(!email || !password) {
+                showError("Please enter both email and password.");
+                return;
+            }
+
+            authBtn.textContent = "Processing...";
+            authBtn.disabled = true;
+            errorMessage.classList.add('hidden');
+
+            if(isLoginMode) {
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        if (userCredential.user.email === MASTER_ADMIN_EMAIL) {
+                            window.location.href = "admin.html"; 
+                        } else {
+                            window.location.href = "app.html"; 
+                        }
+                    })
+                    .catch(() => { 
+                        showError("Login failed. Check your credentials."); 
+                        authBtn.disabled = false; 
+                        authBtn.textContent = "Sign In"; 
+                    });
+            } else {
+                createUserWithEmailAndPassword(auth, email, password)
+                    .then(async (userCredential) => {
+                        // Force the database write to finish BEFORE redirecting
+                        await createUserDoc(userCredential.user);
+                        window.location.href = "app.html"; 
+                    })
+                    .catch((error) => { 
+                        showError(error.message.replace("Firebase: ", "")); 
+                        authBtn.disabled = false; 
+                        authBtn.textContent = "Create Account"; 
+                    });
+            }
+        });
+
+        function showError(msg) {
+            errorMessage.textContent = msg;
+            errorMessage.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>

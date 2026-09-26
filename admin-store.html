@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Admin | Stenogym</title>
+    <meta name="description" content="Stenogym store admin dashboard.">
+    <link rel="canonical" href="https://stenogym.com/admin-store.html">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+    <h1 class="sr-only">Store Admin</h1>
+
+    <nav class="bg-indigo-900 p-4 text-white flex justify-between items-center shadow-md">
+        <div class="font-black tracking-widest text-xl">🛒 STORE ADMIN</div>
+        <div class="flex gap-4 text-sm font-bold">
+            <a href="dashboard.html" class="hover:text-indigo-300 transition">Back to Dashboard</a>
+        </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto p-6 mt-8">
+        
+        <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-lg">
+            <h2 class="text-2xl font-black text-slate-800 mb-2">Add New Product</h2>
+            <p class="text-slate-500 text-sm mb-6">Upload an affiliate product to your database. It will automatically categorize on the store page.</p>
+            
+            <form id="productForm" class="space-y-5">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Product Name</label>
+                    <input type="text" id="prodName" required placeholder="e.g. Apsara Steno Pencils" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-indigo-500 transition">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category Aisle</label>
+                    <select id="prodCategory" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-indigo-500 transition cursor-pointer">
+                        <option value="Writing Tools ✏️">Writing Tools ✏️</option>
+                        <option value="Notebooks & Paper 📓">Notebooks & Paper 📓</option>
+                        <option value="Mechanical Keyboards ⌨️">Mechanical Keyboards ⌨️</option>
+                        <option value="Audio Gear 🎧">Audio Gear 🎧</option>
+                        <option value="Recommended Books 📚">Recommended Books 📚</option>
+                        <option value="Ergonomics & Desk 🪑">Ergonomics & Desk 🪑</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Image Link (URL)</label>
+                    <input type="url" id="prodImage" required placeholder="Paste image address here..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-indigo-500 transition font-mono text-sm">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Your Affiliate Link</label>
+                    <input type="url" id="prodLink" required placeholder="https://amazon.in/..." class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 outline-none focus:border-indigo-500 transition font-mono text-sm">
+                </div>
+
+                <div class="flex items-center gap-3 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                    <input type="checkbox" id="prodFeatured" class="w-5 h-5 accent-indigo-600 cursor-pointer">
+                    <div>
+                        <label for="prodFeatured" class="font-bold text-indigo-900 cursor-pointer select-none">Feature on Student Dashboard</label>
+                        <p class="text-xs text-indigo-700 mt-0.5">Check this to push this product to the scrolling strip on the main dashboard.</p>
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-xl shadow-md transition uppercase tracking-widest text-sm mt-4">
+                    Publish to Store 🚀
+                </button>
+            </form>
+            
+            <div id="successMsg" class="hidden mt-4 bg-emerald-100 text-emerald-800 p-3 rounded-lg text-center font-bold text-sm">
+                ✅ Product added to database successfully!
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
+            authDomain: "stenogym.firebaseapp.com",
+            projectId: "stenogym",
+            storageBucket: "stenogym.firebasestorage.app",
+            messagingSenderId: "227346319026",
+            appId: "1:227346319026:web:bd37156b931923532eabab"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Admin Security Check (Optional but recommended: Ensure only you can see this page)
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user || user.email !== "subhashisdeysarkar1998@gmail.com") {
+                alert("Access Denied. Admins only.");
+                window.location.href = "index.html";
+            }
+        });
+
+        // Form Submit Logic
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('btnSubmit');
+            btn.textContent = "Publishing..."; btn.disabled = true;
+
+            try {
+                // Save to Firestore Database
+                await db.collection("store_products").add({
+                    name: document.getElementById('prodName').value,
+                    category: document.getElementById('prodCategory').value,
+                    image: document.getElementById('prodImage').value,
+                    link: document.getElementById('prodLink').value,
+                    featured: document.getElementById('prodFeatured').checked,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Show Success & Reset Form
+                document.getElementById('successMsg').classList.remove('hidden');
+                document.getElementById('productForm').reset();
+                setTimeout(() => { document.getElementById('successMsg').classList.add('hidden'); }, 3000);
+            } catch (error) {
+                console.error("Error adding product: ", error);
+                alert("Error saving product. Check console.");
+            } finally {
+                btn.textContent = "Publish to Store 🚀"; btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
+

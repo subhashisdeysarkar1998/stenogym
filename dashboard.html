@@ -1,0 +1,343 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stenogym | Student Dashboard</title>
+    <meta name="description" content="View your Stenogym student practice history and progress.">
+    <link rel="canonical" href="https://stenogym.com/dashboard.html">
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <style>
+        /* Hides the ugly scrollbar but keeps the scrolling function */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen flex flex-col">
+
+    <nav class="bg-indigo-950 p-4 text-white flex justify-between items-center px-6">
+        <a href="index.html" class="font-black text-xl tracking-wide">STENOGYM DASHBOARD</a>
+        <div class="flex items-center gap-5">
+            <a href="index.html" class="text-sm font-bold text-slate-300 hover:text-white transition">Home</a>
+            <a href="app.html" class="text-sm font-bold text-slate-300 hover:text-white transition">Practice</a>
+            <div class="w-px h-4 bg-slate-700 hidden sm:block"></div>
+            <button id="btnLogout" class="text-sm font-bold text-rose-400 hover:text-rose-300 transition">Logout</button>
+        </div>
+    </nav>
+
+    <div id="announcementBanner" class="hidden bg-emerald-500 text-white px-6 py-3 shadow-md flex justify-center items-center transition-all duration-500">
+        <span class="mr-3 text-xl animate-bounce">📢</span>
+        <p id="bannerMessageText" class="font-bold text-sm tracking-wide"></p>
+    </div>
+
+    <main class="max-w-5xl mx-auto p-6 w-full flex-grow">
+        <h1 id="welcomeMsg" class="text-3xl font-black text-slate-800 mb-8">Welcome back!</h1>
+
+        <!-- THE 3 DASHBOARD CARDS -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            
+            <!-- Card 1: Current Level -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative group">
+                <div class="absolute top-4 right-4 bg-slate-100 text-slate-500 text-[9px] font-black uppercase px-2 py-1 rounded tracking-wider">Last 10 Practice</div>
+                <div class="flex items-center gap-2 mb-1">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Current Level</div>
+                    <!-- Hover Info Icon -->
+                    <div class="relative cursor-help text-slate-400 hover:text-indigo-600 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <!-- Tooltip Box -->
+                        <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-slate-900 text-white text-[10px] p-3 rounded-lg shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center border border-slate-700">
+                            <strong>Master:</strong> 95%+ Avg<br>
+                            <strong>Advanced:</strong> 90%+ Avg<br>
+                            <strong>Intermediate:</strong> 85%+ Avg<br>
+                            <strong>Beginner:</strong> &lt;85% Avg
+                        </div>
+                    </div>
+                </div>
+                <div id="cardGrade" class="text-3xl font-black text-slate-300">--</div>
+            </div>
+
+            <!-- Card 2: Average Accuracy -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
+                <div class="absolute top-4 right-4 bg-slate-100 text-slate-500 text-[9px] font-black uppercase px-2 py-1 rounded tracking-wider">Last 10 Practice</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Avg Accuracy</div>
+                <div id="cardAccuracy" class="text-3xl font-black text-slate-300">0%</div>
+            </div>
+
+            <!-- Card 3: Max Speed Accuracy -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm relative">
+                <div class="absolute top-4 right-4 bg-slate-100 text-slate-500 text-[9px] font-black uppercase px-2 py-1 rounded tracking-wider">Last 10 Practice</div>
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Max Speed Accuracy</div>
+                <div id="cardMaxSpeed" class="text-2xl sm:text-3xl font-black text-slate-300">--</div>
+            </div>
+            
+        </div>
+
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-4 px-1">
+                <h2 class="text-xs font-black text-slate-400 uppercase tracking-widest">Recommended For You</h2>
+                <a href="gear.html" class="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition">View All Items &rarr;</a>
+            </div>
+            
+            <div class="flex gap-4 overflow-x-auto pb-4 snap-x hide-scrollbar px-1">
+                <a href="gear.html" class="min-w-[200px] flex-1 bg-white border border-indigo-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group snap-start block">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-indigo-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                    <div class="relative z-10">
+                        <span class="absolute top-0 right-0 bg-rose-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse shadow-sm">Hot</span>
+                        <div class="text-3xl mb-2">✏️</div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1 truncate">Apsara Steno Pencils</h3>
+                        <p class="text-xs text-slate-500 mb-3 line-clamp-2">Prevent tip snapping at 100+ WPM.</p>
+                        <div class="text-xs font-bold text-indigo-600 group-hover:text-indigo-800 flex items-center gap-1">Check Price <span class="group-hover:translate-x-1 transition-transform">&rarr;</span></div>
+                    </div>
+                </a>
+                <a href="gear.html" class="min-w-[200px] flex-1 bg-white border border-emerald-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group snap-start block">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                    <div class="relative z-10">
+                        <span class="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider shadow-sm">Must Read</span>
+                        <div class="text-3xl mb-2">📚</div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1 truncate">Important SSC Books</h3>
+                        <p class="text-xs text-slate-500 mb-3 line-clamp-2">Master complex intersections.</p>
+                        <div class="text-xs font-bold text-emerald-600 group-hover:text-emerald-800 flex items-center gap-1">Check Price <span class="group-hover:translate-x-1 transition-transform">&rarr;</span></div>
+                    </div>
+                </a>
+                <a href="gear.html" class="min-w-[200px] flex-1 bg-white border border-amber-100 rounded-2xl p-4 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group snap-start block">
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-amber-50 rounded-full group-hover:scale-150 transition-transform duration-500 z-0"></div>
+                    <div class="relative z-10">
+                        <div class="text-3xl mb-2">⌨️</div>
+                        <h3 class="font-bold text-slate-800 text-sm mb-1 truncate">Tactile Keyboard</h3>
+                        <p class="text-xs text-slate-500 mb-3 line-clamp-2">Reduce transcription typos.</p>
+                        <div class="text-xs font-bold text-amber-600 group-hover:text-amber-800 flex items-center gap-1">Check Price <span class="group-hover:translate-x-1 transition-transform">&rarr;</span></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+            <div class="p-6 border-b border-slate-100 font-bold text-slate-800">Recent Practice History</div>
+            <div class="overflow-x-auto hide-scrollbar">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                        <tr>
+                            <th class="px-6 py-3 font-bold tracking-wider">Date</th>
+                            <th class="px-6 py-3 font-bold tracking-wider">Source</th> <th class="px-6 py-3 font-bold tracking-wider">WPM</th>
+                            <th class="px-6 py-3 font-bold tracking-wider">Accuracy</th>
+                            <th class="px-6 py-3 font-bold tracking-wider">Mistakes</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const firebaseConfig = { 
+            apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
+            authDomain: "stenogym.firebaseapp.com",
+            projectId: "stenogym",
+            storageBucket: "stenogym.firebasestorage.app",
+            messagingSenderId: "227346319026",
+            appId: "1:227346319026:web:bd37156b931923532eabab"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function escapeHtml(value) {
+            const div = document.createElement('div');
+            div.textContent = value ?? '';
+            return div.innerHTML;
+        }
+
+        firebase.auth().onAuthStateChanged(user => {
+            if (!user) { window.location.href = "login.html"; return; }
+            
+            // Set Welcome Name
+            const name = user.email.split('@')[0];
+            document.getElementById('welcomeMsg').textContent = `Welcome back, ${name.charAt(0).toUpperCase() + name.slice(1)}!`;
+
+            // =========================================================
+            // 📢 LISTEN FOR GLOBAL ANNOUNCEMENTS (SITE SETTINGS)
+            // =========================================================
+            db.collection("settings").orderBy("timestamp", "desc").limit(1).onSnapshot(snap => {
+                const banner = document.getElementById('announcementBanner');
+                const bannerText = document.getElementById('bannerMessageText');
+                
+                if (!snap.empty) {
+                    const data = snap.docs[0].data();
+                    if (data.isActive && data.bannerText) {
+                        bannerText.textContent = data.bannerText;
+                        banner.classList.remove('hidden');
+                    } else {
+                        banner.classList.add('hidden');
+                    }
+                } else {
+                    banner.classList.add('hidden');
+                }
+            });
+
+            // Fetch History
+            db.collection("users").doc(user.uid).collection("practice_history")
+                .orderBy("timestamp", "desc").limit(10).onSnapshot(snap => {
+                    let totalAcc = 0, count = 0, html = "";
+                    let testDataArray = [];
+                    
+                    if (snap.empty) {
+                        html = `<tr><td colspan="5" class="px-6 py-8 text-center text-slate-500 font-medium">No practice history found. Head to a practice room to log your first score!</td></tr>`;
+                    } else {
+                        snap.forEach(doc => {
+                            const d = doc.data();
+                            
+                            // TIMESTAMP SAFETY CHECK
+                            const dateText = d.timestamp && typeof d.timestamp.toDate === 'function'
+                                ? d.timestamp.toDate().toLocaleDateString()
+                                : 'Just now';
+                                
+                            // SOURCE CHECK
+                            const sourceText = d.source || 'Preset Room';
+                            
+                            const wpm = Number(d.wpm) || 0;
+                            const accuracy = Number(d.accuracy) || 0;
+                            const mistakes = Number(d.mistakes) || 0;
+                            
+                            // DYNAMIC ACCURACY COLOR
+                            let accColor = "text-emerald-600";
+                            if (accuracy < 90) accColor = "text-rose-600";
+                            else if (accuracy < 95) accColor = "text-yellow-600";
+
+                            html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                                         <td class="px-6 py-4 text-slate-600 text-sm font-medium">${escapeHtml(dateText)}</td>
+                                         <td class="px-6 py-4">
+                                            <span class="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-md text-[10px] sm:text-xs font-bold uppercase tracking-wider">
+                                                ${escapeHtml(sourceText)}
+                                            </span>
+                                         </td>
+                                         <td class="px-6 py-4 font-black text-slate-700">${escapeHtml(wpm)}</td>
+                                         <td class="px-6 py-4 font-black ${accColor}">${escapeHtml(accuracy)}%</td>
+                                         <td class="px-6 py-4 text-rose-500 font-bold">${escapeHtml(mistakes)}</td>
+                                     </tr>`;
+                            
+                            totalAcc += accuracy;
+                            count++;
+                            testDataArray.push({ wpm: wpm, accuracy: accuracy });
+                        });
+                    }
+                    
+                    document.getElementById('historyBody').innerHTML = html;
+                    
+                    // --- CALCULATE CARD DATA ---
+                    if (count > 0) {
+                        // 1. Calculate Average Accuracy
+                        const avgAcc = totalAcc / count;
+                        document.getElementById('cardAccuracy').textContent = avgAcc.toFixed(1) + '%';
+                        document.getElementById('cardAccuracy').className = `text-3xl font-black ${avgAcc >= 90 ? 'text-emerald-500' : 'text-slate-700'}`;
+
+                        // 2. Calculate Current Level
+                        let gradeText = "Beginner"; let gradeColor = "text-rose-500";
+                        if (avgAcc >= 95) { gradeText = "Master"; gradeColor = "text-indigo-600"; }
+                        else if (avgAcc >= 90) { gradeText = "Advanced"; gradeColor = "text-emerald-500"; }
+                        else if (avgAcc >= 85) { gradeText = "Intermediate"; gradeColor = "text-amber-500"; }
+                        
+                        document.getElementById('cardGrade').textContent = gradeText;
+                        document.getElementById('cardGrade').className = `text-3xl font-black ${gradeColor}`;
+
+                        // 3. Calculate Max Speed Accuracy
+                        const maxWpm = Math.max(...testDataArray.map(t => t.wpm)); // Find highest WPM
+                        const maxWpmTests = testDataArray.filter(t => t.wpm === maxWpm); // Get all tests at that WPM
+                        const maxWpmAvgAcc = maxWpmTests.reduce((sum, t) => sum + t.accuracy, 0) / maxWpmTests.length; // Average their accuracy
+
+                        const maxSpeedEl = document.getElementById('cardMaxSpeed');
+                        maxSpeedEl.textContent = `${maxWpmAvgAcc.toFixed(1)}% @ ${maxWpm} WPM`;
+                        
+                        // Color Red if they failed at their max speed, Emerald if they passed
+                        maxSpeedEl.className = `text-2xl sm:text-3xl font-black ${maxWpmAvgAcc >= 90 ? 'text-emerald-500' : 'text-rose-500'}`;
+                    } else {
+                        // Reset defaults if empty
+                        document.getElementById('cardGrade').textContent = "--";
+                        document.getElementById('cardGrade').className = "text-3xl font-black text-slate-300";
+                        document.getElementById('cardAccuracy').textContent = "0%";
+                        document.getElementById('cardAccuracy').className = "text-3xl font-black text-slate-300";
+                        document.getElementById('cardMaxSpeed').textContent = "--";
+                        document.getElementById('cardMaxSpeed').className = "text-2xl sm:text-3xl font-black text-slate-300";
+                    }
+                });
+        });
+
+        document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.href = "index.html");
+    </script>
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            
+            <div class="space-y-4">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
+                    <span class="text-yellow-400">✏️</span> STENOGYM
+                </a>
+                <p class="text-sm text-slate-400 leading-relaxed">
+                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                </p>
+                <div class="flex gap-4 pt-2">
+    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
+        </svg>
+    </a> 
+    
+    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
+        </svg>
+    </a>
+    
+    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
+        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
+            <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
+        </svg>
+    </a>
+</div>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <ul class="space-y-3 text-sm font-medium">
+                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
+            <div>&copy; 2026 Stenogym. All rights reserved.</div>
+           <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
