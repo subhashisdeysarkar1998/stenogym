@@ -3,10 +3,12 @@ export default async (req) => {
 
     try {
         const body = await req.json();
-        const apiKey = process.env.GEMINI_API_KEY;
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+        // Pointing to your new Netlify Environment Variable
+        const apiKey = process.env.GROQ_API_KEY; 
+        
+        // Groq uses a different URL structure than Gemini
+        const url = `https://api.groq.com/openai/v1/chat/completions`;
 
-        // 🌐 The prompt now injects the Country to alter legal & political vocabulary
         const prompt = `Write a shorthand dictation passage. 
 Topic: ${body.theme}. 
 Country Context: ${body.country}. Use appropriate legal, political, and currency terminology for this country.
@@ -15,14 +17,23 @@ The passage MUST be exactly ${body.wordCount} words long. Output ONLY the raw En
 
         const response = await fetch(url, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            headers: { 
+                "Content-Type": "application/json",
+                // Groq requires the Bearer token authorization format
+                "Authorization": `Bearer ${apiKey}` 
+            },
+            body: JSON.stringify({ 
+                // Using the 8B model for 14,400 free daily requests
+                model: "llama-3.1-8b-instant", 
+                messages: [{ role: "user", content: prompt }]
+            })
         });
 
         const data = await response.json();
         if (!response.ok) throw new Error(data.error?.message || "Failed to generate dictation");
 
-        return new Response(JSON.stringify({ text: data.candidates[0].content.parts[0].text }), {
+        // Groq returns the text in a slightly different JSON structure than Gemini
+        return new Response(JSON.stringify({ text: data.choices[0].message.content }), {
             status: 200, headers: { "Content-Type": "application/json" }
         });
 
