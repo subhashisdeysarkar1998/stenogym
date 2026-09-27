@@ -24,7 +24,7 @@ The passage MUST be exactly ${body.wordCount} words long. Output ONLY the raw En
             },
             body: JSON.stringify({ 
                 // Using the 8B model for 14,400 free daily requests
-                model: "llama-3.1-8b-instant", 
+                model: "openai/gpt-oss-20b", 
                 messages: [{ role: "user", content: prompt }]
             })
         });
