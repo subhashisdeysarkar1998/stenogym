@@ -153,7 +153,8 @@
             </div>
         </div>
         
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col items-center">
+        <!-- ANTI-CHEAT: Hidden by default -->
+        <div id="passageRevealUI" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-col items-center">
             <button id="btnRevealPassage" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold py-3 px-8 rounded-xl shadow-sm transition text-sm flex items-center gap-2">
                 <span>👁️</span> Reveal Original Passage
             </button>
@@ -755,6 +756,13 @@
             setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
             updateProgressBarUI(totalExpectedDurationMs, totalTargetWords);
             gateOverlay.classList.remove('hidden');
+
+            // ANTI-CHEAT: Reveal the passage toggle ONLY after audio finishes
+            const revealUI = document.getElementById('passageRevealUI');
+            if (revealUI) {
+                revealUI.classList.remove('hidden');
+                revealUI.classList.add('flex');
+            }
         }
 
         function setPlayButtonLabel(txt, classes) {
@@ -837,6 +845,18 @@
             btnSubmit.disabled = true; btnClear.disabled = true;
             typingTimerDisplay.classList.add('hidden');
             isTypingActive = false; isFirstKeystrokeFired = false;
+            
+            // ANTI-CHEAT: Re-hide passage UI and reset the button state
+            const revealUI = document.getElementById('passageRevealUI');
+            const revealContainer = document.getElementById('revealContainer');
+            const btnRevealPassage = document.getElementById('btnRevealPassage');
+            
+            if (revealUI) {
+                revealUI.classList.add('hidden');
+                revealUI.classList.remove('flex');
+            }
+            if (revealContainer) revealContainer.classList.add('hidden');
+            if (btnRevealPassage) btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
         }
 
         btnClear.addEventListener('click', () => {

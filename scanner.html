@@ -112,6 +112,15 @@
                     ✨ Confirm Orientation & Scan Document
                 </button>
             </div>
+            
+            <!-- NEW: Editable OCR Review Stage -->
+            <div id="ocrReviewContainer" class="hidden flex-col items-center border-t border-slate-100 pt-6 mt-6">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 w-full text-left">Verify & Edit Scanned Text</span>
+                <textarea id="ocrReviewText" class="w-full p-4 border border-fuchsia-200 rounded-xl text-lg font-serif leading-relaxed bg-[#FCFBF7] text-slate-800 shadow-inner outline-none focus:border-fuchsia-500 transition mb-4" rows="8"></textarea>
+                <button id="btnConfirmText" type="button" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition uppercase tracking-wider text-sm">
+                    ✅ Confirm Text & Start Dictation
+                </button>
+            </div>
         </div>
 
         <div id="practiceUI" class="hidden flex-col gap-6">
@@ -185,13 +194,23 @@
                 </div>
             </div>
             
+            <!-- ANTI-CHEAT: Hidden by default -->
+            <div id="passageRevealUI" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex-col items-center mb-6">
+                <button id="btnRevealPassage" class="bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 font-bold py-3 px-8 rounded-xl shadow-sm transition text-sm flex items-center gap-2">
+                    <span>👁️</span> Reveal Original Passage
+                </button>
+                <div id="revealContainer" class="hidden w-full mt-4 p-6 bg-[#FCFBF7] border border-slate-200 rounded-xl text-lg font-serif leading-relaxed shadow-inner text-slate-800"></div>
+            </div>
+
             <div id="evaluationPanel" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-lg mb-12">
                 <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Dictated Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
-                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct Words</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
-                    <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes Detected</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
-                    <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy Index</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 text-center">
+                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
+                    <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
+                    <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
+                    <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="text-xs font-bold text-blue-600 uppercase mb-1">Typing Time</div><div id="evalTypingTime" class="text-2xl font-black text-blue-600">00:00</div></div>
+                    <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl"><div class="text-xs font-bold text-amber-600 uppercase mb-1">Typing WPM</div><div id="evalTypingSpeed" class="text-2xl font-black text-amber-600">0</div></div>
                 </div>
 
                 <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-600 shadow-sm">
@@ -219,7 +238,6 @@
         }
         const db = firebase.firestore();
 
-        // 🎯 THE FIX: Active Auth Tracker added back to ensure session logic works safely!
         let activeUser = null;
         firebase.auth().onAuthStateChanged((user) => {
             activeUser = user;
@@ -270,7 +288,6 @@
             const file = e.target.files[0]; 
             if(!file) return;
 
-            // 🎯 THE FIX: Safely checks activeUser so it doesn't crash, and avoids the login timing bug!
             const user = activeUser || firebase.auth().currentUser;
             if (!user) {
                 const today = new Date().toDateString();
@@ -354,21 +371,20 @@
                     throw new Error("NOT_A_PROPER_PARAGRAPH");
                 }
                 
-                currentPassageText = words.join(" ");
-                targetWPM = parseInt(wpmSelect.value);
-                compileTrackMetrics(currentPassageText);
+                // Route to the new Editable Review Box
+                const ocrReviewText = document.getElementById('ocrReviewText');
+                ocrReviewText.value = words.join(" ");
+                document.getElementById('previewContainer').classList.add('hidden');
                 
-                ocrStatusMsg.textContent = `Scan complete! Loaded ${totalTargetWords} words.`;
+                const ocrReviewContainer = document.getElementById('ocrReviewContainer');
+                ocrReviewContainer.classList.remove('hidden');
+                ocrReviewContainer.classList.add('flex');
+                
+                ocrStatusMsg.textContent = `Scan complete! Please verify & edit the text.`;
                 ocrStatusMsg.className = "text-xs font-bold text-emerald-600";
-                
-                scanStudioBox.classList.add('hidden');
-                practiceUI.classList.remove('hidden'); 
-                practiceUI.classList.add('flex');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
 
             }).catch(err => { 
                 console.error("Paragraph Gatekeeper Triggered:", err);
-                
                 alert("⚠️ Scan Blocked: Improper Format or Unclear Image\n\nWe could not detect a proper written English paragraph in this image.\n\nPossible reasons:\n1. The image is sideways or upside down (use the 'Rotate 90°' buttons until it is upright).\n2. The photo is blurry, captured in low light, or has dark shadows.\n\nPlease adjust the image correctly to scan!");
                 
                 ocrStatusMsg.textContent = "Scan blocked: Please rotate or upload a clearer photo."; 
@@ -378,6 +394,44 @@
             });
         });
 
+        document.getElementById('btnConfirmText').addEventListener('click', () => {
+            currentPassageText = document.getElementById('ocrReviewText').value.trim();
+            let finalWords = currentPassageText.split(/\s+/).filter(w => w.length > 0);
+            
+            if (finalWords.length < 15) {
+                alert("The text is too short to be a valid dictation. Please add more words.");
+                return;
+            }
+
+            targetWPM = parseInt(wpmSelect.value);
+            compileTrackMetrics(currentPassageText);
+            
+            ocrStatusMsg.textContent = `Dictation locked in with ${totalTargetWords} words.`;
+            ocrStatusMsg.className = "text-xs font-bold text-emerald-600";
+            
+            scanStudioBox.classList.add('hidden');
+            practiceUI.classList.remove('hidden'); 
+            practiceUI.classList.add('flex');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Re-hide review container for the next scan
+            document.getElementById('ocrReviewContainer').classList.add('hidden');
+            document.getElementById('ocrReviewContainer').classList.remove('flex');
+        });
+
+        document.getElementById('btnRevealPassage')?.addEventListener('click', () => {
+            const revealContainer = document.getElementById('revealContainer');
+            const btnRevealPassage = document.getElementById('btnRevealPassage');
+            if (revealContainer.classList.contains('hidden')) {
+                revealContainer.classList.remove('hidden');
+                revealContainer.textContent = currentPassageText || "No passage loaded.";
+                btnRevealPassage.innerHTML = '<span>🙈</span> Hide Original Passage';
+            } else {
+                revealContainer.classList.add('hidden');
+                btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
+            }
+        });
+
         btnScanNew.addEventListener('click', () => {
             resetAudioEngine();
             practiceUI.classList.remove('flex');
@@ -385,6 +439,8 @@
             scanStudioBox.classList.remove('hidden');
             previewContainer.classList.remove('flex');
             previewContainer.classList.add('hidden');
+            document.getElementById('ocrReviewContainer').classList.add('hidden');
+            document.getElementById('ocrReviewContainer').classList.remove('flex');
             ocrInput.value = '';
             ocrStatusMsg.textContent = "Waiting for document...";
             ocrStatusMsg.className = "text-xs font-bold text-fuchsia-600 animate-pulse";
@@ -426,7 +482,6 @@
                 let puncHit = hasPunc(word);
                 i++;
 
-                // === 5-TIER CHUNKING LIMITS ===
                 let maxAdditionalWords = 1; 
                 let maxTotalLetters = 8;
                 
@@ -455,7 +510,6 @@
                         currentCleanLength += nextCleanLength;
                         i++;
                         
-                        // Always break immediately on punctuation
                         if (hasPunc(nextWord)) break;
                     }
                 }
@@ -521,7 +575,6 @@
             if (chosenVoice) utterance.voice = chosenVoice;
             else utterance.lang = 'en-IN'; 
 
-            // === THE REVERSION: AGGRESSIVE LOCAL MATH ===
             let targetWordsAfterChunk = trackingWordsSpokenCount + targetChunk.wordsCount;
             let expectedTimeAfterChunkMs = (targetWordsAfterChunk / (targetWPM / 60)) * 1000;
             let actualElapsedTimeMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
@@ -533,7 +586,6 @@
             let wordsPerSecondNeeded = targetChunk.wordsCount / (timeRemainingForChunkMs / 1000);
             let requiredRate = wordsPerSecondNeeded / (140 / 60);
 
-            // === 5-TIER SPEED LIMITS ===
             let minRate = 0.40; 
             let maxRate = 1.6;
             
@@ -555,7 +607,6 @@
                 trackingWordsSpokenCount += targetChunk.wordsCount;
                 currentPhraseIndex++; 
                 
-                // === PURE MATHEMATICAL TIMELINE SYNC ===
                 let expectedElapsedMs = (trackingWordsSpokenCount / (targetWPM / 60)) * 1000;
                 let newActualElapsedMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
                 
@@ -631,6 +682,13 @@
             setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
             updateProgressBarUI(totalExpectedDurationMs, totalTargetWords);
             document.getElementById('gateOverlay').classList.remove('hidden');
+
+            // ANTI-CHEAT: Reveal the passage toggle ONLY after audio finishes
+            const revealUI = document.getElementById('passageRevealUI');
+            if (revealUI) {
+                revealUI.classList.remove('hidden');
+                revealUI.classList.add('flex');
+            }
         }
 
         function setPlayButtonLabel(txt, classes) {
@@ -726,6 +784,13 @@
         typingArea.addEventListener('focus', () => {
             const evalPanel = document.getElementById('evaluationPanel');
             if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
+            
+            const rContainer = document.getElementById('revealContainer');
+            const bReveal = document.getElementById('btnRevealPassage');
+            if (rContainer && !rContainer.classList.contains('hidden')) {
+                rContainer.classList.add('hidden');
+                bReveal.innerHTML = '<span>👁️</span> Reveal Original Passage';
+            }
         });
 
         btnSubmit.addEventListener('click', evaluateTypingScore);
@@ -733,6 +798,20 @@
         function evaluateTypingScore() {
             const typedText = typingArea.value.trim();
             if(!typedText) { alert("Please transcribe your shorthand response notes into the input field workspace canvas first."); return; }
+
+            // FREEZE CLOCK & LOCK CANVAS INSTANTLY
+            clearInterval(typingTimerInterval);
+            isTypingActive = false;
+            typingArea.disabled = true;
+
+            // WPM MATH CALCULATOR
+            let typingDurationMs = Date.now() - transcriptionStartTime;
+            if (isStrictMode && typingDurationMs > strictTimeLimitMs) {
+                typingDurationMs = strictTimeLimitMs; 
+            }
+            if (typingDurationMs < 1000) typingDurationMs = 1000; 
+            let minutesElapsed = typingDurationMs / 60000;
+            let grossWPM = Math.round((typedText.length / 5) / minutesElapsed);
 
             const originalRaw = currentPassageText.trim().split(/\s+/).filter(w => w);
             const typedRaw = typedText.split(/\s+/).filter(w => w);
@@ -809,13 +888,17 @@
             document.getElementById("evalCorrect").textContent = correctWordsCount;
             document.getElementById("evalErrors").textContent = totalErrors;
             document.getElementById("evalAccuracy").textContent = `${accuracyPercentage.toFixed(1)}%`;
+            
+            // PUSH TYPING STATS TO GRID
+            document.getElementById("evalTypingTime").textContent = formatTime(typingDurationMs);
+            document.getElementById("evalTypingSpeed").textContent = grossWPM;
+            
             document.getElementById("transcriptOutput").innerHTML = diffPath.join("");
 
             const evalPanel = document.getElementById('evaluationPanel');
             evalPanel.classList.remove('hidden');
             window.scrollTo({ top: evalPanel.offsetTop, behavior: 'smooth' });
 
-            // 🎯 THE FIX: Applies safe activeUser logic here too!
             const user = activeUser || firebase.auth().currentUser;
             if (user) {
                 db.collection("users").doc(user.uid).collection("practice_history").add({
@@ -823,6 +906,7 @@
                     wpm: targetWPM, 
                     accuracy: parseFloat(accuracyPercentage.toFixed(1)),
                     mistakes: totalErrors,
+                    typingWpm: grossWPM, // SAVES WPM TO FIREBASE
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 }).then(() => console.log("Score successfully sent to dashboard!"))
                   .catch(err => console.error("Failed to save score:", err));

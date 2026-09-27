@@ -184,13 +184,15 @@
             </div>
             
             <div id="evaluationPanel" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-lg mb-12">
-                <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-            <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Dictated Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
-            <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct Words</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
-            <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes Detected</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
-            <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy Index</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
-         </div>
+            <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 text-center">
+                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
+                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
+                <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
+                <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
+                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="text-xs font-bold text-blue-600 uppercase mb-1">Typing Time</div><div id="evalTypingTime" class="text-2xl font-black text-blue-600">00:00</div></div>
+                <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl"><div class="text-xs font-bold text-amber-600 uppercase mb-1">Typing WPM</div><div id="evalTypingSpeed" class="text-2xl font-black text-amber-600">0</div></div>
+            </div>
 
             <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-600 shadow-sm">
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></span> Correct</span>
@@ -660,10 +662,11 @@
             }, 200);
         });
 
-        function forceHardStop() {
+       function forceHardStop() {
+            clearInterval(typingTimerInterval); // Stops the visual timer instantly
             isTypingActive = false; typingArea.disabled = true;
-            alert("Time is up! Your transcript will now be evaluated.");
-            evaluateTypingScore();
+            alert("Time is up! Your transcript will now be evaluated."); // Waits for user
+            evaluateTypingScore(); // Auto-submits after they click OK
         }
 
         function resetTranscriptionState() {
@@ -693,6 +696,12 @@
         typingArea.addEventListener('focus', () => {
             const evalPanel = document.getElementById('evaluationPanel');
             if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
+
+            // ANTI-CHEAT: Hide passage the millisecond they start typing
+            if (passageViewer && !passageViewer.classList.contains('hidden')) {
+                passageViewer.classList.add('hidden');
+                btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
+            }
         });
 
         // --- PASSAGE TOGGLE LOGIC ---
@@ -712,6 +721,20 @@
         function evaluateTypingScore() {
             const typedText = typingArea.value.trim();
             if(!typedText) { alert("Please transcribe your shorthand response notes into the input field workspace canvas first."); return; }
+
+            // 1. FREEZE CLOCK & LOCK CANVAS INSTANTLY
+            clearInterval(typingTimerInterval);
+            isTypingActive = false;
+            typingArea.disabled = true;
+
+            // 2. WPM MATH CALCULATOR
+            let typingDurationMs = Date.now() - transcriptionStartTime;
+            if (isStrictMode && typingDurationMs > strictTimeLimitMs) {
+                typingDurationMs = strictTimeLimitMs; 
+            }
+            if (typingDurationMs < 1000) typingDurationMs = 1000; 
+            let minutesElapsed = typingDurationMs / 60000;
+            let grossWPM = Math.round((typedText.length / 5) / minutesElapsed);
 
             const originalRaw = currentPassageText.trim().split(/\s+/).filter(w => w);
             const typedRaw = typedText.split(/\s+/).filter(w => w);
@@ -788,6 +811,11 @@
             document.getElementById("evalCorrect").textContent = correctWordsCount;
             document.getElementById("evalErrors").textContent = totalErrors;
             document.getElementById("evalAccuracy").textContent = `${accuracyPercentage.toFixed(1)}%`;
+            
+            // PUSH TYPING STATS TO GRID
+            document.getElementById("evalTypingTime").textContent = formatTime(typingDurationMs);
+            document.getElementById("evalTypingSpeed").textContent = grossWPM;
+            
             document.getElementById("transcriptOutput").innerHTML = diffPath.join("");
 
             const evalPanel = document.getElementById('evaluationPanel');
@@ -802,6 +830,7 @@
                         wpm: targetWPM,
                         accuracy: parseFloat(accuracyPercentage.toFixed(1)),
                         mistakes: totalErrors,
+                        typingWpm: grossWPM, // SAVE TYPING WPM TO FIREBASE
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
                     }).then(() => console.log("AI Score saved!"))
                       .catch(err => console.error("Save failed:", err));
