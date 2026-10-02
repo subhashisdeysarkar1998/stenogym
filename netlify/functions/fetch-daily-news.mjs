@@ -74,45 +74,47 @@ STRICT GENERATION RULES:
    - "Awards & Honours" (For: Civilian honors, Literary prizes, Global recognitions)
 
 3. SubCategory Examples: "Govt Schemes", "State Initiatives", "Reports & Indices", "Appointments".
-4. Produce a valid JSON array of objects. Do not include markdown wrappers, backticks, conversational preamble, or trailing commentary.
+4. Produce a valid JSON object containing a "news" array. Do not include markdown wrappers, backticks, conversational preamble, or trailing commentary.
 5. Every card MUST be fully bilingual with corresponding high-quality Hindi translations.
 6. MCQ EXPLANATION REQUIREMENT: The "explanation" inside "mcq" and "mcq_hi" MUST NOT be short one-liners. Provide a rich, 2 to 3 sentence breakdown explaining why the answer is right, citing relevant acts, dates, or background context.
 
 SCHEMA SPECIFICATION:
-[
-  {
-    "date": "${targetDate}",
-    "category": "String (Must match Rule 2 exactly)",
-    "category_hi": "String (Exact Hindi equivalent)",
-    "subCategory": "String",
-    "subCategory_hi": "String",
-    "emoji": "String (A single contextual emoji, e.g., 🏦, 🚀, ⚖️, 🏅, 🏆)",
-    "impact": "String (Exam relevance, e.g., Crucial for IBPS PO Mains)",
-    "impact_hi": "String (Hindi relevance)",
-    "targetExams": ["SSC CGL", "IBPS PO"],
-    "oneLiner": "String (Clear, factual headline)",
-    "oneLiner_hi": "String (Hindi headline)",
-    "contextBullets": ["String (Fact 1)", "String (Fact 2)"],
-    "contextBullets_hi": ["String (Hindi Fact 1)", "String (Hindi Fact 2)"],
-    "staticBox": { "facts": "String (Relevant static GK linkage)" },
-    "staticBox_hi": { "facts": "String (Hindi static GK linkage)" },
-    "mcq": {
-      "question": "String (Multiple-choice question)",
-      "options": ["String", "String", "String", "String"],
-      "correctIndex": 0,
-      "explanation": "String (Detailed, multi-sentence factual explanation)"
-    },
-    "mcq_hi": {
-      "question": "String (Hindi question)",
-      "options": ["String", "String", "String", "String"],
-      "correctIndex": 0,
-      "explanation": "String (Detailed Hindi explanation matching English)"
+{
+  "news": [
+    {
+      "date": "${targetDate}",
+      "category": "String (Must match Rule 2 exactly)",
+      "category_hi": "String (Exact Hindi equivalent)",
+      "subCategory": "String",
+      "subCategory_hi": "String",
+      "emoji": "String (A single contextual emoji, e.g., 🏦, 🚀, ⚖️, 🏅, 🏆)",
+      "impact": "String (Exam relevance, e.g., Crucial for IBPS PO Mains)",
+      "impact_hi": "String (Hindi relevance)",
+      "targetExams": ["SSC CGL", "IBPS PO"],
+      "oneLiner": "String (Clear, factual headline)",
+      "oneLiner_hi": "String (Hindi headline)",
+      "contextBullets": ["String (Fact 1)", "String (Fact 2)"],
+      "contextBullets_hi": ["String (Hindi Fact 1)", "String (Hindi Fact 2)"],
+      "staticBox": { "facts": "String (Relevant static GK linkage)" },
+      "staticBox_hi": { "facts": "String (Hindi static GK linkage)" },
+      "mcq": {
+        "question": "String (Multiple-choice question)",
+        "options": ["String", "String", "String", "String"],
+        "correctIndex": 0,
+        "explanation": "String (Detailed, multi-sentence factual explanation)"
+      },
+      "mcq_hi": {
+        "question": "String (Hindi question)",
+        "options": ["String", "String", "String", "String"],
+        "correctIndex": 0,
+        "explanation": "String (Detailed Hindi explanation matching English)"
+      }
     }
-  }
-]
+  ]
+}
 `;
 
-        // 4. CALL GROQ AI (Using llama-3.3-70b-versatile for multilingual JSON output)
+        // 4. CALL GROQ AI
         const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
         const aiResponse = await fetch(groqUrl, {
             method: "POST",
@@ -146,25 +148,18 @@ SCHEMA SPECIFICATION:
         const rawContent = aiData.choices[0].message.content;
 
         // 5. BULLETPROOF JSON EXTRACTOR
-        // Uses regex to find the first '[' and the last ']' to ignore any accidental AI conversational text
+        // Uses regex to find the first '{' and the last '}' to ignore any accidental AI conversational text
         let cleanJsonString = rawContent;
-        const arrayStart = rawContent.indexOf('[');
-        const arrayEnd = rawContent.lastIndexOf(']');
+        const objStart = rawContent.indexOf('{');
+        const objEnd = rawContent.lastIndexOf('}');
         
-        if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
-            cleanJsonString = rawContent.substring(arrayStart, arrayEnd + 1);
-        } else {
-            // Fallback for object-wrapped arrays (e.g., {"news": [...]})
-            const objStart = rawContent.indexOf('{');
-            const objEnd = rawContent.lastIndexOf('}');
-            if (objStart !== -1 && objEnd !== -1 && objEnd > objStart) {
-                cleanJsonString = rawContent.substring(objStart, objEnd + 1);
-            }
+        if (objStart !== -1 && objEnd !== -1 && objEnd > objStart) {
+            cleanJsonString = rawContent.substring(objStart, objEnd + 1);
         }
 
         let parsedOutput = JSON.parse(cleanJsonString);
 
-        // Normalize output in case model returns { "news": [...] } instead of raw array
+        // Normalize output to extract the array
         let finalArray = Array.isArray(parsedOutput) 
             ? parsedOutput 
             : (parsedOutput.data || parsedOutput.news || parsedOutput.cards || Object.values(parsedOutput)[0]);
