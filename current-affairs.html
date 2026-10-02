@@ -187,7 +187,8 @@
                     <span>🔄</span> <span class="hidden sm:inline translation-el" data-en="Flip All" data-hi="सभी पलटें">Flip All</span>
                 </button>
 
-                <button onclick="downloadPDF(event)" title="Download Daily PDF" class="flex items-center gap-1.5 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
+                <!-- MODIFIED: Linked directly to the Telegram Growth Modal -->
+                <button onclick="triggerTelegramDownload(event)" title="Download Daily PDF" class="flex items-center gap-1.5 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
                     <span>📄</span> <span class="hidden sm:inline translation-el" data-en="Daily PDF" data-hi="दैनिक PDF">Daily PDF</span>
                 </button>
             </div>
@@ -205,24 +206,41 @@
         <div id="dailyFeedView" class="space-y-8 hidden"></div>
 
         <div id="weeklyDrillView" class="hidden space-y-6">
-            <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-8 shadow-sm text-center text-white">
+            <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">⚡</div>
                 <h2 class="text-2xl font-black mb-2 translation-el" data-en="Weekly News Compilation" data-hi="साप्ताहिक समाचार संकलन">Weekly News Compilation</h2>
-                <button onclick="downloadPDF(event)" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-6 py-3 rounded-xl shadow-md transition text-sm mt-4 translation-el" data-en="Download Weekly PDF 📄" data-hi="साप्ताहिक PDF डाउनलोड करें 📄">Download Weekly PDF 📄</button>
+                <p class="text-slate-300 text-sm mb-6 max-w-md mx-auto">Read the verified magazine notes and test your retention under timer.</p>
+                <!-- MODIFIED: Linked directly to the Telegram Growth Modal -->
+                <button onclick="triggerTelegramDownload(event)" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Weekly PDF 📄" data-hi="साप्ताहिक PDF डाउनलोड करें 📄">Download Weekly PDF 📄</button>
             </div>
+            
+            <div id="weeklyPdfEmbedContainer" class="hidden rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900 h-96 mt-6">
+                <iframe id="weeklyPdfFrame" class="w-full h-full" src=""></iframe>
+            </div>
+            
+            <div id="weeklyQuizArena" class="space-y-6 mt-8"></div>
         </div>
 
         <div id="monthlyPdfView" class="hidden space-y-6">
-            <div class="bg-emerald-900 border border-emerald-800 rounded-3xl p-8 shadow-sm text-center text-white">
+            <div class="bg-emerald-900 border border-emerald-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">📥</div>
                 <h2 class="text-2xl font-black mb-2 translation-el" data-en="Monthly Mega Compilation" data-hi="मासिक मेगा संकलन">Monthly Mega Compilation</h2>
-                <button onclick="downloadPDF(event)" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-6 py-3 rounded-xl shadow-md transition text-sm mt-4 translation-el" data-en="Download Monthly PDF 📄" data-hi="मासिक PDF डाउनलोड करें 📄">Download Monthly PDF 📄</button>
+                <p class="text-slate-300 text-sm mb-6 max-w-md mx-auto">100-Question comprehensive mock exam covering all primary sectors.</p>
+                <!-- MODIFIED: Linked directly to the Telegram Growth Modal -->
+                <button onclick="triggerTelegramDownload(event)" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Monthly PDF 📄" data-hi="मासिक PDF डाउनलोड करें 📄">Download Monthly PDF 📄</button>
             </div>
+            
+            <div id="monthlyPdfEmbedContainer" class="hidden rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900 h-96 mt-6">
+                <iframe id="monthlyPdfFrame" class="w-full h-full" src=""></iframe>
+            </div>
+            
+            <div id="monthlyQuizArena" class="space-y-6 mt-8"></div>
         </div>
         
         <div id="emptyFeedState" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-12 text-center max-w-md mx-auto shadow-sm">
-            <div class="text-4xl mb-3">☕</div>
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 translation-el" data-en="No News Filed For This Date" data-hi="इस तिथि के लिए कोई समाचार नहीं है">No News Filed For This Date</h3>
+            <div class="text-4xl mb-3" id="emptyIcon">☕</div>
+            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 translation-el" id="emptyText" data-en="No News Filed For This Date" data-hi="इस तिथि के लिए कोई समाचार नहीं है">No News Filed For This Date</h3>
+            <p id="emptySubText" class="text-sm font-medium text-slate-500 mb-4 hidden"></p>
             <button id="btnResetToday" class="mt-4 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-500 transition translation-el" data-en="Jump to Today" data-hi="आज पर जाएं">Jump to Today</button>
         </div>
     </main>
@@ -290,6 +308,27 @@
         </div>
     </footer>
 
+    <!-- ADDED: TELEGRAM EXCLUSIVE DOWNLOAD MODAL -->
+    <div id="telegramGrowthModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700">
+            <div class="w-16 h-16 bg-[#0088cc]/10 text-[#0088cc] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+                ✈️
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Join Official Telegram for PDF</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+                Printable offline PDFs with detailed solution keys and watermarks are distributed exclusively inside our verified Telegram channel.
+            </p>
+            <div class="flex flex-col gap-3">
+                <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="closeTgModal()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <span>🚀</span> Join Telegram Channel (Free)
+                </a>
+                <button onclick="closeTgModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold py-2 text-xs transition">
+                    Continue Reading Online
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- PREMIUM LOCK MODAL -->
     <div id="premiumModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transform scale-100 transition-all">
@@ -319,7 +358,7 @@
             if (htmlTag.classList.contains('dark')) {
                 htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙';
             } else {
-                htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀️️';
+                htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀';
             }
         }
         themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
@@ -329,11 +368,9 @@
         window.setLanguage = function(lang) {
             currentLang = lang;
             
-            // Grab both Desktop and Mobile buttons
             const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')];
             const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
 
-            // Toggle active classes safely
             if (lang === 'en') {
                 btnsEn.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
                 btnsHi.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
@@ -342,13 +379,11 @@
                 btnsEn.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
             }
             
-            // Translate all elements with data-en/data-hi attributes
             document.querySelectorAll('.translation-el').forEach(el => {
                 if(lang === 'hi' && el.hasAttribute('data-hi')) { el.innerHTML = el.getAttribute('data-hi'); } 
                 else if(el.hasAttribute('data-en')) { el.innerHTML = el.getAttribute('data-en'); }
             });
             
-            // Trigger page-specific data re-renders (checks if the function exists on the current page)
             if (typeof resetAndFetchBlogs === 'function') resetAndFetchBlogs();
             if (typeof updateProgress === 'function') updateProgress();
             if (typeof renderFeedCards === 'function') renderFeedCards();
@@ -397,8 +432,15 @@
             document.getElementById('premiumModal').classList.add('hidden');
         };
 
-        window.downloadPDF = function(e) { 
-            if(requireLogin(e)) alert('Generating and Downloading PDF...'); 
+        // ADDED: TELEGRAM TRIGGER LOGIC
+        window.triggerTelegramDownload = function(e) { 
+            if(e) e.preventDefault();
+            if(requireLogin(e)) {
+                document.getElementById('telegramGrowthModal').classList.remove('hidden'); 
+            }
+        };
+        window.closeTgModal = function() {
+            document.getElementById('telegramGrowthModal').classList.add('hidden');
         };
         
         window.bookmarkCard = function(e, uiIndex) { 
@@ -523,19 +565,44 @@
         }
 
         async function loadNewsForDate(dateStr) {
-            document.getElementById('dailyFeedView').classList.add('hidden'); document.getElementById('emptyFeedState').classList.add('hidden');
+            document.getElementById('dailyFeedView').classList.add('hidden'); 
+            document.getElementById('emptyFeedState').classList.add('hidden');
             document.getElementById('feedLoading').classList.remove('hidden');
             
             try {
                 const snapshot = await db.collection("daily_news").where("date", "==", dateStr).get();
                 allArticlesCache = [];
 
-                if (snapshot.empty) { allArticlesCache = getFallbackDemoCards(dateStr); } 
-                else { snapshot.forEach(doc => { allArticlesCache.push({ id: doc.id, ...doc.data() }); }); }
+                // ADDED: The 6:00 AM Gatekeeper check
+                const now = new Date().toISOString();
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (!data.publishAt || data.publishAt <= now) {
+                        allArticlesCache.push({ id: doc.id, ...data });
+                    }
+                });
 
                 document.getElementById('feedLoading').classList.add('hidden');
                 
-                if (allArticlesCache.length === 0) { document.getElementById('emptyFeedState').classList.remove('hidden'); } 
+                if (allArticlesCache.length === 0) { 
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const emptyIcon = document.getElementById('emptyIcon');
+                    const emptyText = document.getElementById('emptyText');
+                    const emptySubText = document.getElementById('emptySubText');
+
+                    if(dateStr === todayStr && new Date().getHours() < 6) {
+                        emptyIcon.textContent = "🌅";
+                        emptyText.innerHTML = currentLang === 'hi' ? "आज का 25+ करंट अफेयर्स सुबह 6:00 बजे आएगा।" : "Today's 25+ Current Affairs digest drops sharp at 6:00 AM.";
+                        emptySubText.innerHTML = currentLang === 'hi' ? "इस बीच कल के समाचारों का अभ्यास करें!" : "Practice yesterday's news in the meantime!";
+                        emptySubText.classList.remove('hidden');
+                    } else {
+                        emptyIcon.textContent = "☕";
+                        emptyText.innerHTML = currentLang === 'hi' ? "इस तिथि के लिए कोई समाचार नहीं है" : "No News Filed For This Date";
+                        emptySubText.classList.add('hidden');
+                    }
+                    document.getElementById('emptyFeedState').classList.remove('hidden'); 
+                } 
                 else {
                     readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards();
                     document.getElementById('dailyFeedView').classList.remove('hidden');
@@ -703,14 +770,13 @@
             if(!readArticlesSet.has(docId)) markAsRead(docId, uiIdx);
         };
 
-        // EMPTIED SEED FUNCTION (Ready for Firebase)
         function getFallbackDemoCards(dateStr) {
             return [];
         }
 
         document.addEventListener('DOMContentLoaded', () => loadNewsForDate(selectedDateStr));
     </script>
-    <!-- ========================================== -->
+
 <!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
 <!-- ========================================== -->
 <style>

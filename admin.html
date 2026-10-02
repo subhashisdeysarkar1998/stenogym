@@ -10,6 +10,7 @@
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
@@ -21,15 +22,11 @@
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .gk-tab-btn.active { border-bottom: 2px solid #4f46e5; color: #4f46e5; }
         
-        /* Premium Editor Styling */
         .ql-toolbar.ql-snow { border: 1px solid #e2e8f0 !important; border-bottom: none !important; background-color: #f8fafc; font-family: inherit; border-radius: 0.75rem 0.75rem 0 0; }
         .ql-container.ql-snow { border: 1px solid #e2e8f0 !important; font-family: inherit; font-size: 1rem; color: #334155; border-radius: 0 0 0.75rem 0.75rem; background: #fff;}
         .ql-editor { min-height: 250px; padding: 1.5rem; }
-    .active-nav {
-        color: #67e8f9 !important;
-        font-weight: 900 !important;
-    }
-</style>
+        .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
+    </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex overflow-hidden">
 
@@ -46,7 +43,7 @@
         <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none">☰</button>
     </div>
 
-    <!-- Mega Sidebar (Desktop + Mobile Overlay) -->
+    <!-- Mega Sidebar -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden backdrop-blur-sm"></div>
     <aside id="megaSidebar" class="fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 transition-transform duration-300 h-full">
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950">
@@ -55,10 +52,11 @@
         </div>
         
         <div class="flex-grow p-4 overflow-y-auto hide-scrollbar space-y-1">
-            
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-2 px-2">Learning Hub</p>
-            <button class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow-sm transition" data-target="tab-gk"><span>📚</span> Static GK</button>
-            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-ca"><span>🗞️</span> Current Affairs</button>
+            <button class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow-sm transition" data-target="tab-gk"><span>📚</span> Static GK Engine</button>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-gk-manage"><span>📖</span> Manage Static GK</button>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-ca"><span>🗞️</span> CA Ingestion Hub</button>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-ca-manage"><span>📰</span> Manage Current Affairs</button>
             
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-2">Steno Engine</p>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-upload"><span>📝</span> Upload Dictation</button>
@@ -72,7 +70,6 @@
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-2">Platform</p>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-analytics"><span>👥</span> User Analytics</button>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-settings"><span>🔧</span> Site Settings</button>
-            
         </div>
         
         <div class="p-4 border-t border-slate-800">
@@ -90,7 +87,7 @@
 
         <div class="p-4 md:p-8 w-full max-w-7xl mx-auto pb-24">
 
-            <!-- 1. TAB: STATIC GK MANAGER (BILINGUAL) -->
+            <!-- 1. TAB: STATIC GK ENGINE -->
             <div id="tab-gk" class="tab-content active space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-6">
@@ -185,40 +182,202 @@
                 </div>
             </div>
 
-            <!-- 2. TAB: CURRENT AFFAIRS (BILINGUAL STAGING) -->
-            <div id="tab-ca" class="tab-content space-y-6">
+            <!-- 2. TAB: MANAGE STATIC GK -->
+            <div id="tab-gk-manage" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-                    <h2 class="text-2xl font-black text-slate-900 mb-1">Current Affairs Pipeline</h2>
-                    <p class="text-slate-500 text-sm mb-6">AI Generation + Staging Review & Editing.</p>
-
-                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-4 items-end">
-                        <div class="w-full md:w-1/3">
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Target Date</label>
-                            <input type="date" id="caTargetDate" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:border-indigo-500">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-6 gap-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">Manage Static GK Topics</h2>
+                            <p class="text-slate-500 text-sm mt-1">Review, inspect, or delete live GK curriculum topics across all subjects.</p>
                         </div>
-                        <button onclick="fetchAINews()" id="btnFetchNews" class="w-full md:w-2/3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition flex justify-center items-center gap-2">
-                            <span>🤖</span> Fetch & Generate Bilingual Digest
-                        </button>
+                        <button id="btnRefreshGKManage" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg hover:bg-indigo-100 transition self-start sm:self-auto">🔄 Refresh Topics</button>
                     </div>
 
-                    <div id="caStagingArea" class="hidden space-y-6">
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 gap-4">
-                            <h3 class="font-black text-slate-900 text-lg">Staging Area: Review, Edit & Publish</h3>
-                            <div class="flex items-center gap-3">
-                                <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-2 px-4 rounded-lg shadow-sm transition flex items-center gap-2 text-sm">
-                                    <span>⚡</span> Re-Translate to Hindi
-                                </button>
-                                <button onclick="publishAINews()" id="btnPublishCA" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl shadow-md transition text-sm flex items-center gap-2">
-                                    <span>💾</span> Publish Daily News
-                                </button>
-                            </div>
-                        </div>
-                        <div id="caCardsContainer" class="space-y-8"></div>
+                    <!-- Subject Filter Tabs -->
+                    <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-slate-100 pb-4" id="gkSubjectFilters">
+                        <button onclick="filterGKSubject('all')" class="gk-sub-filter active px-4 py-2 rounded-xl text-xs font-black bg-indigo-600 text-white transition shadow-sm" data-sub="all">All Topics</button>
+                        <button onclick="filterGKSubject('polity')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="polity">🏛 Polity</button>
+                        <button onclick="filterGKSubject('history')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="history">📜 History</button>
+                        <button onclick="filterGKSubject('geography')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="geography">🌍 Geography</button>
+                        <button onclick="filterGKSubject('science')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="science">🔬 Science</button>
+                        <button onclick="filterGKSubject('economics')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="economics">📈 Economics</button>
+                        <button onclick="filterGKSubject('vault')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="vault">📊 Fact Vault</button>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold">Topic Title (EN / HI)</th>
+                                    <th class="px-6 py-4 font-bold">Subject</th>
+                                    <th class="px-6 py-4 font-bold">Assets Attached</th>
+                                    <th class="px-6 py-4 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gkManageTableBody" class="divide-y divide-slate-100">
+                                <tr><td colspan="4" class="text-center py-8 text-slate-400">Loading topics...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. TAB: UPLOAD DICTATION -->
+            <!-- 3. TAB: CA INGESTION HUB -->
+            <div id="tab-ca" class="tab-content space-y-6">
+                <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-6">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">Current Affairs Ingestion Hub</h2>
+                            <p class="text-sm text-slate-500">1-Click Clipboard Ingestion, Automated Segregation, PDF Stamping & Scheduled Releases.</p>
+                        </div>
+                        <!-- Mode Selector -->
+                        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
+                            <button onclick="switchCACadence('daily')" id="btnCADailyTab" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition">📅 Daily (25+)</button>
+                            <button onclick="switchCACadence('drills')" id="btnCADrillsTab" class="px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition">⚡ Weekly / Monthly Drills</button>
+                        </div>
+                    </div>
+
+                    <!-- DAILY CONTROLS -->
+                    <div id="caDailyControls" class="flex flex-wrap items-end gap-4">
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Target Date</label>
+                            <input type="date" id="caTargetDate" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Release Schedule</label>
+                            <select id="caReleaseSchedule" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                <option value="6am">⏰ Sharp 06:00 AM Drop</option>
+                                <option value="instant">⚡ Immediate Live Release</option>
+                            </select>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="ingestFromClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                                <span>📥</span> Ingest Clipboard
+                            </button>
+                            <button onclick="openPasteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 transition">
+                                📋 Paste Box
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- WEEKLY / MONTHLY DRILL CONTROLS -->
+                    <div id="caDrillControls" class="hidden space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Drill Cadence</label>
+                                <select id="drillCadenceType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                    <option value="weekly">⚡ Weekly Speed Drill (50 MCQs)</option>
+                                    <option value="monthly">📥 Monthly Mega Mock (100 MCQs)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Identifier / Tag (e.g., 2026-W40 or 2026-10)</label>
+                                <input type="text" id="drillIdentifier" placeholder="2026-W40" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Watermarked PDF Embed URL (Drive / Firebase)</label>
+                                <input type="url" id="drillPdfEmbedUrl" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="ingestDrillFromClipboard()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                                <span>⚡</span> Ingest Drill from Clipboard
+                            </button>
+                            <button onclick="openPasteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 transition">
+                                📋 Paste Box
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAGING AREA -->
+                <div id="caStagingArea" class="hidden space-y-6">
+                    <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-emerald-400 text-2xl font-black" id="stagedCount">0</span>
+                                <span class="text-sm font-bold uppercase tracking-wider text-slate-400">Cards Ready in Staging</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1" id="stagedScheduleBadge">Configured for 06:00 AM</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-3">
+                            <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
+                                <span>⚡</span> Re-Translate
+                            </button>
+                            <button onclick="generateStagedPDF()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
+                                <span>📄</span> Generate Watermarked PDF
+                            </button>
+                            <button onclick="publishStagedNews()" id="btnPublishCA" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 px-6 rounded-xl shadow transition text-xs flex items-center gap-2">
+                                <span>🚀</span> Commit & Schedule Drop
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2" id="stagingCategoryPills"></div>
+                    <div id="caCardsContainer" class="space-y-6"></div>
+                </div>
+            </div>
+
+            <!-- 4. TAB: MANAGE CURRENT AFFAIRS -->
+            <div id="tab-ca-manage" class="tab-content space-y-6">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-6 gap-4 border-b border-slate-100 pb-6">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">Manage Published Current Affairs</h2>
+                            <p class="text-slate-500 text-sm mt-1">Audit, edit MCQs/headlines, or clean up live digests by release date.</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button onclick="purgeSelectedDay()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-4 py-2 rounded-xl text-xs transition">
+                                🗑️ Purge Selected Day
+                            </button>
+                            <button id="btnRefreshCAManage" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh</button>
+                        </div>
+                    </div>
+
+                    <!-- Date & Category Filter Bar -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Inspect Date</label>
+                            <input type="date" id="caManageDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Filter Category</label>
+                            <select id="caManageCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                <option value="all">All Categories</option>
+                                <option value="Banking & Economy">Banking & Economy</option>
+                                <option value="National & Global">National & Global</option>
+                                <option value="Science & Defence">Science & Defence</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Persons in News">Persons in News</option>
+                                <option value="Awards & Honours">Awards & Honours</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <div id="caDayStatusBadge" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 text-center">
+                                Status: Ready to inspect
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-sm">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
+                                <tr>
+                                    <th class="px-6 py-4 font-bold">Headline (EN) & Category</th>
+                                    <th class="px-6 py-4 font-bold">MCQ Linked</th>
+                                    <th class="px-6 py-4 font-bold">Answer</th>
+                                    <th class="px-6 py-4 font-bold text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="caManageTableBody" class="divide-y divide-slate-100">
+                                <tr><td colspan="4" class="text-center py-8 text-slate-400">Select a date to inspect cards...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. TAB: UPLOAD DICTATION -->
             <div id="tab-upload" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <h2 class="text-2xl font-black text-slate-900 mb-6">Upload Dictation</h2>
@@ -260,7 +419,7 @@
                 </div>
             </div>
 
-            <!-- 4. TAB: DICTATION LIBRARY -->
+            <!-- 6. TAB: DICTATION LIBRARY -->
             <div id="tab-library" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-8">
@@ -287,7 +446,7 @@
                 </div>
             </div>
 
-            <!-- 5. TAB: WRITE SEO BLOG -->
+            <!-- 7. TAB: WRITE SEO BLOG -->
             <div id="tab-blog-write" class="tab-content space-y-6">
                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
                     <h2 class="text-xl font-black text-slate-900">Publish New Blog Post</h2>
@@ -356,7 +515,7 @@
                 </div>
             </div>
 
-            <!-- 6. TAB: MANAGE BLOGS -->
+            <!-- 8. TAB: MANAGE BLOGS -->
             <div id="tab-blog-manage" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-8">
@@ -383,7 +542,7 @@
                 </div>
             </div>
 
-            <!-- 7. TAB: STORE MANAGER -->
+            <!-- 9. TAB: STORE MANAGER -->
             <div id="tab-store" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="mb-8">
@@ -398,7 +557,7 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category Aisle</label>
                             <select id="prodCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-500 cursor-pointer">
-                                <option value="Writing Tools ✏️">Writing Tools ✏️️</option>
+                                <option value="Writing Tools ✏️">Writing Tools ✏</option>
                                 <option value="Notebooks & Paper 📓">Notebooks & Paper 📓</option>
                                 <option value="Mechanical Keyboards ⌨️">Mechanical Keyboards ⌨️</option>
                                 <option value="Audio Gear 🎧">Audio Gear 🎧</option>
@@ -426,7 +585,7 @@
                 </div>
             </div>
 
-            <!-- 8. TAB: PLATFORM ANALYTICS -->
+            <!-- 10. TAB: PLATFORM ANALYTICS -->
             <div id="tab-analytics" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-8">
@@ -456,7 +615,7 @@
                 </div>
             </div>
 
-            <!-- 9. TAB: SITE SETTINGS -->
+            <!-- 11. TAB: SITE SETTINGS -->
             <div id="tab-settings" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 max-w-3xl">
                     <h2 class="text-2xl font-black text-slate-900 mb-6">Global Announcements</h2>
@@ -483,6 +642,69 @@
 
         </div>
     </main>
+
+    <!-- MODAL: JSON PASTE -->
+    <div id="jsonPasteModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" onclick="closePasteModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-black text-slate-800">Paste AI-Generated Digest JSON</h3>
+                <button onclick="closePasteModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6">
+                <textarea id="rawJsonInput" rows="12" placeholder="Paste the code block here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closePasteModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
+                <button onclick="processPastedJson()" class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Load Cards</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT CA CARD (FROM MANAGE TAB) -->
+    <div id="editCAModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" onclick="closeCAModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative z-10 flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-black text-slate-800">Edit Current Affairs Card</h3>
+                <button onclick="closeCAModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow space-y-4">
+                <input type="hidden" id="editCADocId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Headline (EN)</label>
+                    <input type="text" id="editCAHeadline" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Headline (HI)</label>
+                    <input type="text" id="editCAHeadline_hi" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Bullets (One per line)</label>
+                    <textarea id="editCABullets" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-indigo-500"></textarea>
+                </div>
+                <div class="bg-indigo-50 p-4 rounded-xl space-y-3">
+                    <span class="text-xs font-black uppercase tracking-wider text-indigo-700">MCQ Verification</span>
+                    <input type="text" id="editCAMcqQ" placeholder="Question" class="w-full bg-white border border-indigo-200 rounded-lg p-2 text-xs font-bold">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="editCAMcqO0" placeholder="Opt A" class="bg-white border rounded p-1.5 text-xs">
+                        <input type="text" id="editCAMcqO1" placeholder="Opt B" class="bg-white border rounded p-1.5 text-xs">
+                        <input type="text" id="editCAMcqO2" placeholder="Opt C" class="bg-white border rounded p-1.5 text-xs">
+                        <input type="text" id="editCAMcqO3" placeholder="Opt D" class="bg-white border rounded p-1.5 text-xs">
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <label class="text-xs font-bold text-slate-700">Correct Index (0-3):</label>
+                        <input type="number" id="editCAMcqAns" min="0" max="3" class="w-16 border rounded p-1 text-center font-bold text-xs bg-white">
+                    </div>
+                    <input type="text" id="editCAMcqExp" placeholder="Explanation" class="w-full bg-white border border-indigo-200 rounded-lg p-2 text-xs">
+                </div>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closeCAModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
+                <button id="btnSaveCAChanges" onclick="saveCAChanges()" class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Save Changes</button>
+            </div>
+        </div>
+    </div>
 
     <!-- MODAL: EDIT DICTATION -->
     <div id="editDictModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
@@ -563,7 +785,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, deleteDoc, updateDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
         const app = initializeApp(firebaseConfig); 
@@ -580,7 +802,7 @@
             } else { window.location.href = "login.html"; }
         });
 
-        // 1. Navigation & Mobile Menu Logic
+        // 1. Navigation Logic
         const navBtns = document.querySelectorAll('.nav-btn');
         const contents = document.querySelectorAll('.tab-content');
         const headerTitle = document.getElementById('headerTitle');
@@ -600,9 +822,11 @@
                 contents.forEach(c => c.classList.remove('active'));
                 const target = document.getElementById(btn.getAttribute('data-target'));
                 target.classList.add('active');
-                headerTitle.textContent = btn.textContent.replace(/[^a-zA-Z\s]/g, '').trim() + " Manager";
+                headerTitle.textContent = btn.textContent.replace(/[^a-zA-Z\s]/g, '').trim();
                 closeSidebar();
                 
+                if(target.id === 'tab-gk-manage') fetchGKManage();
+                if(target.id === 'tab-ca-manage') fetchCAManage();
                 if(target.id === 'tab-library') fetchLibrary();
                 if(target.id === 'tab-blog-manage') fetchBlogs();
                 if(target.id === 'tab-analytics') fetchAnalytics();
@@ -612,7 +836,7 @@
         window.escapeHtml = (val) => { const d = document.createElement('div'); d.textContent = val ?? ''; return d.innerHTML; };
 
         /* ========================================================= */
-        /* 2. AUTO-TRANSLATE TO HINDI ENGINE                         */
+        /* 2. TRANSLATION ENGINE & QUILL EDITORS                     */
         /* ========================================================= */
         async function translateEnToHi(text) {
             if (!text || text.trim() === "") return "";
@@ -623,9 +847,6 @@
             } catch (e) { console.error("Translation Error:", e); return text; }
         }
 
-        /* ========================================================= */
-        /* 3. MULTI-QUILL SETUP & IMGBB IMAGE UPLOADER               */
-        /* ========================================================= */
         const qOptions = { theme: 'snow', modules: { toolbar: [[{'header': [1,2,3,false]}], ['bold','italic','underline'], [{'list': 'ordered'},{'list': 'bullet'}], ['blockquote', 'link', 'clean']] } };
         window.quillGkEn = new Quill('#quillGkEn', { ...qOptions, placeholder: 'Write English notes here...' });
         window.quillGkHi = new Quill('#quillGkHi', { ...qOptions, placeholder: 'यहाँ हिंदी नोट्स लिखें...' });
@@ -654,59 +875,17 @@
             try {
                 const formData = new FormData();
                 formData.append("image", file);
-
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-                    method: "POST",
-                    body: formData
-                });
-
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
                 const data = await res.json();
                 if (data.success && data.data?.url) {
                     activeImageQuill.insertEmbed(savedCursorIndex, 'image', data.data.url);
                     alert("Image uploaded and inserted successfully!");
-                } else {
-                    throw new Error(data.error?.message || "ImgBB upload failed.");
-                }
-            } catch (err) {
-                alert("Upload error: " + err.message);
-            } finally {
-                e.target.value = '';
-            }
+                } else { throw new Error(data.error?.message || "ImgBB upload failed."); }
+            } catch (err) { alert("Upload error: " + err.message); } finally { e.target.value = ''; }
         });
 
         /* ========================================================= */
-        /* 4. WEB SPEECH API (LIVE DICTATION)                        */
-        /* ========================================================= */
-        function setupDictation(btnId, quillInstance, langCode) {
-            const btn = document.getElementById(btnId);
-            if(!btn || !('webkitSpeechRecognition' in window)) { if(btn) btn.style.display = 'none'; return; }
-            
-            const rec = new webkitSpeechRecognition();
-            rec.continuous = true; rec.interimResults = true; rec.lang = langCode;
-            let isDictating = false;
-
-            rec.onstart = () => { isDictating = true; btn.innerHTML = "🛑 Stop Dictating"; btn.classList.add("bg-rose-100", "text-rose-700", "animate-pulse"); };
-            rec.onend = () => { isDictating = false; btn.innerHTML = "🎙️ Start Dictating"; btn.classList.remove("bg-rose-100", "text-rose-700", "animate-pulse"); };
-            rec.onresult = (e) => {
-                let finalTrans = '';
-                for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTrans += e.results[i][0].transcript; }
-                if(finalTrans) {
-                    const range = quillInstance.getSelection(true) || {index: quillInstance.getLength() - 1};
-                    quillInstance.insertText(range.index, finalTrans + ' ');
-                    quillInstance.setSelection(range.index + finalTrans.length + 1);
-                }
-            };
-            btn.onclick = (e) => { e.preventDefault(); if(isDictating) rec.stop(); else rec.start(); };
-        }
-        setupDictation('btnDictateEn', window.quillBlogEn, 'en-IN');
-        setupDictation('btnDictateHi', window.quillBlogHi, 'hi-IN');
-
-        document.getElementById('blogTitle_en').addEventListener('input', (e) => {
-            document.getElementById('blogSlug').value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-        });
-
-        /* ========================================================= */
-        /* 5. BILINGUAL GK ENGINE & AUTO-TRANSLATE                   */
+        /* 3. STATIC GK ENGINE & SUBJECT MANAGEMENT                  */
         /* ========================================================= */
         window.switchGkEditor = function(m) {
             ['notes','flashcards','mcqs'].forEach(k => {
@@ -746,28 +925,15 @@
         window.generateGkWithAI = async function() {
             const prompt = document.getElementById('aiGkPrompt').value;
             if(!prompt) { alert("Please enter a prompt first."); return; }
-            
             const btn = document.querySelector('button[onclick="generateGkWithAI()"]');
             btn.innerHTML = "⚡ Generating..."; btn.disabled = true;
-
             try {
-                const response = await fetch("/api/generate-gk", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ prompt })
-                });
-                
+                const response = await fetch("/api/generate-gk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }) });
                 const data = await response.json();
-                
                 window.quillGkEn.clipboard.dangerouslyPasteHTML(data.notesHtml || "");
                 document.getElementById('flashcardsContainer').innerHTML = "";
                 window.addFlashcardUI(data.flashcardFront, data.flashcardBack, data.flashcardContext);
-                
-            } catch (err) {
-                alert("Error generating GK: " + err.message);
-            } finally {
-                btn.innerHTML = "<span>⚡</span> Auto-Generate"; btn.disabled = false;
-            }
+            } catch (err) { alert("Error generating GK: " + err.message); } finally { btn.innerHTML = "<span>⚡</span> Auto-Generate"; btn.disabled = false; }
         };
 
         window.autoTranslateGK = async function() {
@@ -775,32 +941,24 @@
             try {
                 const titleEn = document.getElementById('gkTopicTitle').value;
                 if(titleEn) document.getElementById('gkTopicTitle_hi').value = await translateEnToHi(titleEn);
-                
                 const notesEn = window.quillGkEn.root.innerHTML;
-                if(notesEn && notesEn !== "<p><br></p>") {
-                    const translatedNotes = await translateEnToHi(notesEn);
-                    window.quillGkHi.clipboard.dangerouslyPasteHTML(translatedNotes);
-                }
+                if(notesEn && notesEn !== "<p><br></p>") window.quillGkHi.clipboard.dangerouslyPasteHTML(await translateEnToHi(notesEn));
 
-                const fcs = document.querySelectorAll('.fc-entry');
-                for(let fc of fcs) {
+                document.querySelectorAll('.fc-entry').forEach(async fc => {
                     fc.querySelector('.fc-hi-f').value = await translateEnToHi(fc.querySelector('.fc-en-f').value);
                     fc.querySelector('.fc-hi-b').value = await translateEnToHi(fc.querySelector('.fc-en-b').value);
                     fc.querySelector('.fc-hi-c').value = await translateEnToHi(fc.querySelector('.fc-en-c').value);
-                }
-
-                const mcqs = document.querySelectorAll('.mcq-entry');
-                for(let mq of mcqs) {
+                });
+                document.querySelectorAll('.mcq-entry').forEach(async mq => {
                     mq.querySelector('.mq-hi-q').value = await translateEnToHi(mq.querySelector('.mq-en-q').value);
                     mq.querySelector('.mq-hi-o1').value = await translateEnToHi(mq.querySelector('.mq-en-o1').value);
                     mq.querySelector('.mq-hi-o2').value = await translateEnToHi(mq.querySelector('.mq-en-o2').value);
                     mq.querySelector('.mq-hi-o3').value = await translateEnToHi(mq.querySelector('.mq-en-o3').value);
                     mq.querySelector('.mq-hi-o4').value = await translateEnToHi(mq.querySelector('.mq-en-o4').value);
                     mq.querySelector('.mq-hi-exp').value = await translateEnToHi(mq.querySelector('.mq-en-exp').value);
-                }
+                });
                 alert("Translation Complete!");
-            } catch(e) { alert("Translation failed. Try again."); }
-            btn.innerHTML = "⚡ Auto-Translate to Hindi"; btn.disabled = false;
+            } catch(e) { alert("Translation failed. Try again."); } finally { btn.innerHTML = "⚡ Auto-Translate to Hindi"; btn.disabled = false; }
         };
 
         window.saveGKToDatabase = async function() {
@@ -837,124 +995,292 @@
                     updatedAt: serverTimestamp() 
                 });
                 alert("GK Topic Published Successfully!");
-            } catch(e) { alert("Error saving GK: " + e.message); }
-            btn.innerHTML = "💾 Publish Topic";
+            } catch(e) { alert("Error saving GK: " + e.message); } finally { btn.innerHTML = "💾 Publish Topic"; }
         };
 
+        // MANAGE STATIC GK LOGIC
+        let allGkTopicsCache = [];
+        let activeGkFilter = "all";
+        const gkManageTableBody = document.getElementById('gkManageTableBody');
+
+        window.fetchGKManage = async function() {
+            gkManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">Fetching topics from Firestore...</td></tr>';
+            try {
+                const snap = await getDocs(collection(db, "static_gk"));
+                allGkTopicsCache = [];
+                snap.forEach(d => allGkTopicsCache.push({ id: d.id, ...d.data() }));
+                renderGKManageTable();
+            } catch (err) { gkManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+        };
+
+        function renderGKManageTable() {
+            const filtered = activeGkFilter === 'all' ? allGkTopicsCache : allGkTopicsCache.filter(t => t.subjectKey === activeGkFilter);
+            if (filtered.length === 0) {
+                gkManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400">No static GK topics found under this subject.</td></tr>';
+                return;
+            }
+            let html = "";
+            filtered.forEach(topic => {
+                const fcCount = (topic.flashcards || []).length;
+                const mcqCount = (topic.mcqs || []).length;
+                html += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-900">${escapeHtml(topic.topicTitle)}</div>
+                            <div class="text-xs text-emerald-600 font-semibold">${escapeHtml(topic.topicTitle_hi || '')}</div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-xs font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md">${escapeHtml(topic.subjectName || topic.subjectKey)}</span>
+                        </td>
+                        <td class="px-6 py-4 text-xs font-semibold text-slate-600">
+                            Notes + ${fcCount} Cards + ${mcqCount} MCQs
+                        </td>
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <button onclick="deleteGKTopic('${topic.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+            gkManageTableBody.innerHTML = html;
+        }
+
+        window.filterGKSubject = function(subKey) {
+            activeGkFilter = subKey;
+            document.querySelectorAll('.gk-sub-filter').forEach(btn => {
+                const active = btn.getAttribute('data-sub') === subKey;
+                btn.className = active ? 'gk-sub-filter active px-4 py-2 rounded-xl text-xs font-black bg-indigo-600 text-white transition shadow-sm' : 'gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition';
+            });
+            renderGKManageTable();
+        };
+
+        window.deleteGKTopic = async function(id) {
+            if (!confirm("Permanently delete this Static GK topic?")) return;
+            try {
+                await deleteDoc(doc(db, "static_gk", id));
+                allGkTopicsCache = allGkTopicsCache.filter(t => t.id !== id);
+                renderGKManageTable();
+            } catch(e) { alert("Failed to delete topic: " + e.message); }
+        };
+        document.getElementById('btnRefreshGKManage').addEventListener('click', fetchGKManage);
+
         /* ========================================================= */
-        /* 6. CURRENT AFFAIRS BILINGUAL ENGINE (STAGING & PUBLISH)   */
+        /* 4. CURRENT AFFAIRS INGESTION HUB                          */
         /* ========================================================= */
         document.getElementById('caTargetDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('caManageDate').value = new Date().toISOString().split('T')[0];
         
-        window.fetchAINews = async function() {
-            const dt = document.getElementById('caTargetDate').value; if(!dt) return alert("Select Date");
-            const btn = document.getElementById('btnFetchNews');
-            btn.innerHTML = "Fetching & Generating..."; btn.disabled = true;
-            
+        let currentCACadence = "daily";
+        window.stagedNewsItems = [];
+        window.activeStagingFilter = "all";
+
+        window.switchCACadence = function(mode) {
+            currentCACadence = mode;
+            const isDaily = mode === 'daily';
+            document.getElementById('caDailyControls').classList.toggle('hidden', !isDaily);
+            document.getElementById('caDrillControls').classList.toggle('hidden', isDaily);
+            document.getElementById('btnCADailyTab').className = isDaily ? 'px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition' : 'px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition';
+            document.getElementById('btnCADrillsTab').className = !isDaily ? 'px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition' : 'px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition';
+        };
+
+        window.openPasteModal = () => document.getElementById('jsonPasteModal').classList.remove('hidden');
+        window.closePasteModal = () => document.getElementById('jsonPasteModal').classList.add('hidden');
+
+        window.ingestFromClipboard = async () => {
             try {
-                const res = await fetch('/.netlify/functions/fetch-daily-news', { method: 'POST', body: JSON.stringify({date: dt}) });
-                const json = await res.json();
-                if (!json.success || !Array.isArray(json.data)) throw new Error(json.error || "Failed to retrieve cards");
-                
-                let html = "";
-                json.data.forEach((card, i) => {
-                    const exams = (card.targetExams || ["SSC CGL", "IBPS PO"]).join(", ");
-                    const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
-                    const mcqHi = card.mcq_hi || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
-                    
-                    html += `
-                    <div class="bg-slate-50 border border-slate-300 p-6 rounded-2xl ca-staged-card space-y-4 shadow-sm" data-index="${i}">
-                        <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                            <span class="text-sm font-black text-indigo-700 uppercase">Card #${i + 1} &bull; ${escapeHtml(card.emoji || '📰')} ${escapeHtml(card.category || '')}</span>
-                            <input type="text" class="ca-exams border rounded-lg px-2 py-1 text-xs font-bold w-48" value="${escapeHtml(exams)}" placeholder="Exams: SSC, Banking">
-                        </div>
-
-                        <!-- Core News Fields (Side by Side) -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- English Column -->
-                            <div class="space-y-2">
-                                <div class="font-black text-xs text-indigo-600 uppercase">English Content</div>
-                                <input type="hidden" class="ca-cat" value="${escapeHtml(card.category || 'National & Global')}">
-                                <input type="hidden" class="ca-sub" value="${escapeHtml(card.subCategory || 'General')}">
-                                <input type="hidden" class="ca-emj" value="${escapeHtml(card.emoji || '📰')}">
-                                
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Headline</label>
-                                <input type="text" class="ca-en-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bullets (One per line)</label>
-                                <textarea class="ca-en-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets||[]).join('\n')}</textarea></div>
-                                
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Exam Impact</label>
-                                <input type="text" class="ca-en-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Static Linkage Facts</label>
-                                <input type="text" class="ca-en-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox?.facts || '')}"></div>
-                            </div>
-
-                            <!-- Hindi Column -->
-                            <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
-                                <div class="font-black text-xs text-emerald-700 uppercase">Hindi Content (हिंदी)</div>
-                                <input type="hidden" class="ca-sub-hi" value="${escapeHtml(card.subCategory_hi || card.subCategory || 'सामान्य')}">
-                                
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Category (HI)</label>
-                                <input type="text" class="ca-hi-cat w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.category_hi || card.category || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Headline (HI)</label>
-                                <input type="text" class="ca-hi-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner_hi || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Bullets (HI)</label>
-                                <textarea class="ca-hi-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets_hi||[]).join('\n')}</textarea></div>
-                                
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Exam Impact (HI)</label>
-                                <input type="text" class="ca-hi-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact_hi || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Static Facts (HI)</label>
-                                <input type="text" class="ca-hi-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox_hi?.facts || '')}"></div>
-                            </div>
-                        </div>
-
-                        <!-- Full MCQ Staging Editor -->
-                        <div class="mt-4 pt-3 border-t border-slate-200">
-                            <div class="font-bold text-xs text-purple-700 uppercase mb-2">⚡ Linked Verification Quiz (MCQ)</div>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-2 bg-purple-50/50 p-3 rounded-xl border border-purple-100">
-                                    <input type="text" class="ca-mcq-en-q w-full border rounded p-1.5 text-xs font-bold bg-white" placeholder="EN Question" value="${escapeHtml(mcqEn.question || '')}">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <input type="text" class="ca-mcq-en-o0 border rounded p-1 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(mcqEn.options?.[0] || '')}">
-                                        <input type="text" class="ca-mcq-en-o1 border rounded p-1 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(mcqEn.options?.[1] || '')}">
-                                        <input type="text" class="ca-mcq-en-o2 border rounded p-1 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(mcqEn.options?.[2] || '')}">
-                                        <input type="text" class="ca-mcq-en-o3 border rounded p-1 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(mcqEn.options?.[3] || '')}">
-                                    </div>
-                                    <input type="text" class="ca-mcq-en-exp w-full border rounded p-1 text-xs bg-white" placeholder="Explanation" value="${escapeHtml(mcqEn.explanation || '')}">
-                                </div>
-
-                                <div class="space-y-2 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
-                                    <input type="text" class="ca-mcq-hi-q w-full border rounded p-1.5 text-xs font-bold bg-white" placeholder="HI Question" value="${escapeHtml(mcqHi.question || '')}">
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <input type="text" class="ca-mcq-hi-o0 border rounded p-1 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(mcqHi.options?.[0] || '')}">
-                                        <input type="text" class="ca-mcq-hi-o1 border rounded p-1 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(mcqHi.options?.[1] || '')}">
-                                        <input type="text" class="ca-mcq-hi-o2 border rounded p-1 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(mcqHi.options?.[2] || '')}">
-                                        <input type="text" class="ca-mcq-hi-o3 border rounded p-1 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(mcqHi.options?.[3] || '')}">
-                                    </div>
-                                    <input type="text" class="ca-mcq-hi-exp w-full border rounded p-1 text-xs bg-white" placeholder="Explanation (HI)" value="${escapeHtml(mcqHi.explanation || '')}">
-                                </div>
-                            </div>
-                            <div class="mt-2 text-xs font-bold flex items-center gap-2 text-slate-700">
-                                Correct Option Index (0 = A, 1 = B, 2 = C, 3 = D):
-                                <input type="number" class="ca-mcq-ans w-14 border rounded p-1 text-center font-mono font-bold" min="0" max="3" value="${mcqEn.correctIndex ?? 0}">
-                            </div>
-                        </div>
-                    </div>`;
-                });
-
-                document.getElementById('caCardsContainer').innerHTML = html;
-                document.getElementById('caStagingArea').classList.remove('hidden');
-            } catch(e) { 
-                alert("Error fetching news: " + e.message); 
-            } finally {
-                btn.innerHTML = "<span>🤖</span> Fetch & Generate Bilingual Digest";
-                btn.disabled = false;
+                const text = await navigator.clipboard.readText();
+                if (!text) throw new Error("Clipboard is empty.");
+                parseAndStagePayload(text);
+            } catch (err) {
+                alert("Cannot read clipboard automatically. Opening Manual Paste Box.");
+                openPasteModal();
             }
+        };
+
+        window.ingestDrillFromClipboard = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text) throw new Error("Clipboard is empty.");
+                parseAndStagePayload(text);
+            } catch (err) {
+                alert("Clipboard blocked. Use manual paste.");
+                openPasteModal();
+            }
+        };
+
+        window.processPastedJson = () => {
+            const raw = document.getElementById('rawJsonInput').value;
+            parseAndStagePayload(raw);
+            closePasteModal();
+        };
+
+        function parseAndStagePayload(rawText) {
+            try {
+                let clean = rawText.trim();
+                const start = clean.indexOf('[');
+                const end = clean.lastIndexOf(']');
+                if (start !== -1 && end !== -1) clean = clean.substring(start, end + 1);
+
+                const parsed = JSON.parse(clean);
+                const cards = Array.isArray(parsed) ? parsed : (parsed.news || parsed.data || Object.values(parsed)[0]);
+                if (!Array.isArray(cards) || cards.length === 0) throw new Error("Invalid format: expected array of cards.");
+
+                window.stagedNewsItems = cards;
+                renderStagingCards();
+            } catch (err) { alert("Failed to ingest payload: " + err.message); }
+        }
+
+        function renderStagingCards() {
+            document.getElementById('caStagingArea').classList.remove('hidden');
+            document.getElementById('stagedCount').textContent = window.stagedNewsItems.length;
+
+            const categories = Array.from(new Set(window.stagedNewsItems.map(i => i.category || 'General')));
+            const pillsContainer = document.getElementById('stagingCategoryPills');
+            pillsContainer.innerHTML = `<button onclick="setStagingFilter('all')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">All (${window.stagedNewsItems.length})</button>`;
+            categories.forEach(cat => {
+                const count = window.stagedNewsItems.filter(i => (i.category || 'General') === cat).length;
+                pillsContainer.innerHTML += `<button onclick="setStagingFilter('${cat}')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === cat ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">${cat} (${count})</button>`;
+            });
+
+            const list = document.getElementById('caCardsContainer');
+            list.innerHTML = "";
+            const visible = window.activeStagingFilter === 'all' ? window.stagedNewsItems : window.stagedNewsItems.filter(i => (i.category || 'General') === window.activeStagingFilter);
+
+            visible.forEach((card, i) => {
+                const exams = (card.targetExams || ["SSC CGL", "IBPS PO"]).join(", ");
+                const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
+                const mcqHi = card.mcq_hi || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
+
+                list.innerHTML += `
+                <div class="bg-slate-50 border border-slate-300 p-6 rounded-2xl ca-staged-card space-y-4 shadow-sm" data-index="${i}">
+                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                        <span class="text-sm font-black text-indigo-700 uppercase">Card #${i + 1} &bull; ${escapeHtml(card.emoji || '📰')} ${escapeHtml(card.category || '')}</span>
+                        <div class="flex gap-2">
+                            <input type="text" class="ca-exams border rounded-lg px-2 py-1 text-xs font-bold w-48" value="${escapeHtml(exams)}">
+                            <button onclick="this.closest('.ca-staged-card').remove(); document.getElementById('stagedCount').textContent = document.querySelectorAll('.ca-staged-card').length;" class="text-rose-500 font-bold text-xs px-2">🗑️ Remove</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="font-black text-xs text-indigo-600 uppercase">English Content</div>
+                            <input type="hidden" class="ca-cat" value="${escapeHtml(card.category || 'National & Global')}">
+                            <input type="hidden" class="ca-sub" value="${escapeHtml(card.subCategory || 'General')}">
+                            <input type="hidden" class="ca-emj" value="${escapeHtml(card.emoji || '📰')}">
+                            
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Headline</label>
+                            <input type="text" class="ca-en-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bullets</label>
+                            <textarea class="ca-en-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets||[]).join('\n')}</textarea></div>
+                            
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Exam Impact</label>
+                            <input type="text" class="ca-en-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Static Linkage Facts</label>
+                            <input type="text" class="ca-en-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox?.facts || '')}"></div>
+                        </div>
+
+                        <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
+                            <div class="font-black text-xs text-emerald-700 uppercase">Hindi Content (हिंदी)</div>
+                            <input type="hidden" class="ca-sub-hi" value="${escapeHtml(card.subCategory_hi || card.subCategory || 'सामान्य')}">
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Category (HI)</label>
+                            <input type="text" class="ca-hi-cat w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.category_hi || card.category || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Headline (HI)</label>
+                            <input type="text" class="ca-hi-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner_hi || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Bullets (HI)</label>
+                            <textarea class="ca-hi-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets_hi||[]).join('\n')}</textarea></div>
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Exam Impact (HI)</label>
+                            <input type="text" class="ca-hi-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact_hi || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Static Facts (HI)</label>
+                            <input type="text" class="ca-hi-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox_hi?.facts || '')}"></div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200">
+                        <div class="font-bold text-xs text-purple-700 uppercase mb-2">⚡ Linked Verification Quiz (MCQ)</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2 bg-purple-50/50 p-3 rounded-xl border border-purple-100">
+                                <input type="text" class="ca-mcq-en-q w-full border rounded p-1.5 text-xs font-bold bg-white" placeholder="EN Question" value="${escapeHtml(mcqEn.question || '')}">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" class="ca-mcq-en-o0 border rounded p-1 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(mcqEn.options?.[0] || '')}">
+                                    <input type="text" class="ca-mcq-en-o1 border rounded p-1 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(mcqEn.options?.[1] || '')}">
+                                    <input type="text" class="ca-mcq-en-o2 border rounded p-1 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(mcqEn.options?.[2] || '')}">
+                                    <input type="text" class="ca-mcq-en-o3 border rounded p-1 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(mcqEn.options?.[3] || '')}">
+                                </div>
+                                <input type="text" class="ca-mcq-en-exp w-full border rounded p-1 text-xs bg-white" placeholder="Explanation" value="${escapeHtml(mcqEn.explanation || '')}">
+                            </div>
+
+                            <div class="space-y-2 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+                                <input type="text" class="ca-mcq-hi-q w-full border rounded p-1.5 text-xs font-bold bg-white" placeholder="HI Question" value="${escapeHtml(mcqHi.question || '')}">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" class="ca-mcq-hi-o0 border rounded p-1 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(mcqHi.options?.[0] || '')}">
+                                    <input type="text" class="ca-mcq-hi-o1 border rounded p-1 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(mcqHi.options?.[1] || '')}">
+                                    <input type="text" class="ca-mcq-hi-o2 border rounded p-1 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(mcqHi.options?.[2] || '')}">
+                                    <input type="text" class="ca-mcq-hi-o3 border rounded p-1 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(mcqHi.options?.[3] || '')}">
+                                </div>
+                                <input type="text" class="ca-mcq-hi-exp w-full border rounded p-1 text-xs bg-white" placeholder="Explanation (HI)" value="${escapeHtml(mcqHi.explanation || '')}">
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs font-bold flex items-center gap-2 text-slate-700">
+                            Correct Option Index (0-3):
+                            <input type="number" class="ca-mcq-ans w-14 border rounded p-1 text-center font-mono font-bold" min="0" max="3" value="${mcqEn.correctIndex ?? 0}">
+                        </div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
+
+        window.generateStagedPDF = function() {
+            const cards = document.querySelectorAll('.ca-staged-card');
+            if (cards.length === 0) return alert("No cards in staging to generate PDF.");
+            
+            const dateStr = document.getElementById('caTargetDate').value;
+            let content = `<div style="padding: 24px; font-family: sans-serif; position: relative;">`;
+            content += `<style>
+                .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 65px; color: rgba(0, 0, 0, 0.07); z-index: -1; white-space: nowrap; font-weight: bold; pointer-events: none; }
+                .pdf-card { border: 1px solid #e2e8f0; margin-bottom: 20px; padding: 16px; border-radius: 8px; page-break-inside: avoid; }
+                .pdf-header { font-size: 15px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
+                .pdf-bullets { margin-left: 18px; font-size: 12px; margin-bottom: 10px; line-height: 1.5; color: #334155; }
+                .pdf-mcq { background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 12px; border-left: 4px solid #4f46e5; }
+            </style>`;
+            content += `<div class="watermark">STENOGYM • t.me/stenogym</div>`;
+            content += `<h2 style="text-align:center; color:#0f172a; margin-bottom: 24px; font-weight: 900; text-transform: uppercase; font-size: 18px;">Stenogym Daily Current Affairs - ${dateStr}</h2>`;
+            
+            cards.forEach((el, i) => {
+                const cat = el.querySelector('.ca-cat').value;
+                const oneLiner = el.querySelector('.ca-en-h').value;
+                const bullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
+                const stFacts = el.querySelector('.ca-en-st').value;
+                const q = el.querySelector('.ca-mcq-en-q').value;
+                const optA = el.querySelector('.ca-mcq-en-o0').value;
+                const optB = el.querySelector('.ca-mcq-en-o1').value;
+                const optC = el.querySelector('.ca-mcq-en-o2').value;
+                const optD = el.querySelector('.ca-mcq-en-o3').value;
+                const ansIdx = parseInt(el.querySelector('.ca-mcq-ans').value) || 0;
+                const optionsArr = [optA, optB, optC, optD];
+                const exp = el.querySelector('.ca-mcq-en-exp').value;
+
+                content += `<div class="pdf-card">`;
+                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">${cat}</div>`;
+                content += `<div class="pdf-header">Q${i+1}. ${oneLiner}</div>`;
+                content += `<ul class="pdf-bullets">` + bullets.map(b => `<li>${b}</li>`).join('') + `</ul>`;
+                if(stFacts) content += `<div style="font-size: 11px; color: #475569; margin-bottom: 10px;"><strong>Static GK:</strong> ${stFacts}</div>`;
+                if(q) {
+                    content += `<div class="pdf-mcq"><strong>Quiz:</strong> ${q}<br><strong>Answer:</strong> ${optionsArr[ansIdx]}<br><em>Explanation:</em> ${exp}</div>`;
+                }
+                content += `</div>`;
+            });
+            content += `</div>`;
+            
+            const element = document.createElement('div'); element.innerHTML = content;
+            const opt = { margin: 0.5, filename: `Stenogym_Current_Affairs_${dateStr}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
         };
 
         window.autoTranslateCA = async function() {
@@ -976,27 +1302,42 @@
                     card.querySelector('.ca-mcq-hi-exp').value = await translateEnToHi(card.querySelector('.ca-mcq-en-exp').value);
                 }
                 alert("Translation Complete!");
-            } catch(e) { alert("Translation failed: " + e.message); }
-            btn.innerHTML = "<span>⚡</span> Re-Translate to Hindi"; btn.disabled = false;
+            } catch(e) { alert("Translation failed: " + e.message); } finally { btn.innerHTML = "<span>⚡</span> Re-Translate"; btn.disabled = false; }
         };
 
-        window.publishAINews = async function() {
-            const btn = document.getElementById('btnPublishCA');
-            btn.innerHTML = "Publishing to Live DB..."; btn.disabled = true;
-            
+        window.publishStagedNews = async function() {
             const cardElements = document.querySelectorAll('.ca-staged-card');
-            const targetDate = document.getElementById('caTargetDate').value;
-            
+            if (cardElements.length === 0) return alert("No cards in staging.");
+
+            const btn = document.getElementById('btnPublishCA');
+            btn.innerHTML = "Scheduling Drop..."; btn.disabled = true;
+
+            const isDaily = currentCACadence === 'daily';
+            const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+            const scheduleMode = isDaily ? document.getElementById('caReleaseSchedule').value : 'instant';
+            const pdfEmbedLink = !isDaily ? document.getElementById('drillPdfEmbedUrl').value.trim() : "";
+
+            let publishTimestamp = new Date();
+            if (isDaily && scheduleMode === '6am') {
+                const [y, m, d] = targetDate.split('-').map(Number);
+                publishTimestamp = new Date(Date.UTC(y, m - 1, d, 0, 30, 0)); // 06:00 IST
+            }
+
             try {
-                const promises = [];
-                for (const el of cardElements) {
+                const batch = writeBatch(db);
+                const collectionName = isDaily ? "daily_news" : "ca_drills";
+
+                cardElements.forEach(el => {
                     const enBullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
                     const hiBullets = el.querySelector('.ca-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
                     const exams = el.querySelector('.ca-exams').value.split(',').map(s=>s.trim()).filter(s=>s);
                     const ansIdx = parseInt(el.querySelector('.ca-mcq-ans').value) || 0;
 
+                    const docRef = doc(collection(db, collectionName));
                     const docPayload = {
                         date: targetDate,
+                        cadence: isDaily ? 'daily' : document.getElementById('drillCadenceType').value,
+                        pdfEmbedUrl: pdfEmbedLink || null,
                         emoji: el.querySelector('.ca-emj').value,
                         category: el.querySelector('.ca-cat').value,
                         category_hi: el.querySelector('.ca-hi-cat').value || el.querySelector('.ca-cat').value,
@@ -1033,44 +1374,169 @@
                             correctIndex: ansIdx,
                             explanation: el.querySelector('.ca-mcq-hi-exp').value
                         },
+                        publishAt: publishTimestamp.toISOString(),
                         timestamp: serverTimestamp()
                     };
+                    batch.set(docRef, docPayload);
+                });
 
-                    promises.push(addDoc(collection(db, "daily_news"), docPayload));
-                }
-
-                await Promise.all(promises);
-                alert(`✅ Successfully published ${promises.length} news items to live database!`);
+                await batch.commit();
+                alert(`✅ Successfully published & scheduled ${cardElements.length} items!`);
                 document.getElementById('caStagingArea').classList.add('hidden');
                 document.getElementById('caCardsContainer').innerHTML = "";
-            } catch (err) {
-                alert("Error publishing news: " + err.message);
-            } finally {
-                btn.innerHTML = "<span>💾</span> Publish Daily News";
-                btn.disabled = false;
+                window.stagedNewsItems = [];
+            } catch (err) { alert("Error publishing cards: " + err.message); } finally {
+                btn.innerHTML = "<span>🚀</span> Commit & Schedule Drop"; btn.disabled = false;
             }
         };
 
         /* ========================================================= */
-        /* 7. BLOG PUBLISHER & AUTO-TRANSLATE LOGIC                  */
+        /* 5. MANAGE CURRENT AFFAIRS (DATE & CATEGORY INSPECTOR)     */
+        /* ========================================================= */
+        let caInspectCache = [];
+        const caManageTableBody = document.getElementById('caManageTableBody');
+
+        window.fetchCAManage = async function() {
+            const targetDate = document.getElementById('caManageDate').value;
+            if(!targetDate) return;
+            caManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">Loading cards for date...</td></tr>';
+
+            try {
+                const q = query(collection(db, "daily_news"), where("date", "==", targetDate));
+                const snap = await getDocs(q);
+                caInspectCache = [];
+                snap.forEach(d => caInspectCache.push({ id: d.id, ...d.data() }));
+
+                const badge = document.getElementById('caDayStatusBadge');
+                if (caInspectCache.length === 0) {
+                    badge.innerHTML = `<span class="text-slate-500 font-bold">No cards found for ${targetDate}</span>`;
+                } else {
+                    const first = caInspectCache[0];
+                    const isLocked = first.publishAt && new Date(first.publishAt) > new Date();
+                    badge.innerHTML = isLocked ? `<span class="text-amber-600 font-bold">⏰ Scheduled (Releasing at 6:00 AM)</span>` : `<span class="text-emerald-600 font-bold">🟢 Live to Students (${caInspectCache.length} Cards)</span>`;
+                }
+
+                renderCAManageTable();
+            } catch (err) { caManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+        };
+
+        function renderCAManageTable() {
+            const filterCat = document.getElementById('caManageCategory').value;
+            const filtered = filterCat === 'all' ? caInspectCache : caInspectCache.filter(c => c.category === filterCat);
+
+            if(filtered.length === 0) {
+                caManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400">No cards matching filter.</td></tr>';
+                return;
+            }
+
+            let html = "";
+            filtered.forEach(card => {
+                const q = card.mcq?.question || "No MCQ";
+                const ans = card.mcq?.options?.[card.mcq?.correctIndex] || "N/A";
+                html += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-slate-900 line-clamp-1">${escapeHtml(card.oneLiner)}</div>
+                            <div class="text-xs font-semibold text-indigo-600 uppercase mt-0.5">${escapeHtml(card.category)} &bull; ${escapeHtml(card.subCategory || '')}</div>
+                        </td>
+                        <td class="px-6 py-4 text-xs font-medium text-slate-700 max-w-xs line-clamp-2">${escapeHtml(q)}</td>
+                        <td class="px-6 py-4 text-xs font-black text-emerald-600">${escapeHtml(ans)}</td>
+                        <td class="px-6 py-4 text-right whitespace-nowrap">
+                            <button onclick="openEditCAModal('${card.id}')" class="text-amber-600 hover:text-amber-800 font-bold text-xs mr-3">Edit</button>
+                            <button onclick="deleteCACard('${card.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs">Delete</button>
+                        </td>
+                    </tr>`;
+            });
+            caManageTableBody.innerHTML = html;
+        }
+
+        window.openEditCAModal = function(id) {
+            const card = caInspectCache.find(c => c.id === id);
+            if (!card) return;
+            document.getElementById('editCADocId').value = id;
+            document.getElementById('editCAHeadline').value = card.oneLiner || "";
+            document.getElementById('editCAHeadline_hi').value = card.oneLiner_hi || "";
+            document.getElementById('editCABullets').value = (card.contextBullets || []).join('\n');
+            document.getElementById('editCAMcqQ').value = card.mcq?.question || "";
+            document.getElementById('editCAMcqO0').value = card.mcq?.options?.[0] || "";
+            document.getElementById('editCAMcqO1').value = card.mcq?.options?.[1] || "";
+            document.getElementById('editCAMcqO2').value = card.mcq?.options?.[2] || "";
+            document.getElementById('editCAMcqO3').value = card.mcq?.options?.[3] || "";
+            document.getElementById('editCAMcqAns').value = card.mcq?.correctIndex ?? 0;
+            document.getElementById('editCAMcqExp').value = card.mcq?.explanation || "";
+            document.getElementById('editCAModal').classList.remove('hidden');
+        };
+
+        window.closeCAModal = () => document.getElementById('editCAModal').classList.add('hidden');
+
+        window.saveCAChanges = async function() {
+            const id = document.getElementById('editCADocId').value;
+            const btn = document.getElementById('btnSaveCAChanges');
+            btn.innerHTML = "Saving..."; btn.disabled = true;
+
+            const bullets = document.getElementById('editCABullets').value.split('\n').map(b=>b.trim()).filter(b=>b);
+            const ansIdx = parseInt(document.getElementById('editCAMcqAns').value) || 0;
+
+            try {
+                await updateDoc(doc(db, "daily_news", id), {
+                    oneLiner: document.getElementById('editCAHeadline').value.trim(),
+                    oneLiner_hi: document.getElementById('editCAHeadline_hi').value.trim(),
+                    contextBullets: bullets,
+                    "mcq.question": document.getElementById('editCAMcqQ').value.trim(),
+                    "mcq.options": [
+                        document.getElementById('editCAMcqO0').value.trim(),
+                        document.getElementById('editCAMcqO1').value.trim(),
+                        document.getElementById('editCAMcqO2').value.trim(),
+                        document.getElementById('editCAMcqO3').value.trim()
+                    ],
+                    "mcq.correctIndex": ansIdx,
+                    "mcq.explanation": document.getElementById('editCAMcqExp').value.trim()
+                });
+                closeCAModal();
+                fetchCAManage();
+            } catch(e) { alert("Save error: " + e.message); } finally { btn.innerHTML = "Save Changes"; btn.disabled = false; }
+        };
+
+        window.deleteCACard = async function(id) {
+            if(!confirm("Permanently delete this Current Affairs card?")) return;
+            try {
+                await deleteDoc(doc(db, "daily_news", id));
+                caInspectCache = caInspectCache.filter(c => c.id !== id);
+                renderCAManageTable();
+            } catch(e) { alert("Delete error: " + e.message); }
+        };
+
+        window.purgeSelectedDay = async function() {
+            const targetDate = document.getElementById('caManageDate').value;
+            if(!confirm(`DANGER: Are you sure you want to permanently delete ALL Current Affairs cards for ${targetDate}?`)) return;
+
+            try {
+                const batch = writeBatch(db);
+                caInspectCache.forEach(c => batch.delete(doc(db, "daily_news", c.id)));
+                await batch.commit();
+                alert(`Purged all cards for ${targetDate}!`);
+                fetchCAManage();
+            } catch(e) { alert("Purge error: " + e.message); }
+        };
+
+        document.getElementById('caManageDate').addEventListener('change', fetchCAManage);
+        document.getElementById('caManageCategory').addEventListener('change', renderCAManageTable);
+        document.getElementById('btnRefreshCAManage').addEventListener('click', fetchCAManage);
+
+        /* ========================================================= */
+        /* 6. BLOG PUBLISHER & MANAGER                               */
         /* ========================================================= */
         window.autoTranslateBlog = async function() {
             const btn = document.getElementById('btnAutoTranslateBlog'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
             try {
                 const titleEn = document.getElementById('blogTitle_en').value;
                 if(titleEn) document.getElementById('blogTitle_hi').value = await translateEnToHi(titleEn);
-                
                 const metaEn = document.getElementById('blogMeta_en').value;
                 if(metaEn) document.getElementById('blogMeta_hi').value = await translateEnToHi(metaEn);
-
                 const contentEn = window.quillBlogEn.root.innerHTML;
-                if(contentEn && contentEn !== "<p><br></p>") {
-                    const translatedHtml = await translateEnToHi(contentEn);
-                    window.quillBlogHi.clipboard.dangerouslyPasteHTML(translatedHtml);
-                }
+                if(contentEn && contentEn !== "<p><br></p>") window.quillBlogHi.clipboard.dangerouslyPasteHTML(await translateEnToHi(contentEn));
                 alert("Translation Complete!");
-            } catch (e) { alert("Translation failed. Check connection."); }
-            btn.innerHTML = "⚡ Auto-Translate"; btn.disabled = false;
+            } catch (e) { alert("Translation failed. Check connection."); } finally { btn.innerHTML = "⚡ Auto-Translate"; btn.disabled = false; }
         };
 
         document.getElementById('btnPublishBlog').addEventListener('click', async () => {
@@ -1098,95 +1564,9 @@
                 document.getElementById('blogTitle_en').value = ""; document.getElementById('blogTitle_hi').value = "";
                 document.getElementById('blogSlug').value = ""; document.getElementById('blogMeta_en').value = ""; document.getElementById('blogMeta_hi').value = ""; document.getElementById('blogTags').value = ""; document.getElementById('blogImage').value = "";
                 window.quillBlogEn.setContents([]); window.quillBlogHi.setContents([]);
-            } catch(e) { alert("Error: "+e.message); }
-            btn.innerHTML = "Publish Blog";
+            } catch(e) { alert("Error: "+e.message); } finally { btn.innerHTML = "Publish Blog"; }
         });
 
-        /* ========================================================= */
-        /* 8. UPLOAD & STORE SUBMITS                                 */
-        /* ========================================================= */
-        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            const btn = document.getElementById('btnPublishDict');
-            btn.innerHTML = "Publishing...";
-            try { 
-                await addDoc(collection(db, "lessons"), { 
-                    mainCategory: document.getElementById('mainCategory').value, 
-                    subCategory: document.getElementById('subCategory').value, 
-                    title: document.getElementById('dictationTitle').value, 
-                    text: document.getElementById('dictationText').value, 
-                    wordCount: document.getElementById('dictationText').value.trim().split(/\s+/).length, 
-                    timestamp: serverTimestamp() 
-                }); 
-                alert("Dictation Live!"); 
-                e.target.reset(); 
-                document.getElementById('wordCountDisplay').textContent = "0 Words";
-            } catch(err){ alert("Error: " + err.message); }
-            btn.innerHTML = "<span>🚀</span> Publish Dictation";
-        });
-
-        document.getElementById('dictationText').addEventListener('input', (e) => {
-            const count = e.target.value.trim() ? e.target.value.trim().split(/\s+/).length : 0;
-            document.getElementById('wordCountDisplay').textContent = `${count} Words`;
-        });
-
-        document.getElementById('storeForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); 
-            const btn = document.getElementById('btnSubmitStore');
-            btn.innerHTML = "Saving...";
-            try { 
-                await addDoc(collection(db, "store_products"), { 
-                    name: document.getElementById('prodName').value, 
-                    category: document.getElementById('prodCategory').value, 
-                    image: document.getElementById('prodImage').value, 
-                    link: document.getElementById('prodLink').value, 
-                    featured: document.getElementById('prodFeatured').checked,
-                    timestamp: serverTimestamp() 
-                }); 
-                alert("Product Published Live to Store!"); 
-                e.target.reset(); 
-            } catch(err){ alert("Error: " + err.message); }
-            btn.innerHTML = "<span>🛒</span> Publish to Store";
-        });
-
-        /* ========================================================= */
-        /* 9. DICTATION LIBRARY LOGIC (FETCH + MODAL)                */
-        /* ========================================================= */
-        const libraryTableBody = document.getElementById('libraryTableBody');
-        window.fetchLibrary = async function() {
-            libraryTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-400 animate-pulse">Fetching dictations...</td></tr>';
-            try {
-                const snap = await getDocs(collection(db, "lessons")); let dictations = [];
-                snap.forEach(doc => { dictations.push({ id: doc.id, ...doc.data() }); });
-                dictations.sort((a, b) => {
-                    const catA = (a.mainCategory || "").toLowerCase(); const catB = (b.mainCategory || "").toLowerCase();
-                    if (catA < catB) return -1; if (catA > catB) return 1;
-                    const subA = (a.subCategory || "").toLowerCase(); const subB = (b.subCategory || "").toLowerCase();
-                    const subCompare = subA.localeCompare(subB, undefined, { numeric: true, sensitivity: 'base' });
-                    if (subCompare !== 0) return subCompare;
-                    return (a.title || "").toLowerCase().localeCompare((b.title || "").toLowerCase(), undefined, { numeric: true, sensitivity: 'base' });
-                });
-                let html = "";
-                dictations.forEach(data => { html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0"><td class="px-6 py-4"><div class="font-bold text-slate-900">${data.title}</div><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${data.mainCategory} &rarr; ${data.subCategory}</div></td><td class="px-6 py-4 font-mono text-indigo-600 font-bold">${data.wordCount}</td><td class="px-6 py-4 text-right whitespace-nowrap"><button class="btn-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${data.id}" data-title="${data.title.replace(/"/g, '&quot;')}" data-text="${data.text.replace(/"/g, '&quot;')}" data-main="${data.mainCategory}" data-sub="${data.subCategory ? data.subCategory.replace(/"/g, '&quot;') : ''}">Edit</button><button class="btn-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${data.id}">Delete</button></td></tr>`; });
-                libraryTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">Library is empty.</td></tr>';
-                
-                document.querySelectorAll('.btn-delete').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Permanently delete this dictation?")) { await deleteDoc(doc(db, "lessons", e.target.getAttribute('data-id'))); fetchLibrary(); } }); });
-                document.querySelectorAll('.btn-edit').forEach(btn => { btn.addEventListener('click', (e) => { document.getElementById('editDocId').value = e.target.getAttribute('data-id'); document.getElementById('editTitle').value = e.target.getAttribute('data-title'); document.getElementById('editText').value = e.target.getAttribute('data-text'); document.getElementById('editMainCategory').value = e.target.getAttribute('data-main'); document.getElementById('editSubCategory').value = e.target.getAttribute('data-sub'); document.getElementById('editDictModal').classList.remove('hidden'); }); });
-            } catch (err) { libraryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
-        };
-        const closeDictModal = () => document.getElementById('editDictModal').classList.add('hidden');
-        document.getElementById('btnDictModalClose').addEventListener('click', closeDictModal); document.getElementById('btnDictModalCancel').addEventListener('click', closeDictModal); document.getElementById('editDictModalCloseBg').addEventListener('click', closeDictModal);
-        document.getElementById('btnDictModalSave').addEventListener('click', async () => {
-            const id = document.getElementById('editDocId').value; const newText = document.getElementById('editText').value.trim();
-            const btn = document.getElementById('btnDictModalSave'); btn.textContent = "Saving..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "lessons", id), { title: document.getElementById('editTitle').value.trim(), text: newText, wordCount: newText.split(/\s+/).length, mainCategory: document.getElementById('editMainCategory').value, subCategory: document.getElementById('editSubCategory').value.trim() }); closeDictModal(); fetchLibrary(); } 
-            catch (err) { alert("Error saving: " + err.message); } finally { btn.textContent = "Save Changes"; btn.disabled = false; }
-        });
-        document.getElementById('btnRefreshLibrary').addEventListener('click', fetchLibrary);
-
-        /* ========================================================= */
-        /* 10. BLOG MANAGER LOGIC (FETCH + MODAL)                    */
-        /* ========================================================= */
         const blogTableBody = document.getElementById('blogTableBody');
         const safeEscape = (str) => (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         
@@ -1226,7 +1606,98 @@
         document.getElementById('btnRefreshBlogs').addEventListener('click', fetchBlogs);
 
         /* ========================================================= */
-        /* 11. PLATFORM ANALYTICS & SETTINGS                         */
+        /* 7. DICTATION & STORE MANAGEMENT                           */
+        /* ========================================================= */
+        function setupDictation(btnId, quillInstance, langCode) {
+            const btn = document.getElementById(btnId);
+            if(!btn || !('webkitSpeechRecognition' in window)) { if(btn) btn.style.display = 'none'; return; }
+            const rec = new webkitSpeechRecognition();
+            rec.continuous = true; rec.interimResults = true; rec.lang = langCode;
+            let isDictating = false;
+            rec.onstart = () => { isDictating = true; btn.innerHTML = "🛑 Stop Dictating"; btn.classList.add("bg-rose-100", "text-rose-700", "animate-pulse"); };
+            rec.onend = () => { isDictating = false; btn.innerHTML = "🎙️ Start Dictating"; btn.classList.remove("bg-rose-100", "text-rose-700", "animate-pulse"); };
+            rec.onresult = (e) => {
+                let finalTrans = '';
+                for (let i = e.resultIndex; i < e.results.length; ++i) { if (e.results[i].isFinal) finalTrans += e.results[i][0].transcript; }
+                if(finalTrans) {
+                    const range = quillInstance.getSelection(true) || {index: quillInstance.getLength() - 1};
+                    quillInstance.insertText(range.index, finalTrans + ' ');
+                    quillInstance.setSelection(range.index + finalTrans.length + 1);
+                }
+            };
+            btn.onclick = (e) => { e.preventDefault(); if(isDictating) rec.stop(); else rec.start(); };
+        }
+        setupDictation('btnDictateEn', window.quillBlogEn, 'en-IN');
+        setupDictation('btnDictateHi', window.quillBlogHi, 'hi-IN');
+
+        document.getElementById('blogTitle_en').addEventListener('input', (e) => {
+            document.getElementById('blogSlug').value = e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            const btn = document.getElementById('btnPublishDict'); btn.innerHTML = "Publishing...";
+            try { 
+                await addDoc(collection(db, "lessons"), { 
+                    mainCategory: document.getElementById('mainCategory').value, 
+                    subCategory: document.getElementById('subCategory').value, 
+                    title: document.getElementById('dictationTitle').value, 
+                    text: document.getElementById('dictationText').value, 
+                    wordCount: document.getElementById('dictationText').value.trim().split(/\s+/).length, 
+                    timestamp: serverTimestamp() 
+                }); 
+                alert("Dictation Live!"); e.target.reset(); document.getElementById('wordCountDisplay').textContent = "0 Words";
+            } catch(err){ alert("Error: " + err.message); } finally { btn.innerHTML = "<span>🚀</span> Publish Dictation"; }
+        });
+
+        document.getElementById('dictationText').addEventListener('input', (e) => {
+            const count = e.target.value.trim() ? e.target.value.trim().split(/\s+/).length : 0;
+            document.getElementById('wordCountDisplay').textContent = `${count} Words`;
+        });
+
+        const libraryTableBody = document.getElementById('libraryTableBody');
+        window.fetchLibrary = async function() {
+            libraryTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-400 animate-pulse">Fetching dictations...</td></tr>';
+            try {
+                const snap = await getDocs(collection(db, "lessons")); let dictations = [];
+                snap.forEach(doc => { dictations.push({ id: doc.id, ...doc.data() }); });
+                dictations.sort((a, b) => (a.mainCategory || "").localeCompare(b.mainCategory || ""));
+                let html = "";
+                dictations.forEach(data => { html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0"><td class="px-6 py-4"><div class="font-bold text-slate-900">${data.title}</div><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${data.mainCategory} &rarr; ${data.subCategory}</div></td><td class="px-6 py-4 font-mono text-indigo-600 font-bold">${data.wordCount}</td><td class="px-6 py-4 text-right whitespace-nowrap"><button class="btn-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${data.id}" data-title="${data.title.replace(/"/g, '&quot;')}" data-text="${data.text.replace(/"/g, '&quot;')}" data-main="${data.mainCategory}" data-sub="${data.subCategory ? data.subCategory.replace(/"/g, '&quot;') : ''}">Edit</button><button class="btn-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${data.id}">Delete</button></td></tr>`; });
+                libraryTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">Library is empty.</td></tr>';
+                
+                document.querySelectorAll('.btn-delete').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Permanently delete this dictation?")) { await deleteDoc(doc(db, "lessons", e.target.getAttribute('data-id'))); fetchLibrary(); } }); });
+                document.querySelectorAll('.btn-edit').forEach(btn => { btn.addEventListener('click', (e) => { document.getElementById('editDocId').value = e.target.getAttribute('data-id'); document.getElementById('editTitle').value = e.target.getAttribute('data-title'); document.getElementById('editText').value = e.target.getAttribute('data-text'); document.getElementById('editMainCategory').value = e.target.getAttribute('data-main'); document.getElementById('editSubCategory').value = e.target.getAttribute('data-sub'); document.getElementById('editDictModal').classList.remove('hidden'); }); });
+            } catch (err) { libraryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+        };
+        const closeDictModal = () => document.getElementById('editDictModal').classList.add('hidden');
+        document.getElementById('btnDictModalClose').addEventListener('click', closeDictModal); document.getElementById('btnDictModalCancel').addEventListener('click', closeDictModal); document.getElementById('editDictModalCloseBg').addEventListener('click', closeDictModal);
+        document.getElementById('btnDictModalSave').addEventListener('click', async () => {
+            const id = document.getElementById('editDocId').value; const newText = document.getElementById('editText').value.trim();
+            const btn = document.getElementById('btnDictModalSave'); btn.textContent = "Saving..."; btn.disabled = true;
+            try { await updateDoc(doc(db, "lessons", id), { title: document.getElementById('editTitle').value.trim(), text: newText, wordCount: newText.split(/\s+/).length, mainCategory: document.getElementById('editMainCategory').value, subCategory: document.getElementById('editSubCategory').value.trim() }); closeDictModal(); fetchLibrary(); } 
+            catch (err) { alert("Error saving: " + err.message); } finally { btn.textContent = "Save Changes"; btn.disabled = false; }
+        });
+        document.getElementById('btnRefreshLibrary').addEventListener('click', fetchLibrary);
+
+        document.getElementById('storeForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            const btn = document.getElementById('btnSubmitStore'); btn.innerHTML = "Saving...";
+            try { 
+                await addDoc(collection(db, "store_products"), { 
+                    name: document.getElementById('prodName').value, 
+                    category: document.getElementById('prodCategory').value, 
+                    image: document.getElementById('prodImage').value, 
+                    link: document.getElementById('prodLink').value, 
+                    featured: document.getElementById('prodFeatured').checked,
+                    timestamp: serverTimestamp() 
+                }); 
+                alert("Product Published Live to Store!"); e.target.reset(); 
+            } catch(err){ alert("Error: " + err.message); } finally { btn.innerHTML = "<span>🛒</span> Publish to Store"; }
+        });
+
+        /* ========================================================= */
+        /* 8. ANALYTICS & SETTINGS                                   */
         /* ========================================================= */
         window.fetchAnalytics = async function() {
             try { const usersSnap = await getDocs(collection(db, "users")); document.getElementById('statUsers').textContent = usersSnap.size; } catch (err) { document.getElementById('statUsers').textContent = "Err"; }
@@ -1241,17 +1712,17 @@
             catch (err) { alert("Error updating settings: " + err.message); } finally { btnSave.innerHTML = `Update Settings`; btnSave.disabled = false; }
         });
     </script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-        document.querySelectorAll('nav a').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && href === currentPage) {
-                link.classList.remove('text-slate-300');
-                link.classList.add('active-nav');
-            }
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            document.querySelectorAll('nav a').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && href === currentPage) {
+                    link.classList.remove('text-slate-300');
+                    link.classList.add('active-nav');
+                }
+            });
         });
-    });
-</script>
+    </script>
 </body>
 </html>
