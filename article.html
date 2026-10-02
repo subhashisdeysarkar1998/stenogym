@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +7,7 @@
     <meta name="description" content="Read a Stenogym shorthand learning article with SSC stenography practice guidance.">
     
     <script>
+        // SEO Canonical Injection
         (function() {
             try {
                 var params = new URLSearchParams(window.location.search);
@@ -19,120 +20,233 @@
                 }
             } catch(e) { console.error("SEO head injection error", e); }
         })();
+        
+        // Prevent light/dark theme flash
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <style>
         .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.1); }
+        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.2); }
         
-        /* Custom Premium Typography */
-        .article-content p { margin-bottom: 1.75rem; line-height: 1.85; color: #334155; font-size: 1.125rem; }
-        .article-content h2 { font-size: 2rem; font-weight: 900; color: #0f172a; margin-top: 3rem; margin-bottom: 1.25rem; letter-spacing: -0.025em; }
-        .article-content h3 { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-top: 2.25rem; margin-bottom: 1rem; }
-        .article-content ul { list-style-type: disc; padding-left: 1.75rem; margin-bottom: 1.75rem; color: #334155; }
+        /* Light Mode Typography */
+        .article-content p { margin-bottom: 1.75rem; line-height: 1.85; color: #334155; font-size: 1.125rem; transition: color 0.3s; }
+        .article-content h2 { font-size: 2rem; font-weight: 900; color: #0f172a; margin-top: 3rem; margin-bottom: 1.25rem; letter-spacing: -0.025em; transition: color 0.3s; }
+        .article-content h3 { font-size: 1.5rem; font-weight: 800; color: #1e293b; margin-top: 2.25rem; margin-bottom: 1rem; transition: color 0.3s; }
+        .article-content ul { list-style-type: disc; padding-left: 1.75rem; margin-bottom: 1.75rem; color: #334155; transition: color 0.3s; }
         .article-content li { margin-bottom: 0.75rem; line-height: 1.75; font-size: 1.125rem; }
-        .article-content strong { color: #0f172a; font-weight: 800; }
-        .article-content blockquote { border-left: 4px solid #10b981; padding-left: 1.25rem; font-style: italic; color: #475569; margin-bottom: 1.75rem; background: #f0fdf4; padding: 1.25rem; border-radius: 0.75rem; font-size: 1.125rem; }
+        .article-content strong { color: #0f172a; font-weight: 800; transition: color 0.3s; }
+        .article-content blockquote { border-left: 4px solid #10b981; font-style: italic; color: #475569; margin-bottom: 1.75rem; background: #f0fdf4; padding: 1.25rem; border-radius: 0.75rem; font-size: 1.125rem; transition: all 0.3s; }
+        
+        /* Dark Mode Typography */
+        .dark .article-content p { color: #cbd5e1; }
+        .dark .article-content h2 { color: #f8fafc; }
+        .dark .article-content h3 { color: #f1f5f9; }
+        .dark .article-content ul, .dark .article-content li { color: #cbd5e1; }
+        .dark .article-content strong { color: #ffffff; }
+        .dark .article-content blockquote { border-color: #059669; color: #94a3b8; background: #0f172a; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col pt-20">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans min-h-screen flex flex-col pt-20 transition-colors duration-300">
 
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 border-b border-white/10 shadow-sm transition-all duration-300">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center text-white">
-            <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl uppercase shadow-sm">
+    <!-- MASTER NAVIGATION BAR -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 dark:bg-slate-950 border-b border-white/10 dark:border-slate-800 shadow-sm transition-all duration-300 h-20">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 h-full flex justify-between items-center text-white">
+            <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-xl md:text-2xl uppercase shadow-sm">
                 <span class="text-yellow-400">✏️</span> STENOGYM
             </a>
-            <div class="hidden md:flex items-center gap-8 font-semibold text-sm">
-                <a href="index.html" class="text-slate-300 hover:text-white transition">Home</a>
-                <a href="blog.html" class="text-cyan-300 hover:text-white transition font-bold">SSC Exam Guide</a>
-                <a href="dashboard.html" id="navDashboard" class="hidden text-slate-300 hover:text-white transition font-bold text-indigo-300">Dashboard</a>
-                <a href="login.html" id="navLogin" class="text-slate-300 hover:text-white transition">Login</a>
-                <button id="btnLogout" class="hidden text-sm font-bold text-slate-400 hover:text-rose-500 transition border border-slate-600 px-3 py-1 rounded-md">Logout</button>
+            
+            <div class="hidden lg:flex items-center gap-6 font-semibold text-sm">
+                
+                <div class="flex items-center gap-2">
+                    <button id="themeToggleBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition shadow-inner focus:outline-none">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
+                        <button id="btnLangEn" onclick="setLanguage('en')" class="px-2 md:px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition shadow-sm">EN</button>
+                        <button id="btnLangHi" onclick="setLanguage('hi')" class="px-2 md:px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">हिन्दी</button>
+                    </div>
+                </div>
+
+                <a href="index.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Home" data-hi="होम">Home</a>
+                <a href="current-affairs.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a>
+                <a href="gk.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a>
+                
+                <div class="relative group h-full flex items-center">
+                    <button class="flex items-center gap-1 text-slate-300 hover:text-white transition py-2 font-bold">
+                        <span class="translation-el" data-en="Steno Room" data-hi="स्टेनो रूम">Steno Room</span>
+                        <svg class="w-3.5 h-3.5 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <div class="absolute left-0 top-full pt-1 w-56 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200">
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-2">
+                            <a href="app.html" class="block px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-indigo-600 hover:text-white translation-el" data-en="🎧 Preset Practice Room" data-hi="🎧 प्रीसेट अभ्यास रूम">🎧 Preset Practice Room</a>
+                            <a href="generator.html" class="block px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-emerald-600 hover:text-white translation-el" data-en="🧠 AI Dictation Studio" data-hi="🧠 AI डिक्टेशन स्टूडियो">🧠 AI Dictation Studio</a>
+                            <a href="scanner.html" class="block px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-fuchsia-600 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 Live Document Scanner</a>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="blog.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Blog" data-hi="ब्लॉग">Blog</a>
+                <a href="dashboard.html" id="navDashboard" class="hidden text-indigo-300 hover:text-white transition font-bold translation-el" data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</a>
+                <a href="login.html" id="desktopLoginBtn" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-white transition font-bold translation-el" data-en="Login" data-hi="लॉगिन">Login</a>
+                <button id="btnLogout" class="hidden text-rose-400 hover:text-rose-300 border border-slate-700 px-3 py-1.5 rounded-lg transition font-bold translation-el" data-en="Logout" data-hi="लॉग आउट">Logout</button>
+            </div>
+            
+            <div class="flex items-center gap-3 lg:hidden">
+                <!-- Mobile Bilingual Toggle -->
+                <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
+                    <button id="btnLangEnMob" onclick="setLanguage('en')" class="px-2 py-1 rounded-md bg-indigo-600 text-white transition shadow-sm">EN</button>
+                    <button id="btnLangHiMob" onclick="setLanguage('hi')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white transition">HI</button>
+                </div>
+                <button id="mobileThemeToggleBtn" class="text-xl text-white opacity-80 focus:outline-none">🌙</button>
+                <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none p-2">☰</button>
+            </div>
+        </div>
+        
+        <div id="mobileMenu" class="hidden lg:hidden bg-indigo-900 dark:bg-slate-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-20">
+            <div class="flex flex-col px-6 py-4 space-y-4 font-semibold text-sm">
+                <a href="index.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🏠 Home" data-hi="🏠 होम">🏠 Home</a>
+                <a href="current-affairs.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🗞️ Current Affairs" data-hi="🗞️ करंट अफेयर्स">🗞️ Current Affairs</a>
+                <a href="gk.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="📚 Static GK" data-hi="📚 स्टेटिक GK">📚 Static GK</a>
+                
+                <div>
+                    <button id="mobileStenoToggle" class="flex justify-between w-full text-slate-300 hover:text-white font-bold transition">
+                        <span class="translation-el" data-en="⌨️ Steno Room" data-hi="⌨️ स्टेनो रूम">⌨️ Steno Room</span>
+                        <span id="stenoChevron">▼</span>
+                    </button>
+                    <div id="mobileStenoMenu" class="hidden flex-col space-y-3 mt-3 pl-6 border-l-2 border-indigo-700">
+                        <a href="app.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🎧 Preset Practice Room" data-hi="🎧 प्रीसेट अभ्यास रूम">🎧 Preset Practice Room</a>
+                        <a href="generator.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🧠 AI Dictation Studio" data-hi="🧠 AI डिक्टेशन स्टूडियो">🧠 AI Dictation Studio</a>
+                        <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 Live Document Scanner</a>
+                    </div>
+                </div>
+
+                <a href="blog.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="✍️ Blog & Guides" data-hi="✍️ ब्लॉग और गाइड">✍️ Blog & Guides</a>
+                
+                <div class="pt-2 border-t border-indigo-800">
+                    <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300 font-bold mb-2 translation-el" data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</a>
+                    <a href="login.html" id="mobileLoginBtn" class="block text-white font-bold translation-el" data-en="Student Login &rarr;" data-hi="छात्र लॉगिन &rarr;">Student Login &rarr;</a>
+                    <button id="mobileLogoutBtn" class="hidden w-full text-left font-bold text-rose-400 mt-2 translation-el" data-en="Logout &rarr;" data-hi="लॉग आउट &rarr;">Logout &rarr;</button>
+                </div>
             </div>
         </div>
     </nav>
 
     <main class="flex-grow max-w-7xl mx-auto px-4 md:px-6 py-12 w-full flex flex-col lg:flex-row gap-12">
         
+        <!-- Main Content Area -->
         <div class="w-full lg:w-2/3 flex flex-col">
             
-            <a href="blog.html" class="text-indigo-600 font-bold text-sm mb-6 flex items-center gap-2 hover:-translate-x-1 transition-transform w-max group">
-                <span class="group-hover:scale-110 transition-transform">&larr;</span> Back to Exam Hub
+            <a href="blog.html" class="text-indigo-600 dark:text-indigo-400 font-bold text-sm mb-6 flex items-center gap-2 hover:-translate-x-1 transition-transform w-max group">
+                <span class="group-hover:scale-110 transition-transform">&larr;</span> 
+                <span id="backToHubText" data-en="Back to Exam Hub" data-hi="ब्लॉग हब पर वापस जाएँ">Back to Exam Hub</span>
             </a>
 
-            <div id="loadingMsg" class="text-center py-20 font-bold text-slate-400 animate-pulse text-xl">Loading article...</div>
+            <div id="loadingMsg" class="text-center py-20 font-bold text-slate-400 animate-pulse text-xl" data-en="Loading article..." data-hi="लेख लोड हो रहा है...">Loading article...</div>
 
-            <article id="articleContainer" class="hidden bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-                
+            <!-- Article Reader -->
+            <article id="articleContainer" class="hidden bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden transition-colors duration-300">
                 <div id="artImageContainer" class="hidden w-full h-64 md:h-[400px] relative overflow-hidden bg-slate-900">
                     <img id="artFeaturedImage" src="" alt="Article Banner" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/40 via-transparent to-transparent"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-900/20 to-transparent"></div>
                 </div>
 
                 <div class="p-6 md:p-12">
-                    <div class="mb-8 border-b border-slate-100 pb-6">
+                    <div class="mb-8 border-b border-slate-100 dark:border-slate-800 pb-6">
                         <div class="flex items-center gap-3 mb-4">
-                            <span id="artCategory" class="bg-emerald-50 text-emerald-700 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Category</span>
-                            <span id="artMeta" class="text-sm font-bold text-slate-400">⏱️ X Min Read • Date</span>
+                            <span id="artCategory" class="bg-emerald-50 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-400 font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider">Category</span>
+                            <span id="artMeta" class="text-sm font-bold text-slate-400 dark:text-slate-500">⏱️ X Min Read • Date</span>
                         </div>
-                        <h1 id="artTitle" class="text-3xl md:text-5xl font-black text-slate-900 leading-tight tracking-tight">Article Title Goes Here</h1>
+                        <h1 id="artTitle" class="text-3xl md:text-5xl font-black text-slate-900 dark:text-white leading-tight tracking-tight">Article Title Goes Here</h1>
                     </div>
-
                     <div id="artBody" class="article-content"></div>
                 </div>
             </article>
 
-            <div id="keepReadingSection" class="hidden mt-16 pt-8 border-t-2 border-slate-200">
-                <h3 class="text-2xl font-black text-slate-800 mb-6">Keep Reading</h3>
+            <!-- Bottom Promos (Vibrant Gradients) -->
+            <div id="bottomPromos" class="hidden mt-16 pt-10 border-t border-slate-200 dark:border-slate-800">
+                <h3 class="text-xl font-black text-slate-800 dark:text-white mb-6" data-en="Supercharge Your Prep" data-hi="अपनी तैयारी को सुपरचार्ज करें">Supercharge Your Prep</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <a href="current-affairs.html" class="bg-gradient-to-br from-blue-600 to-purple-700 p-6 rounded-2xl shadow-lg shadow-purple-500/20 hover-lift group overflow-hidden relative">
+                        <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-500">🗞️</div>
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform origin-left relative z-10">🗞️</div>
+                        <h4 class="font-black text-white text-xl mb-2 relative z-10" data-en="Daily Current Affairs" data-hi="दैनिक करंट अफेयर्स">Daily Current Affairs</h4>
+                        <p class="text-sm text-blue-100 mb-4 relative z-10" data-en="4-Layer News & Bilingual Quizzes." data-hi="4-स्तरीय समाचार और द्विभाषी क्विज़।">4-Layer News & Bilingual Quizzes.</p>
+                        <span class="text-yellow-300 text-sm font-bold relative z-10" data-en="Start Reading &rarr;" data-hi="पढ़ना शुरू करें &rarr;">Start Reading &rarr;</span>
+                    </a>
+                    <a href="gk.html" class="bg-gradient-to-br from-emerald-600 to-teal-700 p-6 rounded-2xl shadow-lg shadow-teal-500/20 hover-lift group overflow-hidden relative">
+                        <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-500">📚</div>
+                        <div class="text-3xl mb-3 group-hover:scale-110 transition-transform origin-left relative z-10">📚</div>
+                        <h4 class="font-black text-white text-xl mb-2 relative z-10" data-en="Static GK Vault" data-hi="स्टेटिक GK वॉल्ट">Static GK Vault</h4>
+                        <p class="text-sm text-emerald-100 mb-4 relative z-10" data-en="Cheat Sheets, Flashcards & Drills." data-hi="चीट शीट्स, फ्लैशकार्ड और अभ्यास।">Cheat Sheets, Flashcards & Drills.</p>
+                        <span class="text-yellow-300 text-sm font-bold relative z-10" data-en="Start Revision &rarr;" data-hi="रिवीजन शुरू करें &rarr;">Start Revision &rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Keep Reading (Cinematic Overlays injected via JS) -->
+            <div id="keepReadingSection" class="hidden mt-12 pt-10 border-t border-slate-200 dark:border-slate-800">
+                <h3 id="keepReadingTitle" class="text-2xl font-black text-slate-800 dark:text-white mb-6" data-en="Keep Reading" data-hi="अन्य लेख पढ़ें">Keep Reading</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="relatedGrid"></div>
             </div>
 
         </div>
 
+        <!-- Premium Tools Sidebar -->
         <aside class="w-full lg:w-1/3">
             <div class="sticky top-28 flex flex-col gap-6">
-                <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-2">Premium Tools</h3>
                 
-                <a href="app.html" class="bg-white rounded-2xl border border-blue-100 shadow-sm overflow-hidden hover-lift block group">
-                    <div class="bg-blue-600 p-4 flex items-center justify-between">
-                        <span class="font-black text-white tracking-wider">⏱️ PRACTICE ROOM</span>
-                        <span class="bg-blue-800/50 px-2 py-1 rounded text-xs font-bold text-white">FREE</span>
-                    </div>
-                    <div class="p-5 relative overflow-hidden">
-                        <div class="absolute -right-6 -bottom-6 text-7xl opacity-5 group-hover:scale-110 transition-transform duration-500">⌨️</div>
-                        <h4 class="font-bold text-slate-800 mb-2">Live Exam Simulation</h4>
-                        <p class="text-sm text-slate-500 mb-4">Take unlimited dictations with our dual-timer system and get instant full/half mistake evaluations.</p>
-                        <span class="text-blue-600 font-bold text-sm group-hover:translate-x-1 transition-transform inline-block">Start Typing &rarr;</span>
+                <!-- Glowing Gradient Sidebar Heading -->
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-2 mb-2">
+                    <h3 class="flex items-center gap-2 font-black uppercase tracking-widest text-sm bg-gradient-to-r from-indigo-500 to-fuchsia-500 bg-clip-text text-transparent" data-en="✨ Premium Steno Tools" data-hi="✨ प्रीमियम स्टेनो टूल्स">✨ Premium Steno Tools</h3>
+                </div>
+                
+                <a href="app.html" class="relative rounded-2xl shadow-xl shadow-indigo-500/20 overflow-hidden hover-lift block group bg-gradient-to-br from-blue-600 to-indigo-800 border border-indigo-500/30">
+                    <span class="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 text-[10px] font-black px-3 py-1 rounded-bl-xl rounded-tr-xl shadow-md z-10" data-en="🔥 POPULAR" data-hi="🔥 लोकप्रिय">🔥 POPULAR</span>
+                    <div class="p-6 relative overflow-hidden text-white z-0">
+                        <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-500">⌨️</div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-black tracking-wider text-sm" data-en="⏱️ STENOROOM" data-hi="⏱️ स्टेनो रूम">⏱️ STENOROOM</span>
+                            <span class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold">FREE</span>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 drop-shadow-sm" data-en="Live Exam Simulation" data-hi="लाइव परीक्षा सिमुलेशन">Live Exam Simulation</h4>
+                        <p class="text-sm text-blue-100 mb-5 leading-relaxed" data-en="Take unlimited dictations with our dual-timer system and get instant evaluations." data-hi="हमारे डुअल-टाइमर सिस्टम के साथ असीमित डिक्टेशन लें और तुरंत मूल्यांकन प्राप्त करें।">Take unlimited dictations with our dual-timer system and get instant evaluations.</p>
+                        <span class="text-yellow-300 font-bold text-sm group-hover:translate-x-1 transition-transform inline-block" data-en="Start Typing &rarr;" data-hi="टाइपिंग शुरू करें &rarr;">Start Typing &rarr;</span>
                     </div>
                 </a>
                 
-                <a href="generator.html" class="bg-white rounded-2xl border border-emerald-100 shadow-sm overflow-hidden hover-lift block group">
-                    <div class="bg-emerald-600 p-4 flex items-center justify-between">
-                        <span class="font-black text-white tracking-wider">🤖 AI STUDIO</span>
-                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold text-white">PRO</span>
-                    </div>
-                    <div class="p-5 relative overflow-hidden">
-                        <div class="absolute -right-6 -bottom-6 text-7xl opacity-5 group-hover:scale-110 transition-transform duration-500">🧠</div>
-                        <h4 class="font-bold text-slate-800 mb-2">Generate Infinite Dictations</h4>
-                        <p class="text-sm text-slate-500 mb-4">Never practice the same audio twice. Let our AI write fresh parliamentary & legal dictations instantly.</p>
-                        <span class="text-emerald-600 font-bold text-sm group-hover:translate-x-1 transition-transform inline-block">Try it Free &rarr;</span>
+                <a href="generator.html" class="relative rounded-2xl shadow-xl shadow-emerald-500/20 overflow-hidden hover-lift block group bg-gradient-to-br from-emerald-600 to-teal-800 border border-emerald-500/30">
+                    <span class="absolute -top-1 -right-1 bg-white text-emerald-800 text-[10px] font-black px-3 py-1 rounded-bl-xl rounded-tr-xl shadow-md z-10" data-en="🔓 UNLOCK SPEED" data-hi="🔓 अनलॉक स्पीड">🔓 UNLOCK SPEED</span>
+                    <div class="p-6 relative overflow-hidden text-white z-0">
+                        <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-500">🧠</div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-black tracking-wider text-sm" data-en="🤖 AI STUDIO" data-hi="🤖 AI स्टूडियो">🤖 AI STUDIO</span>
+                            <span class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold">PRO</span>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 drop-shadow-sm" data-en="Generate Infinite Dictations" data-hi="अनंत डिक्टेशन उत्पन्न करें">Generate Infinite Dictations</h4>
+                        <p class="text-sm text-emerald-100 mb-5 leading-relaxed" data-en="Never practice the same audio twice. Let AI write fresh legal & parliamentary dictations." data-hi="एक ही ऑडियो का दो बार अभ्यास न करें। AI को नए डिक्टेशन लिखने दें।">Never practice the same audio twice. Let AI write fresh legal & parliamentary dictations.</p>
+                        <span class="text-yellow-300 font-bold text-sm group-hover:translate-x-1 transition-transform inline-block" data-en="Try it Free &rarr;" data-hi="मुफ्त में आज़माएं &rarr;">Try it Free &rarr;</span>
                     </div>
                 </a>
 
-                <a href="scanner.html" class="bg-white rounded-2xl border border-fuchsia-100 shadow-sm overflow-hidden hover-lift block group mt-2">
-                    <div class="bg-fuchsia-600 p-4 flex items-center justify-between">
-                        <span class="font-black text-white tracking-wider">📷 SCANNER ROOM</span>
-                        <span class="bg-white/20 px-2 py-1 rounded text-xs font-bold text-white">PRO</span>
-                    </div>
-                    <div class="p-5 relative overflow-hidden">
-                        <div class="absolute -right-6 -bottom-6 text-7xl opacity-5 group-hover:scale-110 transition-transform duration-500">📄</div>
-                        <h4 class="font-bold text-slate-800 mb-2">Turn Paper into Audio</h4>
-                        <p class="text-sm text-slate-500 mb-4">Snap a photo of any printed magazine or newspaper, and our engine will dictate it to you at your target WPM.</p>
-                        <span class="text-fuchsia-600 font-bold text-sm group-hover:translate-x-1 transition-transform inline-block">Scan a Page &rarr;</span>
+                <a href="scanner.html" class="relative rounded-2xl shadow-xl shadow-fuchsia-500/20 overflow-hidden hover-lift block group bg-gradient-to-br from-fuchsia-600 to-purple-800 border border-fuchsia-500/30">
+                    <div class="p-6 relative overflow-hidden text-white z-0">
+                        <div class="absolute -right-6 -bottom-6 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-500">📄</div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-black tracking-wider text-sm" data-en="📷 SCANNER ROOM" data-hi="📷 स्कैनर रूम">📷 SCANNER ROOM</span>
+                            <span class="bg-white/20 px-2 py-1 rounded text-[10px] font-bold">PRO</span>
+                        </div>
+                        <h4 class="font-bold text-xl mb-2 drop-shadow-sm" data-en="Turn Paper into Audio" data-hi="कागज को ऑडियो में बदलें">Turn Paper into Audio</h4>
+                        <p class="text-sm text-fuchsia-100 mb-5 leading-relaxed" data-en="Snap a photo of any printed magazine or newspaper, and our engine will dictate it." data-hi="किसी भी पत्रिका या समाचार पत्र की तस्वीर लें, और हमारा इंजन उसे डिक्टेट करेगा।">Snap a photo of any printed magazine or newspaper, and our engine will dictate it.</p>
+                        <span class="text-yellow-300 font-bold text-sm group-hover:translate-x-1 transition-transform inline-block" data-en="Scan a Page &rarr;" data-hi="पृष्ठ स्कैन करें &rarr;">Scan a Page &rarr;</span>
                     </div>
                 </a>
             </div>
@@ -140,70 +254,75 @@
 
     </main>
 
-   <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+    <!-- Full 4-Column Bilingual Footer -->
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            
             <div class="space-y-4">
                 <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
                     <span class="text-yellow-400">✏️</span> STENOGYM
                 </a>
-                <p class="text-sm text-slate-400 leading-relaxed">
-                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                <p class="text-sm text-slate-400 leading-relaxed" data-en="India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection." data-hi="भारत का प्रमुख AI-संचालित परीक्षा इकोसिस्टम। आशुलिपि में महारत हासिल करें, स्टेटिक GK और दैनिक करंट अफेयर्स पर विजय प्राप्त करें, और अपना अंतिम चयन सुनिश्चित करें।">
+                    India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.
                 </p>
+                <!-- ACTUAL COLOR BRAND ICONS -->
                 <div class="flex gap-4 pt-2">
-                    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" /></svg>
-                    </a> 
-                    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg>
-                    </a>
-                    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg>
-                    </a>
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
+                    <!-- YouTube -->
+                    <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+                    <!-- Telegram -->
+                    <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+                    <!-- Contact -->
+                    <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
                 </div>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="The Platform" data-hi="प्लेटफ़ॉर्म">The Platform</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
-                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
-                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
-                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                    <li><a href="app.html" class="hover:text-cyan-400 transition" data-en="Steno Room" data-hi="स्टेनो रूम">Steno Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition" data-en="AI Dictation Studio" data-hi="AI डिक्टेशन स्टूडियो">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition" data-en="Live Document Scanner" data-hi="लाइव डॉक्यूमेंट स्कैनर">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition" data-en="Student Login" data-hi="छात्र लॉगिन">Student Login</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Resources" data-hi="संसाधन">Resources</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
-                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition" data-en="The Stenogym Blog" data-hi="स्टेनोजिम ब्लॉग">The Stenogym Blog</a></li>
+                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a></li>
+                    <li><a href="gk.html" class="hover:text-cyan-400 transition" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span data-en="Recommended Gear" data-hi="अनुशंसित उपकरण">Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Company & Legal" data-hi="कंपनी और कानूनी">Company & Legal</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
-                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
-                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
-                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                    <li><a href="about.html" class="hover:text-cyan-400 transition" data-en="About Us" data-hi="हमारे बारे में">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition" data-en="Contact Support" data-hi="संपर्क समर्थन">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
                 </ul>
             </div>
-
         </div>
 
         <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
             <div>&copy; 2026 Stenogym. All rights reserved.</div>
-           <div class="text-center md:text-right max-w-xl leading-relaxed">
-                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400" data-en="Disclaimer:" data-hi="अस्वीकरण:">Disclaimer:</span> 
+                <span data-en="We are reader-supported. Affiliate links incur zero extra cost to you." data-hi="हम पाठक-समर्थित हैं। सहबद्ध लिंक पर आपको कोई अतिरिक्त लागत नहीं लगती है।">We are reader-supported. Affiliate links incur zero extra cost to you.</span>
             </div>
         </div>
     </footer>
-    
-    <script>
+
+    <!-- Firebase v10 Modular Integration -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
             authDomain: "stenogym.firebaseapp.com",
@@ -212,8 +331,73 @@
             messagingSenderId: "227346319026",
             appId: "1:227346319026:web:bd37156b931923532eabab"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        let currentPost = null;
+        const urlParams = new URLSearchParams(window.location.search);
+        let currentLang = urlParams.get('lang') === 'hi' ? 'hi' : 'en';
+
+        // UI Toggles
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+        
+        // Steno Room Mobile Accordion Toggle
+        const stenoToggle = document.getElementById('mobileStenoToggle');
+        if(stenoToggle) {
+            stenoToggle.addEventListener('click', () => {
+                const menu = document.getElementById('mobileStenoMenu');
+                menu.classList.toggle('hidden'); menu.classList.toggle('flex');
+                document.getElementById('stenoChevron').textContent = menu.classList.contains('hidden') ? '▼' : '▲';
+            });
+        }
+
+        const themeToggleBtn = document.getElementById('themeToggleBtn');
+        const mobileThemeToggleBtn = document.getElementById('mobileThemeToggleBtn');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        function updateThemeIcon() {
+            if (themeIcon) themeIcon.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+            if (mobileThemeToggleBtn) mobileThemeToggleBtn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+        }
+        updateThemeIcon();
+
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeIcon();
+        });
+        mobileThemeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeIcon();
+        });
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('desktopLoginBtn')?.classList.add('hidden');
+                document.getElementById('mobileLoginBtn')?.classList.add('hidden');
+                document.getElementById('navDashboard')?.classList.remove('hidden');
+                document.getElementById('navDashboardMob')?.classList.remove('hidden');
+                document.getElementById('btnLogout')?.classList.remove('hidden');
+                document.getElementById('mobileLogoutBtn')?.classList.remove('hidden');
+                
+                // Attach logout handlers
+                const logoutAction = () => signOut(auth).then(() => window.location.reload());
+                document.getElementById('btnLogout').onclick = logoutAction;
+                document.getElementById('mobileLogoutBtn').onclick = logoutAction;
+            } else {
+                document.getElementById('desktopLoginBtn')?.classList.remove('hidden');
+                document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.add('hidden');
+                document.getElementById('navDashboardMob')?.classList.add('hidden');
+                document.getElementById('btnLogout')?.classList.add('hidden');
+                document.getElementById('mobileLogoutBtn')?.classList.add('hidden');
+            }
+        });
 
         function escapeHtml(value) {
             const div = document.createElement('div');
@@ -242,7 +426,6 @@
                     el.replaceWith(document.createTextNode(el.textContent || ''));
                     return;
                 }
-
                 [...el.attributes].forEach((attr) => {
                     const name = attr.name.toLowerCase();
                     if (name.startsWith('on') || !allowedAttrs.has(name)) {
@@ -255,117 +438,60 @@
                         else el.removeAttribute(attr.name);
                     }
                 });
-
-                if (tag === 'a') {
-                    el.setAttribute('rel', 'noopener noreferrer');
-                }
+                if (tag === 'a') el.setAttribute('rel', 'noopener noreferrer');
             });
-
             return template.innerHTML;
         }
 
-       // SEO Injection Helper
-        function injectSEO(post) {
-            try {
-                // Ensure canonical tag matches exact URL
-                let canonical = document.querySelector('link[rel="canonical"]');
-                if (!canonical) {
-                    canonical = document.createElement('link');
-                    canonical.rel = "canonical";
-                    document.head.appendChild(canonical);
-                }
-                canonical.href = window.location.origin + window.location.pathname + window.location.search;
+        window.setLanguage = function(lang) {
+            currentLang = lang;
+            
+            // Grab both Desktop and Mobile buttons
+            const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')];
+            const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
 
-                // Meta Description
-                let metaDesc = document.querySelector('meta[name="description"]');
-                if (!metaDesc) {
-                    metaDesc = document.createElement('meta');
-                    metaDesc.name = "description";
-                    document.head.appendChild(metaDesc);
-                }
-                const descText = post.meta && post.meta.trim() !== "" ? post.meta : (post.content || "").replace(/<[^>]*>?/gm, '').substring(0, 150) + "...";
-                metaDesc.content = descText;
-
-                // Open Graph Tags
-                const ogTags = [
-                    { property: "og:title", content: post.title || "Stenogym Article" },
-                    { property: "og:description", content: descText },
-                    { property: "og:type", content: "article" },
-                    { property: "og:url", content: window.location.href }
-                ];
-                
-                const imageUrl = sanitizeUrl(post.image || '');
-                if (imageUrl) {
-                    ogTags.push({ property: "og:image", content: imageUrl });
-                }
-
-                ogTags.forEach(tag => {
-                    let el = document.querySelector(`meta[property="${tag.property}"]`);
-                    if (!el) {
-                        el = document.createElement('meta');
-                        el.setAttribute("property", tag.property);
-                        document.head.appendChild(el);
-                    }
-                    el.content = tag.content;
-                });
-
-                // JSON-LD Schema (Crash-proof date formatting)
-                let dateStr = new Date().toISOString();
-                try {
-                    if (post.createdAt && typeof post.createdAt.toDate === 'function') {
-                        dateStr = post.createdAt.toDate().toISOString();
-                    } else if (post.createdAt) {
-                        dateStr = new Date(post.createdAt).toISOString();
-                    }
-                } catch(err) { console.warn("Date parsing fallback used for schema"); }
-
-                const schema = {
-                    "@context": "https://schema.org",
-                    "@type": "Article",
-                    "headline": post.title || "Stenogym Article",
-                    "image": imageUrl ? [imageUrl] : [],
-                    "datePublished": dateStr,
-                    "author": {
-                        "@type": "Organization",
-                        "name": "Stenogym"
-                    },
-                    "publisher": {
-                        "@type": "Organization",
-                        "name": "Stenogym",
-                        "logo": {
-                            "@type": "ImageObject",
-                            "url": "https://stenogym.com/logo.png"
-                        }
-                    }
-                };
-
-                let scriptEl = document.querySelector('script[type="application/ld+json"]');
-                if (!scriptEl) {
-                    scriptEl = document.createElement('script');
-                    scriptEl.type = "application/ld+json";
-                    document.head.appendChild(scriptEl);
-                }
-                scriptEl.text = JSON.stringify(schema);
-            } catch (seoErr) {
-                console.error("Non-fatal error in injectSEO:", seoErr);
+            // Toggle active classes safely
+            if (lang === 'en') {
+                btnsEn.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
+                btnsHi.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
+            } else {
+                btnsHi.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
+                btnsEn.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
             }
+            
+            // Translate all elements with data-en/data-hi attributes
+            document.querySelectorAll('.translation-el').forEach(el => {
+                if(lang === 'hi' && el.hasAttribute('data-hi')) { el.innerHTML = el.getAttribute('data-hi'); } 
+                else if(el.hasAttribute('data-en')) { el.innerHTML = el.getAttribute('data-en'); }
+            });
+            
+            // Trigger page-specific data re-renders (checks if the function exists on the current page)
+            if (typeof resetAndFetchBlogs === 'function') resetAndFetchBlogs();
+            if (typeof updateProgress === 'function') updateProgress();
+            if (typeof renderFeedCards === 'function') renderFeedCards();
+            if (typeof renderTopicListUI === 'function') {
+                if (typeof activeTopicsList !== 'undefined' && activeTopicsList.length > 0) renderTopicListUI();
+                if (typeof currentTopicId !== 'undefined' && currentTopicId) selectTopic(currentTopicId);
+                if (typeof updateDrillBadge === 'function') updateDrillBadge();
+            }
+            if (typeof renderArticleContent === 'function' && typeof currentPost !== 'undefined' && currentPost) renderArticleContent();
+        };
+
+        function renderArticleContent() {
+            const post = currentPost;
+            const title = currentLang === 'hi' && post.title_hi ? post.title_hi : (post.title || 'Untitled Article');
+            const body = currentLang === 'hi' && post.content_hi ? post.content_hi : (post.content || '');
+            const date = post.createdAt ? post.createdAt.toDate().toLocaleDateString(currentLang === 'hi' ? 'hi-IN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "Recently";
+            const readTime = Math.max(1, Math.ceil((body || "").split(" ").length / 200));
+
+            document.title = `${title} | Stenogym Blog`;
+            document.getElementById('artTitle').textContent = title;
+            document.getElementById('artCategory').textContent = currentLang === 'hi' ? (post.category_hi || post.category || 'Guide') : (post.category || 'Guide');
+            document.getElementById('artMeta').textContent = `⏱️ ${readTime} ${currentLang === 'hi' ? 'मिनट' : 'Min Read'} • ${date}`;
+            document.getElementById('artBody').innerHTML = sanitizeArticleHtml(body);
         }
 
-        firebase.auth().onAuthStateChanged(user => {
-            if (user) {
-                document.getElementById('navLogin')?.classList.add('hidden');
-                document.getElementById('navDashboard')?.classList.remove('hidden');
-                document.getElementById('btnLogout')?.classList.remove('hidden');
-                document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
-            } else {
-                document.getElementById('navLogin')?.classList.remove('hidden');
-                document.getElementById('navDashboard')?.classList.add('hidden');
-                document.getElementById('btnLogout')?.classList.add('hidden');
-            }
-        });
-
         async function loadArticle() {
-            const urlParams = new URLSearchParams(window.location.search);
             const postId = urlParams.get('id');
 
             if (!postId) {
@@ -374,31 +500,23 @@
             }
 
             try {
-                const doc = await db.collection("blogs").doc(postId).get();
+                const docRef = doc(db, "blogs", postId);
+                const docSnap = await getDoc(docRef);
                 
-                if (doc.exists) {
-                    const post = doc.data();
-                    const date = post.createdAt && typeof post.createdAt.toDate === 'function' ? post.createdAt.toDate().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "Recently";
-                    const readTime = Math.max(1, Math.ceil((post.content || "").split(" ").length / 200));
+                if (docSnap.exists()) {
+                    currentPost = docSnap.data();
 
-                    // Image Loading
-                    const imageUrl = sanitizeUrl(post.image || '');
+                    const imageUrl = sanitizeUrl(currentPost.image || '');
                     if (imageUrl) {
                         document.getElementById('artFeaturedImage').src = imageUrl;
                         document.getElementById('artImageContainer').classList.remove('hidden');
                     }
 
-                    // Content Loading
-                    document.title = `${post.title || 'Article'} | Stenogym Blog`;
-                    document.getElementById('artTitle').textContent = post.title || 'Untitled Article';
-                    document.getElementById('artCategory').textContent = post.category || 'Guide';
-                    document.getElementById('artMeta').textContent = `⏱️ ${readTime} Min Read • ${date}`;
-                    document.getElementById('artBody').innerHTML = sanitizeArticleHtml(post.content);
-
-                    injectSEO(post);
+                    window.setLanguage(currentLang);
 
                     document.getElementById('loadingMsg').classList.add('hidden');
                     document.getElementById('articleContainer').classList.remove('hidden');
+                    document.getElementById('bottomPromos').classList.remove('hidden');
 
                     loadRelatedArticles(postId);
                 } else {
@@ -413,45 +531,208 @@
         async function loadRelatedArticles(currentPostId) {
             const relatedGrid = document.getElementById('relatedGrid');
             try {
-                const snapshot = await db.collection("blogs").orderBy("createdAt", "desc").limit(3).get();
+                const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"), limit(3));
+                const snapshot = await getDocs(q);
                 let count = 0;
-                snapshot.forEach(doc => {
-                    if (doc.id === currentPostId) return; 
-                    if (count >= 2) return; 
-                    const post = doc.data();
+                let html = "";
+                snapshot.forEach(docSnap => {
+                    if (docSnap.id === currentPostId || count >= 2) return;
+                    const post = docSnap.data();
                     const readTime = Math.max(1, Math.ceil((post.content || "").split(" ").length / 200));
-                    const category = escapeHtml(post.category || 'Guide');
-                    const title = escapeHtml(post.title || 'Untitled Article');
+                    const category = escapeHtml(currentLang === 'hi' ? (post.category_hi || post.category || 'Guide') : (post.category || 'Guide'));
+                    const title = escapeHtml(currentLang === 'hi' && post.title_hi ? post.title_hi : (post.title || 'Untitled Article'));
+                    
+                    const imageUrl = sanitizeUrl(post.image || '');
+                    const imageElement = imageUrl 
+                        ? `<img src="${imageUrl}" alt="Article Cover" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80">`
+                        : `<div class="absolute inset-0 w-full h-full bg-slate-800 flex items-center justify-center opacity-50 group-hover:scale-105 transition-transform duration-700"><span class="text-6xl">✏️</span></div>`;
 
-                    const cardHtml = `
-                        <a href="article.html?id=${doc.id}" class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover-lift block group">
-                            <div class="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-2">${category}</div>
-                            <h4 class="text-lg font-black text-slate-900 mb-2 group-hover:text-indigo-600 transition leading-snug">${title}</h4>
-                            <div class="text-xs font-bold text-slate-400 mt-4">⏱️ ${readTime} Min Read</div>
+                    html += `
+                        <a href="article.html?id=${docSnap.id}&lang=${currentLang}" class="relative w-full h-64 md:h-72 rounded-2xl overflow-hidden shadow-sm hover-lift block group flex flex-col justify-end bg-slate-900 border border-slate-800">
+                            ${imageElement}
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent z-0"></div>
+                            <div class="relative z-10 p-6">
+                                <div class="text-[10px] font-black bg-indigo-600 text-white px-2 py-1 rounded inline-block uppercase tracking-wider mb-3">${category}</div>
+                                <h4 class="text-xl font-black text-white mb-2 leading-snug drop-shadow-sm group-hover:text-indigo-300 transition-colors line-clamp-2">${title}</h4>
+                                <div class="text-xs font-bold text-slate-300">⏱️ ${readTime} ${currentLang === 'hi' ? 'मिनट' : 'Min Read'}</div>
+                            </div>
                         </a>
                     `;
-                    relatedGrid.insertAdjacentHTML('beforeend', cardHtml);
                     count++;
                 });
-                if (count > 0) document.getElementById('keepReadingSection').classList.remove('hidden');
-            } catch (error) {}
+                
+                if (count > 0) {
+                    relatedGrid.innerHTML = html;
+                    document.getElementById('keepReadingSection').classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error("Error loading related articles:", error);
+            }
         }
+
         loadArticle();
     </script>
+    <!-- ========================================== -->
+<!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
+<!-- ========================================== -->
+<style>
+    #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+    #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+    #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+    
+    /* Breathing Glow Effect Behind the Button */
+    #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+    @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+    
+    /* The "Shorthand Writer" Pencil Wiggle Animation */
+    .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+    @keyframes writeWiggle {
+        0%, 85%, 100% { transform: rotate(0deg); }
+        88% { transform: rotate(-25deg); }
+        91% { transform: rotate(15deg); }
+        94% { transform: rotate(-10deg); }
+        97% { transform: rotate(5deg); }
+    }
+    
+    #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+    #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+    
+    .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
+    .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+    .fab-tg { background-color: #0088cc; }
+    .fab-yt { background-color: #FF0000; }
+    .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .fab-share { background-color: #25D366; }
+</style>
 
-    <div class="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 group">
-        <div class="flex flex-col gap-3 opacity-0 translate-y-4 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 ease-out mb-2">
-            <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-12 h-12 rounded-full bg-[#FF0000] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg>
-            </a>
-            <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-12 h-12 rounded-full bg-[#E1306C] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
-                 <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" /></svg>
-            </a>
-        </div>
-        <button class="relative flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-full shadow-2xl font-bold tracking-wide hover:bg-indigo-500 transition-colors animate-bounce">
-            <span class="absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75 animate-ping top-0 left-0 -z-10"></span>
-            <span>✨ Follow Us</span>
-        </button>
+<div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+    <!-- Hidden Menu -->
+    <div id="stenoFabMenu">
+        <!-- Telegram -->
+        <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+        <!-- YouTube -->
+        <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+        <!-- Clean Instagram Icon -->
+        <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+        <!-- Share Action -->
+        <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
     </div>
+    
+    <!-- Main Draggable Badge with Wiggling Pencil -->
+    <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const fabContainer = document.getElementById('stenoFabContainer');
+    const fabMain = document.getElementById('stenoFabMain');
+    const fabMenu = document.getElementById('stenoFabMenu');
+    const shareBtn = document.getElementById('fabShareBtn');
+
+    let isDragging = false, hasDragged = false;
+    let startX, startY, initialX, initialY;
+    const fabSize = 56;
+
+    // Restore Saved Position 
+    const savedX = localStorage.getItem('stenoFabX');
+    const savedY = localStorage.getItem('stenoFabY');
+    if (savedX !== null && savedY !== null) {
+        fabContainer.style.left = savedX + 'px';
+        fabContainer.style.top = savedY + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+    }
+
+    // Drag & Snap Logic
+    const startDrag = (e) => {
+        if (e.target.closest('#stenoFabMenu')) return;
+        isDragging = true; hasDragged = false;
+        const client = e.type.includes('mouse') ? e : e.touches[0];
+        startX = client.clientX; startY = client.clientY;
+        initialX = fabContainer.offsetLeft; initialY = fabContainer.offsetTop;
+        document.body.style.userSelect = "none";
+    };
+
+    const drag = (e) => {
+        if (!isDragging) return;
+        const client = e.type.includes('mouse') ? e : e.touches[0];
+        const dx = client.clientX - startX;
+        const dy = client.clientY - startY;
+        
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasDragged = true;
+        if (!hasDragged) return;
+
+        fabMenu.classList.remove('active'); 
+        
+        let newX = initialX + dx;
+        let newY = initialY + dy;
+        const maxX = window.innerWidth - fabSize;
+        const maxY = window.innerHeight - fabSize;
+        
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        
+        fabContainer.style.left = newX + 'px';
+        fabContainer.style.top = newY + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+    };
+
+    const stopDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.style.userSelect = "auto";
+        
+        if (hasDragged) {
+            const currentX = fabContainer.offsetLeft;
+            const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
+            
+            fabContainer.style.transition = "left 0.3s ease-out";
+            fabContainer.style.left = targetX + 'px';
+            
+            localStorage.setItem('stenoFabX', targetX);
+            localStorage.setItem('stenoFabY', fabContainer.offsetTop);
+            
+            setTimeout(() => { fabContainer.style.transition = ""; }, 300);
+        } else {
+            fabMenu.classList.toggle('active');
+        }
+    };
+
+    fabMain.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    fabMain.addEventListener('touchstart', startDrag, {passive: false});
+    document.addEventListener('touchmove', drag, {passive: false});
+    document.addEventListener('touchend', stopDrag);
+
+    document.addEventListener('click', (e) => {
+        if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
+    });
+
+    shareBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
+        try {
+            if (navigator.share) await navigator.share(shareData);
+            else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); }
+        } catch (err) {}
+    });
+});
+</script>
+<!-- ========================================== -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('nav a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href === currentPage) {
+                link.classList.remove('text-slate-300');
+                link.classList.add('text-cyan-300', 'font-black');
+            }
+        });
+    });
+</script>
 </body>
 </html>

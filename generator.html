@@ -1,6 +1,13 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
+    <script>
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+    </script>
     <title>AI Shorthand Dictation Generator | Unlimited Steno Audio | Stenogym</title>
     <meta name="title" content="AI Shorthand Dictation Generator | Unlimited Steno Audio | Stenogym">
     <meta name="description" content="Generate infinite, unique shorthand dictations at your exact target WPM. Use our AI studio to practice fresh legal and parliamentary passages every day.">
@@ -9,6 +16,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     
     <!-- Modern Firebase v10 Compat -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
@@ -17,86 +27,159 @@
 
     <style>
         .premium-glow { box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); }
-        #gateOverlay {
-            backdrop-filter: blur(4px);
-            background-color: rgba(255, 255, 255, 0.85);
+        #gateOverlay { backdrop-filter: blur(4px); }
+        /* Equalizer Animation */
+        @keyframes eq {
+            0%, 100% { height: 4px; }
+            50% { height: 12px; }
+        }
+        .eq-bar { width: 3px; background-color: #4ade80; border-radius: 2px; }
+        .eq-1 { animation: eq 1s ease-in-out infinite; }
+        .eq-2 { animation: eq 1.2s ease-in-out infinite 0.2s; }
+        .eq-3 { animation: eq 0.8s ease-in-out infinite 0.4s; }
+        /* Smooth Scrolling Marquee for Mobile */
+        @keyframes scrollTicker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-150%); }
+        }
+        @media (max-width: 639px) {
+            .mobile-marquee { 
+                display: inline-block; 
+                animation: scrollTicker 12s linear infinite; 
+                white-space: nowrap; 
+            }
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 via-white to-emerald-50/30 text-slate-800 font-sans min-h-screen flex flex-col">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans min-h-screen flex flex-col transition-colors duration-300 pt-20">
     <h1 class="sr-only">AI Shorthand Dictation Generator</h1>
 
-    <nav class="bg-emerald-700 text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-xl">
-                    <span>🏠</span> STENOGYM
+    <!-- Tier 1: Global Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 border-b border-white/10 shadow-sm transition-all duration-300 h-20">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 h-full flex justify-between items-center text-white">
+            
+            <div class="flex items-center gap-2 md:gap-3">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-xl md:text-2xl uppercase shadow-sm">
+                    <span class="text-yellow-400">✏️</span> STENOGYM
                 </a>
-                <span class="hidden sm:inline-block bg-emerald-800 px-3 py-1 rounded-full text-xs font-bold border border-emerald-500">🤖 AI Studio</span>
+                <span class="bg-indigo-800 px-2 md:px-3 py-0.5 md:py-1 rounded-full text-sm md:text-xs font-bold border border-indigo-500 text-indigo-100 shadow-sm flex items-center">
+                    🤖<span class="hidden md:inline ml-1">AI Studio</span>
+                </span>
             </div>
             
-            <div class="flex items-center gap-3">
-                <select id="countrySelect" class="bg-emerald-900 md:bg-emerald-800 text-white border border-emerald-500 rounded-lg p-2 text-sm font-bold outline-none cursor-pointer">
-                    <option value="India 🇮🇳">🇮🇳 India</option>
-                    <option value="United States 🇺🇸">🇺🇸 USA</option>
-                    <option value="United Kingdom 🇬🇧">🇬🇧 UK</option>
-                    <option value="Philippines 🇵🇭">🇵🇭 Philippines</option>
-                    <option value="Global 🌐">🌐 Global</option>
-                </select>
+            <div class="flex items-center gap-3 md:gap-6 font-semibold text-sm">
+                <button id="themeToggle" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition shadow-inner">
+                    <span id="themeIcon">🌙</span>
+                </button>
 
-                <select id="wpmSelect" class="bg-emerald-900 md:bg-emerald-800 text-white border border-emerald-500 rounded-lg p-2 text-sm font-bold outline-none cursor-pointer">
-                    <option value="50">⏱️ 50 WPM</option>
-                    <option value="60">⏱️ 60 WPM</option>
-                    <option value="70">⏱️ 70 WPM</option>
-                    <option value="80" selected>⏱️ 80 WPM</option>
-                    <option value="90">⏱️ 90 WPM</option>
-                    <option value="100">⏱️ 100 WPM</option>
-                    <option value="110">⏱️ 110 WPM</option>
-                    <option value="120">⏱️ 120 WPM</option>
-                </select>
+                <div class="hidden lg:flex items-center gap-6">
+                    <a href="index.html" class="text-slate-300 hover:text-white transition">Home</a>
+                    <a href="current-affairs.html" class="text-slate-300 hover:text-white transition">Current Affairs</a>
+                    <a href="gk.html" class="text-slate-300 hover:text-white transition">Static GK</a>
+                    <a href="blog.html" class="text-slate-300 hover:text-white transition">Blog</a>
+                    <a href="dashboard.html" id="navDashboard" class="hidden text-indigo-300 hover:text-white transition font-bold">Dashboard</a>
+                    <a href="login.html" id="navLogin" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-white transition">Login</a>
+                    <button id="btnLogout" class="hidden text-rose-400 hover:text-rose-300 border border-slate-700 hover:border-rose-500 px-3 py-1.5 rounded-lg transition">Logout</button>
+                </div>
+
+                <button id="mobileMenuBtn" class="lg:hidden text-2xl text-slate-300 hover:text-white focus:outline-none">☰</button>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer -->
+        <div id="mobileDrawer" class="hidden lg:hidden absolute top-20 left-0 w-full bg-indigo-900 border-b border-indigo-800 px-4 py-4 space-y-3 font-bold text-sm shadow-inner z-50">
+            <a href="index.html" class="block text-slate-300 hover:text-white">🏠 Home</a>
+            <a href="current-affairs.html" class="block text-slate-300 hover:text-white">🗞️ Current Affairs</a>
+            <a href="gk.html" class="block text-slate-300 hover:text-white">📚 Static GK</a>
+            <a href="blog.html" class="block text-slate-300 hover:text-white">✍️ Blog & Guides</a>
+            <div class="pt-2 border-t border-indigo-800">
+                <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300">Dashboard</a>
+                <a href="login.html" id="navLoginMob" class="block text-white">Student Login &rarr;</a>
+                <button id="btnLogoutMob" class="hidden w-full text-left text-rose-400 mt-2">Logout &rarr;</button>
             </div>
         </div>
     </nav>
 
-    <div class="bg-slate-900 border-b border-slate-800 flex justify-center overflow-x-auto shadow-inner w-full sticky top-[64px] z-40">
-        <div class="flex space-x-2 p-2 text-sm font-bold">
-            <a href="app.html" class="px-4 py-2 rounded-lg text-indigo-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-                <span>🎧</span> Preset Room
-            </a>
-            <a href="generator.html" class="px-4 py-2 rounded-lg bg-slate-800 text-white shadow-md flex items-center gap-2">
-                <span>🧠</span> AI Studio
-            </a>
-            <a href="scanner.html" class="px-4 py-2 rounded-lg text-fuchsia-300 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-                <span>📄</span> Scanner
-            </a>
-             <div class="w-px bg-slate-700 mx-2 my-1"></div>
-            <a href="index.html" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-                Home 🏠
-            </a>
-            <a href="dashboard.html" class="px-4 py-2 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition flex items-center gap-2">
-                Dashboard 📊
-            </a>
+    <!-- Tier 2: App Sticky Control Panel (Emerald Theme) -->
+    <div class="bg-emerald-700 dark:bg-slate-900 border-b border-emerald-800 dark:border-slate-800 sticky top-20 z-40 transition-colors duration-300 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 lg:gap-6">
+            
+            <!-- Tool Tabs -->
+            <div class="grid grid-cols-3 lg:flex gap-2 w-full lg:w-auto text-[11px] min-[375px]:text-xs sm:text-sm font-bold pb-1 lg:pb-0">
+                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg text-indigo-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                    <span>🎧</span> <span class="truncate">Preset Room</span>
+                </a>
+                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg bg-white/20 dark:bg-slate-800 text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden relative">
+                    <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span></span>
+                    <span>🧠</span> <span class="truncate">AI Studio</span>
+                </a>
+                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg text-fuchsia-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                    <span>📄</span> <span class="truncate">Scanner</span>
+                </a>
+            </div>
+
+            <div class="flex flex-row items-center justify-between flex-grow gap-2 w-full lg:w-auto overflow-hidden">
+                
+                <!-- Live Studio Activity Ticker -->
+                <div class="flex items-center gap-2 bg-emerald-800/50 dark:bg-slate-800/80 rounded-full px-3 py-1.5 border border-emerald-500/30 dark:border-slate-700 shadow-inner flex-grow overflow-hidden">
+                    <!-- Static Frozen Left Side -->
+                    <div class="flex items-center gap-1.5 flex-shrink-0">
+                        <div class="flex items-end gap-[2px] h-3 pb-[1px]">
+                            <div class="eq-bar eq-1"></div><div class="eq-bar eq-2"></div><div class="eq-bar eq-3"></div>
+                        </div>
+                        <span class="sm:hidden text-[10px] font-bold text-emerald-400 tracking-wider">Live</span>
+                    </div>
+                    
+                    <!-- Scrolling Dynamic Right Side -->
+                    <div class="text-[10px] sm:text-xs font-bold text-emerald-100 dark:text-slate-300 relative flex-grow h-4 overflow-hidden">
+                        <div id="liveTickerText" class="absolute inset-0 transition-opacity duration-500 flex items-center opacity-100 whitespace-nowrap">
+                            <span class="mobile-marquee sm:w-full sm:truncate">🟢 AI Engine Online...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dropdowns & Limit Badge (1-Row Mobile Match) -->
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <div id="limitBadge" class="hidden items-center gap-1 bg-emerald-800/50 dark:bg-slate-800/80 border border-emerald-500/30 dark:border-slate-700 rounded-lg px-2 py-1.5 shadow-inner" title="Daily AI Limit">
+                        <span class="text-[10px] font-black text-emerald-100 dark:text-emerald-300 uppercase tracking-widest whitespace-nowrap" id="limitText">🧠 10/10</span>
+                    </div>
+
+                    <select id="countrySelect" class="w-16 sm:w-auto bg-emerald-800 dark:bg-slate-800 text-white border border-emerald-500 dark:border-slate-700 rounded-lg p-1.5 sm:p-2 text-[10px] sm:text-sm font-bold outline-none cursor-pointer transition-colors truncate">
+                        <option value="India 🇮🇳">🇮🇳 India</option>
+                        <option value="United States 🇺🇸">🇺🇸 USA</option>
+                        <option value="United Kingdom 🇬🇧">🇬🇧 UK</option>
+                        <option value="Philippines 🇵🇭">🇵🇭 Philippines</option>
+                        <option value="Global 🌐">🌐 Global</option>
+                    </select>
+                    <select id="wpmSelect" class="bg-emerald-800 dark:bg-slate-800 text-white border border-emerald-500 dark:border-slate-700 rounded-lg p-1.5 sm:p-2 text-[10px] sm:text-sm font-bold outline-none cursor-pointer transition-colors">
+                        <option value="50">⏱️ 50</option><option value="60">⏱️ 60</option><option value="70">⏱️ 70</option>
+                        <option value="80" selected>⏱️ 80</option><option value="90">⏱️ 90</option><option value="100">⏱️ 100</option>
+                        <option value="110">⏱️ 110</option><option value="120">⏱️ 120</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </div>
     
+    <!-- Main Workspace -->
     <main class="flex-grow max-w-5xl mx-auto w-full p-4 flex flex-col gap-6 mt-4">
         
-        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
-            <h2 class="text-xl font-bold text-slate-900 mb-2 flex items-center gap-2">
-                <span class="text-emerald-600">🧠</span> Generate Infinite Dictations
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-sm transition-colors">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2 flex items-center gap-2">
+                <span class="text-emerald-600 dark:text-emerald-400">🧠</span> Generate Infinite Dictations
             </h2>
-            <p class="text-slate-500 text-sm mb-6">Configure your parameters below. Our AI will instantly write a brand new, never-before-seen dictation tailored exactly to your needs.</p>
+            <p class="text-slate-500 dark:text-slate-400 text-sm mb-6">Configure your parameters below. Our AI will instantly write a brand new, never-before-seen dictation tailored exactly to your needs.</p>
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Dictation Theme</label>
-                    <select id="aiTheme" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition cursor-pointer">
-                        <!-- Themes populated dynamically by JS based on Country -->
+                    <select id="aiTheme" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 dark:text-white transition cursor-pointer">
+                        <!-- Themes populated dynamically by JS -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Difficulty Level</label>
-                    <select id="aiDifficulty" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition cursor-pointer">
+                    <select id="aiDifficulty" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 dark:text-white transition cursor-pointer">
                         <option value="Standard">Standard (General Vocabulary)</option>
                         <option value="Advanced">Advanced (Complex Phrasing)</option>
                         <option value="Expert">Expert (Heavy Technical Terms)</option>
@@ -104,11 +187,11 @@
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Target Word Count</label>
-                    <input type="number" id="aiWordCount" value="100" min="50" max="1050" step="50" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition">
+                    <input type="number" id="aiWordCount" value="400" min="50" max="1050" step="50" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-3 text-sm font-semibold outline-none focus:border-emerald-500 dark:text-white transition">
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-100">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                 <div id="aiStatusMsg" class="text-sm font-bold text-slate-400">Ready to generate.</div>
                 <button id="btnGenerate" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition flex items-center gap-2 w-full sm:w-auto justify-center">
                     <span>✨</span> Generate AI Passage
@@ -118,18 +201,18 @@
 
         <div id="practiceUI" class="hidden flex-col gap-6">
             
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
                 <div class="flex justify-between items-end mb-2">
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Dictation Timeline Tracking</div>
-                    <div id="liveWordCount" class="text-base font-bold text-emerald-600">0 / 0 Words</div>
+                    <div id="liveWordCount" class="text-base font-bold text-emerald-600 dark:text-emerald-400">0 / 0 Words</div>
                 </div>
                 
-                <div id="progressContainer" class="w-full bg-slate-100 rounded-full h-3.5 mb-5 relative overflow-hidden cursor-pointer border border-slate-200">
+                <div id="progressContainer" class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-3.5 mb-5 relative overflow-hidden cursor-pointer border border-slate-200 dark:border-slate-700">
                     <div id="progressBar" class="bg-gradient-to-r from-emerald-500 to-teal-500 h-full rounded-full w-0 premium-glow transition-all duration-200 ease-linear"></div>
                 </div>
 
                 <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div id="timeDisplay" class="font-mono text-xl font-bold text-slate-700 bg-slate-50 border border-slate-200 px-4 py-1.5 rounded-xl shadow-inner">00:00 / 00:00</div>
+                    <div id="timeDisplay" class="font-mono text-xl font-bold text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 px-4 py-1.5 rounded-xl shadow-inner">00:00 / 00:00</div>
                     <div class="flex gap-3 w-full sm:w-auto">
                         <button id="btnPlayPause" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-8 rounded-xl shadow transition w-full sm:w-40 text-center uppercase tracking-wider text-sm">Play</button>
                         <button id="btnStop" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-6 rounded-xl shadow transition uppercase tracking-wider text-sm">Reset</button>
@@ -137,42 +220,42 @@
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm min-h-[400px] flex flex-col relative overflow-hidden">
-                <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm min-h-[400px] flex flex-col relative overflow-hidden transition-colors">
+                <div class="bg-slate-50 dark:bg-slate-800/50 px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3 transition-colors">
                     <span class="font-bold text-slate-400 tracking-wider text-xs uppercase flex items-center gap-2">
                         📝 Student Transcription Canvas
-                        <span id="typingTimerDisplay" class="hidden bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200">00:00</span>
+                        <span id="typingTimerDisplay" class="hidden bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200 dark:border-emerald-800">00:00</span>
                     </span>
                     <div class="flex gap-2 w-full sm:w-auto">
-                        <button id="btnTogglePassage" class="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition hidden w-full sm:w-auto items-center justify-center gap-2">
+                        <button id="btnTogglePassage" class="bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 dark:hover:bg-indigo-800 text-indigo-700 dark:text-indigo-300 font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition hidden w-full sm:w-auto items-center justify-center gap-2">
                             <span>👁️</span> View Passage
                         </button>
-                        <button id="btnClear" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition w-full sm:w-auto" disabled>Clear Canvas</button>
+                        <button id="btnClear" class="bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 font-bold py-2 px-4 rounded-lg shadow-sm text-sm transition w-full sm:w-auto" disabled>Clear Canvas</button>
                         <button id="btnSubmit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-6 rounded-lg shadow text-sm transition w-full sm:w-auto" disabled>Submit for Evaluation</button>
                     </div>
                 </div>
                 
-                <div id="passageViewer" class="hidden bg-indigo-50 border-b border-indigo-100 p-6 text-lg font-serif text-slate-800 leading-relaxed shadow-inner overflow-y-auto max-h-48"></div>
+                <div id="passageViewer" class="hidden bg-indigo-50 dark:bg-indigo-950/30 border-b border-indigo-100 dark:border-indigo-900/50 p-6 text-lg font-serif text-slate-800 dark:text-slate-300 leading-relaxed shadow-inner overflow-y-auto max-h-48 transition-colors"></div>
 
-                <textarea id="typingArea" onpaste="return false;" class="w-full flex-grow p-6 outline-none resize-none text-xl font-serif leading-relaxed bg-[#FCFBF7] shadow-inner text-slate-800" placeholder="Transcription canvas is locked. Listen to the audio first." disabled></textarea>
+                <textarea id="typingArea" onpaste="return false;" class="w-full flex-grow p-6 outline-none resize-none text-xl font-serif leading-relaxed bg-[#FCFBF7] dark:bg-slate-950 text-slate-800 dark:text-slate-300 shadow-inner transition-colors" placeholder="Transcription canvas is locked. Listen to the audio first." disabled></textarea>
 
-                <div id="gateOverlay" class="hidden absolute inset-0 z-10 flex flex-col items-center justify-center p-6 border-t border-slate-200">
-                    <div class="bg-white p-6 rounded-2xl shadow-xl border border-emerald-100 max-w-md w-full text-center">
+                <div id="gateOverlay" class="hidden absolute inset-0 z-10 flex flex-col items-center justify-center p-6 border-t border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80">
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-xl border border-emerald-100 dark:border-slate-700 max-w-md w-full text-center transition-colors">
                         <div class="text-3xl mb-3">⏱️</div>
-                        <h3 class="text-lg font-black text-slate-800 mb-1">Audio Complete</h3>
-                        <p class="text-sm text-slate-500 mb-6">Select your exam parameters to unlock the typing canvas. The timer starts on your first keystroke.</p>
+                        <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">Audio Complete</h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Select your exam parameters to unlock the typing canvas. The timer starts on your first keystroke.</p>
                         
                         <div class="flex flex-col gap-4 mb-6 text-left">
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Mode Selection</label>
-                                <select id="gateModeSelect" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition">
+                                <select id="gateModeSelect" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm font-semibold outline-none focus:border-emerald-500 dark:text-white transition">
                                     <option value="free">Free Practice (Count-Up, No Limit)</option>
                                     <option value="strict">Strict Exam (Countdown to Hard Stop)</option>
                                 </select>
                             </div>
                             <div id="strictTimeContainer" class="hidden">
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Time Limit (Minutes)</label>
-                                <input type="number" id="gateTimeInput" value="10" min="1" max="120" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 text-sm font-semibold outline-none focus:border-emerald-500 transition">
+                                <input type="number" id="gateTimeInput" value="10" min="1" max="120" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg p-3 text-sm font-semibold outline-none focus:border-emerald-500 dark:text-white transition">
                             </div>
                         </div>
                         
@@ -183,28 +266,31 @@
                 </div>
             </div>
             
-            <div id="evaluationPanel" class="hidden bg-white p-6 rounded-2xl border border-slate-200 shadow-lg mb-12">
-            <h2 class="text-xl font-bold text-slate-900 mb-4 pb-2 border-b border-slate-100">Evaluation Analysis Matrix</h2>
+            <div id="evaluationPanel" class="hidden bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg mb-12 transition-colors">
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-4 pb-2 border-b border-slate-100 dark:border-slate-800">Evaluation Analysis Matrix</h2>
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6 text-center">
-                <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700">0</div></div>
-                <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 uppercase mb-1">Correct</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600">0</div></div>
-                <div class="bg-rose-50 border border-rose-100 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 uppercase mb-1">Mistakes</div><div id="evalErrors" class="text-2xl font-black text-rose-600">0</div></div>
-                <div class="bg-fuchsia-50 border border-fuchsia-100 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 uppercase mb-1">Accuracy</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600">0%</div></div>
-                <div class="bg-blue-50 border border-blue-100 p-4 rounded-xl"><div class="text-xs font-bold text-blue-600 uppercase mb-1">Typing Time</div><div id="evalTypingTime" class="text-2xl font-black text-blue-600">00:00</div></div>
-                <div class="bg-amber-50 border border-amber-100 p-4 rounded-xl"><div class="text-xs font-bold text-amber-600 uppercase mb-1">Typing WPM</div><div id="evalTypingSpeed" class="text-2xl font-black text-amber-600">0</div></div>
+                <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 p-4 rounded-xl"><div class="text-xs font-bold text-slate-400 uppercase mb-1">Total Words</div><div id="evalTotal" class="text-2xl font-black text-slate-700 dark:text-slate-300">0</div></div>
+                <div class="bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 p-4 rounded-xl"><div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase mb-1">Correct</div><div id="evalCorrect" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">0</div></div>
+                <div class="bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800/50 p-4 rounded-xl"><div class="text-xs font-bold text-rose-500 dark:text-rose-400 uppercase mb-1">Mistakes</div><div id="evalErrors" class="text-2xl font-black text-rose-600 dark:text-rose-400">0</div></div>
+                <div class="bg-fuchsia-50 dark:bg-fuchsia-900/20 border border-fuchsia-100 dark:border-fuchsia-800/50 p-4 rounded-xl"><div class="text-xs font-bold text-fuchsia-600 dark:text-fuchsia-400 uppercase mb-1">Accuracy</div><div id="evalAccuracy" class="text-2xl font-black text-fuchsia-600 dark:text-fuchsia-400">0%</div></div>
+                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800/50 p-4 rounded-xl"><div class="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase mb-1">Typing Time</div><div id="evalTypingTime" class="text-2xl font-black text-blue-600 dark:text-blue-400">00:00</div></div>
+                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 p-4 rounded-xl"><div class="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase mb-1">Typing WPM</div><div id="evalTypingSpeed" class="text-2xl font-black text-amber-600 dark:text-amber-400">0</div></div>
             </div>
 
-            <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-600 shadow-sm">
+            <div class="flex flex-wrap justify-center gap-6 mb-6 p-4 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm font-bold text-slate-600 dark:text-slate-300 shadow-sm transition-colors">
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-500 shadow-sm"></span> Correct</span>
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-500 shadow-sm"></span> Wrong / Extra</span>
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-yellow-400 shadow-sm"></span> Half Mistake</span>
                 <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-orange-500 shadow-sm"></span> Missed Word</span>
             </div>
-            <div id="transcriptOutput" class="p-6 bg-[#FCFBF7] border border-slate-200 rounded-xl text-lg font-serif leading-relaxed shadow-inner text-slate-800"></div>
+            <div id="transcriptOutput" class="p-6 bg-[#FCFBF7] dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-lg font-serif leading-relaxed shadow-inner text-slate-800 dark:text-slate-300 transition-colors"></div>
         </div>
     </main>
 
    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10",
@@ -221,10 +307,117 @@
         const db = firebase.firestore();
 
         let activeUser = null;
+        let dailyAiCount = 0;
+        const MAX_AI_DAILY = 10;
+        
+        // ADMIN BYPASS KEY
+        const MASTER_ADMIN = "subhashisdeysarkar1998@gmail.com";
+        let isAdmin = false;
+
+        function getTodayStr() {
+            const d = new Date();
+            return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0') + "-" + String(d.getDate()).padStart(2,'0');
+        }
+
+        function updateLimitUI() {
+            const badge = document.getElementById('limitBadge');
+            const text = document.getElementById('limitText');
+            if(!activeUser) { badge.classList.add('hidden'); return; }
+            
+            badge.classList.remove('hidden');
+            badge.classList.add('flex');
+            
+            if (isAdmin) {
+                text.innerHTML = '👑 <span class="hidden sm:inline">ADMIN</span>';
+                text.className = "text-[10px] font-black text-amber-300 uppercase tracking-widest whitespace-nowrap";
+            } else {
+                const left = Math.max(0, MAX_AI_DAILY - dailyAiCount);
+                text.textContent = `🧠 ${left}/${MAX_AI_DAILY}`;
+                if(left === 0) text.className = "text-[10px] font-black text-rose-400 uppercase tracking-widest whitespace-nowrap";
+                else text.className = "text-[10px] font-black text-emerald-100 dark:text-emerald-300 uppercase tracking-widest whitespace-nowrap";
+            }
+        }
+
         firebase.auth().onAuthStateChanged((user) => {
             activeUser = user;
+            if (user) {
+                isAdmin = (user.email === MASTER_ADMIN);
+                
+                document.getElementById('navLogin')?.classList.add('hidden');
+                document.getElementById('navLoginMob')?.classList.add('hidden');
+                document.getElementById('navDashboard')?.classList.remove('hidden');
+                document.getElementById('navDashboardMob')?.classList.remove('hidden');
+                document.getElementById('btnLogout')?.classList.remove('hidden');
+                document.getElementById('btnLogoutMob')?.classList.remove('hidden');
+                
+                // Fetch daily limit from Firestore (Admin ignores this count but we fetch it anyway)
+                db.collection("users").doc(user.uid).collection("limits").doc(getTodayStr()).get().then(docSnap => {
+                    if(docSnap.exists) { dailyAiCount = docSnap.data().aiCount || 0; }
+                    else { dailyAiCount = 0; }
+                    updateLimitUI();
+                });
+            } else {
+                isAdmin = false;
+                document.getElementById('navLogin')?.classList.remove('hidden');
+                document.getElementById('navLoginMob')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.add('hidden');
+                document.getElementById('navDashboardMob')?.classList.add('hidden');
+                document.getElementById('btnLogout')?.classList.add('hidden');
+                document.getElementById('btnLogoutMob')?.classList.add('hidden');
+                document.getElementById('limitBadge')?.classList.add('hidden');
+                document.getElementById('limitBadge')?.classList.remove('flex');
+            }
         });
 
+        // UI Toggles & Logout Action
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => document.getElementById('mobileDrawer').classList.toggle('hidden'));
+        document.getElementById('btnLogout')?.addEventListener('click', () => firebase.auth().signOut().then(() => window.location.reload()));
+        document.getElementById('btnLogoutMob')?.addEventListener('click', () => firebase.auth().signOut().then(() => window.location.reload()));
+
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        
+        function updateThemeIcon() {
+            themeIcon.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+        }
+        updateThemeIcon();
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeIcon();
+        });
+
+        // --- LIVE ACTIVITY TICKER LOGIC ---
+        const tickerNames = ["Rahul", "Priya", "Amit", "Sneha", "Vikram", "Neha", "Karan", "Pooja", "Arjun", "Anjali", "Suresh", "Divya", "Rohan", "Kavya", "Siddharth", "Meera", "Aditya", "Rakesh", "Sunita", "Manoj", "Vivek", "Alok", "Swati", "Riya", "Yash", "Manish", "Gaurav", "Nisha", "Ritu", "Deepak", "Aakash", "Kritika", "Rajesh", "Varun", "Sonali", "Tarun", "Simran", "Nitin"];
+        const tickerTypes = ["a Legal dictation", "an SSC passage", "a Parliamentary speech", "an Editorial", "an AI dictation"];
+        const tickerText = document.getElementById("liveTickerText");
+        
+        if (tickerText) {
+            setInterval(() => {
+                tickerText.style.opacity = 0;
+                setTimeout(() => {
+                    const name = tickerNames[Math.floor(Math.random() * tickerNames.length)];
+                    const words = Math.floor(Math.random() * 320) + 120; // 120 to 440 words
+                    const wpm = Math.floor(Math.random() * 5) * 10 + 60; // 60, 70, 80, 90, 100 WPM
+                    const type = tickerTypes[Math.floor(Math.random() * tickerTypes.length)];
+                    
+                    const messages = [
+                        `🎧 ${name} transcribed ${words} words at ${wpm} WPM.`,
+                        `🔥 ${name} finished ${type} at ${wpm} WPM.`,
+                        `🏆 ${name} generated a ${words}-word passage.`
+                    ];
+                    
+                    let msg = messages[Math.floor(Math.random() * messages.length)];
+                    
+                  tickerText.innerHTML = `<span class="mobile-marquee sm:w-full sm:truncate">${msg}</span>`;
+                    tickerText.style.opacity = 1;
+                }, 500); 
+            }, 6000); 
+        }
+
+
+        // --- ENGINE LOGIC ---
         let currentPassageText = ""; let phraseArray = []; let currentPhraseIndex = 0;
         let isPlaying = false; let isPaused = false; let isCountingDown = false;
         let countdownInterval = null; let clockUpdateInterval = null; let targetWPM = 90;
@@ -261,10 +454,10 @@
 
         // --- DYNAMIC THEMES & SAVE PREFERENCE ---
         const themeMap = {
-            "India 🇮🇳": ["🏛️ SSC Parliamentary Debate", "⚖️ High Court & Legal Ruling", "🎙️ Official Ministerial Speech", "📰 National Editorials"],
+            "India 🇮🇳": ["🏛 SSC Parliamentary Debate", "⚖️ High Court & Legal Ruling", "🎙️ Official Ministerial Speech", "📰 National Editorials"],
             "United States 🇺🇸": ["🏛️ Congressional & Senate Debate", "⚖️ Federal Court & Deposition", "🎙️ Presidential & State Address", "📰 National Op-Ed / Analysis"],
             "United Kingdom 🇬🇧": ["🏛️ Hansard Parliamentary Debate", "⚖️ Crown Court & Legal Hearing", "🎙️ Ministerial Address", "📰 Broadsheet Editorial"],
-            "Philippines 🇵🇭": ["🏛️ Senate & House Floor Debate", "⚖️ Court of Appeals & RTC Ruling", "🎙️ Government Executive Speech", "📰 National Editorial"],
+            "Philippines 🇵🇭": ["🏛️ Senate & House Floor Debate", "⚖ Court of Appeals & RTC Ruling", "🎙️ Government Executive Speech", "📰 National Editorial"],
             "Global 🌐": ["🏛️ UN & Global Assembly Debate", "⚖️ International Arbitration", "🎙️ Diplomatic & Summit Address", "📰 Global Affairs Analysis"]
         };
 
@@ -306,23 +499,27 @@
 
        btnGenerate.addEventListener('click', async () => {
             const user = activeUser || firebase.auth().currentUser;
+            
+            // Limit Checking Logic
             if (!user) {
                 const today = new Date().toDateString();
                 const savedDate = localStorage.getItem("guest_ai_date");
                 let tally = parseInt(localStorage.getItem("guest_ai_tally") || "0");
 
-                if (savedDate !== today) {
-                    tally = 0;
-                    localStorage.setItem("guest_ai_date", today);
-                }
-
+                if (savedDate !== today) { tally = 0; localStorage.setItem("guest_ai_date", today); }
                 if (tally >= 3) {
-                    alert("🔒 Daily Limit Reached!\n\nYou've used your 3 free AI generations for today.\n\nPlease log in or create a 100% free account for unlimited 24/7 access!");
+                    alert("🔒 Daily Limit Reached!\n\nYou've used your 3 free AI generations for today.\n\nPlease log in or create a 100% free account for unlimited access!");
                     window.location.href = "login.html";
                     return; 
                 }
-                
                 localStorage.setItem("guest_ai_tally", tally + 1);
+            } else {
+                // If logged in, block if they hit the limit AND they are not the admin
+                if (!isAdmin && dailyAiCount >= MAX_AI_DAILY) {
+                    alert("🔒 Daily Quota Reached!\n\nYou've successfully used your 10 AI dictations for today. Consistent practice is key!\n\nPlease use the free Preset Room for unlimited practice, and come back tomorrow for 10 fresh AI passes.");
+                    window.location.href = "app.html";
+                    return;
+                }
             }
             
             const theme = aiTheme.value;
@@ -330,13 +527,8 @@
             const country = countrySelect.value;
 
             let wordCount = parseInt(aiWordCount.value) || 100;
-            if (wordCount > 1050) {
-                wordCount = 1050;
-                aiWordCount.value = 1050; 
-            } else if (wordCount < 50) {
-                wordCount = 50;
-                aiWordCount.value = 50;
-            }
+            if (wordCount > 1050) { wordCount = 1050; aiWordCount.value = 1050; } 
+            else if (wordCount < 50) { wordCount = 50; aiWordCount.value = 50; }
 
             aiStatusMsg.textContent = "🧠 AI is writing your dictation... Please wait.";
             aiStatusMsg.className = "text-sm font-bold text-orange-500 animate-pulse";
@@ -360,7 +552,16 @@
                 compileTrackMetrics(currentPassageText);
                 
                 aiStatusMsg.textContent = `✨ Success! Generated exactly ${totalTargetWords} words.`;
-                aiStatusMsg.className = "text-sm font-bold text-emerald-600";
+                aiStatusMsg.className = "text-sm font-bold text-emerald-600 dark:text-emerald-400";
+                
+                // Increment Firestore if logged in (Bypass incrementing for admin)
+                if (user && !isAdmin) {
+                    await db.collection("users").doc(user.uid).collection("limits").doc(getTodayStr()).set({
+                        aiCount: firebase.firestore.FieldValue.increment(1)
+                    }, { merge: true });
+                    dailyAiCount++;
+                    updateLimitUI();
+                }
                 
                 practiceUI.classList.remove('hidden'); 
                 practiceUI.classList.add('flex');
@@ -369,7 +570,7 @@
             } catch (error) {
                 console.error("Dictation Generation Error:", error);
                 aiStatusMsg.textContent = `❌ Generation failed: ${error.message}`;
-                aiStatusMsg.className = "text-sm font-bold text-rose-600";
+                aiStatusMsg.className = "text-sm font-bold text-rose-600 dark:text-rose-400";
             } finally {
                 btnGenerate.disabled = false;
             }
@@ -406,30 +607,23 @@
                 let maxTotalLetters = 8;
                 
                 if (targetWPM === 60 || targetWPM === 70) {
-                    maxAdditionalWords = 2; 
-                    maxTotalLetters = 10;
+                    maxAdditionalWords = 2; maxTotalLetters = 10;
                 } else if (targetWPM === 80) {
-                    maxAdditionalWords = 3; 
-                    maxTotalLetters = 12;
+                    maxAdditionalWords = 3; maxTotalLetters = 12;
                 } else if (targetWPM === 90 || targetWPM === 100) {
-                    maxAdditionalWords = 5; 
-                    maxTotalLetters = 20;
+                    maxAdditionalWords = 5; maxTotalLetters = 20;
                 } else if (targetWPM >= 110) {
-                    maxAdditionalWords = 7; 
-                    maxTotalLetters = 25;
+                    maxAdditionalWords = 7; maxTotalLetters = 25;
                 }
 
                 if (!puncHit) {
                     while (i < words.length && chunk.length <= maxAdditionalWords) {
                         let nextWord = words[i];
                         let nextCleanLength = cleanWord(nextWord).length;
-                        
                         if (currentCleanLength + nextCleanLength > maxTotalLetters) break;
-                        
                         chunk.push(nextWord);
                         currentCleanLength += nextCleanLength;
                         i++;
-                        
                         if (hasPunc(nextWord)) break;
                     }
                 }
@@ -477,7 +671,7 @@
 
         function fireEngineCycle() {
             isPlaying = true; isPaused = false;
-            setPlayButtonLabel("Pause", "bg-slate-700 hover:bg-slate-800");
+            setPlayButtonLabel("Pause", "bg-slate-700 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700");
             clockUpdateInterval = setInterval(refreshClockCycle, 100);
             executeSpeechStream();
         }
@@ -497,26 +691,16 @@
             let targetWordsAfterChunk = trackingWordsSpokenCount + targetChunk.wordsCount;
             let expectedTimeAfterChunkMs = (targetWordsAfterChunk / (targetWPM / 60)) * 1000;
             let actualElapsedTimeMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
+            let timeRemainingForChunkMs = Math.max(500, expectedTimeAfterChunkMs - actualElapsedTimeMs); 
             
-            let timeRemainingForChunkMs = expectedTimeAfterChunkMs - actualElapsedTimeMs;
-            
-            if (timeRemainingForChunkMs < 500) timeRemainingForChunkMs = 500; 
-
             let wordsPerSecondNeeded = targetChunk.wordsCount / (timeRemainingForChunkMs / 1000);
             let requiredRate = wordsPerSecondNeeded / (140 / 60);
 
-            let minRate = 0.40; 
-            let maxRate = 1.6;
-            
-            if (targetWPM === 60 || targetWPM === 70) {
-                minRate = 0.50; maxRate = 1.7;
-            } else if (targetWPM === 80) {
-                minRate = 0.60; maxRate = 1.8;
-            } else if (targetWPM === 90 || targetWPM === 100) {
-                minRate = 0.70; maxRate = 2.2;
-            } else if (targetWPM >= 110) {
-                minRate = 0.80; maxRate = 2.5;
-            }
+            let minRate = 0.40; let maxRate = 1.6;
+            if (targetWPM === 60 || targetWPM === 70) { minRate = 0.50; maxRate = 1.7; } 
+            else if (targetWPM === 80) { minRate = 0.60; maxRate = 1.8; } 
+            else if (targetWPM === 90 || targetWPM === 100) { minRate = 0.70; maxRate = 2.2; } 
+            else if (targetWPM >= 110) { minRate = 0.80; maxRate = 2.5; }
 
             utterance.rate = Math.max(minRate, Math.min(requiredRate, maxRate));
             
@@ -528,7 +712,6 @@
                 
                 let expectedElapsedMs = (trackingWordsSpokenCount / (targetWPM / 60)) * 1000;
                 let newActualElapsedMs = Date.now() - executionStartTime - totalAccumulatedPauseTimeMs;
-                
                 let timeToWaitMs = expectedElapsedMs - newActualElapsedMs - 20;
 
                 if (timeToWaitMs > 30) {
@@ -540,10 +723,7 @@
                 }
             };
             
-            utterance.onerror = (e) => {
-                if(e.error !== 'canceled') console.error("Speech Error:", e);
-            };
-
+            utterance.onerror = (e) => { if(e.error !== 'canceled') console.error("Speech Error:", e); };
             window.speechSynthesis.speak(utterance);
         }
         
@@ -582,8 +762,7 @@
 
         function resetAudioEngine() {
             clearInterval(countdownInterval); clearInterval(clockUpdateInterval);
-            window.speechSynthesis.cancel();
-            clearTimeout(nextAudioTimeout);
+            window.speechSynthesis.cancel(); clearTimeout(nextAudioTimeout);
             isPlaying = false; isPaused = false; isCountingDown = false;
             currentPhraseIndex = 0; trackingWordsSpokenCount = 0;
             setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
@@ -596,11 +775,8 @@
             setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
             updateProgressBarUI(totalExpectedDurationMs, totalTargetWords);
             document.getElementById('gateOverlay').classList.remove('hidden');
-
-            btnTogglePassage.classList.remove('hidden');
-            btnTogglePassage.classList.add('flex');
-            passageViewer.classList.add('hidden'); 
-            btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
+            btnTogglePassage.classList.remove('hidden'); btnTogglePassage.classList.add('flex');
+            passageViewer.classList.add('hidden'); btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
         }
 
         function setPlayButtonLabel(txt, classes) {
@@ -610,20 +786,14 @@
         }
 
         function formatTime(ms) {
-            let s = Math.floor(ms / 1000);
-            let m = Math.floor(s / 60).toString().padStart(2, '0');
-            let remainingSec = (s % 60).toString().padStart(2, '0');
+            let s = Math.floor(ms / 1000); let m = Math.floor(s / 60).toString().padStart(2, '0'); let remainingSec = (s % 60).toString().padStart(2, '0');
             return `${m}:${remainingSec}`;
         }
         
-        const gateOverlay = document.getElementById('gateOverlay');
-        const gateModeSelect = document.getElementById('gateModeSelect');
-        const strictTimeContainer = document.getElementById('strictTimeContainer');
-        const gateTimeInput = document.getElementById('gateTimeInput');
-        const typingTimerDisplay = document.getElementById('typingTimerDisplay');
-        const typingArea = document.getElementById('typingArea');
-        const btnSubmit = document.getElementById('btnSubmit');
-        const btnClear = document.getElementById('btnClear');
+        const gateOverlay = document.getElementById('gateOverlay'); const gateModeSelect = document.getElementById('gateModeSelect');
+        const strictTimeContainer = document.getElementById('strictTimeContainer'); const gateTimeInput = document.getElementById('gateTimeInput');
+        const typingTimerDisplay = document.getElementById('typingTimerDisplay'); const typingArea = document.getElementById('typingArea');
+        const btnSubmit = document.getElementById('btnSubmit'); const btnClear = document.getElementById('btnClear');
 
         gateModeSelect.addEventListener('change', () => { strictTimeContainer.classList.toggle('hidden', gateModeSelect.value === 'free'); });
 
@@ -636,7 +806,7 @@
             btnSubmit.disabled = false; btnClear.disabled = false;
             typingTimerDisplay.classList.remove('hidden');
             typingTimerDisplay.textContent = isStrictMode ? formatTime(strictTimeLimitMs) : "00:00";
-            typingTimerDisplay.className = "bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200";
+            typingTimerDisplay.className = "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200 dark:border-emerald-800";
             isFirstKeystrokeFired = false; isTypingActive = true;
         });
 
@@ -652,21 +822,21 @@
                     if(remaining <= 0) {
                         clearInterval(typingTimerInterval);
                         typingTimerDisplay.textContent = "00:00";
-                        typingTimerDisplay.className = "bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-mono text-sm border border-rose-200";
+                        typingTimerDisplay.className = "bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded font-mono text-sm border border-rose-200 dark:border-rose-800";
                         forceHardStop();
                     } else {
                         typingTimerDisplay.textContent = formatTime(remaining);
-                        if(remaining < 60000) typingTimerDisplay.className = "bg-rose-100 text-rose-700 px-2 py-0.5 rounded font-mono text-sm border border-rose-200 animate-pulse";
+                        if(remaining < 60000) typingTimerDisplay.className = "bg-rose-100 dark:bg-rose-900/50 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded font-mono text-sm border border-rose-200 dark:border-rose-800 animate-pulse";
                     }
                 } else typingTimerDisplay.textContent = formatTime(elapsed);
             }, 200);
         });
 
        function forceHardStop() {
-            clearInterval(typingTimerInterval); // Stops the visual timer instantly
+            clearInterval(typingTimerInterval); 
             isTypingActive = false; typingArea.disabled = true;
-            alert("Time is up! Your transcript will now be evaluated."); // Waits for user
-            evaluateTypingScore(); // Auto-submits after they click OK
+            alert("Time is up! Your transcript will now be evaluated.");
+            evaluateTypingScore(); 
         }
 
         function resetTranscriptionState() {
@@ -677,8 +847,7 @@
             typingTimerDisplay.classList.add('hidden');
             isTypingActive = false; isFirstKeystrokeFired = false;
             
-            btnTogglePassage.classList.add('hidden');
-            btnTogglePassage.classList.remove('flex');
+            btnTogglePassage.classList.add('hidden'); btnTogglePassage.classList.remove('flex');
             passageViewer.classList.add('hidden');
         }
 
@@ -688,7 +857,7 @@
                 clearInterval(typingTimerInterval); isFirstKeystrokeFired = false;
                 document.getElementById('evaluationPanel').classList.add('hidden');
                 typingTimerDisplay.textContent = isStrictMode ? formatTime(strictTimeLimitMs) : "00:00";
-                typingTimerDisplay.className = "bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200";
+                typingTimerDisplay.className = "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded font-mono text-sm border border-emerald-200 dark:border-emerald-800";
                 typingArea.placeholder = "Waiting for first keystroke to start timer...";
             }
         });
@@ -696,15 +865,12 @@
         typingArea.addEventListener('focus', () => {
             const evalPanel = document.getElementById('evaluationPanel');
             if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
-
-            // ANTI-CHEAT: Hide passage the millisecond they start typing
             if (passageViewer && !passageViewer.classList.contains('hidden')) {
                 passageViewer.classList.add('hidden');
                 btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
             }
         });
 
-        // --- PASSAGE TOGGLE LOGIC ---
         btnTogglePassage.addEventListener('click', () => {
             if (passageViewer.classList.contains('hidden')) {
                 passageViewer.classList.remove('hidden');
@@ -722,16 +888,11 @@
             const typedText = typingArea.value.trim();
             if(!typedText) { alert("Please transcribe your shorthand response notes into the input field workspace canvas first."); return; }
 
-            // 1. FREEZE CLOCK & LOCK CANVAS INSTANTLY
             clearInterval(typingTimerInterval);
-            isTypingActive = false;
-            typingArea.disabled = true;
+            isTypingActive = false; typingArea.disabled = true;
 
-            // 2. WPM MATH CALCULATOR
             let typingDurationMs = Date.now() - transcriptionStartTime;
-            if (isStrictMode && typingDurationMs > strictTimeLimitMs) {
-                typingDurationMs = strictTimeLimitMs; 
-            }
+            if (isStrictMode && typingDurationMs > strictTimeLimitMs) { typingDurationMs = strictTimeLimitMs; }
             if (typingDurationMs < 1000) typingDurationMs = 1000; 
             let minutesElapsed = typingDurationMs / 60000;
             let grossWPM = Math.round((typedText.length / 5) / minutesElapsed);
@@ -744,60 +905,43 @@
             const typedWords = typedRaw.map(normalize);
 
             const dp = Array(originalWords.length + 1).fill(null).map(() => Array(typedWords.length + 1).fill(0));
-
             for (let i = 0; i <= originalWords.length; i++) dp[i][0] = i;
             for (let j = 0; j <= typedWords.length; j++) dp[0][j] = j;
 
             for (let i = 1; i <= originalWords.length; i++) {
                 for (let j = 1; j <= typedWords.length; j++) {
                     if (originalWords[i - 1] === typedWords[j - 1] && originalWords[i - 1] !== "") {
-                        dp[i][j] = dp[i - 1][j - 1]; // Match
+                        dp[i][j] = dp[i - 1][j - 1]; 
                     } else {
-                        dp[i][j] = Math.min(
-                            dp[i - 1][j - 1] + 1, // Substitution
-                            dp[i][j - 1] + 1,     // Insertion
-                            dp[i - 1][j] + 1      // Omission
-                        );
+                        dp[i][j] = Math.min(dp[i - 1][j - 1] + 1, dp[i][j - 1] + 1, dp[i - 1][j] + 1);
                     }
                 }
             }
 
-            let i = originalWords.length;
-            let j = typedWords.length;
-            let diffPath = [];
-            let fullErrors = 0;
-            let halfErrors = 0;
-            let correctWordsCount = 0;
+            let i = originalWords.length; let j = typedWords.length; let diffPath = []; let fullErrors = 0; let halfErrors = 0; let correctWordsCount = 0;
 
             while (i > 0 || j > 0) {
                 if (i > 0 && j > 0 && originalWords[i - 1] === typedWords[j - 1]) {
-                    diffPath.unshift(`<span class="text-emerald-600 font-semibold">${escapeHtml(originalRaw[i - 1])} </span>`);
-                    correctWordsCount++;
-                    i--; j--;
+                    diffPath.unshift(`<span class="text-emerald-600 dark:text-emerald-400 font-semibold">${escapeHtml(originalRaw[i - 1])} </span>`);
+                    correctWordsCount++; i--; j--;
                 } else if (j > 0 && (i === 0 || dp[i][j] === dp[i][j - 1] + 1)) {
-                    diffPath.unshift(`<span class="text-rose-500 line-through" title="Extra Word Added">${escapeHtml(typedRaw[j - 1])} </span>`);
-                    fullErrors++;
-                    j--;
+                    diffPath.unshift(`<span class="text-rose-500 dark:text-rose-400 line-through" title="Extra Word Added">${escapeHtml(typedRaw[j - 1])} </span>`);
+                    fullErrors++; j--;
                 } else if (i > 0 && (j === 0 || dp[i][j] === dp[i - 1][j] + 1)) {
                     let cleanPitmanWord = originalWords[i - 1];
-                    diffPath.unshift(`<a href="https://steno.tu-clausthal.de/Pitman.php?string=${encodeURIComponent(cleanPitmanWord)}" target="_blank" rel="noopener noreferrer" class="text-orange-500 font-bold hover:underline cursor-pointer" title="Missed Word - Click for Pitman Outline">${escapeHtml(originalRaw[i - 1])} </a>`);
-                    fullErrors++;
-                    i--;
+                    diffPath.unshift(`<a href="https://steno.tu-clausthal.de/Pitman.php?string=${encodeURIComponent(cleanPitmanWord)}" target="_blank" rel="noopener noreferrer" class="text-orange-500 dark:text-orange-400 font-bold hover:underline cursor-pointer" title="Missed Word - Click for Pitman Outline">${escapeHtml(originalRaw[i - 1])} </a>`);
+                    fullErrors++; i--;
                 } else {
-                    let origWord = originalWords[i - 1];
-                    let typedWord = typedWords[j - 1];
-                    
-                    let isHalfMistake = false;
+                    let origWord = originalWords[i - 1]; let typedWord = typedWords[j - 1]; let isHalfMistake = false;
                     if (origWord.length >= 3 && typedWord.length >= 3 && Math.abs(origWord.length - typedWord.length) <= 2 && 
                        (origWord.startsWith(typedWord.substring(0, 3)) || typedWord.startsWith(origWord.substring(0, 3)))) {
                         isHalfMistake = true;
                     }
-
                     if (isHalfMistake) {
-                        diffPath.unshift(`<span class="text-yellow-600 font-bold border-b-2 border-yellow-400 pb-0.5" title="Half Mistake. Expected: ${escapeHtml(originalRaw[i - 1])}">${escapeHtml(typedRaw[j - 1])} </span>`);
+                        diffPath.unshift(`<span class="text-yellow-600 dark:text-yellow-400 font-bold border-b-2 border-yellow-400 pb-0.5" title="Half Mistake. Expected: ${escapeHtml(originalRaw[i - 1])}">${escapeHtml(typedRaw[j - 1])} </span>`);
                         halfErrors += 0.5;
                     } else {
-                        diffPath.unshift(`<span class="text-rose-600 font-bold border-b-2 border-rose-500 pb-0.5" title="Wrong Word. Expected: ${escapeHtml(originalRaw[i - 1])}">${escapeHtml(typedRaw[j - 1])} </span>`);
+                        diffPath.unshift(`<span class="text-rose-600 dark:text-rose-400 font-bold border-b-2 border-rose-500 pb-0.5" title="Wrong Word. Expected: ${escapeHtml(originalRaw[i - 1])}">${escapeHtml(typedRaw[j - 1])} </span>`);
                         fullErrors++;
                     }
                     i--; j--;
@@ -811,8 +955,6 @@
             document.getElementById("evalCorrect").textContent = correctWordsCount;
             document.getElementById("evalErrors").textContent = totalErrors;
             document.getElementById("evalAccuracy").textContent = `${accuracyPercentage.toFixed(1)}%`;
-            
-            // PUSH TYPING STATS TO GRID
             document.getElementById("evalTypingTime").textContent = formatTime(typingDurationMs);
             document.getElementById("evalTypingSpeed").textContent = grossWPM;
             
@@ -830,10 +972,9 @@
                         wpm: targetWPM,
                         accuracy: parseFloat(accuracyPercentage.toFixed(1)),
                         mistakes: totalErrors,
-                        typingWpm: grossWPM, // SAVE TYPING WPM TO FIREBASE
+                        typingWpm: grossWPM, 
                         timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    }).then(() => console.log("AI Score saved!"))
-                      .catch(err => console.error("Save failed:", err));
+                    }).then(() => console.log("AI Score saved!")).catch(err => console.error("Save failed:", err));
                 }
             }
         }
@@ -847,7 +988,6 @@
         });
 
         const transcriptContainer = document.getElementById("transcriptOutput");
-
         if (transcriptContainer) {
             const mobileTooltip = document.createElement("div");
             mobileTooltip.className = "hidden absolute bg-slate-900 text-white text-xs font-bold px-3 py-2 rounded-lg shadow-xl z-50 transition-opacity duration-200 max-w-xs pointer-events-none border border-slate-700";
@@ -855,7 +995,6 @@
 
             transcriptContainer.addEventListener("click", (e) => {
                 const target = e.target;
-                
                 if (target.hasAttribute("title")) {
                     const titleText = target.getAttribute("title");
                     mobileTooltip.textContent = titleText;
@@ -865,9 +1004,7 @@
                     mobileTooltip.style.left = `${Math.max(10, rect.left + window.scrollX - 20)}px`;
                     mobileTooltip.style.top = `${rect.top + window.scrollY - 40}px`;
 
-                    setTimeout(() => {
-                        mobileTooltip.classList.add("hidden");
-                    }, 3000);
+                    setTimeout(() => { mobileTooltip.classList.add("hidden"); }, 3000);
                 }
             });
         }
@@ -880,60 +1017,221 @@
                 <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
                     <span class="text-yellow-400">✏️</span> STENOGYM
                 </a>
-                <p class="text-sm text-slate-400 leading-relaxed">
-                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                <p class="text-sm text-slate-400 leading-relaxed" data-en="India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection." data-hi="भारत का प्रमुख AI-संचालित परीक्षा इकोसिस्टम। आशुलिपि में महारत हासिल करें, स्टेटिक GK और दैनिक करंट अफेयर्स पर विजय प्राप्त करें, और अपना अंतिम चयन सुनिश्चित करें।">
+                    India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.
                 </p>
-               <div class="flex gap-4 pt-2">
-                    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
-                        </svg>
-                    </a> 
-                    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg>
-                    </a>
-                    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
-                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg>
-                    </a>
+               <!-- ACTUAL COLOR BRAND ICONS -->
+                <div class="flex gap-4 pt-2">
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
+                    <!-- YouTube -->
+                    <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+                    <!-- Telegram -->
+                    <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+                    <!-- Contact -->
+                    <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
                 </div>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="The Platform" data-hi="प्लेटफ़ॉर्म">The Platform</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
-                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
-                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
-                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                    <li><a href="app.html" class="hover:text-cyan-400 transition" data-en="Stenoroom" data-hi="स्टेनो रूम">Steno Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition" data-en="AI Dictation Studio" data-hi="AI डिक्टेशन स्टूडियो">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition" data-en="Live Document Scanner" data-hi="लाइव डॉक्यूमेंट स्कैनर">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition" data-en="Student Login" data-hi="छात्र लॉगिन">Student Login</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Resources" data-hi="संसाधन">Resources</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
-                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition" data-en="The Stenogym Blog" data-hi="स्टेनोजिम ब्लॉग">The Stenogym Blog</a></li>
+                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a></li>
+                    <li><a href="gk.html" class="hover:text-cyan-400 transition" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span data-en="Recommended Gear" data-hi="अनुशंसित उपकरण">Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Company & Legal" data-hi="कंपनी और कानूनी">Company & Legal</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
-                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
-                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
-                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                    <li><a href="about.html" class="hover:text-cyan-400 transition" data-en="About Us" data-hi="हमारे बारे में">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition" data-en="Contact Support" data-hi="संपर्क समर्थन">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
                 </ul>
             </div>
         </div>
 
         <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
             <div>&copy; 2026 Stenogym. All rights reserved.</div>
-           <div class="text-center md:text-right max-w-xl leading-relaxed">
-                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400" data-en="Disclaimer:" data-hi="अस्वीकरण:">Disclaimer:</span> 
+                <span data-en="We are reader-supported. Affiliate links incur zero extra cost to you." data-hi="हम पाठक-समर्थित हैं। सहबद्ध लिंक पर आपको कोई अतिरिक्त लागत नहीं लगती है।">We are reader-supported. Affiliate links incur zero extra cost to you.</span>
             </div>
         </div>
     </footer>
+    <!-- ========================================== -->
+<!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
+<!-- ========================================== -->
+<style>
+    #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+    #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+    #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+    
+    /* Breathing Glow Effect Behind the Button */
+    #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+    @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+    
+    /* The "Shorthand Writer" Pencil Wiggle Animation */
+    .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+    @keyframes writeWiggle {
+        0%, 85%, 100% { transform: rotate(0deg); }
+        88% { transform: rotate(-25deg); }
+        91% { transform: rotate(15deg); }
+        94% { transform: rotate(-10deg); }
+        97% { transform: rotate(5deg); }
+    }
+    
+    #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+    #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+    
+    .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
+    .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+    .fab-tg { background-color: #0088cc; }
+    .fab-yt { background-color: #FF0000; }
+    .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .fab-share { background-color: #25D366; }
+</style>
+
+<div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+    <!-- Hidden Menu -->
+    <div id="stenoFabMenu">
+        <!-- Telegram -->
+        <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+        <!-- YouTube -->
+        <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+        <!-- Clean Instagram Icon -->
+        <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+        <!-- Share Action -->
+        <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
+    </div>
+    
+    <!-- Main Draggable Badge with Wiggling Pencil -->
+    <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const fabContainer = document.getElementById('stenoFabContainer');
+    const fabMain = document.getElementById('stenoFabMain');
+    const fabMenu = document.getElementById('stenoFabMenu');
+    const shareBtn = document.getElementById('fabShareBtn');
+
+    let isDragging = false, hasDragged = false;
+    let startX, startY, initialX, initialY;
+    const fabSize = 56;
+
+    // Restore Saved Position 
+    const savedX = localStorage.getItem('stenoFabX');
+    const savedY = localStorage.getItem('stenoFabY');
+    if (savedX !== null && savedY !== null) {
+        fabContainer.style.left = savedX + 'px';
+        fabContainer.style.top = savedY + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+    }
+
+    // Drag & Snap Logic
+    const startDrag = (e) => {
+        if (e.target.closest('#stenoFabMenu')) return;
+        isDragging = true; hasDragged = false;
+        const client = e.type.includes('mouse') ? e : e.touches[0];
+        startX = client.clientX; startY = client.clientY;
+        initialX = fabContainer.offsetLeft; initialY = fabContainer.offsetTop;
+        document.body.style.userSelect = "none";
+    };
+
+    const drag = (e) => {
+        if (!isDragging) return;
+        const client = e.type.includes('mouse') ? e : e.touches[0];
+        const dx = client.clientX - startX;
+        const dy = client.clientY - startY;
+        
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasDragged = true;
+        if (!hasDragged) return;
+
+        fabMenu.classList.remove('active'); 
+        
+        let newX = initialX + dx;
+        let newY = initialY + dy;
+        const maxX = window.innerWidth - fabSize;
+        const maxY = window.innerHeight - fabSize;
+        
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        
+        fabContainer.style.left = newX + 'px';
+        fabContainer.style.top = newY + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+    };
+
+    const stopDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.style.userSelect = "auto";
+        
+        if (hasDragged) {
+            const currentX = fabContainer.offsetLeft;
+            const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
+            
+            fabContainer.style.transition = "left 0.3s ease-out";
+            fabContainer.style.left = targetX + 'px';
+            
+            localStorage.setItem('stenoFabX', targetX);
+            localStorage.setItem('stenoFabY', fabContainer.offsetTop);
+            
+            setTimeout(() => { fabContainer.style.transition = ""; }, 300);
+        } else {
+            fabMenu.classList.toggle('active');
+        }
+    };
+
+    fabMain.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    fabMain.addEventListener('touchstart', startDrag, {passive: false});
+    document.addEventListener('touchmove', drag, {passive: false});
+    document.addEventListener('touchend', stopDrag);
+
+    document.addEventListener('click', (e) => {
+        if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
+    });
+
+    shareBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
+        try {
+            if (navigator.share) await navigator.share(shareData);
+            else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); }
+        } catch (err) {}
+    });
+});
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('nav a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href === currentPage) {
+                link.classList.remove('text-slate-300');
+                link.classList.add('text-cyan-300', 'font-black');
+            }
+        });
+    });
+</script>
 </body>
 </html>

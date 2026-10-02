@@ -2,60 +2,71 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://stenogym.com/</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>1.0</priority>
   </url>
 
   <url>
     <loc>https://stenogym.com/app.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://stenogym.com/generator.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://stenogym.com/scanner.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.8</priority>
   </url>
 
   <url>
+    <loc>https://stenogym.com/current-affairs.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://stenogym.com/gk.html</loc>
+    <lastmod>2026-10-02</lastmod>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
     <loc>https://stenogym.com/blog.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://stenogym.com/article.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://stenogym.com/gear.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.8</priority>
   </url>
 
   <url>
     <loc>https://stenogym.com/about.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://stenogym.com/contact.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://stenogym.com/privacy.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://stenogym.com/terms.html</loc>
-    <lastmod>2026-06-16</lastmod>
+    <lastmod>2026-10-02</lastmod>
     <priority>0.3</priority>
   </url>
 </urlset>

@@ -1,342 +1,635 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
-    <title>Stenogym | Free Shorthand Dictation Practice & SSC Prep</title>
+    <title>Stenogym | The Ultimate AI Shorthand & SSC Prep Ecosystem</title>
     <meta name="title" content="Stenogym | Free Shorthand Dictation Practice & SSC Prep">
-    
-    <meta name="description" content="Practice shorthand online with free audio dictations at 80 WPM, 100 WPM, and 120 WPM. Use our AI Dictation Studio and instantly evaluate your typing accuracy for SSC exams.">
+    <meta name="description" content="Master shorthand at 100+ WPM, practice Daily Current Affairs, and conquer Static GK for SSC Stenographer exams in one unified platform.">
     <link rel="canonical" href="https://stenogym.com/">
     
-    <meta name="keywords" content="free steno practice, steno dictation practice, SSC stenographer dictation, 80 WPM dictation, 100 WPM dictation, shorthand dictation audio, online steno typing test">
-
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://www.stenogym.com/">
-    <meta property="og:title" content="Stenogym | Free Shorthand Dictation Practice">
-    <meta property="og:description" content="Practice shorthand online with free audio dictations at 80 WPM to 120 WPM. Instantly evaluate your typing accuracy for SSC exams.">
-    <meta property="og:image" content="https://www.stenogym.com/assets/social-preview.jpg">
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
     <style>
         html { scroll-behavior: smooth; }
-        .hover-lift { transition: transform 0.2s ease, box-shadow 0.2s ease; }
-        .hover-lift:hover { transform: translateY(-4px); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1); }
+        
+        /* FASTER Fade Transitions for Slider (0.3s) */
+        .slide { opacity: 0; transition: opacity 0.3s ease-in-out; position: absolute; inset: 0; pointer-events: none; }
+        .slide.active { opacity: 1; pointer-events: auto; position: relative; }
+        
+        /* Interactive Card Glows */
+        .bento-card { transition: all 0.3s ease; }
+        .bento-card:hover { transform: translateY(-4px); border-color: rgba(99, 102, 241, 0.4); box-shadow: 0 0 20px rgba(99, 102, 241, 0.15); }
+        
+        /* Connecting Timeline Line */
+        .timeline-line::after { content: ''; position: absolute; top: 2rem; left: 50%; width: 100%; height: 2px; background: #e2e8f0; z-index: -1; }
+        .dark .timeline-line::after { background: #334155; }
+        @media (max-width: 768px) { .timeline-line::after { display: none; } }
+        
         .faq-item:hover { background-color: #f8fafc; }
+        .dark .faq-item:hover { background-color: #1e293b; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex flex-col selection:bg-cyan-300 selection:text-indigo-900 pt-20">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-300 selection:text-indigo-900 pt-20 transition-colors duration-300">
 
-   <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 border-b border-white/10 shadow-sm transition-all duration-300">
+   <!-- NAVIGATION -->
+   <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 dark:bg-slate-950 border-b border-white/10 dark:border-slate-800 shadow-sm transition-colors duration-300">
         <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center text-white">
             <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl uppercase shadow-sm">
                 <span class="text-yellow-400">✏️</span> STENOGYM
             </a>
             
-            <div class="hidden md:flex items-center gap-8 font-semibold text-sm">
-                <a href="index.html" class="text-cyan-300 hover:text-white transition">Home</a>
-                <a href="blog.html" class="text-slate-300 hover:text-white transition">SSC Exam Guide</a>
-                <a href="dashboard.html" class="text-slate-300 hover:text-white transition font-bold text-indigo-300">Dashboard</a>
-                <a href="login.html" id="desktopLoginBtn" class="text-slate-300 hover:text-white transition">Login</a>
-                <button id="btnLogout" class="hidden text-sm font-bold text-slate-400 hover:text-rose-500 transition cursor-pointer border border-slate-600 px-3 py-1 rounded-md">Logout</button>
+            <div class="hidden lg:flex items-center gap-6 font-semibold text-sm">
+                
+                <!-- Translation Toggles & Dark Mode -->
+                <div class="flex items-center gap-2">
+                    <button id="themeToggleBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition shadow-inner focus:outline-none">
+                        <span id="themeIcon">🌙</span>
+                    </button>
+                    <!-- Translation buttons are currently cosmetic on the homepage but match the blog UI -->
+                    <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
+                        <button class="px-2 md:px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition shadow-sm">EN</button>
+                        <button class="px-2 md:px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition cursor-not-allowed" title="Hindi coming soon to homepage">हिन्दी</button>
+                    </div>
+                </div>
+
+                <a href="index.html" class="text-cyan-300 hover:text-white transition font-bold">Home</a>
+                <a href="current-affairs.html" class="text-slate-300 hover:text-white transition">Current Affairs</a>
+                <a href="gk.html" class="text-slate-300 hover:text-white transition">Static GK</a>
+                
+                <!-- Steno Room Dropdown Bridge -->
+                <div class="relative group h-full flex items-center">
+                    <button class="flex items-center gap-1 text-slate-300 hover:text-white transition py-2">
+                        <span>Stenoroom</span>
+                        <svg class="w-3.5 h-3.5 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                    </button>
+                    <!-- Invisible pt-1 bridge prevents menu disappearance -->
+                    <div class="absolute left-0 top-full pt-1 w-56 opacity-0 translate-y-2 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-200">
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl shadow-xl py-2">
+                            <a href="app.html" class="block px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-indigo-600 hover:text-white">🎧 Preset Practice Room</a>
+                            <a href="generator.html" class="block px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-emerald-600 hover:text-white">🧠 AI Dictation Studio</a>
+                            <a href="scanner.html" class="block px-4 py-2.5 text-xs font-bold text-slate-300 hover:bg-fuchsia-600 hover:text-white">📄 Live Document Scanner</a>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="blog.html" class="text-slate-300 hover:text-white transition">Blog</a>
+                <a href="dashboard.html" id="navDashboard" class="hidden text-indigo-300 hover:text-white transition font-bold">Dashboard</a>
+                <a href="login.html" id="desktopLoginBtn" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-white transition font-bold">Login</a>
+                <button id="btnLogout" class="hidden text-rose-400 hover:text-rose-300 border border-slate-700 px-3 py-1.5 rounded-lg transition font-bold">Logout</button>
             </div>
             
-            <button id="mobileMenuBtn" class="md:hidden text-white text-2xl focus:outline-none p-2">☰</button>
+            <div class="flex items-center gap-4 lg:hidden">
+                <button id="mobileThemeToggleBtn" class="text-xl text-white opacity-80 focus:outline-none">🌙</button>
+                <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none p-2">☰</button>
+            </div>
         </div>
         
-        <div id="mobileMenu" class="hidden md:hidden bg-indigo-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-20">
+        <div id="mobileMenu" class="hidden lg:hidden bg-indigo-900 dark:bg-slate-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-20">
             <div class="flex flex-col px-6 py-4 space-y-4 font-semibold text-sm">
-                <a href="index.html" class="text-cyan-300 hover:text-white transition">Home</a>
-                <a href="blog.html" class="text-slate-300 hover:text-white transition">SSC Exam Guide</a>
-                <a href="dashboard.html" class="text-slate-300 hover:text-white transition font-bold text-indigo-300">Dashboard</a>
-                <a href="login.html" id="mobileLoginBtn" class="text-slate-300 hover:text-white transition">Login</a>
-                <button id="mobileLogoutBtn" class="hidden text-left font-bold text-rose-400 hover:text-rose-300 transition">Logout</button>
+                <a href="index.html" class="block text-cyan-300 font-bold">🏠 Home</a>
+                <a href="current-affairs.html" class="block text-slate-300 hover:text-white font-bold">🗞️ Current Affairs</a>
+                <a href="gk.html" class="block text-slate-300 hover:text-white font-bold">📚 Static GK</a>
+                
+                <!-- Steno Accordion -->
+                <div>
+                    <button id="mobileStenoToggle" class="flex justify-between w-full text-slate-300 hover:text-white font-bold transition">
+                        <span>⌨ Stenoroom</span>
+                        <span id="stenoChevron">▼</span>
+                    </button>
+                    <div id="mobileStenoMenu" class="hidden flex-col space-y-3 mt-3 pl-6 border-l-2 border-indigo-700">
+                        <a href="app.html" class="block text-xs text-slate-300 hover:text-white">🎧 Preset Practice Room</a>
+                        <a href="generator.html" class="block text-xs text-slate-300 hover:text-white">🧠 AI Dictation Studio</a>
+                        <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white">📄 Live Document Scanner</a>
+                    </div>
+                </div>
+
+                <a href="blog.html" class="block text-slate-300 hover:text-white font-bold">✍️ Blog & Guides</a>
+                
+                <div class="pt-2 border-t border-indigo-800">
+                    <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300 font-bold mb-2">Dashboard</a>
+                    <a href="login.html" id="mobileLoginBtn" class="block text-white font-bold">Student Login &rarr;</a>
+                    <button id="mobileLogoutBtn" class="hidden w-full text-left font-bold text-rose-400 mt-2">Logout &rarr;</button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900 pb-32 pt-12 relative overflow-hidden">
+    <!-- HERO SECTION: AUTO-SLIDER (Hover to pause) -->
+    <div id="hero-section" class="bg-gradient-to-br from-indigo-950 via-blue-900 to-slate-900 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pb-24 pt-6 relative overflow-hidden group">
         
         <div class="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        <header class="max-w-4xl mx-auto px-6 text-center mt-6 md:mt-10 relative z-10">
-            <div class="mb-6 inline-block">
-                <span class="text-cyan-300 font-bold tracking-widest text-xs md:text-sm uppercase bg-cyan-900/40 px-4 py-1.5 rounded-full border border-cyan-500/30 shadow-inner">
-                    🚀 India's Most Advanced AI Shorthand Studio
+        <div class="max-w-6xl mx-auto px-6 relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
+            <div class="text-emerald-300 font-bold tracking-wider text-xs md:text-sm bg-emerald-950/50 px-4 py-2 rounded-full border border-emerald-500/30 shadow-inner flex items-center gap-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
                 </span>
+                <span id="liveClock">🟢 Live: Loading...</span>
+            </div>
+            <div class="text-indigo-200 text-xs font-bold mt-4 md:mt-0 bg-indigo-900/40 px-4 py-2 rounded-full border border-indigo-700/50">
+                ⚡ Current Affairs automatically updated daily at 6 AM.
+            </div>
+        </div>
+
+        <header class="max-w-5xl mx-auto px-6 text-center relative z-10">
+            
+            <div id="slider-container" class="relative min-h-[220px] mb-8">
+                
+                <!-- SLIDE 1: STENO -->
+                <div class="slide active">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5 tracking-tight">
+                        Master Shorthand at<br class="hidden md:block">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-300 drop-shadow-sm">100+ Words Per Minute.</span>
+                    </h1>
+                    <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-medium mb-6">
+                        Stop waiting for manual grading. Dictate live, submit your transcription, and let our AI instantly calculate your full and half mistakes exactly like real examiners.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4 text-sm font-semibold text-cyan-200 opacity-90 mb-6">
+                        <span class="flex items-center gap-1">✔️ 60 to 120 WPM</span>
+                        <span class="flex items-center gap-1">✔️ Kailash Chandra Library</span>
+                        <span class="flex items-center gap-1">✔️ Syllabic AI Dictation</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2 text-xs font-bold text-slate-300 opacity-80">
+                        <span class="bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-700/50">SSC Stenographer (C & D)</span>
+                        <span class="bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-700/50">High Court PA</span>
+                        <span class="bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-700/50">Parliamentary Reporter</span>
+                    </div>
+                </div>
+
+                <!-- SLIDE 2: CURRENT AFFAIRS -->
+                <div class="slide">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5 tracking-tight">
+                        Stay Ahead With<br class="hidden md:block">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300 drop-shadow-sm">AI-Curated Current Affairs.</span>
+                    </h1>
+                    <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-medium mb-6">
+                        Ditch the bloated 100-page monthly PDFs. Read crisp daily updates categorized strictly for competitive exams, so you only study what actually matters.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4 text-sm font-semibold text-emerald-200 opacity-90 mb-6">
+                        <span class="flex items-center gap-1">✔️ 5-Minute Daily Read</span>
+                        <span class="flex items-center gap-1">✔️ 100% Exam Relevant</span>
+                        <span class="flex items-center gap-1">✔️ Smart Streak Tracking</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2 text-xs font-bold text-slate-300 opacity-80">
+                        <span class="bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-700/50">SSC CGL & CHSL</span>
+                        <span class="bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-700/50">RRB NTPC</span>
+                        <span class="bg-emerald-900/60 px-3 py-1 rounded-full border border-emerald-700/50">Bank Exams</span>
+                    </div>
+                </div>
+
+                <!-- SLIDE 3: STATIC GK -->
+                <div class="slide">
+                    <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5 tracking-tight">
+                        Dominate Static GK<br class="hidden md:block">
+                        <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-300 drop-shadow-sm">With Smart Micro-Drills.</span>
+                    </h1>
+                    <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-medium mb-6">
+                        Turn factual memorization into a reflex. Download one-page PDF cheat sheets and take rapid-fire MCQ drills designed to completely eliminate negative marking.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4 text-sm font-semibold text-amber-200 opacity-90 mb-6">
+                        <span class="flex items-center gap-1">✔️ One-Click Cheat Sheets</span>
+                        <span class="flex items-center gap-1">✔️ Rapid MCQ Drills</span>
+                        <span class="flex items-center gap-1">✔ Live Accuracy Stats</span>
+                    </div>
+                    <div class="flex flex-wrap justify-center gap-2 text-xs font-bold text-slate-300 opacity-80">
+                        <span class="bg-amber-900/60 px-3 py-1 rounded-full border border-amber-700/50">All SSC Tier 1 Exams</span>
+                        <span class="bg-amber-900/60 px-3 py-1 rounded-full border border-amber-700/50">State PSC</span>
+                        <span class="bg-amber-900/60 px-3 py-1 rounded-full border border-amber-700/50">Defence (NDA/CDS)</span>
+                    </div>
+                </div>
+
             </div>
             
-            <h1 class="text-3xl md:text-4xl lg:text-5xl font-black text-white leading-tight mb-5 tracking-tight">
-                Don't Just Practice.<br class="hidden md:block">
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-300 drop-shadow-sm">
-                    Perfect Your Accuracy.
-                </span>
-            </h1>
-            
-            <p class="text-slate-300 text-base md:text-lg leading-relaxed mb-8 max-w-2xl mx-auto font-medium">
-                Stop waiting for manual grading. Dictate, upload, and let our AI instantly grade your full and half mistakes exactly like the SSC and High Court examiners.
-            </p>
-            
-            <div class="flex flex-col items-center justify-center">
-                <a href="app.html" class="w-full md:w-auto bg-cyan-500 hover:bg-cyan-400 text-indigo-950 text-lg px-10 py-4 rounded-full font-black shadow-[0_0_20px_rgba(6,182,212,0.5)] transition hover:-translate-y-1">
-                    Start Free Practice
+            <div id="hero-actions" class="flex flex-col items-center justify-center mt-4">
+                <!-- MORPHING CTA BUTTON -->
+                <a href="app.html" id="mainCTA" class="w-full md:w-auto bg-cyan-500 hover:bg-cyan-400 text-indigo-950 text-lg px-12 py-4 rounded-full font-black shadow-[0_0_20px_rgba(6,182,212,0.5)] transition hover:-translate-y-1">
+                    Start Dictation Practice
                 </a>
-                <p class="mt-4 text-sm font-medium text-cyan-200/80 tracking-wide">Navigate through our premium practice pages below.</p>
-            </div>
-            
-            <div class="mt-10 text-sm font-semibold text-slate-400 flex flex-wrap justify-center gap-6 opacity-80">
-                <span class="flex items-center gap-2">✔️ 60 to 120 WPM</span>
-                <span class="flex items-center gap-2">✔️ Kailash Chandra Library</span>
-                <span class="flex items-center gap-2">✔️ Instant AI Grading</span>
+                
+                <div class="flex gap-2 mt-8 z-20 cursor-pointer">
+                    <div onclick="goToSlide(0)" class="w-2 h-2 rounded-full bg-cyan-400 indicator active transition-all"></div>
+                    <div onclick="goToSlide(1)" class="w-2 h-2 rounded-full bg-slate-600 indicator transition-all"></div>
+                    <div onclick="goToSlide(2)" class="w-2 h-2 rounded-full bg-slate-600 indicator transition-all"></div>
+                </div>
             </div>
         </header>
     </div>
 
     <main class="flex-grow">
         
+       <!-- 5 ROOMS BENTO BOX -->
        <div class="max-w-6xl mx-auto w-full px-6 -mt-12 relative z-20 mb-20">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                <a href="app.html" class="bg-white rounded-2xl border border-slate-200 p-6 hover-lift group block cursor-pointer">
-                    <div class="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm">🎧</div>
-                    <h2 class="text-xl font-bold text-slate-900 mb-2">Preset Practice Room</h2>
-                    <p class="text-sm text-slate-500 mb-4">Access our curated database of SSC Parliamentary, Legal, and Editorial dictations. Test your accuracy against live text.</p>
-                    <div class="text-indigo-600 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Enter Room &rarr;</div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <a href="app.html" class="bento-card bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 block cursor-pointer group">
+                    <div class="w-14 h-14 bg-indigo-100 dark:bg-indigo-900/50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300 shadow-sm">🎧</div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Preset Practice Room</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Access our curated database of SSC Parliamentary and Legal dictations. Test accuracy against live text.</p>
+                    <div class="text-indigo-600 dark:text-indigo-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Enter Room &rarr;</div>
                 </a>
 
-                <a href="generator.html" class="bg-white rounded-2xl border border-slate-200 p-6 hover-lift group block cursor-pointer">
-                    <div class="w-14 h-14 bg-emerald-100 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-sm">🧠</div>
-                    <h2 class="text-xl font-bold text-slate-900 mb-2">AI Dictation Studio</h2>
-                    <p class="text-sm text-slate-500 mb-4">Generate infinite, never-before-seen dictation passages. Set your exact word count and difficulty level on the fly.</p>
-                    <div class="text-emerald-600 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Enter Studio &rarr;</div>
+                <a href="generator.html" class="bento-card bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 block cursor-pointer group relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-emerald-500 text-white text-[9px] font-black px-3 py-1 rounded-bl-lg uppercase tracking-wider shadow-sm">Pro</span>
+                    <div class="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300 shadow-sm">🤖</div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">AI Dictation Studio</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Generate infinite, unseen dictation passages. Set exact word counts and difficulty levels on the fly.</p>
+                    <div class="text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Enter Studio &rarr;</div>
                 </a>
 
-                <a href="scanner.html" class="bg-white rounded-2xl border border-slate-200 p-6 hover-lift group block cursor-pointer">
-                    <div class="w-14 h-14 bg-amber-100 rounded-xl flex items-center justify-center text-2xl mb-4 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300 shadow-sm">📄</div>
-                    <h2 class="text-xl font-bold text-slate-900 mb-2">Live Document Scanner</h2>
-                    <p class="text-sm text-slate-500 mb-4">Upload an image of any physical book or paper. Our OCR engine will extract the text and instantly turn it into an audio dictation.</p>
-                    <div class="text-amber-600 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Open Scanner &rarr;</div>
+                <a href="scanner.html" class="bento-card bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 block cursor-pointer group relative overflow-hidden">
+                    <span class="absolute top-0 right-0 bg-amber-500 text-white text-[9px] font-black px-3 py-1 rounded-bl-lg uppercase tracking-wider shadow-sm">Pro</span>
+                    <div class="w-14 h-14 bg-amber-100 dark:bg-amber-900/50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-amber-500 group-hover:text-white transition-colors duration-300 shadow-sm">📸</div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Live OCR Scanner</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Upload physical book pages. Our OCR engine extracts text and instantly generates custom audio dictations.</p>
+                    <div class="text-amber-600 dark:text-amber-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Open Scanner &rarr;</div>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <a href="current-affairs.html" class="bento-card bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 block cursor-pointer group">
+                    <div class="flex items-start justify-between">
+                        <div>
+                            <div class="w-14 h-14 bg-sky-100 dark:bg-sky-900/50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-sky-500 group-hover:text-white transition-colors duration-300 shadow-sm">🗞️️</div>
+                            <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">The News Desk</h2>
+                            <p class="text-sm text-slate-500 dark:text-slate-400 mb-4 pr-4">Categorized daily current affairs (National, Sports). Read your capsule in under 5 minutes.</p>
+                        </div>
+                    </div>
+                    <div class="text-sky-600 dark:text-sky-400 font-bold text-sm flex items-center gap-1 group-hover:translate-x-1 transition-transform">Read Today's News &rarr;</div>
                 </a>
 
+                <div class="bento-card bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-6 block group relative">
+                    <div class="w-14 h-14 bg-rose-100 dark:bg-rose-900/50 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-rose-500 group-hover:text-white transition-colors duration-300 shadow-sm">📚</div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-2">The GK Vault</h2>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Download one-page cheat sheets for Polity, History, and Geography. Test your knowledge below.</p>
+                    
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-slate-700 mb-4 shadow-inner relative z-10">
+                        <p class="text-xs font-bold text-slate-700 dark:text-slate-300 mb-3">Q: Which Article deals with Constitutional Remedies?</p>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button class="mcq-demo-btn text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="this.classList.add('bg-emerald-100', 'text-emerald-700', 'border-emerald-500'); this.classList.remove('dark:bg-slate-800', 'dark:border-slate-600'); this.innerHTML='Correct! 🎯'">Article 32</button>
+                            <button class="mcq-demo-btn text-xs font-semibold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition" onclick="this.classList.add('bg-rose-100', 'text-rose-700', 'border-rose-500'); this.classList.remove('dark:bg-slate-800', 'dark:border-slate-600'); this.innerHTML='Incorrect'">Article 14</button>
+                        </div>
+                    </div>
+                    
+                    <a href="gk.html" class="inline-flex text-rose-600 dark:text-rose-400 font-bold text-sm items-center gap-1 group-hover:translate-x-1 transition-transform relative z-20">Enter the Vault &rarr;</a>
+                </div>
             </div>
         </div>
 
-        <section class="py-16 max-w-7xl mx-auto px-6">
+        <!-- 6-PILLAR WHY TRAIN SECTION -->
+        <section class="marketing-section py-16 max-w-7xl mx-auto px-6">
             <div class="text-center mb-16">
-                <h2 class="text-3xl font-black text-slate-900 inline-block relative">
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white inline-block relative">
                     Why Train at Stenogym?
                     <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-indigo-600 rounded"></div>
                 </h2>
             </div>
+            
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center md:text-left">
-                    <div class="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center text-2xl mb-6 mx-auto md:mx-0 shadow-inner"><span class="text-yellow-500">⚡</span></div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-3">Unlimited AI Dictations</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Never memorize a paragraph again. Generate infinite, unique dictations at Easy, Medium, or Hard difficulty levels instantly.</p>
+                <!-- Original 3 (Steno) -->
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition duration-300">
+                    <div class="w-14 h-14 bg-slate-50 dark:bg-slate-900 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"><span class="text-yellow-500">⚡</span></div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Unlimited AI Dictations</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Generate infinite, unique dictations at Easy, Medium, or Hard difficulty levels instantly.</p>
                 </div>
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center md:text-left">
-                    <div class="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center text-2xl mb-6 mx-auto md:mx-0 shadow-inner"><span class="text-emerald-500">🎯</span></div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-3">Precision Grading</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Submit your transcript and get instant, color coded feedback showing exactly which words you missed, added, or misspelled.</p>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition duration-300">
+                    <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"><span class="text-emerald-500">🎯</span></div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Precision Grading</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Get instant, color-coded feedback showing exactly which words you missed or misspelled.</p>
                 </div>
-                <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 text-center md:text-left">
-                    <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center text-2xl mb-6 mx-auto md:mx-0 shadow-inner"><span class="text-indigo-500">⏱️</span></div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-3">Exam-Level Phrasing</h3>
-                    <p class="text-slate-500 text-sm leading-relaxed">Our audio engine uses syllabic grouping to mimic real human dictation, ensuring you are perfectly prepared for 60 to 120 WPM exams.</p>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition duration-300">
+                    <div class="w-14 h-14 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"><span class="text-indigo-500">⏱️</span></div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Exam-Level Phrasing</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Our audio engine uses syllabic grouping to mimic real human dictation for 60 to 120 WPM exams.</p>
+                </div>
+                
+                <!-- New 3 (CA, GK, Dash) -->
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition duration-300">
+                    <div class="w-14 h-14 bg-sky-50 dark:bg-sky-900/20 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"><span class="text-sky-500">🗞️️</span></div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">5-Minute Daily News</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Read AI-curated current affairs capsules tailored strictly for SSC exams, saving you hours.</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition duration-300">
+                    <div class="w-14 h-14 bg-rose-50 dark:bg-rose-900/20 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"><span class="text-rose-500">📚</span></div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Smart GK Flash Drills</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Lock in facts with rapid-fire MCQ tests specifically designed to eliminate negative marking.</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:-translate-y-1 transition duration-300">
+                    <div class="w-14 h-14 bg-amber-50 dark:bg-amber-900/20 rounded-2xl flex items-center justify-center text-2xl mb-6 shadow-inner"><span class="text-amber-500">📊</span></div>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-3">Unified Performance</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed">Monitor your shorthand accuracy, reading streaks, and GK scores in one seamless dashboard.</p>
                 </div>
             </div>
         </section>
 
-        <section class="py-20 bg-white border-y border-slate-100">
+        <!-- TIMELINE WORKFLOW -->
+        <section class="marketing-section py-20 bg-white dark:bg-slate-900 border-y border-slate-100 dark:border-slate-800 transition-colors duration-300">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="text-center mb-16">
-                    <h2 class="text-3xl font-black text-slate-900 inline-block relative">
-                        How Stenogym Works
+                    <h2 class="text-3xl font-black text-slate-900 dark:text-white inline-block relative">
+                        The Perfect 45-Minute Routine
                         <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-indigo-600 rounded"></div>
                     </h2>
+                    <p class="text-slate-500 dark:text-slate-400 mt-5 max-w-2xl mx-auto">Everything you need to crack the exam, organized into one simple daily flow.</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
-                    <div class="text-center relative z-10">
-                        <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-indigo-600/30">1</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-3">Select Your Target</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed px-4">Choose from SSC, High Court, or AI-generated dictations. Set your desired speed from 60 to 120 WPM.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative z-10">
+                    <div class="text-center relative timeline-line">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-800 text-indigo-600 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-md border-4 border-indigo-100 dark:border-indigo-900 relative z-10">1</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Steno Warmup</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed px-2">Take a 10-minute dictation and get instant AI grading to track your exact WPM.</p>
                     </div>
-                    <div class="text-center relative z-10">
-                        <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-indigo-600/30">2</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-3">Transcribe the Audio</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed px-4">Listen to our exam-level syllabic audio engine and type your shorthand transcription directly into the canvas.</p>
+                    <div class="text-center relative timeline-line">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-800 text-sky-600 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-md border-4 border-sky-100 dark:border-sky-900 relative z-10">2</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Read Daily News</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed px-2">Spend 5 minutes catching up on high-yield, exam-focused current affairs.</p>
                     </div>
-                    <div class="text-center relative z-10">
-                        <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-lg shadow-indigo-600/30">3</div>
-                        <h3 class="text-lg font-bold text-slate-900 mb-3">Get Instant AI Grading</h3>
-                        <p class="text-slate-500 text-sm leading-relaxed px-4">Submit your work to instantly see a detailed breakdown of your missed, added, or misspelled words for fast improvement.</p>
+                    <div class="text-center relative timeline-line">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-800 text-rose-600 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-md border-4 border-rose-100 dark:border-rose-900 relative z-10">3</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">GK Flash Drills</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed px-2">Download a PDF cheat sheet and take a rapid 10-question MCQ memory drill.</p>
+                    </div>
+                    <div class="text-center relative">
+                        <div class="w-16 h-16 bg-white dark:bg-slate-800 text-emerald-600 rounded-full flex items-center justify-center text-2xl font-black mx-auto mb-6 shadow-md border-4 border-emerald-100 dark:border-emerald-900 relative z-10">4</div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-2">Review Dashboard</h3>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed px-2">Check your unified student dashboard to see your steno accuracy and GK reading streaks.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section id="faq" class="py-20 max-w-4xl mx-auto px-6">
+        <!-- 7 FAQS -->
+        <section id="faq" class="marketing-section py-20 max-w-4xl mx-auto px-6">
             <div class="text-center mb-12">
-                <h2 class="text-3xl font-black text-slate-900 inline-block relative mb-4">
-                    Frequently Asked Exam Questions
+                <h2 class="text-3xl font-black text-slate-900 dark:text-white inline-block relative mb-4">
+                    Exam Strategy & FAQs
                     <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 w-16 h-1 bg-indigo-600 rounded"></div>
                 </h2>
-                <p class="text-slate-500 mt-4">Everything you need to know about the stenography skill tests.</p>
             </div>
             
             <div class="space-y-4">
-                
-                <div class="faq-item border border-slate-200 rounded-xl p-5 cursor-pointer transition">
-                    <div class="flex justify-between items-center font-bold text-slate-800 text-sm md:text-base">
-                        <span>How are full and half mistakes calculated in the SSC Stenographer Skill Test?</span>
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
+                        <span>Why is General Awareness (GK & Current Affairs) considered the true rank-decider?</span>
                         <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
                     </div>
-                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600 leading-relaxed">
-                        Full mistakes include omitted words, substituted words, and additions. Half mistakes include spelling errors, capitalization mistakes (where required), and missing punctuation. Stenogym's AI grading replicates this exact formula so you always know your true score.
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        In exams like SSC Stenographer, almost every serious aspirant achieves high, comparable scores in English and Reasoning. General Awareness accounts for 50 critical marks. Because there are no formulas to guess answers, it has the widest score variance. That massive 25-mark swing is exactly what decides whether you get your preferred Ministry posting or miss the cutoff entirely.
                     </div>
                 </div>
-                
-                <div class="faq-item border border-slate-200 rounded-xl p-5 cursor-pointer transition">
-                    <div class="flex justify-between items-center font-bold text-slate-800 text-sm md:text-base">
+
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
+                        <span>How does daily GK practice improve scores compared to last-minute cramming?</span>
+                        <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
+                    </div>
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        GA is the only section where you can attempt 50 questions in under 10 minutes, banking crucial extra time for lengthy English passages. Last-minute cramming leads to heavy negative marking due to confusion between similar dates. Daily 10-minute micro-learning with Stenogym's active MCQ drills turns factual recall into second nature.
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
+                        <span>When is the Current Affairs section updated every day?</span>
+                        <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
+                    </div>
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Our AI engine pulls, filters, and formats the latest national and global news automatically at 6:00 AM every single morning. This ensures that early-morning studiers always have access to the freshest, exam-relevant capsule to start their day.
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
+                        <span>How are full and half mistakes calculated in the Steno Skill Test?</span>
+                        <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
+                    </div>
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Full mistakes include omitted words, substituted words, and additions. Half mistakes include spelling errors, capitalization mistakes, and missing punctuation. Stenogym's AI grading replicates this exact SSC formula so you always know your true score.
+                    </div>
+                </div>
+
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
                         <span>What is the difference in dictation speed for SSC Grade C and Grade D?</span>
                         <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
                     </div>
-                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600 leading-relaxed">
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                         For SSC Grade D, the dictation speed is 80 Words Per Minute (WPM) for 10 minutes (800 words total). For SSC Grade C, the speed is 100 WPM for 10 minutes (1000 words total).
                     </div>
                 </div>
                 
-                <div class="faq-item border border-slate-200 rounded-xl p-5 cursor-pointer transition">
-                    <div class="flex justify-between items-center font-bold text-slate-800 text-sm md:text-base">
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
                         <span>How much time is given for reading the shorthand notes before typing?</span>
                         <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
                     </div>
-                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600 leading-relaxed">
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
                         Usually, candidates are given 10 minutes to read their shorthand outlines before they are required to start typing the transcript on the computer. This reading period is crucial for mental preparation.
                     </div>
                 </div>
-                
-                <div class="faq-item border border-slate-200 rounded-xl p-5 cursor-pointer transition">
-                    <div class="flex justify-between items-center font-bold text-slate-800 text-sm md:text-base">
-                        <span>Are commas and full stops dictated in High Court exams?</span>
+
+                <div class="faq-item border border-slate-200 dark:border-slate-700 rounded-2xl p-6 cursor-pointer transition shadow-sm">
+                    <div class="flex justify-between items-center font-bold text-slate-800 dark:text-slate-200 text-sm md:text-base">
+                        <span>Are commas and full stops dictated in the actual exams?</span>
                         <span class="toggle-icon text-indigo-500 text-xl font-light">+</span>
                     </div>
-                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 text-sm text-slate-600 leading-relaxed">
-                        It varies by state, but traditionally High Court exams do dictate "Full Stop" and "Para". Commas are generally NOT dictated; you are expected to place them logically based on grammar. Stenogym trains you to recognize these natural pauses.
+                    <div class="faq-answer hidden mt-4 pt-4 border-t border-slate-100 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                        It varies by state, but traditionally High Court and SSC exams do dictate "Full Stop" and "Para". Commas are generally NOT dictated; you are expected to place them logically based on grammar.
                     </div>
                 </div>
-
             </div>
         </section>
 
     </main>
 
+    <!-- Full 4-Column Bilingual Footer -->
     <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            
             <div class="space-y-4">
                 <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
                     <span class="text-yellow-400">✏️</span> STENOGYM
                 </a>
-                <p class="text-sm text-slate-400 leading-relaxed">
-                    The ultimate AI-powered practice platform. Master shorthand, pass your SSC exams, and achieve 100+ WPM with modern dictation tools.
+                <p class="text-sm text-slate-400 leading-relaxed" data-en="India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection." data-hi="भारत का प्रमुख AI-संचालित परीक्षा इकोसिस्टम। आशुलिपि में महारत हासिल करें, स्टेटिक GK और दैनिक करंट अफेयर्स पर विजय प्राप्त करें, और अपना अंतिम चयन सुनिश्चित करें।">
+                    India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.
                 </p>
+                <!-- ACTUAL COLOR BRAND ICONS -->
                 <div class="flex gap-4 pt-2">
-    <!-- Real Instagram Logo -->
-    <a href="https://www.instagram.com/stenogym?igsh=ZmRiODh1ajN4dXF3" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#E1306C] transition">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.067.06 1.407.06 4.123v.08c0 2.643-.012 2.987-.06 4.043-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.067.048-1.407.06-4.123.06h-.08c-2.643 0-2.987-.012-4.043-.06-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.047-1.024-.06-1.379-.06-3.808v-.63c0-2.43.013-2.784.06-3.808.049-1.064.218-1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 015.45 2.525c.636-.247 1.363-.416 2.427-.465C8.901 2.013 9.256 2 11.685 2h.63zm-.081 1.802h-.468c-2.456 0-2.784.011-3.807.058-.975.045-1.504.207-1.857.344-.467.182-.8.398-1.15.748-.35.35-.566.683-.748 1.15-.137.353-.3.882-.344 1.857-.047 1.023-.058 1.351-.058 3.807v.468c0 2.456.011 2.784.058 3.807.045.975.207 1.504.344 1.857.182.466.399.8.748 1.15.35.35.683.566 1.15.748.353.137.882.3 1.857.344 1.054.048 1.37.058 4.041.058h.08c2.597 0 2.917-.01 3.96-.058.976-.045 1.505-.207 1.858-.344.466-.182.8-.398 1.15-.748.35-.35.566-.683.748-1.15.137-.353.3-.882.344-1.857.048-1.055.058-1.37.058-4.041v-.08c0-2.597-.01-2.917-.058-3.96-.045-.976-.207-1.505-.344-1.858a3.097 3.097 0 00-.748-1.15 3.098 3.098 0 00-1.15-.748c-.353-.137-.882-.3-1.857-.344-1.023-.047-1.351-.058-3.807-.058zM12 6.865a5.135 5.135 0 110 10.27 5.135 5.135 0 010-10.27zm0 1.802a3.333 3.333 0 100 6.666 3.333 3.333 0 000-6.666zm5.338-3.205a1.2 1.2 0 110 2.4 1.2 1.2 0 010-2.4z" clip-rule="evenodd" />
-        </svg>
-    </a> 
-    
-    <!-- Real YouTube Logo -->
-    <a href="https://youtube.com/@stenogym?si=97iwgQkKgIu7h886" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-[#FF0000] transition">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" />
-        </svg>
-    </a>
-    
-    <!-- Real Envelope (Contact) Logo -->
-    <a href="contact.html" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-white hover:bg-yellow-500 transition">
-        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" />
-            <path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" />
-        </svg>
-    </a>
-</div>
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
+                    <!-- YouTube -->
+                    <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+                    <!-- Telegram -->
+                    <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+                    <!-- Contact -->
+                    <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
+                </div>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="The Platform" data-hi="प्लेटफ़ॉर्म">The Platform</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="app.html" class="hover:text-cyan-400 transition">Practice Room</a></li>
-                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
-                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
-                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
+                    <li><a href="app.html" class="hover:text-cyan-400 transition" data-en="Stenoroom" data-hi="स्टेनो रूम">Steno Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition" data-en="AI Dictation Studio" data-hi="AI डिक्टेशन स्टूडियो">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition" data-en="Live Document Scanner" data-hi="लाइव डॉक्यूमेंट स्कैनर">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition" data-en="Student Login" data-hi="छात्र लॉगिन">Student Login</a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Resources" data-hi="संसाधन">Resources</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="blog.html" class="hover:text-yellow-400 text-cyan-300 transition">The Stenogym Blog</a></li>
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition">SSC Exam Updates</a></li>
-                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition">Shorthand Rules Guide</a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition" data-en="The Stenogym Blog" data-hi="स्टेनोजिम ब्लॉग">The Stenogym Blog</a></li>
+                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a></li>
+                    <li><a href="gk.html" class="hover:text-cyan-400 transition" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span data-en="Recommended Gear" data-hi="अनुशंसित उपकरण">Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
                 </ul>
             </div>
 
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Company & Legal" data-hi="कंपनी और कानूनी">Company & Legal</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
-                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
-                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
-                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
+                    <li><a href="about.html" class="hover:text-cyan-400 transition" data-en="About Us" data-hi="हमारे बारे में">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition" data-en="Contact Support" data-hi="संपर्क समर्थन">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
                 </ul>
             </div>
-
         </div>
 
         <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
             <div>&copy; 2026 Stenogym. All rights reserved.</div>
-           <div class="text-center md:text-right max-w-xl leading-relaxed">
-                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
+            <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400" data-en="Disclaimer:" data-hi="अस्वीकरण:">Disclaimer:</span> 
+                <span data-en="We are reader-supported. Affiliate links incur zero extra cost to you." data-hi="हम पाठक-समर्थित हैं। सहबद्ध लिंक पर आपको कोई अतिरिक्त लागत नहीं लगती है।">We are reader-supported. Affiliate links incur zero extra cost to you.</span>
             </div>
         </div>
     </footer>
-
+    
+    <!-- INTERACTIVITY LOGIC -->
     <script>
-        // Toggle FAQ Items
+        // 1. Dark Mode Toggle Engine
+        const htmlTag = document.documentElement;
+        const themeBtn = document.getElementById('themeToggleBtn');
+        const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
+        
+        if (localStorage.getItem('theme') === 'dark') {
+            htmlTag.classList.add('dark');
+            themeBtn.innerHTML = '<span id="themeIcon">☀️</span>';
+            mobileThemeBtn.textContent = '☀️';
+        }
+
+        function toggleTheme() {
+            if (htmlTag.classList.contains('dark')) {
+                htmlTag.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeBtn.innerHTML = '<span id="themeIcon">🌙</span>';
+                mobileThemeBtn.textContent = '🌙';
+            } else {
+                htmlTag.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeBtn.innerHTML = '<span id="themeIcon">☀️</span>';
+                mobileThemeBtn.textContent = '☀';
+            }
+        }
+        themeBtn.addEventListener('click', toggleTheme);
+        mobileThemeBtn.addEventListener('click', toggleTheme);
+
+        // 2. FAQ Toggles
         document.querySelectorAll('.faq-item').forEach(item => {
             item.addEventListener('click', () => {
                 const icon = item.querySelector('.toggle-icon');
                 const answer = item.querySelector('.faq-answer');
-                
                 if (answer.classList.contains('hidden')) {
                     answer.classList.remove('hidden');
                     icon.textContent = '−';
-                    item.classList.add('bg-indigo-50');
+                    item.classList.add('bg-indigo-50', 'dark:bg-slate-800');
                 } else {
                     answer.classList.add('hidden');
                     icon.textContent = '+';
-                    item.classList.remove('bg-indigo-50');
+                    item.classList.remove('bg-indigo-50', 'dark:bg-slate-800');
                 }
             });
         });
 
-        // Toggle Mobile Menu
+        // 3. Mobile Menu & Accordion
         document.getElementById('mobileMenuBtn').addEventListener('click', () => {
-            const menu = document.getElementById('mobileMenu');
-            if (menu.classList.contains('hidden')) {
-                menu.classList.remove('hidden');
-            } else {
-                menu.classList.add('hidden');
-            }
+            document.getElementById('mobileMenu').classList.toggle('hidden');
         });
+        
+        const stenoToggle = document.getElementById('mobileStenoToggle');
+        if(stenoToggle) {
+            stenoToggle.addEventListener('click', () => {
+                const menu = document.getElementById('mobileStenoMenu');
+                menu.classList.toggle('hidden'); menu.classList.toggle('flex');
+                document.getElementById('stenoChevron').textContent = menu.classList.contains('hidden') ? '▼' : '▲';
+            });
+        }
+
+        // 4. Live Clock Engine
+        function updateClock() {
+            const now = new Date();
+            const options = { weekday: 'short', month: 'short', day: 'numeric' };
+            const dateStr = now.toLocaleDateString('en-US', options);
+            let hours = now.getHours();
+            let minutes = now.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; 
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('liveClock').textContent = `🟢 Live: ${dateStr} | ${hours}:${minutes} ${ampm}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 5. Hero Auto-Slider with Hover-to-Pause & Dynamic CTA
+        const slides = document.querySelectorAll('.slide');
+        const indicators = document.querySelectorAll('.indicator');
+        const heroSection = document.getElementById('hero-section');
+        const mainCTA = document.getElementById('mainCTA');
+        let currentSlide = 0;
+        let slideInterval;
+        let isUserLoggedIn = false;
+        let isPaused = false;
+        
+        const ctaData = [
+            { text: "Start Dictation Practice", href: "app.html" },
+            { text: "Read Today's Capsule", href: "current-affairs.html" },
+            { text: "Take a GK Drill", href: "gk.html" }
+        ];
+
+        function goToSlide(index) {
+            slides.forEach(s => s.classList.remove('active'));
+            indicators.forEach(i => {
+                i.classList.remove('bg-cyan-400', 'active');
+                i.classList.add('bg-slate-600');
+            });
+            slides[index].classList.add('active');
+            indicators[index].classList.add('bg-cyan-400', 'active');
+            indicators[index].classList.remove('bg-slate-600');
+            currentSlide = index;
+            
+            if (!isUserLoggedIn) {
+                mainCTA.textContent = ctaData[index].text;
+                mainCTA.href = ctaData[index].href;
+            }
+        }
+
+        function runSlider() {
+            if (isUserLoggedIn || isPaused) return; 
+            const nextSlide = (currentSlide + 1) % slides.length;
+            goToSlide(nextSlide);
+        }
+
+        heroSection.addEventListener('mouseenter', () => isPaused = true);
+        heroSection.addEventListener('mouseleave', () => isPaused = false);
+        slideInterval = setInterval(runSlider, 4000);
     </script>
     
+    <!-- FIREBASE AUTHENTICATION -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
@@ -352,8 +645,6 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-
-        const MASTER_ADMIN_EMAIL = "subhashisdeysarkar1998@gmail.com";
         let currentUser = null; 
 
         onAuthStateChanged(auth, (user) => {
@@ -363,62 +654,69 @@
             const mobileLoginBtn = document.getElementById('mobileLoginBtn');
             const btnLogout = document.getElementById('btnLogout');
             const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-            const footerLoginLinks = document.querySelectorAll('footer a[href="login.html"]');
-            
-            const heroHeading = document.querySelector('header h1'); 
-            const marketingSections = document.querySelectorAll('section'); 
-            const heroSubtext = document.querySelector('header p'); 
+            const navDashboard = document.getElementById('navDashboard');
+            const navDashboardMob = document.getElementById('navDashboardMob');
+            const mainCTA = document.getElementById('mainCTA');
+            const marketingSections = document.querySelectorAll('.marketing-section');
             
             if (user && user.email) {
-                // 1. EXTRACT FIRST NAME FROM EMAIL
+                isUserLoggedIn = true; 
+                clearInterval(slideInterval);
+                
                 let emailName = user.email.split('@')[0]; 
-                emailName = emailName.split('.')[0]; 
                 const firstName = emailName.charAt(0).toUpperCase() + emailName.slice(1);
 
-                // 2. TRANSFORM THE HEADLINE
-                if (heroHeading) {
-                    heroHeading.innerHTML = `Welcome back,<br class="hidden md:block"><span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-300 drop-shadow-sm">${firstName}!</span>`;
-                }
-                if (heroSubtext) {
-                    heroSubtext.innerHTML = "Select a tool below to resume your shorthand training.";
-                }
+                const sliderContainer = document.getElementById('slider-container');
+                sliderContainer.innerHTML = `
+                    <div class="slide active py-8">
+                        <h1 class="text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight mb-5 tracking-tight">
+                            Welcome back,<br class="hidden md:block">
+                            <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-300 drop-shadow-sm">${firstName}!</span>
+                        </h1>
+                        <p class="text-slate-300 text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-medium mb-8">
+                            Select a room from the dashboard below to resume your daily preparation.
+                        </p>
+                    </div>
+                `;
 
-                // 3. HIDE MARKETING FLUFF
-                marketingSections.forEach(section => {
-                    if (section) section.classList.add('hidden');
-                });
+                // Lock CTA to Dashboard
+                mainCTA.textContent = "Open Performance Dashboard";
+                mainCTA.href = "dashboard.html";
+                document.querySelector('.indicator').parentElement.style.display = 'none';
 
-                // 4. CHANGE BUTTONS & SHOW LOGOUT
+                // HIDE MARKETING SECTIONS FOR LOGGED-IN USERS
+                marketingSections.forEach(section => section.style.display = 'none');
+
                 if (desktopLoginBtn) desktopLoginBtn.classList.add('hidden');
                 if (mobileLoginBtn) mobileLoginBtn.classList.add('hidden');
+                if (navDashboard) navDashboard.classList.remove('hidden');
+                if (navDashboardMob) navDashboardMob.classList.remove('hidden');
                 
-                footerLoginLinks.forEach(link => {
-                    link.classList.add('hidden');
-                });
-
                 if (btnLogout) {
                     btnLogout.classList.remove('hidden'); 
-                    btnLogout.addEventListener('click', () => {
-                        signOut(auth).then(() => window.location.reload());
-                    });
+                    btnLogout.addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
                 }
                 if (mobileLogoutBtn) {
                     mobileLogoutBtn.classList.remove('hidden'); 
-                    mobileLogoutBtn.addEventListener('click', () => {
-                        signOut(auth).then(() => window.location.reload());
-                    });
+                    mobileLogoutBtn.addEventListener('click', () => signOut(auth).then(() => window.location.reload()));
                 }
 
             } else {
-                // USER IS LOGGED OUT
+                isUserLoggedIn = false;
+                
+                // SHOW MARKETING SECTIONS FOR LOGGED-OUT USERS
+                marketingSections.forEach(section => section.style.display = 'block');
+
                 if (desktopLoginBtn) desktopLoginBtn.classList.remove('hidden');
                 if (mobileLoginBtn) mobileLoginBtn.classList.remove('hidden');
+                if (navDashboard) navDashboard.classList.add('hidden');
+                if (navDashboardMob) navDashboardMob.classList.add('hidden');
                 if (btnLogout) btnLogout.classList.add('hidden');
                 if (mobileLogoutBtn) mobileLogoutBtn.classList.add('hidden');
             }
         });
 
-        // THE PREMIUM INTERCEPT TRIPWIRE
+        // PREMIUM INTERCEPT TRIPWIRE
         const premiumCards = document.querySelectorAll('a[href="generator.html"], a[href="scanner.html"]');
         premiumCards.forEach(card => {
             card.addEventListener('click', (e) => {
@@ -431,5 +729,179 @@
         });
     </script>
 
+<!-- ========================================== -->
+<!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
+<!-- ========================================== -->
+<style>
+    #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+    #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+    #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+    
+    /* Breathing Glow Effect Behind the Button */
+    #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+    @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+    
+    /* The "Shorthand Writer" Pencil Wiggle Animation */
+    .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+    @keyframes writeWiggle {
+        0%, 85%, 100% { transform: rotate(0deg); }
+        88% { transform: rotate(-25deg); }
+        91% { transform: rotate(15deg); }
+        94% { transform: rotate(-10deg); }
+        97% { transform: rotate(5deg); }
+    }
+    
+    #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+    #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+    
+    .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
+    .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+    .fab-tg { background-color: #0088cc; }
+    .fab-yt { background-color: #FF0000; }
+    .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+    .fab-share { background-color: #25D366; }
+</style>
+
+<div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+    <!-- Hidden Menu -->
+    <div id="stenoFabMenu">
+        <!-- Telegram -->
+        <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+        <!-- YouTube -->
+        <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+        <!-- Clean Instagram Icon -->
+        <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+        <!-- Share Action -->
+        <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
+    </div>
+    
+    <!-- Main Draggable Badge with Wiggling Pencil -->
+    <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const fabContainer = document.getElementById('stenoFabContainer');
+    const fabMain = document.getElementById('stenoFabMain');
+    const fabMenu = document.getElementById('stenoFabMenu');
+    const shareBtn = document.getElementById('fabShareBtn');
+
+    let isDragging = false, hasDragged = false;
+    let startX, startY, initialX, initialY;
+    const fabSize = 56;
+
+    // Restore Saved Position 
+    const savedX = localStorage.getItem('stenoFabX');
+    const savedY = localStorage.getItem('stenoFabY');
+    if (savedX !== null && savedY !== null) {
+        fabContainer.style.left = savedX + 'px';
+        fabContainer.style.top = savedY + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+    }
+
+    // Drag & Snap Logic
+    const startDrag = (e) => {
+        if (e.target.closest('#stenoFabMenu')) return;
+        isDragging = true; hasDragged = false;
+        const client = e.type.includes('mouse') ? e : e.touches[0];
+        startX = client.clientX; startY = client.clientY;
+        initialX = fabContainer.offsetLeft; initialY = fabContainer.offsetTop;
+        document.body.style.userSelect = "none";
+    };
+
+    const drag = (e) => {
+        if (!isDragging) return;
+        const client = e.type.includes('mouse') ? e : e.touches[0];
+        const dx = client.clientX - startX;
+        const dy = client.clientY - startY;
+        
+        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasDragged = true;
+        if (!hasDragged) return;
+
+        fabMenu.classList.remove('active'); 
+        
+        let newX = initialX + dx;
+        let newY = initialY + dy;
+        const maxX = window.innerWidth - fabSize;
+        const maxY = window.innerHeight - fabSize;
+        
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        
+        fabContainer.style.left = newX + 'px';
+        fabContainer.style.top = newY + 'px';
+        fabContainer.style.right = 'auto';
+        fabContainer.style.bottom = 'auto';
+    };
+
+    const stopDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        document.body.style.userSelect = "auto";
+        
+        if (hasDragged) {
+            const currentX = fabContainer.offsetLeft;
+            const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
+            
+            fabContainer.style.transition = "left 0.3s ease-out";
+            fabContainer.style.left = targetX + 'px';
+            
+            localStorage.setItem('stenoFabX', targetX);
+            localStorage.setItem('stenoFabY', fabContainer.offsetTop);
+            
+            setTimeout(() => { fabContainer.style.transition = ""; }, 300);
+        } else {
+            fabMenu.classList.toggle('active');
+        }
+    };
+
+    fabMain.addEventListener('mousedown', startDrag);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', stopDrag);
+    
+    fabMain.addEventListener('touchstart', startDrag, {passive: false});
+    document.addEventListener('touchmove', drag, {passive: false});
+    document.addEventListener('touchend', stopDrag);
+
+    document.addEventListener('click', (e) => {
+        if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
+    });
+
+    shareBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
+        try {
+            if (navigator.share) await navigator.share(shareData);
+            else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); }
+        } catch (err) {}
+    });
+});
+</script>
+<!-- ========================================== -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('nav a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href === currentPage) {
+                link.classList.remove('text-slate-300');
+                link.classList.add('text-cyan-300', 'font-black');
+            }
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+        document.querySelectorAll('nav a').forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href === currentPage) {
+                link.classList.remove('text-slate-300');
+                link.classList.add('text-cyan-300', 'font-black');
+            }
+        });
+    });
+</script>
 </body>
 </html>
