@@ -1,7 +1,6 @@
 // netlify/functions/fetch-daily-news.mjs
 
 export default async (req) => {
-    // 1. CORS Headers to allow admin.html to call this securely
     const headers = {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers": "Content-Type",
@@ -18,7 +17,6 @@ export default async (req) => {
 
         if (!apiKey) throw new Error("Missing GROQ_API_KEY environment variable in Netlify.");
 
-        // 2. MULTI-FEED FETCH (National & Economy feeds for comprehensive exam coverage)
         const feeds = [
             'https://www.thehindu.com/news/national/feeder/default.rss',
             'https://www.thehindu.com/business/feeder/default.rss'
@@ -39,44 +37,29 @@ export default async (req) => {
             }
         }));
 
-        if (combinedNews.length === 0) {
-            throw new Error("Unable to retrieve news from RSS feeds. Please check network or feed URLs.");
-        }
+        if (combinedNews.length === 0) throw new Error("Unable to retrieve news from RSS feeds.");
 
-        // Deduplicate headlines and take the top 20 news items
-        const uniqueItems = Array.from(new Map(combinedNews.map(item => [item.title, item])).values()).slice(0, 20);
+        // Grab top 15 unique headlines to keep context small
+        const uniqueItems = Array.from(new Map(combinedNews.map(item => [item.title, item])).values()).slice(0, 15);
         const rawNewsDump = uniqueItems.map((item, idx) => `[Item ${idx + 1}] Title: ${item.title}\nDescription: ${item.description || ''}`).join('\n\n');
 
-        // 3. STRICT BILINGUAL AI PROMPT 
         const prompt = `
-You are a senior Current Affairs curriculum designer and question setter for Indian competitive exams (SSC CGL, CHSL, IBPS PO, SBI, RRB NTPC).
-Analyze the following raw news dump for target date (${targetDate}) and extract exactly 5 to 7 high-yield, exam-worthy developments.
+You are a senior Current Affairs curriculum designer for Indian competitive exams (SSC, IBPS PO, RRB).
+Analyze the raw news dump for target date (${targetDate}) and extract exactly 3 to 4 high-yield, exam-worthy developments.
 
 Raw News Dump:
 ${rawNewsDump}
 
 STRICT GENERATION RULES:
-1. Filter out crime, partisan political mudslinging, and celebrity gossip. Prioritize high-yield exam topics:
-   - Central & State Government Schemes, Portals, and Missions (योजनाएं एवं पोर्टल)
-   - State Affairs & Regional Initiatives (e.g., major state policies, GI tags, state summits)
-   - Appointments, Resignations & Committees
-   - Regulatory Actions, RBI/SEBI circulars, and Banking metrics
-   - Defence deals, Joint Military Exercises & Space tech
-   - Bilateral MoUs, International Summits & Indices/Reports
-   - National/International Awards and Major Sports titles
-
-2. Every card MUST use one of the 6 core parent categories exactly as written:
-   - "National & Global" (For: Central/State Govt Schemes, State Initiatives, MoUs, Summits, Indices)
-   - "Banking & Economy" (For: Financial Schemes, RBI policies, GDP, Trade metrics)
-   - "Science & Defence" (For: ISRO, DRDO, Exercises, Tech)
-   - "Persons in News" (For: Appointments, Committees, Obits)
-   - "Sports" (For: Tournaments, Medals, Records)
-   - "Awards & Honours" (For: Civilian honors, Literary prizes, Global recognitions)
-
-3. SubCategory Examples: "Govt Schemes", "State Initiatives", "Reports & Indices", "Appointments".
-4. Produce a valid JSON object containing a "news" array. Do not include markdown wrappers, backticks, conversational preamble, or trailing commentary.
-5. Every card MUST be fully bilingual with corresponding high-quality Hindi translations.
-6. MCQ EXPLANATION REQUIREMENT: The "explanation" inside "mcq" and "mcq_hi" MUST NOT be short one-liners. Provide a rich, 2 to 3 sentence breakdown explaining why the answer is right, citing relevant acts, dates, or background context.
+1. Filter out crime, partisan politics, and celebrity gossip.
+2. Every card MUST use one of these 6 categories: "National & Global", "Banking & Economy", "Science & Defence", "Persons in News", "Sports", "Awards & Honours".
+3. Write ONLY in English. Do NOT translate to Hindi.
+4. "contextBullets" MUST contain exactly 4 bullets:
+   - Bullet 1 (The Core Event): Who did what, and when?
+   - Bullet 2 (The Background): Why is this happening?
+   - Bullet 3 (Key Figures/Data): Exact numbers, names, or locations to memorize.
+   - Bullet 4 (The Big Picture): National or global impact.
+5. Produce a valid JSON object containing a "news" array.
 
 SCHEMA SPECIFICATION:
 {
@@ -84,37 +67,29 @@ SCHEMA SPECIFICATION:
     {
       "date": "${targetDate}",
       "category": "String (Must match Rule 2 exactly)",
-      "category_hi": "String (Exact Hindi equivalent)",
       "subCategory": "String",
-      "subCategory_hi": "String",
-      "emoji": "String (A single contextual emoji, e.g., 🏦, 🚀, ⚖️, 🏅, 🏆)",
-      "impact": "String (Exam relevance, e.g., Crucial for IBPS PO Mains)",
-      "impact_hi": "String (Hindi relevance)",
+      "emoji": "String (A single contextual emoji, e.g., 🏦, 🚀)",
+      "impact": "String (Exam relevance)",
       "targetExams": ["SSC CGL", "IBPS PO"],
       "oneLiner": "String (Clear, factual headline)",
-      "oneLiner_hi": "String (Hindi headline)",
-      "contextBullets": ["String (Fact 1)", "String (Fact 2)"],
-      "contextBullets_hi": ["String (Hindi Fact 1)", "String (Hindi Fact 2)"],
-      "staticBox": { "facts": "String (Relevant static GK linkage)" },
-      "staticBox_hi": { "facts": "String (Hindi static GK linkage)" },
+      "contextBullets": [
+        "String (Bullet 1: Core Event)",
+        "String (Bullet 2: Background/Why)",
+        "String (Bullet 3: Key Data/Figures)",
+        "String (Bullet 4: Big Picture/Impact)"
+      ],
+      "staticBox": { "facts": "String (1 relevant static GK fact)" },
       "mcq": {
         "question": "String (Multiple-choice question)",
         "options": ["String", "String", "String", "String"],
         "correctIndex": 0,
-        "explanation": "String (Detailed, multi-sentence factual explanation)"
-      },
-      "mcq_hi": {
-        "question": "String (Hindi question)",
-        "options": ["String", "String", "String", "String"],
-        "correctIndex": 0,
-        "explanation": "String (Detailed Hindi explanation matching English)"
+        "explanation": "String (1 short sentence explanation)"
       }
     }
   ]
 }
 `;
 
-        // 4. CALL GROQ AI
         const groqUrl = "https://api.groq.com/openai/v1/chat/completions";
         const aiResponse = await fetch(groqUrl, {
             method: "POST",
@@ -123,11 +98,11 @@ SCHEMA SPECIFICATION:
                 "Authorization": `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                "model": "openai/gpt-oss-20b",
+                model: "llama3-70b-8192",
                 messages: [
                     { 
                         role: "system", 
-                        content: "You are an automated JSON-only API. Never output markdown, backticks, or prose outside the JSON array." 
+                        content: "You are an automated JSON-only API. Return a valid JSON object. Never output markdown or prose." 
                     },
                     { 
                         role: "user", 
@@ -135,6 +110,7 @@ SCHEMA SPECIFICATION:
                     }
                 ],
                 temperature: 0.1,
+                max_tokens: 3000,
                 response_format: { type: "json_object" }
             })
         });
@@ -146,9 +122,6 @@ SCHEMA SPECIFICATION:
         }
 
         const rawContent = aiData.choices[0].message.content;
-
-        // 5. BULLETPROOF JSON EXTRACTOR
-        // Uses regex to find the first '{' and the last '}' to ignore any accidental AI conversational text
         let cleanJsonString = rawContent;
         const objStart = rawContent.indexOf('{');
         const objEnd = rawContent.lastIndexOf('}');
@@ -159,7 +132,6 @@ SCHEMA SPECIFICATION:
 
         let parsedOutput = JSON.parse(cleanJsonString);
 
-        // Normalize output to extract the array
         let finalArray = Array.isArray(parsedOutput) 
             ? parsedOutput 
             : (parsedOutput.data || parsedOutput.news || parsedOutput.cards || Object.values(parsedOutput)[0]);
@@ -168,7 +140,6 @@ SCHEMA SPECIFICATION:
             throw new Error("AI response did not form a valid array of cards.");
         }
 
-        // 6. RETURN CLEAN DATA TO ADMIN REVIEW STAGING
         return new Response(JSON.stringify({ success: true, data: finalArray }), { headers, status: 200 });
 
     } catch (error) {

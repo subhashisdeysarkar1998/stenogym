@@ -25,7 +25,11 @@
         .ql-toolbar.ql-snow { border: 1px solid #e2e8f0 !important; border-bottom: none !important; background-color: #f8fafc; font-family: inherit; border-radius: 0.75rem 0.75rem 0 0; }
         .ql-container.ql-snow { border: 1px solid #e2e8f0 !important; font-family: inherit; font-size: 1rem; color: #334155; border-radius: 0 0 0.75rem 0.75rem; background: #fff;}
         .ql-editor { min-height: 250px; padding: 1.5rem; }
-    </style>
+    .active-nav {
+        color: #67e8f9 !important;
+        font-weight: 900 !important;
+    }
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex overflow-hidden">
 
@@ -1244,7 +1248,7 @@
             const href = link.getAttribute('href');
             if (href && href === currentPage) {
                 link.classList.remove('text-slate-300');
-                link.classList.add('text-cyan-300', 'font-black');
+                link.classList.add('active-nav');
             }
         });
     });

@@ -53,7 +53,11 @@
         .dark .article-content ul, .dark .article-content li { color: #cbd5e1; }
         .dark .article-content strong { color: #ffffff; }
         .dark .article-content blockquote { border-color: #059669; color: #94a3b8; background: #0f172a; }
-    </style>
+    .active-nav {
+        color: #67e8f9 !important;
+        font-weight: 900 !important;
+    }
+</style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 font-sans min-h-screen flex flex-col pt-20 transition-colors duration-300">
 
@@ -603,6 +607,10 @@
     .fab-yt { background-color: #FF0000; }
     .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
     .fab-share { background-color: #25D366; }
+.active-nav {
+        color: #67e8f9 !important;
+        font-weight: 900 !important;
+    }
 </style>
 
 <div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
@@ -633,80 +641,87 @@ document.addEventListener("DOMContentLoaded", () => {
     let startX, startY, initialX, initialY;
     const fabSize = 56;
 
-    // Restore Saved Position 
-    const savedX = localStorage.getItem('stenoFabX');
-    const savedY = localStorage.getItem('stenoFabY');
-    if (savedX !== null && savedY !== null) {
-        fabContainer.style.left = savedX + 'px';
-        fabContainer.style.top = savedY + 'px';
-        fabContainer.style.right = 'auto';
-        fabContainer.style.bottom = 'auto';
+    const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+
+    if (isMobile) {
+        // MOBILE: Firmly anchor to bottom-right so it never gets lost off-screen
+        fabContainer.style.left = 'auto';
+        fabContainer.style.top = 'auto';
+        fabContainer.style.right = '20px';
+        fabContainer.style.bottom = '24px';
+
+        // Instant tap to toggle menu
+        fabMain.addEventListener('click', (e) => {
+            e.stopPropagation();
+            fabMenu.classList.toggle('active');
+        });
+    } else {
+        // DESKTOP: Safe drag handling
+        const savedX = localStorage.getItem('stenoFabX');
+        const savedY = localStorage.getItem('stenoFabY');
+        const fabSize = 56;
+
+        if (savedX !== null && savedY !== null) {
+            const x = parseInt(savedX, 10);
+            const y = parseInt(savedY, 10);
+            if (x >= 0 && x <= window.innerWidth - fabSize && y >= 0 && y <= window.innerHeight - fabSize) {
+                fabContainer.style.left = x + 'px';
+                fabContainer.style.top = y + 'px';
+                fabContainer.style.right = 'auto';
+                fabContainer.style.bottom = 'auto';
+            }
+        }
+
+        let isDragging = false, hasDragged = false;
+        let startX = 0, startY = 0, initialX = 0, initialY = 0;
+
+        fabMain.addEventListener('mousedown', (e) => {
+            if (e.target.closest('#stenoFabMenu')) return;
+            isDragging = true;
+            hasDragged = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            initialX = fabContainer.offsetLeft;
+            initialY = fabContainer.offsetTop;
+            document.body.style.userSelect = "none";
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            if (Math.abs(dx) > 12 || Math.abs(dy) > 12) hasDragged = true;
+            if (!hasDragged) return;
+
+            fabMenu.classList.remove('active');
+            let newX = Math.max(0, Math.min(initialX + dx, window.innerWidth - fabSize));
+            let newY = Math.max(0, Math.min(initialY + dy, window.innerHeight - fabSize));
+            fabContainer.style.left = newX + 'px';
+            fabContainer.style.top = newY + 'px';
+            fabContainer.style.right = 'auto';
+            fabContainer.style.bottom = 'auto';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            document.body.style.userSelect = "auto";
+
+            if (hasDragged) {
+                const currentX = fabContainer.offsetLeft;
+                const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
+                fabContainer.style.transition = "left 0.3s ease-out";
+                fabContainer.style.left = targetX + 'px';
+                localStorage.setItem('stenoFabX', targetX);
+                localStorage.setItem('stenoFabY', fabContainer.offsetTop);
+                setTimeout(() => { fabContainer.style.transition = ""; }, 300);
+            } else {
+                fabMenu.classList.toggle('active');
+            }
+        });
     }
 
-    // Drag & Snap Logic
-    const startDrag = (e) => {
-        if (e.target.closest('#stenoFabMenu')) return;
-        isDragging = true; hasDragged = false;
-        const client = e.type.includes('mouse') ? e : e.touches[0];
-        startX = client.clientX; startY = client.clientY;
-        initialX = fabContainer.offsetLeft; initialY = fabContainer.offsetTop;
-        document.body.style.userSelect = "none";
-    };
-
-    const drag = (e) => {
-        if (!isDragging) return;
-        const client = e.type.includes('mouse') ? e : e.touches[0];
-        const dx = client.clientX - startX;
-        const dy = client.clientY - startY;
-        
-        if (Math.abs(dx) > 5 || Math.abs(dy) > 5) hasDragged = true;
-        if (!hasDragged) return;
-
-        fabMenu.classList.remove('active'); 
-        
-        let newX = initialX + dx;
-        let newY = initialY + dy;
-        const maxX = window.innerWidth - fabSize;
-        const maxY = window.innerHeight - fabSize;
-        
-        newX = Math.max(0, Math.min(newX, maxX));
-        newY = Math.max(0, Math.min(newY, maxY));
-        
-        fabContainer.style.left = newX + 'px';
-        fabContainer.style.top = newY + 'px';
-        fabContainer.style.right = 'auto';
-        fabContainer.style.bottom = 'auto';
-    };
-
-    const stopDrag = () => {
-        if (!isDragging) return;
-        isDragging = false;
-        document.body.style.userSelect = "auto";
-        
-        if (hasDragged) {
-            const currentX = fabContainer.offsetLeft;
-            const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
-            
-            fabContainer.style.transition = "left 0.3s ease-out";
-            fabContainer.style.left = targetX + 'px';
-            
-            localStorage.setItem('stenoFabX', targetX);
-            localStorage.setItem('stenoFabY', fabContainer.offsetTop);
-            
-            setTimeout(() => { fabContainer.style.transition = ""; }, 300);
-        } else {
-            fabMenu.classList.toggle('active');
-        }
-    };
-
-    fabMain.addEventListener('mousedown', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', stopDrag);
-    
-    fabMain.addEventListener('touchstart', startDrag, {passive: false});
-    document.addEventListener('touchmove', drag, {passive: false});
-    document.addEventListener('touchend', stopDrag);
-
+    // Dismiss menu when clicking anywhere else
     document.addEventListener('click', (e) => {
         if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
     });
@@ -724,7 +739,7 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.split('/').pop().replace('.html', '');
+        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
         if (!currentPath) currentPath = 'index';
 
         document.querySelectorAll('nav a').forEach(link => {
@@ -733,7 +748,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const cleanHref = href.replace('.html', '');
                 if (cleanHref === currentPath) {
                     link.classList.remove('text-slate-300');
-                    link.classList.add('text-cyan-300', 'font-black');
+                    link.classList.add('active-nav');
                 }
             }
         });
