@@ -739,20 +739,31 @@
         };
         window.addFlashcardUI(); window.addMcqUI();
 
-        window.generateGkWithAI = function() {
+        window.generateGkWithAI = async function() {
             const prompt = document.getElementById('aiGkPrompt').value;
             if(!prompt) { alert("Please enter a prompt first."); return; }
-            document.getElementById('gkTopicTitle').value = "Fundamental Duties (Article 51A)";
-            window.quillGkEn.clipboard.dangerouslyPasteHTML(`
-                <h3 class="font-bold text-indigo-700">Core Constitutional Facts</h3>
-                <ul class="list-disc pl-5 space-y-2 text-slate-700">
-                    <li>Recommended by the Swaran Singh Committee; added by the 42nd Amendment Act (1976).</li>
-                    <li>Placed in Part IV-A, Article 51A. Borrowed from USSR Constitution.</li>
-                    <li>The 11th duty (education for children 6-14) was added by 86th Amendment Act (2002).</li>
-                </ul>
-            `);
-            document.getElementById('flashcardsContainer').innerHTML = "";
-            window.addFlashcardUI("Which committee recommended Fundamental Duties?", "Swaran Singh Committee", "Submitted in 1976.");
+            
+            const btn = document.querySelector('button[onclick="generateGkWithAI()"]');
+            btn.innerHTML = "⚡ Generating..."; btn.disabled = true;
+
+            try {
+                const response = await fetch("/api/generate-gk", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                
+                window.quillGkEn.clipboard.dangerouslyPasteHTML(data.notesHtml || "");
+                document.getElementById('flashcardsContainer').innerHTML = "";
+                window.addFlashcardUI(data.flashcardFront, data.flashcardBack, data.flashcardContext);
+                
+            } catch (err) {
+                alert("Error generating GK: " + err.message);
+            } finally {
+                btn.innerHTML = "<span>⚡</span> Auto-Generate"; btn.disabled = false;
+            }
         };
 
         window.autoTranslateGK = async function() {
