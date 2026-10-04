@@ -121,7 +121,7 @@
     </nav>
 
     <!-- Tier 2: App Sticky Control Panel (Fuchsia Theme) -->
-    <div class="bg-fuchsia-700 dark:bg-slate-900 border-b border-fuchsia-800 dark:border-slate-800 sticky top-20 z-40 transition-colors duration-300 shadow-md">
+    <div id="smartToolbar" class="bg-fuchsia-700 dark:bg-slate-900 border-b border-fuchsia-800 dark:border-slate-800 sticky top-20 z-40 transition-all duration-300 transform shadow-md"></div>
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 lg:gap-6">
             
             <!-- Tool Tabs -->
@@ -1350,22 +1350,69 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath) currentPath = 'index';
+        let currentPath = window.location.pathname.split('?')[0].split('#')[0].replace(/\/$/, '').split('/').pop().replace('.html', '');
+        if (!currentPath || currentPath === "") currentPath = 'index';
 
         document.querySelectorAll('nav a').forEach(link => {
             const href = link.getAttribute('href');
-            if (href) {
-                const cleanHref = href.replace('.html', '');
-                if (cleanHref === currentPath) {
-                    link.classList.remove('text-slate-300');
+            if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+                const cleanHref = href.split('?')[0].split('#')[0].split('/').pop().replace('.html', '');
+                const targetFile = cleanHref || 'index';
+                
+                if (targetFile === currentPath) {
+                    link.classList.remove('text-slate-300', 'text-cyan-300', 'text-slate-400', 'text-slate-500', 'dark:text-slate-500');
                     link.classList.add('active-nav');
+                    
+                    if (link.closest('.glass-nav')) {
+                        link.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                    }
                 }
             }
         });
+    });
+</script>
+<!-- SMART SCROLL TOOLBAR LOGIC -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const smartToolbar = document.getElementById('smartToolbar');
+        if(smartToolbar) {
+            let lastScrollY = window.scrollY;
+            let scrollPauseTimer = null;
+            let autoHideTimer = null;
+            let isInteractingWithNav = false;
+
+            smartToolbar.addEventListener('mouseenter', () => isInteractingWithNav = true);
+            smartToolbar.addEventListener('mouseleave', () => { isInteractingWithNav = false; startAutoHideTimer(); });
+            smartToolbar.addEventListener('touchstart', () => isInteractingWithNav = true, {passive: true});
+            smartToolbar.addEventListener('touchend', () => { isInteractingWithNav = false; startAutoHideTimer(); }, {passive: true});
+
+            function showNav() { smartToolbar.classList.remove('-translate-y-[150%]', 'opacity-0'); }
+            function hideNav() { if (window.scrollY > 150 && !isInteractingWithNav) smartToolbar.classList.add('-translate-y-[150%]', 'opacity-0'); }
+            function startAutoHideTimer() {
+                clearTimeout(autoHideTimer);
+                if (window.scrollY > 150) autoHideTimer = setTimeout(() => hideNav(), 3500); 
+            }
+
+            window.addEventListener('scroll', () => {
+                const currentScrollY = window.scrollY;
+                if (currentScrollY <= 150) {
+                    clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer); showNav();
+                    lastScrollY = currentScrollY; return;
+                }
+                
+                const delta = currentScrollY - lastScrollY;
+                if (Math.abs(delta) < 15) return; // Thumb jitter filter
+
+                clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer);
+
+                if (delta > 0) hideNav(); // Scrolling down
+                else scrollPauseTimer = setTimeout(() => { showNav(); startAutoHideTimer(); }, 150); // Scrolling up
+                
+                lastScrollY = currentScrollY;
+            }, { passive: true });
+        }
     });
 </script>
 </body>

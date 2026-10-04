@@ -12,6 +12,9 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
+    <!-- Link to our new Base64 logo asset -->
+    <script src="logo.js"></script>
+    
     <style>
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
         .tab-content.active { display: block; }
@@ -79,7 +82,7 @@
 
     <main class="flex-grow flex flex-col h-screen overflow-y-auto relative pt-16 md:pt-0">
         <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 sticky top-0 z-10 hidden md:flex">
-            <h1 id="headerTitle" class="text-xl font-black text-slate-800 uppercase tracking-tight">Static GK Manager</h1>
+            <h1 id="headerTitle" class="text-xl font-black text-slate-800 uppercase tracking-tight">Static GK Engine</h1>
             <div class="flex items-center gap-3 text-sm font-semibold text-slate-500">
                 <span id="dbStatus" class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span> DB Disconnected</span>
             </div>
@@ -89,35 +92,33 @@
 
             <!-- 1. TAB: STATIC GK ENGINE -->
             <div id="tab-gk" class="tab-content active space-y-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-                    <div class="flex justify-between items-end mb-6">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-6">
                         <div>
-                            <h2 class="text-2xl font-black text-slate-900 mb-1">Bilingual GK Engine</h2>
-                            <p class="text-slate-500 text-sm">Create topics seamlessly in English and Hindi.</p>
+                            <h2 class="text-2xl font-black text-slate-900">Bilingual Static GK Ingestion & Authoring</h2>
+                            <p class="text-slate-500 text-sm mt-1">1-Click Bulk JSON Ingestion, Full Manual Polish, Diagrams & Branded PDF Stamping.</p>
                         </div>
-                        <button onclick="autoTranslateGK()" id="btnAutoTranslateGK" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-2 px-4 rounded-lg shadow-sm transition flex items-center gap-2 text-sm">
-                            <span>⚡</span> Auto-Translate to Hindi
-                        </button>
-                    </div>
-
-                    <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-6 shadow-sm mb-8">
-                        <div class="flex items-center gap-2 mb-3">
-                            <span class="text-xl">🤖</span>
-                            <h3 class="font-black text-indigo-900 text-lg">AI Content Generator</h3>
-                        </div>
-                        <div class="flex gap-3">
-                            <input type="text" id="aiGkPrompt" placeholder="E.g., Generate 5 MCQs and a cheat sheet on Fundamental Duties..." class="flex-grow bg-white border border-indigo-200 rounded-xl px-4 py-2.5 text-sm font-medium focus:outline-none focus:border-indigo-400">
-                            <button onclick="generateGkWithAI()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                                <span>⚡</span> Auto-Generate
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="ingestGKFromClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-1.5">
+                                <span>📥</span> Ingest Clipboard
+                            </button>
+                            <button onclick="openGKPasteModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs py-2.5 px-4 rounded-xl border border-slate-300 transition flex items-center gap-1.5">
+                                <span>📋</span> Paste JSON Box
+                            </button>
+                            <button onclick="autoTranslateGK()" id="btnAutoTranslateGK" class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 font-bold py-2.5 px-4 rounded-xl shadow-sm transition flex items-center gap-1.5 text-xs">
+                                <span>⚡</span> Auto-Translate to Hindi
+                            </button>
+                            <button onclick="generateGKPDF()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-1.5 text-xs">
+                                <span>📄</span> Generate Topic PDF
                             </button>
                         </div>
-                        <p class="text-xs text-indigo-600 font-medium mt-2">Generated content populates below in English. Use the Auto-Translate button above to convert it to Hindi.</p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- TOPIC METADATA SECTION -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Subject Category</label>
-                            <select id="gkSubject" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                            <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Subject Category</label>
+                            <select id="gkSubject" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-indigo-500">
                                 <option value="polity">🏛 Indian Polity</option>
                                 <option value="history">📜 History</option>
                                 <option value="geography">🌍 Geography</option>
@@ -127,56 +128,70 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Topic Title (EN)</label>
-                            <input type="text" id="gkTopicTitle" placeholder="Fundamental Rights" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                            <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Topic Title (English)</label>
+                            <input type="text" id="gkTopicTitle" placeholder="e.g., Fundamental Rights & Articles" class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-indigo-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Topic Title (HI)</label>
-                            <input type="text" id="gkTopicTitle_hi" placeholder="मौलिक अधिकार" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-indigo-500">
+                            <label class="block text-xs font-black text-emerald-700 uppercase tracking-wider mb-2">Topic Title (Hindi / हिंदी)</label>
+                            <input type="text" id="gkTopicTitle_hi" placeholder="e.g., मौलिक अधिकार और अनुच्छेद" class="w-full bg-white border border-emerald-200 rounded-xl px-4 py-3 text-sm font-bold focus:outline-none focus:border-emerald-500">
                         </div>
                     </div>
 
+                    <!-- EDITOR VIEW TABS -->
                     <div class="flex gap-4 border-b border-slate-200 mb-6 overflow-x-auto hide-scrollbar">
-                        <button onclick="switchGkEditor('notes')" id="btn-edit-notes" class="gk-tab-btn active pb-3 text-sm font-bold text-indigo-600 whitespace-nowrap">📝 Cheat Sheets</button>
-                        <button onclick="switchGkEditor('flashcards')" id="btn-edit-flashcards" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">📇 Flashcards</button>
-                        <button onclick="switchGkEditor('mcqs')" id="btn-edit-mcqs" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">⚡ MCQs (Drill)</button>
+                        <button onclick="switchGkEditor('notes')" id="btn-edit-notes" class="gk-tab-btn active pb-3 text-sm font-black text-indigo-600 whitespace-nowrap">📝 Master Cheat Sheet Notes</button>
+                        <button onclick="switchGkEditor('flashcards')" id="btn-edit-flashcards" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">📇 Active Recall Flashcards (<span id="countGkFlashcards">0</span>)</button>
+                        <button onclick="switchGkEditor('practice')" id="btn-edit-practice" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">🎯 Practice Mock (<span id="countGkPractice">0</span>)</button>
+                        <button onclick="switchGkEditor('mcqs')" id="btn-edit-mcqs" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">⚡ Exam PYQ Drills (<span id="countGkMcqs">0</span>)</button>
                     </div>
 
+                    <!-- NOTES VIEW -->
                     <div id="editor-notes" class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                         <div>
-                            <label class="block text-xs font-black text-indigo-600 uppercase tracking-wider mb-2 flex justify-between">
-                                <span>English Cheat Sheet</span>
-                                <button onclick="triggerImageUpload('gk_en')" class="text-indigo-500 hover:underline">🖼️ Insert Image</button>
-                            </label>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-black text-indigo-700 uppercase tracking-wider">English Notes / Cheat Sheet</span>
+                                <button onclick="triggerImageUpload('gk_en')" class="text-indigo-600 hover:text-indigo-800 font-bold text-xs bg-indigo-50 px-2.5 py-1 rounded-lg">🖼️ Insert Image</button>
+                            </div>
                             <div id="quillGkEn"></div>
                         </div>
                         <div>
-                            <label class="block text-xs font-black text-emerald-600 uppercase tracking-wider mb-2 flex justify-between">
-                                <span>Hindi Cheat Sheet (हिंदी)</span>
-                                <button onclick="triggerImageUpload('gk_hi')" class="text-emerald-500 hover:underline">🖼️ Insert Image</button>
-                            </label>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-black text-emerald-700 uppercase tracking-wider">Hindi Notes (हिंदी नोट्स)</span>
+                                <button onclick="triggerImageUpload('gk_hi')" class="text-emerald-700 hover:text-emerald-900 font-bold text-xs bg-emerald-50 px-2.5 py-1 rounded-lg">🖼️ Insert Image</button>
+                            </div>
                             <div id="quillGkHi"></div>
                         </div>
                         <input type="file" id="globalImageUploader" accept="image/*" class="hidden">
                     </div>
 
+                    <!-- FLASHCARDS VIEW -->
                     <div id="editor-flashcards" class="hidden space-y-4">
-                        <div id="flashcardsContainer" class="space-y-6"></div>
-                        <button onclick="addFlashcardUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-bold text-sm py-4 rounded-xl transition">
-                            + Add New Flashcard (EN & HI)
+                        <div id="flashcardsContainer" class="space-y-4"></div>
+                        <button onclick="addFlashcardUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
+                            + Add New Flashcard Manually (EN & HI)
                         </button>
                     </div>
 
+                    <!-- PRACTICE MOCK VIEW -->
+                    <div id="editor-practice" class="hidden space-y-4">
+                        <div id="practiceContainer" class="space-y-4"></div>
+                        <button onclick="addPracticeUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
+                            + Add New Practice Question Manually (EN & HI)
+                        </button>
+                    </div>
+
+                    <!-- MCQS / PYQ DRILL VIEW -->
                     <div id="editor-mcqs" class="hidden space-y-4">
-                        <div id="mcqsContainer" class="space-y-6"></div>
-                        <button onclick="addMcqUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-500 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-bold text-sm py-4 rounded-xl transition">
-                            + Add New MCQ (EN & HI)
+                        <div id="mcqsContainer" class="space-y-4"></div>
+                        <button onclick="addMcqUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
+                            + Add New PYQ / MCQ Drill Manually (EN & HI)
                         </button>
                     </div>
 
-                    <div class="pt-6 mt-8 border-t border-slate-100 flex justify-end">
-                        <button id="btnPublishGK" onclick="saveGKToDatabase()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-xl shadow-md transition flex items-center gap-2">
-                            <span>💾</span> Publish Topic
+                    <div class="pt-6 mt-8 border-t border-slate-100 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-400">All changes ready for synchronization with Firestore.</span>
+                        <button id="btnPublishGK" onclick="saveGKToDatabase()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 px-8 rounded-xl shadow-md transition flex items-center gap-2 text-sm">
+                            <span>💾</span> Publish Topic to Database
                         </button>
                     </div>
                 </div>
@@ -193,7 +208,6 @@
                         <button id="btnRefreshGKManage" class="text-sm font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-lg hover:bg-indigo-100 transition self-start sm:self-auto">🔄 Refresh Topics</button>
                     </div>
 
-                    <!-- Subject Filter Tabs -->
                     <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-slate-100 pb-4" id="gkSubjectFilters">
                         <button onclick="filterGKSubject('all')" class="gk-sub-filter active px-4 py-2 rounded-xl text-xs font-black bg-indigo-600 text-white transition shadow-sm" data-sub="all">All Topics</button>
                         <button onclick="filterGKSubject('polity')" class="gk-sub-filter px-4 py-2 rounded-xl text-xs font-black bg-slate-100 text-slate-600 hover:bg-slate-200 transition" data-sub="polity">🏛 Polity</button>
@@ -230,14 +244,12 @@
                             <h2 class="text-2xl font-black text-slate-900">Current Affairs Ingestion Hub</h2>
                             <p class="text-sm text-slate-500">1-Click Clipboard Ingestion, Automated Segregation, PDF Stamping & Scheduled Releases.</p>
                         </div>
-                        <!-- Mode Selector -->
                         <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
                             <button onclick="switchCACadence('daily')" id="btnCADailyTab" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition">📅 Daily (25+)</button>
                             <button onclick="switchCACadence('drills')" id="btnCADrillsTab" class="px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition">⚡ Weekly / Monthly Drills</button>
                         </div>
                     </div>
 
-                    <!-- DAILY CONTROLS -->
                     <div id="caDailyControls" class="flex flex-wrap items-end gap-4">
                         <div>
                             <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Target Date</label>
@@ -260,7 +272,6 @@
                         </div>
                     </div>
 
-                    <!-- WEEKLY / MONTHLY DRILL CONTROLS -->
                     <div id="caDrillControls" class="hidden space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -290,7 +301,6 @@
                     </div>
                 </div>
 
-                <!-- STAGING AREA -->
                 <div id="caStagingArea" class="hidden space-y-6">
                     <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                         <div>
@@ -334,7 +344,6 @@
                         </div>
                     </div>
 
-                    <!-- Date & Category Filter Bar -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Inspect Date</label>
@@ -557,7 +566,7 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category Aisle</label>
                             <select id="prodCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-500 cursor-pointer">
-                                <option value="Writing Tools ✏️">Writing Tools ✏</option>
+                                <option value="Writing Tools ✏">Writing Tools ✏</option>
                                 <option value="Notebooks & Paper 📓">Notebooks & Paper 📓</option>
                                 <option value="Mechanical Keyboards ⌨️">Mechanical Keyboards ⌨️</option>
                                 <option value="Audio Gear 🎧">Audio Gear 🎧</option>
@@ -643,16 +652,16 @@
         </div>
     </main>
 
-    <!-- MODAL: JSON PASTE -->
+    <!-- MODAL: CURRENT AFFAIRS JSON PASTE -->
     <div id="jsonPasteModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 modal-bg" onclick="closePasteModal()"></div>
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 flex flex-col">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="text-xl font-black text-slate-800">Paste AI-Generated Digest JSON</h3>
+                <h3 class="text-xl font-black text-slate-800">Paste Daily/Drill CA JSON</h3>
                 <button onclick="closePasteModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
             </div>
             <div class="p-6">
-                <textarea id="rawJsonInput" rows="12" placeholder="Paste the code block here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
+                <textarea id="rawJsonInput" rows="12" placeholder="Paste Current Affairs JSON array here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
                 <button onclick="closePasteModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
@@ -661,7 +670,25 @@
         </div>
     </div>
 
-    <!-- MODAL: EDIT CA CARD (FROM MANAGE TAB) -->
+    <!-- MODAL: STATIC GK JSON PASTE -->
+    <div id="jsonGkPasteModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" onclick="closeGKPasteModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 flex flex-col">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-xl font-black text-slate-800">Paste Static GK Topic JSON</h3>
+                <button onclick="closeGKPasteModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-6">
+                <textarea id="rawGkJsonInput" rows="12" placeholder="Paste the complete Static GK Topic JSON (notes, flashcards, practiceQs, mcqs) here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closeGKPasteModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
+                <button onclick="processPastedGKJson()" class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Load Topic Package</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT CA CARD -->
     <div id="editCAModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 modal-bg" onclick="closeCAModal()"></div>
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative z-10 flex flex-col max-h-[90vh]">
@@ -749,26 +776,41 @@
         </div>
     </div>
 
-    <!-- MODAL: EDIT BLOG -->
+    <!-- MODAL: EDIT BLOG (UPGRADED) -->
     <div id="editBlogModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 modal-bg" id="editBlogModalCloseBg"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl relative z-10 flex flex-col max-h-[95vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl relative z-10 flex flex-col max-h-[95vh]">
             <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="text-xl font-black text-slate-800">Edit Blog Post</h3>
+                <h3 class="text-xl font-black text-slate-800">Edit Blog Post (Bilingual)</h3>
                 <button id="btnBlogModalClose" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
             </div>
             <div class="p-6 overflow-y-auto flex-grow space-y-6 bg-slate-50">
                 <input type="hidden" id="editBlogDocId">
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 space-y-4">
-                        <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Article Title</label><input type="text" id="editBlogTitle" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Article Content</label><textarea id="editBlogContent" rows="12" class="w-full bg-white border border-slate-200 rounded-xl p-4 text-base leading-relaxed outline-none focus:border-emerald-500 resize-y"></textarea></div>
+                    <div class="lg:col-span-2 space-y-6">
+                        <div class="space-y-4">
+                            <div><label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">English Title</label><input type="text" id="editBlogTitle_en" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500"></div>
+                            <div><label class="block text-xs font-bold text-indigo-700 uppercase tracking-wider mb-2">English Content</label><div id="quillEditBlogEn" class="bg-white"></div></div>
+                        </div>
+                        <div class="space-y-4 pt-4 border-t border-slate-200">
+                            <div>
+    <div class="flex justify-between items-center mb-2">
+        <label class="block text-xs font-bold text-emerald-700 uppercase tracking-wider">Hindi Title (हिंदी)</label>
+        <button onclick="autoTranslateEditBlog()" id="btnAutoTranslateEditBlog" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1.5 text-xs">
+            <span>⚡</span> Auto-Translate
+        </button>
+    </div>
+    <input type="text" id="editBlogTitle_hi" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500">
+</div>
+                            <div><label class="block text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">Hindi Content (हिंदी)</label><div id="quillEditBlogHi" class="bg-white"></div></div>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category</label><select id="editBlogCategory" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500"><option value="Speed Strategy">Speed Strategy</option><option value="Exam Prep">Exam Prep</option><option value="Fundamentals">Fundamentals</option></select></div>
                         <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL Slug</label><input type="text" id="editBlogSlug" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-mono outline-none focus:border-emerald-500"></div>
                         <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Image URL</label><input type="text" id="editBlogImage" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500"></div>
-                        <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Meta Description</label><textarea id="editBlogMeta" rows="3" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500"></textarea></div>
+                        <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Meta Description (EN)</label><textarea id="editBlogMeta_en" rows="3" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500"></textarea></div>
+                        <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Meta Description (HI)</label><textarea id="editBlogMeta_hi" rows="3" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500"></textarea></div>
                         <div><label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tags</label><input type="text" id="editBlogTags" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm outline-none focus:border-emerald-500"></div>
                     </div>
                 </div>
@@ -802,7 +844,7 @@
             } else { window.location.href = "login.html"; }
         });
 
-        // 1. Navigation Logic
+        // Navigation Logic
         const navBtns = document.querySelectorAll('.nav-btn');
         const contents = document.querySelectorAll('.tab-content');
         const headerTitle = document.getElementById('headerTitle');
@@ -848,10 +890,14 @@
         }
 
         const qOptions = { theme: 'snow', modules: { toolbar: [[{'header': [1,2,3,false]}], ['bold','italic','underline'], [{'list': 'ordered'},{'list': 'bullet'}], ['blockquote', 'link', 'clean']] } };
-        window.quillGkEn = new Quill('#quillGkEn', { ...qOptions, placeholder: 'Write English notes here...' });
+        window.quillGkEn = new Quill('#quillGkEn', { ...qOptions, placeholder: 'Write or paste English notes here...' });
         window.quillGkHi = new Quill('#quillGkHi', { ...qOptions, placeholder: 'यहाँ हिंदी नोट्स लिखें...' });
         window.quillBlogEn = new Quill('#quillBlogEn', { ...qOptions, placeholder: 'Write English article...' });
         window.quillBlogHi = new Quill('#quillBlogHi', { ...qOptions, placeholder: 'यहाँ हिंदी लेख लिखें...' });
+        
+        // New Modals Quills
+        window.quillEditBlogEn = new Quill('#quillEditBlogEn', { ...qOptions, placeholder: 'Edit English article...' });
+        window.quillEditBlogHi = new Quill('#quillEditBlogHi', { ...qOptions, placeholder: 'हिंदी लेख संपादित करें...' });
 
         let activeImageQuill = null;
         let savedCursorIndex = 0;
@@ -885,10 +931,10 @@
         });
 
         /* ========================================================= */
-        /* 3. STATIC GK ENGINE & SUBJECT MANAGEMENT                  */
+        /* 3. STATIC GK INGESTION & AUTHORING ENGINE                 */
         /* ========================================================= */
         window.switchGkEditor = function(m) {
-            ['notes','flashcards','mcqs'].forEach(k => {
+            ['notes','flashcards','practice','mcqs'].forEach(k => {
                 document.getElementById('btn-edit-'+k).classList.remove('active', 'text-indigo-600');
                 document.getElementById('btn-edit-'+k).classList.add('text-slate-500');
                 document.getElementById('editor-'+k).classList.add('hidden');
@@ -898,42 +944,213 @@
             document.getElementById('editor-'+m).classList.remove('hidden');
         };
 
+        function updateGKCounts() {
+            document.getElementById('countGkFlashcards').textContent = document.querySelectorAll('.fc-entry').length;
+            document.getElementById('countGkPractice').textContent = document.querySelectorAll('.practice-entry').length;
+            document.getElementById('countGkMcqs').textContent = document.querySelectorAll('.mcq-entry').length;
+        }
+
+        window.openGKPasteModal = () => document.getElementById('jsonGkPasteModal').classList.remove('hidden');
+        window.closeGKPasteModal = () => document.getElementById('jsonGkPasteModal').classList.add('hidden');
+
+        window.ingestGKFromClipboard = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (!text) throw new Error("Clipboard is empty.");
+                parseAndPopulateGK(text);
+            } catch (err) {
+                alert("Cannot read clipboard automatically. Opening Manual Paste Box.");
+                openGKPasteModal();
+            }
+        };
+
+        window.processPastedGKJson = () => {
+            const raw = document.getElementById('rawGkJsonInput').value;
+            parseAndPopulateGK(raw);
+            closeGKPasteModal();
+        };
+
+        function parseAndPopulateGK(rawText) {
+            try {
+                let clean = rawText.trim();
+                const start = clean.indexOf('{');
+                const end = clean.lastIndexOf('}');
+                if (start !== -1 && end !== -1) clean = clean.substring(start, end + 1);
+
+                const data = JSON.parse(clean);
+
+                // Auto-fill subject & title
+                if (data.subjectKey) {
+                    const subjSelect = document.getElementById('gkSubject');
+                    if (subjSelect.querySelector(`option[value="${data.subjectKey}"]`)) {
+                        subjSelect.value = data.subjectKey;
+                    }
+                }
+                if (data.topicTitle) document.getElementById('gkTopicTitle').value = data.topicTitle;
+                if (data.topicTitle_hi) document.getElementById('gkTopicTitle_hi').value = data.topicTitle_hi;
+
+                // Notes
+                if (data.notesHtml || data.notes) {
+                    window.quillGkEn.clipboard.dangerouslyPasteHTML(data.notesHtml || data.notes);
+                }
+                if (data.notesHtml_hi || data.notes_hi) {
+                    window.quillGkHi.clipboard.dangerouslyPasteHTML(data.notesHtml_hi || data.notes_hi);
+                }
+
+                // Flashcards
+                if (Array.isArray(data.flashcards) && data.flashcards.length > 0) {
+                    document.getElementById('flashcardsContainer').innerHTML = "";
+                    const hiCards = Array.isArray(data.flashcards_hi) ? data.flashcards_hi : [];
+                    data.flashcards.forEach((fc, idx) => {
+                        const hFc = hiCards[idx] || {};
+                        addFlashcardUI(fc.front || "", fc.back || "", fc.context || "", hFc.front || "", hFc.back || "", hFc.context || "");
+                    });
+                }
+                
+                // Practice Questions
+                if (Array.isArray(data.practiceQs) && data.practiceQs.length > 0) {
+                    document.getElementById('practiceContainer').innerHTML = "";
+                    const hiPracs = Array.isArray(data.practiceQs_hi) ? data.practiceQs_hi : [];
+                    data.practiceQs.forEach((pq, idx) => {
+                        const hPq = hiPracs[idx] || {};
+                        addPracticeUI(
+                            pq.question || "", pq.options?.[0] || "", pq.options?.[1] || "", pq.options?.[2] || "", pq.options?.[3] || "", pq.explanation || "", pq.correctIndex ?? 0, pq.sourceExam || "Concept Check",
+                            hPq.question || "", hPq.options?.[0] || "", hPq.options?.[1] || "", hPq.options?.[2] || "", hPq.options?.[3] || "", hPq.explanation || ""
+                        );
+                    });
+                }
+
+                // MCQs / PYQs
+                if (Array.isArray(data.mcqs) && data.mcqs.length > 0) {
+                    document.getElementById('mcqsContainer').innerHTML = "";
+                    const hiMcqs = Array.isArray(data.mcqs_hi) ? data.mcqs_hi : [];
+                    data.mcqs.forEach((mq, idx) => {
+                        const hMq = hiMcqs[idx] || {};
+                        addMcqUI(
+                            mq.question || "", mq.options?.[0] || "", mq.options?.[1] || "", mq.options?.[2] || "", mq.options?.[3] || "", mq.explanation || "", mq.correctIndex ?? 0, mq.sourceExam || "SSC CGL",
+                            hMq.question || "", hMq.options?.[0] || "", hMq.options?.[1] || "", hMq.options?.[2] || "", hMq.options?.[3] || "", hMq.explanation || ""
+                        );
+                    });
+                }
+
+                updateGKCounts();
+                alert(`✅ Successfully loaded topic: ${data.topicTitle || 'New Topic'} with ${(data.flashcards||[]).length} flashcards, ${(data.practiceQs||[]).length} Practice Qs & ${(data.mcqs||[]).length} MCQs!`);
+            } catch (err) {
+                alert("Failed to parse Static GK JSON: " + err.message);
+            }
+        }
+
         window.addFlashcardUI = function(fen="", bken="", cen="", fhi="", bkhi="", chi="") {
             const html = `
-                <div class="fc-entry bg-slate-50 border p-4 rounded-xl relative grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full w-6 h-6 leading-none shadow-md z-10">✖</button>
-                    <div class="space-y-2"><input class="fc-en-f w-full border p-2 text-sm" placeholder="EN Front" value="${escapeHtml(fen)}"><input class="fc-en-b w-full border p-2 text-sm" placeholder="EN Back" value="${escapeHtml(bken)}"><input class="fc-en-c w-full border p-2 text-sm" placeholder="EN Context" value="${escapeHtml(cen)}"></div>
-                    <div class="space-y-2"><input class="fc-hi-f w-full border p-2 text-sm border-emerald-200 bg-emerald-50/30" placeholder="HI Front" value="${escapeHtml(fhi)}"><input class="fc-hi-b w-full border p-2 text-sm border-emerald-200 bg-emerald-50/30" placeholder="HI Back" value="${escapeHtml(bkhi)}"><input class="fc-hi-c w-full border p-2 text-sm border-emerald-200 bg-emerald-50/30" placeholder="HI Context" value="${escapeHtml(chi)}"></div>
+                <div class="fc-entry bg-slate-50 border border-slate-200 p-4 rounded-2xl relative grid grid-cols-1 md:grid-cols-2 gap-4 shadow-sm">
+                    <button onclick="this.parentElement.remove(); updateGKCounts();" class="absolute -top-2 -right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full w-6 h-6 leading-none shadow-md z-10 font-bold">&times;</button>
+                    <div class="space-y-2">
+                        <span class="text-[10px] font-black uppercase text-indigo-700 tracking-wider">English Card</span>
+                        <input class="fc-en-f w-full border border-slate-200 rounded-lg p-2 text-xs font-bold bg-white" placeholder="Front (Active Recall Question)" value="${escapeHtml(fen)}">
+                        <input class="fc-en-b w-full border border-slate-200 rounded-lg p-2 text-xs font-semibold bg-white" placeholder="Back (Precise Fact Answer)" value="${escapeHtml(bken)}">
+                        <input class="fc-en-c w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="Context / Exam Trap Link" value="${escapeHtml(cen)}">
+                    </div>
+                    <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
+                        <span class="text-[10px] font-black uppercase text-emerald-800 tracking-wider">Hindi Card (हिंदी)</span>
+                        <input class="fc-hi-f w-full border border-emerald-200 rounded-lg p-2 text-xs font-bold bg-white" placeholder="सामने (प्रश्न)" value="${escapeHtml(fhi)}">
+                        <input class="fc-hi-b w-full border border-emerald-200 rounded-lg p-2 text-xs font-semibold bg-white" placeholder="पीछे (उत्तर)" value="${escapeHtml(bkhi)}">
+                        <input class="fc-hi-c w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="संदर्भ" value="${escapeHtml(chi)}">
+                    </div>
                 </div>`;
             document.getElementById('flashcardsContainer').insertAdjacentHTML('beforeend', html);
+            updateGKCounts();
+        };
+        
+        window.addPracticeUI = function(
+            qEn="", o1En="", o2En="", o3En="", o4En="", expEn="", ansIdx=0, src="Concept Check",
+            qHi="", o1Hi="", o2Hi="", o3Hi="", o4Hi="", expHi=""
+        ) {
+            const html = `
+                <div class="practice-entry bg-slate-50 border border-slate-200 p-4 rounded-2xl relative shadow-sm">
+                    <button onclick="this.parentElement.remove(); updateGKCounts();" class="absolute -top-2 -right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full w-6 h-6 leading-none shadow-md z-10 font-bold">&times;</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-black uppercase text-sky-700 tracking-wider">English Practice Q</span>
+                            <input class="prac-en-q w-full border border-slate-200 rounded-lg p-2 font-bold text-xs bg-white" placeholder="Question" value="${escapeHtml(qEn)}">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input class="prac-en-o1 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(o1En)}">
+                                <input class="prac-en-o2 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(o2En)}">
+                                <input class="prac-en-o3 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(o3En)}">
+                                <input class="prac-en-o4 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(o4En)}">
+                            </div>
+                            <input class="prac-en-exp w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="Explanation" value="${escapeHtml(expEn)}">
+                        </div>
+                        <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
+                            <span class="text-[10px] font-black uppercase text-emerald-800 tracking-wider">Hindi Practice Q (हिंदी)</span>
+                            <input class="prac-hi-q w-full border border-emerald-200 rounded-lg p-2 font-bold text-xs bg-white" placeholder="प्रश्न (हिंदी)" value="${escapeHtml(qHi)}">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input class="prac-hi-o1 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प A" value="${escapeHtml(o1Hi)}">
+                                <input class="prac-hi-o2 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प B" value="${escapeHtml(o2Hi)}">
+                                <input class="prac-hi-o3 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प C" value="${escapeHtml(o3Hi)}">
+                                <input class="prac-hi-o4 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प D" value="${escapeHtml(o4Hi)}">
+                            </div>
+                            <input class="prac-hi-exp w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="व्याख्या (हिंदी)" value="${escapeHtml(expHi)}">
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-700">
+                        <div class="flex items-center gap-2">
+                            <span>Correct Index (0-3):</span>
+                            <input type="number" class="prac-ans w-14 border rounded-lg p-1 text-center font-mono font-bold bg-white" value="${ansIdx}" min="0" max="3">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>Source Tag:</span>
+                            <input type="text" class="prac-src border rounded-lg p-1 text-xs bg-white w-40" placeholder="e.g. Concept Check" value="${escapeHtml(src)}">
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('practiceContainer').insertAdjacentHTML('beforeend', html);
+            updateGKCounts();
         };
 
-        window.addMcqUI = function() {
+        window.addMcqUI = function(
+            qEn="", o1En="", o2En="", o3En="", o4En="", expEn="", ansIdx=0, src="SSC CGL",
+            qHi="", o1Hi="", o2Hi="", o3Hi="", o4Hi="", expHi=""
+        ) {
             const html = `
-                <div class="mcq-entry bg-slate-50 border p-4 rounded-xl relative">
-                    <button onclick="this.parentElement.remove()" class="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full w-6 h-6 leading-none shadow-md z-10">✖</button>
+                <div class="mcq-entry bg-slate-50 border border-slate-200 p-4 rounded-2xl relative shadow-sm">
+                    <button onclick="this.parentElement.remove(); updateGKCounts();" class="absolute -top-2 -right-2 bg-rose-500 hover:bg-rose-600 text-white rounded-full w-6 h-6 leading-none shadow-md z-10 font-bold">&times;</button>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-2"><input class="mq-en-q w-full border p-2 font-bold text-sm" placeholder="EN Question"><input class="mq-en-o1 w-full border p-2 text-xs" placeholder="EN Opt A"><input class="mq-en-o2 w-full border p-2 text-xs" placeholder="EN Opt B"><input class="mq-en-o3 w-full border p-2 text-xs" placeholder="EN Opt C"><input class="mq-en-o4 w-full border p-2 text-xs" placeholder="EN Opt D"><input class="mq-en-exp w-full border p-2 text-xs" placeholder="EN Explanation"></div>
-                        <div class="space-y-2"><input class="mq-hi-q w-full border p-2 font-bold text-sm border-emerald-200 bg-emerald-50/30" placeholder="HI Question"><input class="mq-hi-o1 w-full border p-2 text-xs border-emerald-200 bg-emerald-50/30" placeholder="HI Opt A"><input class="mq-hi-o2 w-full border p-2 text-xs border-emerald-200 bg-emerald-50/30" placeholder="HI Opt B"><input class="mq-hi-o3 w-full border p-2 text-xs border-emerald-200 bg-emerald-50/30" placeholder="HI Opt C"><input class="mq-hi-o4 w-full border p-2 text-xs border-emerald-200 bg-emerald-50/30" placeholder="HI Opt D"><input class="mq-hi-exp w-full border p-2 text-xs border-emerald-200 bg-emerald-50/30" placeholder="HI Explanation"></div>
+                        <div class="space-y-2">
+                            <span class="text-[10px] font-black uppercase text-indigo-700 tracking-wider">English PYQ / Drill</span>
+                            <input class="mq-en-q w-full border border-slate-200 rounded-lg p-2 font-bold text-xs bg-white" placeholder="Question" value="${escapeHtml(qEn)}">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input class="mq-en-o1 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(o1En)}">
+                                <input class="mq-en-o2 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(o2En)}">
+                                <input class="mq-en-o3 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(o3En)}">
+                                <input class="mq-en-o4 border rounded-lg p-1.5 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(o4En)}">
+                            </div>
+                            <input class="mq-en-exp w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="Explanation" value="${escapeHtml(expEn)}">
+                        </div>
+                        <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
+                            <span class="text-[10px] font-black uppercase text-emerald-800 tracking-wider">Hindi PYQ / Drill (हिंदी)</span>
+                            <input class="mq-hi-q w-full border border-emerald-200 rounded-lg p-2 font-bold text-xs bg-white" placeholder="प्रश्न (हिंदी)" value="${escapeHtml(qHi)}">
+                            <div class="grid grid-cols-2 gap-2">
+                                <input class="mq-hi-o1 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प A" value="${escapeHtml(o1Hi)}">
+                                <input class="mq-hi-o2 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प B" value="${escapeHtml(o2Hi)}">
+                                <input class="mq-hi-o3 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प C" value="${escapeHtml(o3Hi)}">
+                                <input class="mq-hi-o4 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प D" value="${escapeHtml(o4Hi)}">
+                            </div>
+                            <input class="mq-hi-exp w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="व्याख्या (हिंदी)" value="${escapeHtml(expHi)}">
+                        </div>
                     </div>
-                    <div class="mt-3 flex items-center gap-2 text-sm font-bold">Correct Index (0-3): <input type="number" class="mq-ans w-16 border p-1" value="0" min="0" max="3"> Exam Source: <input type="text" class="mq-src border p-1" placeholder="e.g. SSC CGL"></div>
+                    <div class="mt-3 pt-3 border-t border-slate-200 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-700">
+                        <div class="flex items-center gap-2">
+                            <span>Correct Index (0-3):</span>
+                            <input type="number" class="mq-ans w-14 border rounded-lg p-1 text-center font-mono font-bold bg-white" value="${ansIdx}" min="0" max="3">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span>Exam Source:</span>
+                            <input type="text" class="mq-src border rounded-lg p-1 text-xs bg-white w-40" placeholder="e.g. SSC CGL 2024" value="${escapeHtml(src)}">
+                        </div>
+                    </div>
                 </div>`;
             document.getElementById('mcqsContainer').insertAdjacentHTML('beforeend', html);
-        };
-        window.addFlashcardUI(); window.addMcqUI();
-
-        window.generateGkWithAI = async function() {
-            const prompt = document.getElementById('aiGkPrompt').value;
-            if(!prompt) { alert("Please enter a prompt first."); return; }
-            const btn = document.querySelector('button[onclick="generateGkWithAI()"]');
-            btn.innerHTML = "⚡ Generating..."; btn.disabled = true;
-            try {
-                const response = await fetch("/api/generate-gk", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ prompt }) });
-                const data = await response.json();
-                window.quillGkEn.clipboard.dangerouslyPasteHTML(data.notesHtml || "");
-                document.getElementById('flashcardsContainer').innerHTML = "";
-                window.addFlashcardUI(data.flashcardFront, data.flashcardBack, data.flashcardContext);
-            } catch (err) { alert("Error generating GK: " + err.message); } finally { btn.innerHTML = "<span>⚡</span> Auto-Generate"; btn.disabled = false; }
+            updateGKCounts();
         };
 
         window.autoTranslateGK = async function() {
@@ -941,42 +1158,137 @@
             try {
                 const titleEn = document.getElementById('gkTopicTitle').value;
                 if(titleEn) document.getElementById('gkTopicTitle_hi').value = await translateEnToHi(titleEn);
+                
                 const notesEn = window.quillGkEn.root.innerHTML;
-                if(notesEn && notesEn !== "<p><br></p>") window.quillGkHi.clipboard.dangerouslyPasteHTML(await translateEnToHi(notesEn));
+                if(notesEn && notesEn !== "<p><br></p>") {
+                    window.quillGkHi.clipboard.dangerouslyPasteHTML(await translateEnToHi(notesEn));
+                }
 
-                document.querySelectorAll('.fc-entry').forEach(async fc => {
-                    fc.querySelector('.fc-hi-f').value = await translateEnToHi(fc.querySelector('.fc-en-f').value);
-                    fc.querySelector('.fc-hi-b').value = await translateEnToHi(fc.querySelector('.fc-en-b').value);
-                    fc.querySelector('.fc-hi-c').value = await translateEnToHi(fc.querySelector('.fc-en-c').value);
-                });
-                document.querySelectorAll('.mcq-entry').forEach(async mq => {
-                    mq.querySelector('.mq-hi-q').value = await translateEnToHi(mq.querySelector('.mq-en-q').value);
-                    mq.querySelector('.mq-hi-o1').value = await translateEnToHi(mq.querySelector('.mq-en-o1').value);
-                    mq.querySelector('.mq-hi-o2').value = await translateEnToHi(mq.querySelector('.mq-en-o2').value);
-                    mq.querySelector('.mq-hi-o3').value = await translateEnToHi(mq.querySelector('.mq-en-o3').value);
-                    mq.querySelector('.mq-hi-o4').value = await translateEnToHi(mq.querySelector('.mq-en-o4').value);
-                    mq.querySelector('.mq-hi-exp').value = await translateEnToHi(mq.querySelector('.mq-en-exp').value);
-                });
-                alert("Translation Complete!");
-            } catch(e) { alert("Translation failed. Try again."); } finally { btn.innerHTML = "⚡ Auto-Translate to Hindi"; btn.disabled = false; }
+                const fcElements = document.querySelectorAll('.fc-entry');
+                for (let fc of fcElements) {
+                    const fEn = fc.querySelector('.fc-en-f').value;
+                    const bEn = fc.querySelector('.fc-en-b').value;
+                    const cEn = fc.querySelector('.fc-en-c').value;
+                    if(fEn) fc.querySelector('.fc-hi-f').value = await translateEnToHi(fEn);
+                    if(bEn) fc.querySelector('.fc-hi-b').value = await translateEnToHi(bEn);
+                    if(cEn) fc.querySelector('.fc-hi-c').value = await translateEnToHi(cEn);
+                }
+                
+                const pracElements = document.querySelectorAll('.practice-entry');
+                for (let pq of pracElements) {
+                    const q = pq.querySelector('.prac-en-q').value;
+                    const o1 = pq.querySelector('.prac-en-o1').value;
+                    const o2 = pq.querySelector('.prac-en-o2').value;
+                    const o3 = pq.querySelector('.prac-en-o3').value;
+                    const o4 = pq.querySelector('.prac-en-o4').value;
+                    const exp = pq.querySelector('.prac-en-exp').value;
+                    if(q) pq.querySelector('.prac-hi-q').value = await translateEnToHi(q);
+                    if(o1) pq.querySelector('.prac-hi-o1').value = await translateEnToHi(o1);
+                    if(o2) pq.querySelector('.prac-hi-o2').value = await translateEnToHi(o2);
+                    if(o3) pq.querySelector('.prac-hi-o3').value = await translateEnToHi(o3);
+                    if(o4) pq.querySelector('.prac-hi-o4').value = await translateEnToHi(o4);
+                    if(exp) pq.querySelector('.prac-hi-exp').value = await translateEnToHi(exp);
+                }
+
+                const mqElements = document.querySelectorAll('.mcq-entry');
+                for (let mq of mqElements) {
+                    const q = mq.querySelector('.mq-en-q').value;
+                    const o1 = mq.querySelector('.mq-en-o1').value;
+                    const o2 = mq.querySelector('.mq-en-o2').value;
+                    const o3 = mq.querySelector('.mq-en-o3').value;
+                    const o4 = mq.querySelector('.mq-en-o4').value;
+                    const exp = mq.querySelector('.mq-en-exp').value;
+                    if(q) mq.querySelector('.mq-hi-q').value = await translateEnToHi(q);
+                    if(o1) mq.querySelector('.mq-hi-o1').value = await translateEnToHi(o1);
+                    if(o2) mq.querySelector('.mq-hi-o2').value = await translateEnToHi(o2);
+                    if(o3) mq.querySelector('.mq-hi-o3').value = await translateEnToHi(o3);
+                    if(o4) mq.querySelector('.mq-hi-o4').value = await translateEnToHi(o4);
+                    if(exp) mq.querySelector('.mq-hi-exp').value = await translateEnToHi(exp);
+                }
+                alert("Translation Complete! You can manually review the Hindi boxes before saving.");
+            } catch(e) { alert("Translation failed. Try again."); } finally { btn.innerHTML = "<span>⚡</span> Auto-Translate to Hindi"; btn.disabled = false; }
         };
 
         window.saveGKToDatabase = async function() {
             const tEn = document.getElementById('gkTopicTitle').value.trim(); 
             const tHi = document.getElementById('gkTopicTitle_hi').value.trim();
-            if(!tEn) return alert("English title required!");
-            const btn = document.getElementById('btnPublishGK'); btn.innerHTML = "Saving...";
+            if(!tEn) return alert("English topic title is required!");
+            const btn = document.getElementById('btnPublishGK'); btn.innerHTML = "Saving..."; btn.disabled = true;
             
             const flashcards = []; const flashcards_hi = [];
             document.querySelectorAll('.fc-entry').forEach(el => {
-                flashcards.push({ front: el.querySelector('.fc-en-f').value, back: el.querySelector('.fc-en-b').value, context: el.querySelector('.fc-en-c').value });
-                flashcards_hi.push({ front: el.querySelector('.fc-hi-f').value, back: el.querySelector('.fc-hi-b').value, context: el.querySelector('.fc-hi-c').value });
+                flashcards.push({ 
+                    front: el.querySelector('.fc-en-f').value.trim(), 
+                    back: el.querySelector('.fc-en-b').value.trim(), 
+                    context: el.querySelector('.fc-en-c').value.trim() 
+                });
+                flashcards_hi.push({ 
+                    front: el.querySelector('.fc-hi-f').value.trim() || el.querySelector('.fc-en-f').value.trim(), 
+                    back: el.querySelector('.fc-hi-b').value.trim() || el.querySelector('.fc-en-b').value.trim(), 
+                    context: el.querySelector('.fc-hi-c').value.trim() || el.querySelector('.fc-en-c').value.trim() 
+                });
             });
+            
+            const practiceQs = []; const practiceQs_hi = [];
+            document.querySelectorAll('.practice-entry').forEach(el => {
+                const ans = parseInt(el.querySelector('.prac-ans').value) || 0; 
+                const src = el.querySelector('.prac-src').value.trim();
+                
+                practiceQs.push({ 
+                    question: el.querySelector('.prac-en-q').value.trim(), 
+                    options: [
+                        el.querySelector('.prac-en-o1').value.trim(),
+                        el.querySelector('.prac-en-o2').value.trim(),
+                        el.querySelector('.prac-en-o3').value.trim(),
+                        el.querySelector('.prac-en-o4').value.trim()
+                    ], 
+                    correctIndex: ans, 
+                    explanation: el.querySelector('.prac-en-exp').value.trim(), 
+                    sourceExam: src 
+                });
+                practiceQs_hi.push({ 
+                    question: el.querySelector('.prac-hi-q').value.trim() || el.querySelector('.prac-en-q').value.trim(), 
+                    options: [
+                        el.querySelector('.prac-hi-o1').value.trim() || el.querySelector('.prac-en-o1').value.trim(),
+                        el.querySelector('.prac-hi-o2').value.trim() || el.querySelector('.prac-en-o2').value.trim(),
+                        el.querySelector('.prac-hi-o3').value.trim() || el.querySelector('.prac-en-o3').value.trim(),
+                        el.querySelector('.prac-hi-o4').value.trim() || el.querySelector('.prac-en-o4').value.trim()
+                    ], 
+                    correctIndex: ans, 
+                    explanation: el.querySelector('.prac-hi-exp').value.trim() || el.querySelector('.prac-en-exp').value.trim(), 
+                    sourceExam: src 
+                });
+            });
+
             const mcqs = []; const mcqs_hi = [];
             document.querySelectorAll('.mcq-entry').forEach(el => {
-                const ans = parseInt(el.querySelector('.mq-ans').value) || 0; const src = el.querySelector('.mq-src').value;
-                mcqs.push({ question: el.querySelector('.mq-en-q').value, options: [el.querySelector('.mq-en-o1').value,el.querySelector('.mq-en-o2').value,el.querySelector('.mq-en-o3').value,el.querySelector('.mq-en-o4').value], correctIndex: ans, explanation: el.querySelector('.mq-en-exp').value, sourceExam: src });
-                mcqs_hi.push({ question: el.querySelector('.mq-hi-q').value, options: [el.querySelector('.mq-hi-o1').value,el.querySelector('.mq-hi-o2').value,el.querySelector('.mq-hi-o3').value,el.querySelector('.mq-hi-o4').value], correctIndex: ans, explanation: el.querySelector('.mq-hi-exp').value, sourceExam: src });
+                const ans = parseInt(el.querySelector('.mq-ans').value) || 0; 
+                const src = el.querySelector('.mq-src').value.trim();
+                
+                mcqs.push({ 
+                    question: el.querySelector('.mq-en-q').value.trim(), 
+                    options: [
+                        el.querySelector('.mq-en-o1').value.trim(),
+                        el.querySelector('.mq-en-o2').value.trim(),
+                        el.querySelector('.mq-en-o3').value.trim(),
+                        el.querySelector('.mq-en-o4').value.trim()
+                    ], 
+                    correctIndex: ans, 
+                    explanation: el.querySelector('.mq-en-exp').value.trim(), 
+                    sourceExam: src 
+                });
+                mcqs_hi.push({ 
+                    question: el.querySelector('.mq-hi-q').value.trim() || el.querySelector('.mq-en-q').value.trim(), 
+                    options: [
+                        el.querySelector('.mq-hi-o1').value.trim() || el.querySelector('.mq-en-o1').value.trim(),
+                        el.querySelector('.mq-hi-o2').value.trim() || el.querySelector('.mq-en-o2').value.trim(),
+                        el.querySelector('.mq-hi-o3').value.trim() || el.querySelector('.mq-en-o3').value.trim(),
+                        el.querySelector('.mq-hi-o4').value.trim() || el.querySelector('.mq-en-o4').value.trim()
+                    ], 
+                    correctIndex: ans, 
+                    explanation: el.querySelector('.mq-hi-exp').value.trim() || el.querySelector('.mq-en-exp').value.trim(), 
+                    sourceExam: src 
+                });
             });
 
             try {
@@ -989,13 +1301,175 @@
                     notes: window.quillGkEn.root.innerHTML, 
                     notes_hi: window.quillGkHi.root.innerHTML, 
                     flashcards, 
-                    flashcards_hi, 
+                    flashcards_hi,
+                    practiceQs,
+                    practiceQs_hi,
                     mcqs, 
                     mcqs_hi, 
                     updatedAt: serverTimestamp() 
                 });
-                alert("GK Topic Published Successfully!");
-            } catch(e) { alert("Error saving GK: " + e.message); } finally { btn.innerHTML = "💾 Publish Topic"; }
+                alert("Static GK Topic Published Live to Database!");
+            } catch(e) { alert("Error saving GK: " + e.message); } finally { btn.innerHTML = "<span>💾</span> Publish Topic to Database"; btn.disabled = false; }
+        };
+
+        // BRANDED PDF GENERATOR FOR STATIC GK
+        window.generateGKPDF = function() {
+            const topicTitle = document.getElementById('gkTopicTitle').value.trim() || "Static_GK_Topic";
+            const subjEl = document.getElementById('gkSubject');
+            const subjectName = subjEl.options[subjEl.selectedIndex].text;
+            const notesHtml = window.quillGkEn.root.innerHTML;
+            
+            // Check if logo string is available from logo.js
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+
+            const flashcards = [];
+            document.querySelectorAll('.fc-entry').forEach(el => {
+                flashcards.push({ 
+                    front: el.querySelector('.fc-en-f').value.trim(), 
+                    back: el.querySelector('.fc-en-b').value.trim(), 
+                    context: el.querySelector('.fc-en-c').value.trim() 
+                });
+            });
+            
+            const practiceQs = [];
+            document.querySelectorAll('.practice-entry').forEach(el => {
+                practiceQs.push({
+                    q: el.querySelector('.prac-en-q').value.trim(),
+                    opts: [el.querySelector('.prac-en-o1').value, el.querySelector('.prac-en-o2').value, el.querySelector('.prac-en-o3').value, el.querySelector('.prac-en-o4').value],
+                    ans: parseInt(el.querySelector('.prac-ans').value) || 0,
+                    exp: el.querySelector('.prac-en-exp').value.trim(),
+                    src: el.querySelector('.prac-src').value.trim() || "Concept Check"
+                });
+            });
+
+            const mcqs = [];
+            document.querySelectorAll('.mcq-entry').forEach(el => {
+                mcqs.push({
+                    q: el.querySelector('.mq-en-q').value.trim(),
+                    opts: [el.querySelector('.mq-en-o1').value, el.querySelector('.mq-en-o2').value, el.querySelector('.mq-en-o3').value, el.querySelector('.mq-en-o4').value],
+                    ans: parseInt(el.querySelector('.mq-ans').value) || 0,
+                    exp: el.querySelector('.mq-en-exp').value.trim(),
+                    src: el.querySelector('.mq-src').value.trim() || "SSC / Banking"
+                });
+            });
+
+            let content = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
+                <style>
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .pdf-header-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+                    .pdf-logo-box { display: flex; align-items: center; gap: 12px; }
+                    .pdf-brand-title { font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff; margin: 0; }
+                    .pdf-brand-sub { font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px; }
+                    .pdf-topic-pill { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0; }
+                    .pdf-section-title { font-size: 15px; font-weight: 900; color: #0f172a; border-left: 4px solid #4f46e5; padding-left: 10px; margin: 24px 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .pdf-notes-container { background: #ffffff; border: 1px solid #e2e8f0; padding: 18px; border-radius: 10px; font-size: 12px; line-height: 1.7; color: #334155; }
+                    .pdf-fc-card { border: 1px solid #e2e8f0; border-left: 3px solid #0284c7; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; page-break-inside: avoid; }
+                    .pdf-mcq-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 14px; page-break-inside: avoid; background: #ffffff; }
+                    .pdf-mcq-correct { background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 6px; font-weight: bold; color: #065f46; font-size: 11px; margin-top: 8px; }
+                    .pdf-footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 700; color: #64748b; }
+                </style>
+                <div class="pdf-watermark">STENOGYM • t.me/stenogym</div>
+                
+                <div class="pdf-header-banner">
+                    <div class="pdf-logo-box">
+                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                        <div>
+                            <div class="pdf-brand-title">STENOGYM</div>
+                            <div class="pdf-brand-sub">Exam Knowledge Hub</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="pdf-topic-pill">${escapeHtml(subjectName)}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h1 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 0 0 6px 0;">${escapeHtml(topicTitle)}</h1>
+                    <span style="font-size: 11px; font-weight: bold; color: #64748b;">🎯 Curated for SSC CGL • IBPS PO • RRB NTPC • State PSCs</span>
+                </div>
+
+                <div class="pdf-section-title">📘 Comprehensive Cheat Sheet</div>
+                <div class="pdf-notes-container">${notesHtml}</div>`;
+
+            if (flashcards.length > 0) {
+                content += `<div class="pdf-section-title">📇 Active Recall Flashcard Bank (${flashcards.length})</div>`;
+                flashcards.forEach((fc, i) => {
+                    content += `
+                        <div class="pdf-fc-card">
+                            <div style="font-size: 10px; font-weight: 800; color: #0284c7; text-transform: uppercase; margin-bottom: 4px;">Concept Recall #${i+1}</div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Q: ${escapeHtml(fc.front)}</div>
+                            <div style="font-size: 12px; font-weight: bold; color: #059669; margin-bottom: 2px;">A: ${escapeHtml(fc.back)}</div>
+                            ${fc.context ? `<div style="font-size: 10px; color: #64748b; font-style: italic;">Note: ${escapeHtml(fc.context)}</div>` : ''}
+                        </div>`;
+                });
+            }
+            
+            if (practiceQs.length > 0) {
+                content += `<div class="pdf-section-title">🎯 Concept Practice Questions (${practiceQs.length})</div>`;
+                practiceQs.forEach((pq, i) => {
+                    content += `
+                        <div class="pdf-mcq-box" style="border-left: 3px solid #0ea5e9;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 10px; font-weight: 900; color: #0ea5e9; text-transform: uppercase;">Practice #${i+1}</span>
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(pq.src)}</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(pq.q)}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
+                                <div>A. ${escapeHtml(pq.opts[0])}</div>
+                                <div>B. ${escapeHtml(pq.opts[1])}</div>
+                                <div>C. ${escapeHtml(pq.opts[2])}</div>
+                                <div>D. ${escapeHtml(pq.opts[3])}</div>
+                            </div>
+                            <div class="pdf-mcq-correct">
+                                Correct: Option ${String.fromCharCode(65 + pq.ans)} &bull; ${escapeHtml(pq.opts[pq.ans])}
+                                ${pq.exp ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(pq.exp)}</div>` : ''}
+                            </div>
+                        </div>`;
+                });
+            }
+
+            if (mcqs.length > 0) {
+                content += `<div class="pdf-section-title">⚡ Previous Year & Verification Drills (${mcqs.length})</div>`;
+                mcqs.forEach((mq, i) => {
+                    content += `
+                        <div class="pdf-mcq-box" style="border-left: 3px solid #e11d48;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 10px; font-weight: 900; color: #e11d48; text-transform: uppercase;">Drill #${i+1}</span>
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(mq.src)}</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(mq.q)}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
+                                <div>A. ${escapeHtml(mq.opts[0])}</div>
+                                <div>B. ${escapeHtml(mq.opts[1])}</div>
+                                <div>C. ${escapeHtml(mq.opts[2])}</div>
+                                <div>D. ${escapeHtml(mq.opts[3])}</div>
+                            </div>
+                            <div class="pdf-mcq-correct">
+                                Correct: Option ${String.fromCharCode(65 + mq.ans)} &bull; ${escapeHtml(mq.opts[mq.ans])}
+                                ${mq.exp ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(mq.exp)}</div>` : ''}
+                            </div>
+                        </div>`;
+                });
+            }
+
+            content += `
+                <div class="pdf-footer">
+                    Exclusive Exam Resource prepared by STENOGYM &bull; Official Channel: t.me/stenogym &bull; Unauthorized distribution prohibited
+                </div>
+            </div>`;
+
+            const element = document.createElement('div');
+            element.innerHTML = content;
+            const opt = {
+                margin: 0.4,
+                filename: `Stenogym_${topicTitle.replace(/[^a-zA-Z0-9]/g, '_')}_Revision.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         };
 
         // MANAGE STATIC GK LOGIC
@@ -1022,6 +1496,7 @@
             let html = "";
             filtered.forEach(topic => {
                 const fcCount = (topic.flashcards || []).length;
+                const pracCount = (topic.practiceQs || []).length;
                 const mcqCount = (topic.mcqs || []).length;
                 html += `
                     <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
@@ -1033,7 +1508,7 @@
                             <span class="text-xs font-black uppercase tracking-wider text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-md">${escapeHtml(topic.subjectName || topic.subjectKey)}</span>
                         </td>
                         <td class="px-6 py-4 text-xs font-semibold text-slate-600">
-                            Notes + ${fcCount} Cards + ${mcqCount} MCQs
+                            Notes + ${fcCount} Cards + ${pracCount} Practice + ${mcqCount} MCQs
                         </td>
                         <td class="px-6 py-4 text-right whitespace-nowrap">
                             <button onclick="deleteGKTopic('${topic.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs">Delete</button>
@@ -1063,7 +1538,7 @@
         document.getElementById('btnRefreshGKManage').addEventListener('click', fetchGKManage);
 
         /* ========================================================= */
-        /* 4. CURRENT AFFAIRS INGESTION HUB                          */
+        /* 4. CURRENT AFFAIRS INGESTION HUB & BRANDED PDF           */
         /* ========================================================= */
         document.getElementById('caTargetDate').value = new Date().toISOString().split('T')[0];
         document.getElementById('caManageDate').value = new Date().toISOString().split('T')[0];
@@ -1236,21 +1711,43 @@
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
+        // BRANDED CURRENT AFFAIRS PDF GENERATOR
         window.generateStagedPDF = function() {
             const cards = document.querySelectorAll('.ca-staged-card');
             if (cards.length === 0) return alert("No cards in staging to generate PDF.");
             
             const dateStr = document.getElementById('caTargetDate').value;
-            let content = `<div style="padding: 24px; font-family: sans-serif; position: relative;">`;
-            content += `<style>
-                .watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 65px; color: rgba(0, 0, 0, 0.07); z-index: -1; white-space: nowrap; font-weight: bold; pointer-events: none; }
-                .pdf-card { border: 1px solid #e2e8f0; margin-bottom: 20px; padding: 16px; border-radius: 8px; page-break-inside: avoid; }
-                .pdf-header { font-size: 15px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
-                .pdf-bullets { margin-left: 18px; font-size: 12px; margin-bottom: 10px; line-height: 1.5; color: #334155; }
-                .pdf-mcq { background: #f8fafc; padding: 12px; border-radius: 6px; font-size: 12px; border-left: 4px solid #4f46e5; }
-            </style>`;
-            content += `<div class="watermark">STENOGYM • t.me/stenogym</div>`;
-            content += `<h2 style="text-align:center; color:#0f172a; margin-bottom: 24px; font-weight: 900; text-transform: uppercase; font-size: 18px;">Stenogym Daily Current Affairs - ${dateStr}</h2>`;
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+            
+            let content = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
+                <style>
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .ca-pdf-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+                    .ca-pdf-card { border: 1px solid #e2e8f0; margin-bottom: 18px; padding: 16px; border-radius: 10px; page-break-inside: avoid; background: #ffffff; }
+                    .ca-pdf-header { font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px; line-height: 1.4; }
+                    .ca-pdf-bullets { margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155; }
+                    .ca-pdf-static { background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600; }
+                    .ca-pdf-mcq { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px 14px; border-radius: 6px; font-size: 11px; }
+                    .ca-pdf-footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 700; color: #64748b; }
+                </style>
+                <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
+                
+                <div class="ca-pdf-banner">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
+                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">
+                            📅 ${escapeHtml(dateStr)} &bull; ${cards.length} Cards
+                        </div>
+                    </div>
+                </div>`;
             
             cards.forEach((el, i) => {
                 const cat = el.querySelector('.ca-cat').value;
@@ -1266,20 +1763,38 @@
                 const optionsArr = [optA, optB, optC, optD];
                 const exp = el.querySelector('.ca-mcq-en-exp').value;
 
-                content += `<div class="pdf-card">`;
-                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: bold; text-transform: uppercase; margin-bottom: 4px;">${cat}</div>`;
-                content += `<div class="pdf-header">Q${i+1}. ${oneLiner}</div>`;
-                content += `<ul class="pdf-bullets">` + bullets.map(b => `<li>${b}</li>`).join('') + `</ul>`;
-                if(stFacts) content += `<div style="font-size: 11px; color: #475569; margin-bottom: 10px;"><strong>Static GK:</strong> ${stFacts}</div>`;
+                content += `<div class="ca-pdf-card">`;
+                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
+                content += `<div class="ca-pdf-header">${escapeHtml(oneLiner)}</div>`;
+                content += `<ul class="ca-pdf-bullets">` + bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('') + `</ul>`;
+                if(stFacts) content += `<div class="ca-pdf-static">🧠 <strong>Static Context:</strong> ${escapeHtml(stFacts)}</div>`;
                 if(q) {
-                    content += `<div class="pdf-mcq"><strong>Quiz:</strong> ${q}<br><strong>Answer:</strong> ${optionsArr[ansIdx]}<br><em>Explanation:</em> ${exp}</div>`;
+                    content += `
+                    <div class="ca-pdf-mcq">
+                        <strong>Exam Drill:</strong> ${escapeHtml(q)}<br>
+                        <div style="margin: 4px 0; color: #065f46; font-weight: bold;">
+                            Ans: Option ${String.fromCharCode(65 + ansIdx)} (${escapeHtml(optionsArr[ansIdx])})
+                        </div>
+                        <div style="font-size: 10px; color: #475569;"><em>${escapeHtml(exp)}</em></div>
+                    </div>`;
                 }
                 content += `</div>`;
             });
-            content += `</div>`;
+
+            content += `
+                <div class="ca-pdf-footer">
+                    Exclusive Exam Digest by STENOGYM &bull; Join Telegram Channel: t.me/stenogym &bull; All Rights Reserved
+                </div>
+            </div>`;
             
             const element = document.createElement('div'); element.innerHTML = content;
-            const opt = { margin: 0.5, filename: `Stenogym_Current_Affairs_${dateStr}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            const opt = { 
+                margin: 0.4, 
+                filename: `Stenogym_Daily_Current_Affairs_${dateStr}.pdf`, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+            };
             html2pdf().set(opt).from(element).save();
         };
 
@@ -1538,7 +2053,18 @@
                 alert("Translation Complete!");
             } catch (e) { alert("Translation failed. Check connection."); } finally { btn.innerHTML = "⚡ Auto-Translate"; btn.disabled = false; }
         };
-
+        window.autoTranslateEditBlog = async function() {
+            const btn = document.getElementById('btnAutoTranslateEditBlog'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
+            try {
+                const titleEn = document.getElementById('editBlogTitle_en').value;
+                if(titleEn) document.getElementById('editBlogTitle_hi').value = await translateEnToHi(titleEn);
+                const metaEn = document.getElementById('editBlogMeta_en').value;
+                if(metaEn) document.getElementById('editBlogMeta_hi').value = await translateEnToHi(metaEn);
+                const contentEn = window.quillEditBlogEn.root.innerHTML;
+                if(contentEn && contentEn !== "<p><br></p>") window.quillEditBlogHi.clipboard.dangerouslyPasteHTML(await translateEnToHi(contentEn));
+                alert("Translation Complete! Review your Hindi edits before saving.");
+            } catch (e) { alert("Translation failed. Check connection."); } finally { btn.innerHTML = "<span>⚡</span> Auto-Translate"; btn.disabled = false; }
+        };
         document.getElementById('btnPublishBlog').addEventListener('click', async () => {
             const tEn = document.getElementById('blogTitle_en').value.trim(); 
             const tHi = document.getElementById('blogTitle_hi').value.trim();
@@ -1577,20 +2103,25 @@
                 const snap = await getDocs(q); let html = "";
                 snap.forEach(doc => {
                     const data = doc.data(); const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Just now';
-                    html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="px-6 py-4"><div class="font-bold text-slate-900 line-clamp-1">${data.title}</div><div class="text-xs text-emerald-600 font-bold mt-1">${data.category}</div></td><td class="px-6 py-4 text-slate-500 text-sm">${dateStr}</td><td class="px-6 py-4 text-right whitespace-nowrap"><button class="btn-blog-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${doc.id}" data-title="${safeEscape(data.title)}" data-content="${safeEscape(data.content)}" data-slug="${safeEscape(data.slug)}" data-meta="${safeEscape(data.meta)}" data-tags="${safeEscape(data.tags)}" data-category="${safeEscape(data.category)}" data-image="${safeEscape(data.image)}">Edit</button><button class="btn-blog-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${doc.id}">Delete</button></td></tr>`;
+                    html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="px-6 py-4"><div class="font-bold text-slate-900 line-clamp-1">${data.title}</div><div class="text-xs text-emerald-600 font-bold mt-1">${data.category}</div></td><td class="px-6 py-4 text-slate-500 text-sm">${dateStr}</td><td class="px-6 py-4 text-right whitespace-nowrap">
+                    <button class="btn-blog-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${doc.id}" data-title_en="${safeEscape(data.title)}" data-title_hi="${safeEscape(data.title_hi)}" data-content_en="${safeEscape(data.content)}" data-content_hi="${safeEscape(data.content_hi)}" data-slug="${safeEscape(data.slug)}" data-meta_en="${safeEscape(data.meta)}" data-meta_hi="${safeEscape(data.meta_hi)}" data-tags="${safeEscape(data.tags)}" data-category="${safeEscape(data.category)}" data-image="${safeEscape(data.image)}">Edit</button>
+                    <button class="btn-blog-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${doc.id}">Delete</button></td></tr>`;
                 });
                 blogTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">No blog posts found.</td></tr>';
                 
                 document.querySelectorAll('.btn-blog-delete').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Permanently delete this blog post?")) { await deleteDoc(doc(db, "blogs", e.target.getAttribute('data-id'))); fetchBlogs(); } }); });
                 document.querySelectorAll('.btn-blog-edit').forEach(btn => { btn.addEventListener('click', (e) => { 
                     document.getElementById('editBlogDocId').value = e.target.getAttribute('data-id');
-                    document.getElementById('editBlogTitle').value = e.target.getAttribute('data-title');
-                    document.getElementById('editBlogContent').value = e.target.getAttribute('data-content');
+                    document.getElementById('editBlogTitle_en').value = e.target.getAttribute('data-title_en');
+                    document.getElementById('editBlogTitle_hi').value = e.target.getAttribute('data-title_hi');
                     document.getElementById('editBlogSlug').value = e.target.getAttribute('data-slug');
-                    document.getElementById('editBlogMeta').value = e.target.getAttribute('data-meta');
+                    document.getElementById('editBlogMeta_en').value = e.target.getAttribute('data-meta_en');
+                    document.getElementById('editBlogMeta_hi').value = e.target.getAttribute('data-meta_hi');
                     document.getElementById('editBlogTags').value = e.target.getAttribute('data-tags');
                     document.getElementById('editBlogCategory').value = e.target.getAttribute('data-category');
                     document.getElementById('editBlogImage').value = e.target.getAttribute('data-image');
+                    window.quillEditBlogEn.clipboard.dangerouslyPasteHTML(e.target.getAttribute('data-content_en') || '');
+                    window.quillEditBlogHi.clipboard.dangerouslyPasteHTML(e.target.getAttribute('data-content_hi') || '');
                     document.getElementById('editBlogModal').classList.remove('hidden'); 
                 }); });
             } catch (err) { blogTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
@@ -1600,7 +2131,21 @@
         document.getElementById('btnBlogModalSave').addEventListener('click', async () => {
             const id = document.getElementById('editBlogDocId').value;
             const btn = document.getElementById('btnBlogModalSave'); btn.textContent = "Saving..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "blogs", id), { title: document.getElementById('editBlogTitle').value.trim(), content: document.getElementById('editBlogContent').value.trim(), slug: document.getElementById('editBlogSlug').value.trim(), meta: document.getElementById('editBlogMeta').value.trim(), tags: document.getElementById('editBlogTags').value.trim(), category: document.getElementById('editBlogCategory').value, image: document.getElementById('editBlogImage').value.trim() }); closeBlogModal(); fetchBlogs(); } 
+            try { 
+                await updateDoc(doc(db, "blogs", id), { 
+                    title: document.getElementById('editBlogTitle_en').value.trim(), 
+                    title_hi: document.getElementById('editBlogTitle_hi').value.trim(), 
+                    content: window.quillEditBlogEn.root.innerHTML, 
+                    content_hi: window.quillEditBlogHi.root.innerHTML, 
+                    slug: document.getElementById('editBlogSlug').value.trim(), 
+                    meta: document.getElementById('editBlogMeta_en').value.trim(), 
+                    meta_hi: document.getElementById('editBlogMeta_hi').value.trim(), 
+                    tags: document.getElementById('editBlogTags').value.trim(), 
+                    category: document.getElementById('editBlogCategory').value, 
+                    image: document.getElementById('editBlogImage').value.trim() 
+                }); 
+                closeBlogModal(); fetchBlogs(); 
+            } 
             catch (err) { alert("Error saving: " + err.message); } finally { btn.textContent = "Save Changes"; btn.disabled = false; }
         });
         document.getElementById('btnRefreshBlogs').addEventListener('click', fetchBlogs);
@@ -1710,18 +2255,6 @@
             e.preventDefault(); const btnSave = document.getElementById('btnSaveSettings'); btnSave.innerHTML = `Updating...`; btnSave.disabled = true;
             try { await addDoc(collection(db, "settings"), { bannerText: document.getElementById('bannerText').value.trim(), isActive: document.getElementById('bannerActive').checked, timestamp: serverTimestamp() }); alert("✅ Site Settings Updated Successfully!"); } 
             catch (err) { alert("Error updating settings: " + err.message); } finally { btnSave.innerHTML = `Update Settings`; btnSave.disabled = false; }
-        });
-    </script>
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-            document.querySelectorAll('nav a').forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && href === currentPage) {
-                    link.classList.remove('text-slate-300');
-                    link.classList.add('active-nav');
-                }
-            });
         });
     </script>
 </body>

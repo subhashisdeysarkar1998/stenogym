@@ -297,19 +297,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath) currentPath = 'index';
+        let currentPath = window.location.pathname.split('?')[0].split('#')[0].replace(/\/$/, '').split('/').pop().replace('.html', '');
+        if (!currentPath || currentPath === "") currentPath = 'index';
 
         document.querySelectorAll('nav a').forEach(link => {
             const href = link.getAttribute('href');
-            if (href) {
-                const cleanHref = href.replace('.html', '');
-                if (cleanHref === currentPath) {
-                    link.classList.remove('text-slate-300');
+            if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+                const cleanHref = href.split('?')[0].split('#')[0].split('/').pop().replace('.html', '');
+                const targetFile = cleanHref || 'index';
+                
+                if (targetFile === currentPath) {
+                    link.classList.remove('text-slate-300', 'text-cyan-300', 'text-slate-400', 'text-slate-500', 'dark:text-slate-500');
                     link.classList.add('active-nav');
+                    
+                    if (link.closest('.glass-nav')) {
+                        link.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                    }
                 }
             }
         });

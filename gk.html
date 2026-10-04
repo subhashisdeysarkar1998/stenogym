@@ -20,10 +20,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
 
-    <!-- Firebase SDKs -->
+    <!-- Firebase & PDF SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Link to Base64 logo asset -->
+    <script src="logo.js"></script>
 
     <style>
         .perspective-1000 { perspective: 1000px; }
@@ -34,13 +38,26 @@
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .tab-btn.active { background-color: #4f46e5; color: #ffffff; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.2); }
-    .active-nav {
-        color: #67e8f9 !important;
-        font-weight: 900 !important;
-    }
-</style>
+        .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
+
+        /* Premium Glassmorphism */
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 40px -10px rgba(30, 41, 59, 0.1); }
+        .dark .glass-card { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5); }
+        .glass-glow-success { box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.4); border-color: rgba(16, 185, 129, 0.4) !important; }
+
+        /* Gamification SVG Ring */
+        .progress-ring__circle { transition: stroke-dashoffset 0.5s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); transform-origin: 50% 50%; }
+
+        /* Anti-Theft Lock */
+        .no-select { user-select: none; -webkit-user-select: none; -ms-user-select: none; }
+        #forensicWatermark { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; opacity: 0.03; font-size: 20px; font-weight: 900; color: #000; transform: rotate(-30deg) scale(1.5); display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 60px; letter-spacing: 2px; }
+        .dark #forensicWatermark { color: #fff; opacity: 0.02; }
+    </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col pt-20 transition-colors duration-300">
+
+    <!-- FLOATING FORENSIC WATERMARK (Populated on Login) -->
+    <div id="forensicWatermark" aria-hidden="true"></div>
 
     <!-- MASTER NAVIGATION BAR -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 dark:bg-slate-950 border-b border-white/10 dark:border-slate-800 shadow-sm transition-all duration-300 h-20">
@@ -49,7 +66,7 @@
                 <span class="text-yellow-400">✏️</span> STENOGYM
             </a>
             
-            <div class="hidden lg:flex items-center gap-6 font-semibold text-sm">
+            <div class="hidden md:flex items-center gap-6 font-semibold text-sm">
                 
                 <div class="flex items-center gap-2">
                     <button id="themeToggleBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition shadow-inner focus:outline-none">
@@ -85,7 +102,7 @@
                 <button id="btnLogout" class="hidden text-rose-400 hover:text-rose-300 border border-slate-700 px-3 py-1.5 rounded-lg transition font-bold translation-el" data-en="Logout" data-hi="लॉग आउट">Logout</button>
             </div>
             
-            <div class="flex items-center gap-3 lg:hidden">
+            <div class="flex items-center gap-3 md:hidden">
                 <!-- Mobile Bilingual Toggle -->
                 <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
                     <button id="btnLangEnMob" onclick="setLanguage('en')" class="px-2 py-1 rounded-md bg-indigo-600 text-white transition shadow-sm">EN</button>
@@ -96,10 +113,10 @@
             </div>
         </div>
         
-        <div id="mobileMenu" class="hidden lg:hidden bg-indigo-900 dark:bg-slate-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-20">
+        <div id="mobileMenu" class="hidden md:hidden bg-indigo-900 dark:bg-slate-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-20">
             <div class="flex flex-col px-6 py-4 space-y-4 font-semibold text-sm">
                 <a href="index.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🏠 Home" data-hi="🏠 होम">🏠 Home</a>
-                <a href="current-affairs.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🗞️ Current Affairs" data-hi="🗞️ करंट अफेयर्स">🗞️ Current Affairs</a>
+                <a href="current-affairs.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🗞 Current Affairs" data-hi="🗞️ करंट अफेयर्स">🗞️ Current Affairs</a>
                 <a href="gk.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="📚 Static GK" data-hi="📚 स्टेटिक GK">📚 Static GK</a>
                 
                 <div>
@@ -137,7 +154,7 @@
             </div>
 
             <div class="flex flex-wrap items-center justify-center gap-3 py-2 px-1 w-full" id="subjectPillContainer">
-                <button class="subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-indigo-600 text-white shadow-md translation-el" data-subject="polity" data-en="🏛️ Indian Polity" data-hi="🏛️ भारतीय राजव्यवस्था">🏛️ Indian Polity</button>
+                <button class="subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-indigo-600 text-white shadow-md translation-el" data-subject="polity" data-en="🏛 Indian Polity" data-hi="🏛️ भारतीय राजव्यवस्था">🏛️ Indian Polity</button>
                 <button class="subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el" data-subject="history" data-en="📜 History" data-hi="📜 इतिहास">📜 History</button>
                 <button class="subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el" data-subject="geography" data-en="🌍 Geography" data-hi="🌍 भूगोल">🌍 Geography</button>
                 <button class="subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el" data-subject="science" data-en="🔬 General Science" data-hi="🔬 सामान्य विज्ञान">🔬 General Science</button>
@@ -147,12 +164,29 @@
         </div>
     </header>
 
+    <!-- SMART SCROLL TOOLBAR -->
+    <div id="gkToolbar" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 sticky top-[80px] z-40 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-all duration-300 transform">
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs font-bold w-full sm:w-auto overflow-x-auto hide-scrollbar">
+                <button id="modeNotesBtn" class="tab-btn active px-4 py-2 rounded-lg transition translation-el whitespace-nowrap" data-en="📋 Cheat Sheet" data-hi="📋 नोट्स" onclick="switchMode('notes')">📋 Cheat Sheet</button>
+                <button id="modeFlashcardsBtn" class="tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el whitespace-nowrap" data-en="📇 Flashcards" data-hi="📇 फ्लैशकार्ड" onclick="switchMode('flashcards')">📇 Flashcards</button>
+                <button id="modePracticeBtn" class="tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el whitespace-nowrap" data-en="🎯 Practice Mock" data-hi="🎯 प्रैक्टिस मॉक" onclick="switchMode('practice')">🎯 Practice Mock</button>
+                <button id="modeDrillBtn" class="tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el whitespace-nowrap" data-en="⚡ PYQ Drills" data-hi="⚡ PYQ अभ्यास" onclick="switchMode('drill')">⚡ PYQ Drills</button>
+            </div>
+            
+            <button id="dynamicActionBtn" onclick="handleDynamicAction(event)" class="bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-400 text-xs font-black px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 translation-el whitespace-nowrap" data-en="📥 Download PDF" data-hi="📥 PDF डाउनलोड">
+                📥 Download PDF
+            </button>
+        </div>
+    </div>
+
     <!-- TOPIC EXPLORER & LEARNING CANVAS -->
     <main class="flex-grow max-w-7xl mx-auto w-full px-4 md:px-6 py-8 flex flex-col lg:flex-row gap-8">
         
         <!-- SIDEBAR -->
         <aside class="w-full lg:w-72 flex-shrink-0">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm sticky top-28">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-5 shadow-sm sticky top-36">
                 <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100 dark:border-slate-700">
                     <h3 class="text-xs font-black uppercase tracking-wider text-slate-400 translation-el" data-en="Chapters & Topics" data-hi="अध्याय और विषय">Chapters & Topics</h3>
                     <span id="topicCountBadge" class="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-[10px] font-black px-2 py-0.5 rounded-full">0 Topics</span>
@@ -163,81 +197,136 @@
 
         <section class="flex-grow flex flex-col">
             
-            <!-- TOOLBAR -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-3 shadow-sm mb-6 flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl text-xs font-bold w-full sm:w-auto">
-                    <button id="modeNotesBtn" class="tab-btn active px-4 py-2 rounded-lg transition translation-el" data-en="📋 Cheat Sheet" data-hi="📋 नोट्स" onclick="switchMode('notes')">📋 Cheat Sheet</button>
-                    <button id="modeFlashcardsBtn" class="tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el" data-en="📇 Flashcards" data-hi="📇 फ्लैशकार्ड" onclick="switchMode('flashcards')">📇 Flashcards</button>
-                    <button id="modeDrillBtn" class="tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el" data-en="⚡ PYQ Drills" data-hi="⚡ PYQ अभ्यास" onclick="switchMode('drill')">⚡ PYQ Drills</button>
+            <div class="mb-6 flex justify-between items-end">
+                <div>
+                    <span id="activeTopicBadge" class="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Loading...</span>
+                    <h2 id="activeTopicTitle" class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mt-1">Select a topic</h2>
                 </div>
-                <button onclick="downloadPDF(event)" class="bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-400 text-xs font-black px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 translation-el" data-en="📥 Download PDF" data-hi="📥 PDF डाउनलोड">📥 Download PDF</button>
+                <!-- GAMIFICATION: STREAK COUNTER -->
+                <div class="hidden sm:flex items-center gap-2 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 px-3 py-1.5 rounded-xl shadow-sm text-amber-800 dark:text-amber-400 font-black text-sm">
+                    🔥 <span id="streakCounterText">0 Day Streak</span>
+                </div>
             </div>
 
-            <div class="mb-6">
-                <span id="activeTopicBadge" class="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-wider">Loading...</span>
-                <h2 id="activeTopicTitle" class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mt-1">Select a topic</h2>
-            </div>
-
-            <!-- NOTES VIEW -->
-            <div id="notesView" class="space-y-6">
+            <!-- NOTES VIEW (ANTI-THEFT) -->
+            <div id="notesView" class="space-y-6 no-select">
                 <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 shadow-sm">
                     <div id="notesContentContainer" class="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 leading-relaxed space-y-4"></div>
                 </div>
             </div>
 
-            <!-- FLASHCARDS VIEW -->
+            <!-- FLASHCARDS VIEW (GLASSMORPHISM) -->
             <div id="flashcardsView" class="hidden space-y-6">
                 <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
-                    <span id="flashcardCounter">Card 0 of 0</span>
+                    <div class="flex items-center gap-3">
+                        <!-- GAMIFICATION: SVG RING -->
+                        <div class="relative w-8 h-8 flex items-center justify-center">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                <circle class="text-slate-200 dark:text-slate-700" stroke-width="3" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/>
+                                <circle id="flashcardProgressRing" class="text-indigo-500 progress-ring__circle" stroke-width="3" stroke-dasharray="100.5" stroke-dashoffset="100.5" stroke-linecap="round" stroke="currentColor" fill="transparent" r="16" cx="18" cy="18"/>
+                            </svg>
+                        </div>
+                        <span id="flashcardCounter">Card 0 of 0</span>
+                    </div>
                     <div class="flex items-center gap-3">
                         <span class="translation-el hidden sm:inline" data-en="💡 Tap card to reveal answer" data-hi="💡 उत्तर देखने के लिए कार्ड पर टैप करें">💡 Tap card to reveal answer</span>
-                        <button id="btnBookmarkFlashcard" onclick="bookmarkItem(event, 'flashcard')" class="text-xs font-bold border border-slate-200 dark:border-slate-600 px-3 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-400">🔖 Save</button>
                     </div>
                 </div>
 
-                <div class="perspective-1000 w-full min-h-[300px] cursor-pointer" onclick="toggleActiveFlashcard()">
-                    <div id="flashcardInner" class="flip-card-inner relative w-full min-h-[300px] transform-style-3d bg-white dark:bg-slate-800 rounded-3xl border-2 border-indigo-100 dark:border-indigo-900/50 shadow-sm transition-all duration-500 flex items-center justify-center p-8 text-center">
-                        <div class="backface-hidden flex flex-col items-center justify-center space-y-4 w-full">
-                            <span class="text-xs font-black uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full translation-el" data-en="Question" data-hi="प्रश्न">Question</span>
-                            <h3 id="cardFrontText" class="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-snug w-full">--</h3>
-                            <span class="text-xs text-slate-400 font-bold translation-el" data-en="Tap to flip &rarr;" data-hi="पलटने के लिए टैप करें &rarr;">Tap to flip &rarr;</span>
+                <div class="perspective-1000 w-full min-h-[350px] cursor-pointer no-select" onclick="toggleActiveFlashcard()">
+                    <div id="flashcardInner" class="flip-card-inner relative w-full h-[65vh] max-h-[75vh] min-h-[350px] transform-style-3d glass-card rounded-3xl transition-all duration-500 flex items-center justify-center p-6 md:p-10 text-center">
+                        <div class="flip-card-front flex flex-col items-center justify-center space-y-4 w-full h-full overflow-y-auto hide-scrollbar">
+                            <span class="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full translation-el" data-en="Concept Recall" data-hi="कांसेप्ट रिकॉल">Concept Recall</span>
+                            <h3 id="cardFrontText" class="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-relaxed w-full">--</h3>
+                            <span class="text-[10px] text-slate-400 font-bold translation-el" data-en="Tap to flip &rarr;" data-hi="पलटने के लिए टैप करें &rarr;">Tap to flip &rarr;</span>
                         </div>
-                        <div class="absolute inset-0 bg-indigo-50 dark:bg-slate-700 border border-indigo-200 dark:border-slate-600 rounded-3xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-center space-y-4 w-full">
-                            <span class="text-xs font-black uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full translation-el" data-en="Verified Answer" data-hi="सत्यापित उत्तर">Verified Answer</span>
-                            <h3 id="cardBackText" class="text-2xl md:text-3xl font-black text-indigo-950 dark:text-indigo-100 leading-snug w-full">--</h3>
-                            <p id="cardBackContext" class="text-xs text-slate-600 dark:text-slate-400 font-medium max-w-md">--</p>
+                        <div class="flip-card-back flex flex-col items-center justify-center p-6 md:p-10 text-center space-y-4 w-full h-full overflow-y-auto hide-scrollbar bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl">
+                            <span class="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full translation-el" data-en="Verified Fact" data-hi="सत्यापित तथ्य">Verified Fact</span>
+                            <h3 id="cardBackText" class="text-xl md:text-3xl font-black text-indigo-950 dark:text-indigo-100 leading-relaxed w-full">--</h3>
+                            <p id="cardBackContext" class="text-xs text-slate-600 dark:text-slate-400 font-semibold max-w-md bg-white/50 dark:bg-black/20 p-3 rounded-xl mt-4">--</p>
                         </div>
                     </div>
                 </div>
 
                 <div class="flex items-center justify-between pt-4">
-                    <button onclick="navigateFlashcard(-1)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 text-slate-700 dark:text-slate-300 font-bold text-xs px-5 py-3 rounded-xl shadow-sm transition translation-el" data-en="&larr; Previous" data-hi="&larr; पिछला">&larr; Previous</button>
-                    <button onclick="navigateFlashcard(1)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md transition translation-el" data-en="Next &rarr;" data-hi="अगला &rarr;">Next &rarr;</button>
+                    <button onclick="navigateFlashcard(-1)" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:bg-slate-100 text-slate-700 dark:text-slate-300 font-bold text-xs px-6 py-3.5 rounded-xl shadow-sm transition hover:-translate-y-0.5 translation-el" data-en="&larr; Previous" data-hi="&larr; पिछला">&larr; Previous</button>
+                    <button onclick="navigateFlashcard(1)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-8 py-3.5 rounded-xl shadow-md transition hover:-translate-y-0.5 translation-el" data-en="Next Card &rarr;" data-hi="अगला कार्ड &rarr;">Next Card &rarr;</button>
                 </div>
             </div>
 
-            <!-- DRILL VIEW -->
-            <div id="drillView" class="hidden space-y-6">
+            <!-- PRACTICE MOCK VIEW -->
+            <div id="practiceView" class="hidden space-y-6 no-select">
                 <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 shadow-sm">
                     <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
                         <div>
-                            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider translation-el" data-en="Exam Practice Drill" data-hi="परीक्षा अभ्यास">Exam Practice Drill</span>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider translation-el" data-en="Concept Practice" data-hi="कांसेप्ट अभ्यास">Concept Practice</span>
+                            <h3 class="text-lg font-black text-slate-900 dark:text-white translation-el" data-en="Topic-Wise Practice" data-hi="विषय-वार अभ्यास">Topic-Wise Practice</h3>
+                        </div>
+                        <span id="practiceScoreBadge" class="bg-sky-50 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 text-xs font-black px-3 py-1.5 rounded-lg border border-sky-100 dark:border-sky-800">Score: 0 / 0</span>
+                    </div>
+                    <div id="practiceQuestionsContainer" class="space-y-8"></div>
+                    
+                    <div id="practicePaginationContainer" class="hidden mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 text-center">
+                        <p id="practicePaginationText" class="text-xs font-bold text-slate-400 mb-3">Showing 20 of 80 Questions</p>
+                        <button onclick="loadMorePractice()" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-black text-xs px-6 py-3 rounded-xl shadow-sm transition">
+                            ⬇ Load Next 20 Questions
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DRILL VIEW (20-CARD PAGINATION) -->
+            <div id="drillView" class="hidden space-y-6 no-select">
+                <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-6 md:p-8 shadow-sm">
+                    <div class="flex items-center justify-between pb-4 mb-6 border-b border-slate-100 dark:border-slate-700">
+                        <div>
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider translation-el" data-en="Exam Practice Drill" data-hi="परीक्षा अभ्यास">Exam Practice Drill</span>
                             <h3 class="text-lg font-black text-slate-900 dark:text-white translation-el" data-en="Topic-Wise PYQ Test" data-hi="विषय-वार PYQ टेस्ट">Topic-Wise PYQ Test</h3>
                         </div>
-                        <span id="drillScoreBadge" class="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-black px-3 py-1 rounded-lg">Score: 0 / 0</span>
+                        <span id="drillScoreBadge" class="bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 text-xs font-black px-3 py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-800">Score: 0 / 0</span>
                     </div>
                     <div id="drillQuestionsContainer" class="space-y-8"></div>
+                    
+                    <!-- 20-Card Pagination Button -->
+                    <div id="drillPaginationContainer" class="hidden mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 text-center">
+                        <p id="drillPaginationText" class="text-xs font-bold text-slate-400 mb-3">Showing 20 of 80 Questions</p>
+                        <button onclick="loadMoreDrills()" class="bg-slate-100 dark:bg-slate-900 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-black text-xs px-6 py-3 rounded-xl shadow-sm transition">
+                            ⬇ Load Next 20 Questions
+                        </button>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- PREMIUM LOCK MODAL -->
+    <!-- SCROLL TO TOP BUTTON -->
+    <button id="scrollToTopBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="fixed bottom-24 right-5 z-40 bg-indigo-600 hover:bg-indigo-500 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 translate-y-5 pointer-events-none" title="Back to Top">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+    </button>
+
+    <!-- TELEGRAM EXCLUSIVE DOWNLOAD MODAL (THE SMART GATE) -->
+    <div id="telegramGrowthModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transition-all transform scale-100">
+            <div class="w-16 h-16 bg-[#0088cc]/10 text-[#0088cc] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✈</div>
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Join Official Telegram for PDFs</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
+                Topic-wise printable PDFs with detailed explanations are exclusively available for our verified Telegram channel members.
+            </p>
+            <div class="flex flex-col gap-3">
+                <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="acceptTelegramAndDownload()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <span>🚀</span> Join Telegram & Download
+                </a>
+                <button onclick="closeTgModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold py-2 text-xs transition">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PREMIUM LOCK MODAL (Login Gate) -->
     <div id="premiumModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transform scale-100 transition-all">
             <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
             <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 translation-el" data-en="Premium Feature Locked" data-hi="प्रीमियम सुविधा लॉक है">Premium Feature Locked</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Please create a 100% free account to download PDFs, save bookmarks, and track your quiz scores on the dashboard." data-hi="PDF डाउनलोड करने, बुकमार्क सहेजने और क्विज़ स्कोर ट्रैक करने के लिए कृपया एक निःशुल्क खाता बनाएं।">Please create a 100% free account to download PDFs, save bookmarks, and track your quiz scores on the dashboard.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Please create a 100% free account to download PDFs and track your progress." data-hi="PDF डाउनलोड करने और अपनी प्रगति को ट्रैक करने के लिए कृपया एक निःशुल्क खाता बनाएं।">Please create a 100% free account to download PDFs and track your progress.</p>
             <div class="flex flex-col gap-3">
                 <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl shadow-md transition translation-el" data-en="Create Free Account / Login" data-hi="मुफ़्त खाता बनाएँ / लॉगिन करें">Create Free Account / Login</a>
                 <button onclick="closePremiumModal()" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold py-2 text-sm transition translation-el" data-en="Maybe Later" data-hi="शायद बाद में">Maybe Later</button>
@@ -310,535 +399,827 @@
 
     <!-- INTERACTIVE JAVASCRIPT & DATABASE ENGINE -->
     <script>
+        // ==========================================
+        // SMART SCROLL / AUTO-HIDE TOOLBAR LOGIC
+        // ==========================================
+        const gkToolbar = document.getElementById('gkToolbar');
+        let lastScrollY = window.scrollY;
+        let scrollPauseTimer = null;
+        let autoHideTimer = null;
+        let isInteractingWithNav = false;
+
+        gkToolbar.addEventListener('mouseenter', () => isInteractingWithNav = true);
+        gkToolbar.addEventListener('mouseleave', () => { isInteractingWithNav = false; startAutoHideTimer(); });
+        gkToolbar.addEventListener('touchstart', () => isInteractingWithNav = true, {passive: true});
+        gkToolbar.addEventListener('touchend', () => { isInteractingWithNav = false; startAutoHideTimer(); }, {passive: true});
+
+        function showNav() { gkToolbar.classList.remove('-translate-y-[150%]', 'opacity-0'); }
+        function hideNav() { if (window.scrollY > 150 && !isInteractingWithNav) gkToolbar.classList.add('-translate-y-[150%]', 'opacity-0'); }
+        function startAutoHideTimer() {
+            clearTimeout(autoHideTimer);
+            if (window.scrollY > 150) autoHideTimer = setTimeout(() => hideNav(), 3500); 
+        }
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            // Glide-to-Top visibility
+            const btnTop = document.getElementById('scrollToTopBtn');
+            if (currentScrollY > 350) {
+                btnTop.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
+                btnTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            } else {
+                btnTop.classList.add('opacity-0', 'translate-y-5', 'pointer-events-none');
+                btnTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }
+
+            // Toolbar Logic
+            if (currentScrollY <= 150) {
+                clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer); showNav();
+                lastScrollY = currentScrollY; return;
+            }
+
+            // Thumb Jitter Filter
+            const delta = currentScrollY - lastScrollY;
+            if (Math.abs(delta) < 15) return;
+
+            clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer);
+
+            if (delta > 0) hideNav(); // Scroll down
+            else {
+                scrollPauseTimer = setTimeout(() => { showNav(); startAutoHideTimer(); }, 150); // Scroll up
+            }
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+
+        // ==========================================
+        // CORE FIREBASE & GAMIFICATION SETUP
+        // ==========================================
         const htmlTag = document.documentElement;
         const themeBtn = document.getElementById('themeToggleBtn');
         const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
         
-        if (localStorage.getItem('theme') === 'dark') { 
-            htmlTag.classList.add('dark'); 
-            themeBtn.textContent = '☀️'; 
-            mobileThemeBtn.textContent = '☀️'; 
-        }
-        
+        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀️'; }
         function toggleTheme() {
-            if (htmlTag.classList.contains('dark')) {
-                htmlTag.classList.remove('dark'); 
-                localStorage.setItem('theme', 'light'); 
-                themeBtn.textContent = '🌙'; 
-                mobileThemeBtn.textContent = '🌙';
-            } else {
-                htmlTag.classList.add('dark'); 
-                localStorage.setItem('theme', 'dark'); 
-                themeBtn.textContent = '☀'; 
-                mobileThemeBtn.textContent = '☀';
-            }
+            if (htmlTag.classList.contains('dark')) { htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙'; } 
+            else { htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀'; }
         }
-        themeBtn.addEventListener('click', toggleTheme); 
-        mobileThemeBtn.addEventListener('click', toggleTheme);
+        themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
-        let currentLang = 'en';
+        // Daily Streak Logic
+        function updateStreak() {
+            const today = new Date().toISOString().split('T')[0];
+            let lastStudyDate = localStorage.getItem('lastStudyDate');
+            let currentStreak = parseInt(localStorage.getItem('studyStreak') || "0");
+            
+            if (lastStudyDate !== today) {
+                const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                const yestStr = yesterday.toISOString().split('T')[0];
+                if (lastStudyDate === yestStr) currentStreak++;
+                else currentStreak = 1;
+                
+                localStorage.setItem('studyStreak', currentStreak);
+                localStorage.setItem('lastStudyDate', today);
+            }
+            const label = currentLang === 'hi' ? 'दिन की स्ट्रीक' : 'Day Streak';
+            document.getElementById('streakCounterText').textContent = `${currentStreak} ${label}`;
+        }
         
+        let currentLang = 'en';
         window.setLanguage = function(lang) {
             currentLang = lang;
-            
-            // Grab both Desktop and Mobile buttons
             const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')];
             const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
-
-            // Toggle active classes safely
             if (lang === 'en') {
-                btnsEn.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
-                btnsHi.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
+                btnsEn.forEach(b => { if(b) b.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); if(b) b.classList.remove('text-slate-400'); });
+                btnsHi.forEach(b => { if(b) b.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); if(b) b.classList.add('text-slate-400'); });
             } else {
-                btnsHi.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
-                btnsEn.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
+                btnsHi.forEach(b => { if(b) b.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); if(b) b.classList.remove('text-slate-400'); });
+                btnsEn.forEach(b => { if(b) b.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); if(b) b.classList.add('text-slate-400'); });
             }
-            
-            // Translate all elements with data-en/data-hi attributes
             document.querySelectorAll('.translation-el').forEach(el => {
-                if(lang === 'hi' && el.hasAttribute('data-hi')) { el.innerHTML = el.getAttribute('data-hi'); } 
-                else if(el.hasAttribute('data-en')) { el.innerHTML = el.getAttribute('data-en'); }
+                if(lang === 'hi' && el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi'); 
+                else if(el.hasAttribute('data-en')) el.innerHTML = el.getAttribute('data-en');
             });
             
-            // Trigger page-specific data re-renders (checks if the function exists on the current page)
-            if (typeof resetAndFetchBlogs === 'function') resetAndFetchBlogs();
-            if (typeof updateProgress === 'function') updateProgress();
-            if (typeof renderFeedCards === 'function') renderFeedCards();
-            if (typeof renderTopicListUI === 'function') {
-                if (typeof activeTopicsList !== 'undefined' && activeTopicsList.length > 0) renderTopicListUI();
-                if (typeof currentTopicId !== 'undefined' && currentTopicId) selectTopic(currentTopicId);
-                if (typeof updateDrillBadge === 'function') updateDrillBadge();
-            }
-            if (typeof renderArticleContent === 'function' && typeof currentPost !== 'undefined' && currentPost) renderArticleContent();
+            // Re-render Dynamic Button
+            const actionBtn = document.getElementById('dynamicActionBtn');
+            if (activeMode === 'notes') { actionBtn.innerHTML = currentLang === 'hi' ? '📥 PDF डाउनलोड' : '📥 Download PDF'; }
+            else if (activeMode === 'flashcards') { actionBtn.innerHTML = currentLang === 'hi' ? '🔀 कार्ड शफ़ल करें' : '🔀 Shuffle Deck'; }
+            else if (activeMode === 'practice') { actionBtn.innerHTML = currentLang === 'hi' ? '🔄 मॉक पुनः प्रयास करें' : '🔄 Retake Mock'; }
+            else if (activeMode === 'drill') { actionBtn.innerHTML = currentLang === 'hi' ? '🔄 क्विज़ पुनः प्रयास करें' : '🔄 Retake Quiz'; }
+            
+            if (activeTopicData) selectTopic(currentTopicId); // Re-render content
+            updateStreak();
         };
 
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => { document.getElementById('mobileMenu').classList.toggle('hidden'); });
-        document.getElementById('mobileStenoToggle').addEventListener('click', () => {
-            const menu = document.getElementById('mobileStenoMenu');
-            menu.classList.toggle('hidden'); menu.classList.toggle('flex');
-            document.getElementById('stenoChevron').textContent = menu.classList.contains('hidden') ? '▼' : '▲';
-        });
-
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
-
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); 
+        const db = firebase.firestore();
         let activeUser = null;
+
         firebase.auth().onAuthStateChanged(user => {
             activeUser = user;
             if (user) {
                 document.getElementById('desktopLoginBtn')?.classList.add('hidden'); document.getElementById('mobileLoginBtn')?.classList.add('hidden');
-                document.getElementById('navDashboard')?.classList.remove('hidden'); document.getElementById('mobileDashboardBtn')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.remove('hidden'); document.getElementById('navDashboardMob')?.classList.remove('hidden');
                 document.getElementById('btnLogout')?.classList.remove('hidden'); document.getElementById('mobileLogoutBtn')?.classList.remove('hidden');
                 document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
                 document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
+                
+                // Fill floating forensic watermark
+                const wm = document.getElementById('forensicWatermark');
+                wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
+                updateStreak();
             } else {
                 document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.add('hidden'); document.getElementById('navDashboardMob')?.classList.add('hidden');
+                document.getElementById('forensicWatermark').innerHTML = '';
             }
         });
 
-        function requireLogin(e) {
-            if (!activeUser) {
-                if(e) e.preventDefault();
-                document.getElementById('premiumModal').classList.remove('hidden');
-                return false;
+        // ==========================================
+        // AUDIO & HAPTICS (Web Audio API)
+        // ==========================================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        
+        function initAudio() { if(!audioCtx) audioCtx = new AudioContext(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
+
+        function triggerHaptic(isSuccess) {
+            if (navigator.vibrate) {
+                navigator.vibrate(isSuccess ? [20, 40, 20] : 15);
             }
-            return true;
         }
 
-        window.closePremiumModal = function() { document.getElementById('premiumModal').classList.add('hidden'); };
-        window.downloadPDF = function(e) { if(requireLogin(e)) alert('Generating and Downloading PDF...'); };
+        function playChime(type) {
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
+                
+                if (type === 'success') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.5);
+                } else if (type === 'flip') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(180, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+                    osc.start(); osc.stop(audioCtx.currentTime + 0.15);
+                }
+            } catch(e) {} // Fallback for browsers blocking audio
+        }
 
-        let currentSubject = "polity"; 
-        let currentTopicId = "polity_1"; 
-        let activeTopicsList = []; 
-        let activeTopicData = null; 
+        // ==========================================
+        // SMART DYNAMIC ACTION BUTTON
+        // ==========================================
         let activeMode = "notes";
         
-        let currentFlashcardIndex = 0; 
-        let isCardFlipped = false; 
-        let drillCorrectCount = 0; 
-        let drillAttemptedCount = 0;
+        window.switchMode = function(modeKey) {
+            activeMode = modeKey;
+            ['notes', 'flashcards', 'practice', 'drill'].forEach(k => {
+                document.getElementById('mode' + k.charAt(0).toUpperCase() + k.slice(1) + 'Btn').className = "tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el whitespace-nowrap";
+                document.getElementById(k + 'View').classList.add('hidden');
+            });
+            document.getElementById('mode' + modeKey.charAt(0).toUpperCase() + modeKey.slice(1) + 'Btn').className = "tab-btn active px-4 py-2 rounded-lg transition translation-el whitespace-nowrap";
+            document.getElementById(modeKey + 'View').classList.remove('hidden');
+            
+            const actionBtn = document.getElementById('dynamicActionBtn');
+            if (modeKey === 'notes') {
+                actionBtn.innerHTML = currentLang === 'hi' ? '📥 PDF डाउनलोड' : '📥 Download PDF';
+                actionBtn.className = "bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 dark:hover:bg-rose-900 text-rose-700 dark:text-rose-400 text-xs font-black px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 translation-el whitespace-nowrap";
+            } else if (modeKey === 'flashcards') {
+                initFlashcardsView();
+                actionBtn.innerHTML = currentLang === 'hi' ? '🔀 कार्ड शफ़ल करें' : '🔀 Shuffle Deck';
+                actionBtn.className = "bg-purple-100 dark:bg-purple-900/50 hover:bg-purple-200 dark:hover:bg-purple-900 text-purple-700 dark:text-purple-400 text-xs font-black px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 translation-el whitespace-nowrap";
+            } else if (modeKey === 'practice') {
+                actionBtn.innerHTML = currentLang === 'hi' ? '🔄 मॉक पुनः प्रयास करें' : '🔄 Retake Mock';
+                actionBtn.className = "bg-sky-100 dark:bg-sky-900/50 hover:bg-sky-200 dark:hover:bg-sky-900 text-sky-700 dark:text-sky-400 text-xs font-black px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 translation-el whitespace-nowrap";
+            } else if (modeKey === 'drill') {
+                actionBtn.innerHTML = currentLang === 'hi' ? '🔄 क्विज़ पुनः प्रयास करें' : '🔄 Retake Quiz';
+                actionBtn.className = "bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 dark:hover:bg-amber-900 text-amber-700 dark:text-amber-400 text-xs font-black px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-2 translation-el whitespace-nowrap";
+            }
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        };
 
-        function escapeHtml(value) { const div = document.createElement('div'); div.textContent = value ?? ''; return div.innerHTML; }
+        window.handleDynamicAction = function(e) {
+            if (activeMode === 'notes') {
+                if(!activeUser) { document.getElementById('premiumModal').classList.remove('hidden'); return; }
+                const hasJoinedTg = localStorage.getItem('hasJoinedTelegram');
+                if (!hasJoinedTg) { document.getElementById('telegramGrowthModal').classList.remove('hidden'); } 
+                else { generateTopicPDF(); }
+            } else if (activeMode === 'flashcards') {
+                shuffleCardsArray(); initFlashcardsView(); playChime('flip'); triggerHaptic(false);
+            } else if (activeMode === 'practice') {
+                initPracticeView(); playChime('flip'); triggerHaptic(false);
+            } else if (activeMode === 'drill') {
+                initDrillView(); playChime('flip'); triggerHaptic(false);
+            }
+        };
+
+        window.closePremiumModal = () => document.getElementById('premiumModal').classList.add('hidden');
+        window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
+        
+        window.acceptTelegramAndDownload = function() {
+            localStorage.setItem('hasJoinedTelegram', 'true');
+            closeTgModal();
+            // Allow native <a> tag to open TG link, timeout generates PDF
+            setTimeout(() => generateTopicPDF(), 1000); 
+        };
+
+        // ==========================================
+        // CONTENT LOADING & TOPIC LOGIC
+        // ==========================================
+        let currentSubject = "polity"; let currentTopicId = null; let activeTopicsList = []; let activeTopicData = null;
+        function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
 
         document.querySelectorAll('.subject-pill').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.subject-pill').forEach(p => {
-                    p.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el";
-                });
+                document.querySelectorAll('.subject-pill').forEach(p => p.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el");
                 btn.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-indigo-600 text-white shadow-md translation-el";
-                currentSubject = btn.getAttribute('data-subject'); 
-                loadSubjectTopics(currentSubject);
+                currentSubject = btn.getAttribute('data-subject'); loadSubjectTopics(currentSubject);
             });
         });
 
         async function loadSubjectTopics(subjectKey) {
-            const topicListContainer = document.getElementById('topicList');
-            const loadingText = currentLang === 'hi' ? 'अध्याय लोड हो रहे हैं...' : 'Loading chapters...';
-            topicListContainer.innerHTML = `<div class="p-3 text-xs font-bold text-slate-400">${loadingText}</div>`;
+            const listEl = document.getElementById('topicList');
+            listEl.innerHTML = `<div class="p-3 text-xs font-bold text-slate-400">Loading...</div>`;
             try {
-                const snapshot = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get();
-                activeTopicsList = [];
-                if (!snapshot.empty) { snapshot.forEach(doc => { activeTopicsList.push({ id: doc.id, ...doc.data() }); }); } 
-                else { activeTopicsList = getStaticGKSeedData(subjectKey); }
-                
-                const badgeText = currentLang === 'hi' ? `${activeTopicsList.length} विषय` : `${activeTopicsList.length} Topics`;
-                document.getElementById('topicCountBadge').textContent = badgeText; renderTopicListUI();
-                if (activeTopicsList.length > 0) { selectTopic(activeTopicsList[0].id); }
-            } catch (err) {
-                console.error("Firestore error:", err); activeTopicsList = getStaticGKSeedData(subjectKey);
-                const badgeText = currentLang === 'hi' ? `${activeTopicsList.length} विषय` : `${activeTopicsList.length} Topics`;
-                document.getElementById('topicCountBadge').textContent = badgeText; renderTopicListUI();
-                if (activeTopicsList.length > 0) selectTopic(activeTopicsList[0].id);
-            }
+                const snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get();
+                activeTopicsList = []; snap.forEach(doc => activeTopicsList.push({ id: doc.id, ...doc.data() }));
+                document.getElementById('topicCountBadge').textContent = `${activeTopicsList.length} Topics`;
+                renderTopicListUI(); if (activeTopicsList.length > 0) selectTopic(activeTopicsList[0].id);
+            } catch (err) { listEl.innerHTML = "Error loading topics."; }
         }
 
         function renderTopicListUI() {
             const container = document.getElementById('topicList'); container.innerHTML = "";
             activeTopicsList.forEach(item => {
-                const isSelected = item.id === currentTopicId;
-                const activeClasses = isSelected ? "bg-indigo-50 dark:bg-indigo-900/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-black" : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 font-bold";
-                const displayTitle = (currentLang === 'hi' && item.topicTitle_hi) ? item.topicTitle_hi : item.topicTitle;
-                const btn = document.createElement('button');
-                btn.className = `w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${activeClasses}`;
-                btn.innerHTML = `<span class="truncate">${escapeHtml(displayTitle)}</span><span class="text-[10px] text-slate-400">&rarr;</span>`;
-                btn.onclick = () => selectTopic(item.id); container.appendChild(btn);
+                const isSel = item.id === currentTopicId;
+                const cls = isSel ? "bg-indigo-50 dark:bg-indigo-900/50 border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 font-black" : "border-transparent text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 font-bold";
+                const title = (currentLang === 'hi' && item.topicTitle_hi) ? item.topicTitle_hi : item.topicTitle;
+                container.innerHTML += `<button onclick="selectTopic('${item.id}')" class="w-full text-left p-3 rounded-xl border text-xs transition flex items-center justify-between ${cls}"><span class="truncate">${escapeHtml(title)}</span><span class="text-[10px]">&rarr;</span></button>`;
             });
         }
 
         function selectTopic(topicId) {
-            currentTopicId = topicId; activeTopicData = activeTopicsList.find(t => t.id === topicId); if (!activeTopicData) return;
+            currentTopicId = topicId; activeTopicData = activeTopicsList.find(t => t.id === topicId);
             renderTopicListUI();
             
-            const displayTitle = (currentLang === 'hi' && activeTopicData.topicTitle_hi) ? activeTopicData.topicTitle_hi : activeTopicData.topicTitle;
-            const displayNotes = (currentLang === 'hi' && activeTopicData.notes_hi) ? activeTopicData.notes_hi : activeTopicData.notes;
-            const subjectLabel = (currentLang === 'hi' && activeTopicData.subjectName_hi) ? activeTopicData.subjectName_hi : activeTopicData.subjectName;
+            const title = (currentLang === 'hi' && activeTopicData.topicTitle_hi) ? activeTopicData.topicTitle_hi : activeTopicData.topicTitle;
+            const notes = (currentLang === 'hi' && activeTopicData.notes_hi) ? activeTopicData.notes_hi : activeTopicData.notes;
             
-            document.getElementById('activeTopicBadge').textContent = subjectLabel || "General Knowledge";
-            document.getElementById('activeTopicTitle').textContent = displayTitle || "Topic Title";
+            document.getElementById('activeTopicBadge').textContent = activeTopicData.subjectName || "GK";
+            document.getElementById('activeTopicTitle').textContent = title || "";
+            document.getElementById('notesContentContainer').innerHTML = notes || "<p class='text-slate-400'>Notes compiling...</p>";
             
-            if(displayNotes) { document.getElementById('notesContentContainer').innerHTML = displayNotes; } 
-            else {
-                const compilingText = currentLang === 'hi' ? "इस विषय के लिए नोट्स तैयार किए जा रहे हैं।" : "Notes currently being compiled.";
-                document.getElementById('notesContentContainer').innerHTML = `<p class="text-slate-400">${compilingText}</p>`;
-            }
-            initFlashcardsView(); initDrillView();
+            // Reset Arrays
+            workingFlashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi) ? [...activeTopicData.flashcards_hi] : [...(activeTopicData.flashcards || [])];
+            initFlashcardsView(); 
+            initPracticeView();
+            initDrillView();
         }
 
-        window.switchMode = function(modeKey) {
-            activeMode = modeKey;
-            ['notes', 'flashcards', 'drill'].forEach(k => {
-                document.getElementById('mode' + k.charAt(0).toUpperCase() + k.slice(1) + 'Btn').className = "tab-btn px-4 py-2 rounded-lg transition text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white translation-el";
-                document.getElementById(k + 'View').classList.add('hidden');
-            });
-            document.getElementById('mode' + modeKey.charAt(0).toUpperCase() + modeKey.slice(1) + 'Btn').className = "tab-btn active px-4 py-2 rounded-lg transition translation-el";
-            document.getElementById(modeKey + 'View').classList.remove('hidden');
-            if (modeKey === 'flashcards') initFlashcardsView();
-        };
-
-        window.bookmarkItem = function(e, id) {
-            if(!requireLogin(e)) return;
-            const btn = document.getElementById(id.startsWith('flashcard') ? 'btnBookmarkFlashcard' : `btnBookmarkDrill-${id.split('-')[1]}`);
-            
-            if(btn.classList.contains('bookmarked')) {
-                btn.classList.remove('bookmarked', 'bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
-            } else {
-                btn.classList.add('bookmarked', 'bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
-            }
-        };
-
-        function initFlashcardsView() {
-            currentFlashcardIndex = 0; isCardFlipped = false; document.getElementById('flashcardInner').classList.remove('rotate-y-180'); renderActiveFlashcard();
-        }
+        // ==========================================
+        // FLASHCARDS ENGINE (GAMIFIED)
+        // ==========================================
+        let workingFlashcards = []; let currentFlashcardIndex = 0; let isCardFlipped = false;
+        
+        function shuffleCardsArray() { for (let i = workingFlashcards.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [workingFlashcards[i], workingFlashcards[j]] = [workingFlashcards[j], workingFlashcards[i]]; } }
+        
+        function initFlashcardsView() { currentFlashcardIndex = 0; isCardFlipped = false; document.getElementById('flashcardInner').classList.remove('rotate-y-180', 'glass-glow-success'); renderActiveFlashcard(); }
 
         function renderActiveFlashcard() {
-            const cardsArray = (currentLang === 'hi' && activeTopicData?.flashcards_hi) ? activeTopicData.flashcards_hi : (activeTopicData?.flashcards || []);
-            const bkmrkBtn = document.getElementById('btnBookmarkFlashcard');
+            if (workingFlashcards.length === 0) { document.getElementById('cardFrontText').textContent = "No cards available."; return; }
             
-            bkmrkBtn.classList.remove('bookmarked', 'bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-            bkmrkBtn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
-
-            if (cardsArray.length === 0) {
-                document.getElementById('cardFrontText').textContent = currentLang === 'hi' ? "इस विषय के लिए कोई फ्लैशकार्ड नहीं हैं।" : "No flashcards generated for this topic yet.";
-                document.getElementById('cardBackText').textContent = "--"; document.getElementById('flashcardCounter').textContent = "0 / 0"; return;
-            }
-            
-            const card = cardsArray[currentFlashcardIndex];
+            const card = workingFlashcards[currentFlashcardIndex];
             document.getElementById('cardFrontText').textContent = card.front; document.getElementById('cardBackText').textContent = card.back;
             document.getElementById('cardBackContext').textContent = card.context || "";
-            document.getElementById('flashcardCounter').textContent = currentLang === 'hi' ? `कार्ड ${currentFlashcardIndex + 1} / ${cardsArray.length}` : `Card ${currentFlashcardIndex + 1} of ${cardsArray.length}`;
-            if (isCardFlipped) { document.getElementById('flashcardInner').classList.remove('rotate-y-180'); isCardFlipped = false; }
+            document.getElementById('flashcardCounter').textContent = `Card ${currentFlashcardIndex + 1} of ${workingFlashcards.length}`;
+            
+            if (isCardFlipped) { document.getElementById('flashcardInner').classList.remove('rotate-y-180', 'glass-glow-success'); isCardFlipped = false; }
+            updateSVGRing();
         }
 
-        window.toggleActiveFlashcard = function() { document.getElementById('flashcardInner').classList.toggle('rotate-y-180'); isCardFlipped = !isCardFlipped; };
-        window.navigateFlashcard = function(dir) {
-            const cardsArray = (currentLang === 'hi' && activeTopicData?.flashcards_hi) ? activeTopicData.flashcards_hi : (activeTopicData?.flashcards || []);
-            if (cardsArray.length === 0) return;
-            currentFlashcardIndex = Math.max(0, Math.min(cardsArray.length - 1, currentFlashcardIndex + dir)); renderActiveFlashcard();
+        function updateSVGRing() {
+            const circle = document.getElementById('flashcardProgressRing');
+            const circumference = 16 * 2 * Math.PI; // r=16
+            if (workingFlashcards.length === 0) { circle.style.strokeDashoffset = circumference; return; }
+            const percent = ((currentFlashcardIndex + 1) / workingFlashcards.length) * 100;
+            circle.style.strokeDashoffset = circumference - (percent / 100) * circumference;
+        }
+
+        window.toggleActiveFlashcard = function() {
+            initAudio(); playChime('flip'); triggerHaptic(false);
+            const inner = document.getElementById('flashcardInner');
+            inner.classList.toggle('rotate-y-180');
+            isCardFlipped = !isCardFlipped;
+            if(isCardFlipped) { setTimeout(() => inner.classList.add('glass-glow-success'), 150); } 
+            else { inner.classList.remove('glass-glow-success'); }
         };
+
+        window.navigateFlashcard = function(dir) {
+            if (workingFlashcards.length === 0) return;
+            const nextIdx = currentFlashcardIndex + dir;
+            if(nextIdx >= 0 && nextIdx < workingFlashcards.length) {
+                currentFlashcardIndex = nextIdx; playChime('flip'); triggerHaptic(false); renderActiveFlashcard();
+            }
+        };
+
+        // ==========================================
+        // PRACTICE MOCK ENGINE
+        // ==========================================
+        let practiceCorrectCount = 0; let practiceAttemptedCount = 0;
+        let currentPracticePage = 1; const PRACTICE_PER_PAGE = 20; let workingPracticeQs = [];
+
+        function initPracticeView() {
+            practiceCorrectCount = 0; practiceAttemptedCount = 0; updatePracticeBadge();
+            currentPracticePage = 1;
+            workingPracticeQs = (currentLang === 'hi' && activeTopicData?.practiceQs_hi) ? activeTopicData.practiceQs_hi : (activeTopicData?.practiceQs || []);
+            document.getElementById('practiceQuestionsContainer').innerHTML = "";
+            renderPracticePage();
+        }
+
+        window.loadMorePractice = function() { currentPracticePage++; renderPracticePage(); };
+
+        function renderPracticePage() {
+            const container = document.getElementById('practiceQuestionsContainer');
+            const pagContainer = document.getElementById('practicePaginationContainer');
+            
+            if (workingPracticeQs.length === 0) { 
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold">No practice questions linked.</div>`; 
+                pagContainer.classList.add('hidden'); return; 
+            }
+
+            const startIndex = (currentPracticePage - 1) * PRACTICE_PER_PAGE;
+            const endIndex = currentPracticePage * PRACTICE_PER_PAGE;
+            const batch = workingPracticeQs.slice(startIndex, endIndex);
+
+            let html = "";
+            batch.forEach((item, bIdx) => {
+                const qIdx = startIndex + bIdx;
+                const safeExp = encodeURIComponent(item.explanation || '').replace(/'/g, "%27");
+                html += `
+                    <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase tracking-wider text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/50 px-2 py-0.5 rounded">Practice #${qIdx + 1}</span>
+                            <span class="text-xs text-slate-400 font-semibold">${escapeHtml(item.sourceExam || 'Concept Check')}</span>
+                        </div>
+                        <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(item.question)}</h4>
+                        <div class="space-y-2.5" id="practiceOptions-${qIdx}">
+                            ${item.options.map((opt, oIdx) => `
+                                <button onclick="handlePracticeAnswer(event, ${qIdx},${oIdx}, ${item.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm">
+                                    <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="practiceExp-${qIdx}" class="hidden mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold"></div>
+                    </div>`;
+            });
+            
+            container.insertAdjacentHTML('beforeend', html);
+
+            const showingCount = Math.min(endIndex, workingPracticeQs.length);
+            document.getElementById('practicePaginationText').textContent = `Showing ${showingCount} of ${workingPracticeQs.length} Questions`;
+            if (endIndex >= workingPracticeQs.length) pagContainer.classList.add('hidden'); 
+            else pagContainer.classList.remove('hidden');
+        }
+
+        window.handlePracticeAnswer = function(e, qIdx, selectedIdx, correctIdx, encodedExp) {
+            const container = document.getElementById(`practiceOptions-${qIdx}`);
+            const buttons = container.querySelectorAll('button');
+            const expContainer = document.getElementById(`practiceExp-${qIdx}`);
+            if(buttons[0].disabled) return; 
+
+            buttons.forEach(btn => btn.disabled = true); practiceAttemptedCount++;
+            
+            if (selectedIdx === correctIdx) {
+                practiceCorrectCount++; playChime('success'); triggerHaptic(true);
+                buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                buttons[selectedIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
+            } else {
+                playChime('flip'); triggerHaptic(false);
+                buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400";
+                buttons[selectedIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                buttons[correctIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                buttons[correctIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
+            }
+            expContainer.innerHTML = decodeURIComponent(encodedExp);
+            updatePracticeBadge(); updateStreak();
+        };
+
+        function updatePracticeBadge() { document.getElementById('practiceScoreBadge').textContent = `Score: ${practiceCorrectCount} / ${practiceAttemptedCount}`; }
+
+        // ==========================================
+        // PYQ DRILLS (20-CARD PAGINATION)
+        // ==========================================
+        let drillCorrectCount = 0; let drillAttemptedCount = 0;
+        let currentDrillPage = 1; const DRILLS_PER_PAGE = 20; let workingDrills = [];
 
         function initDrillView() {
             drillCorrectCount = 0; drillAttemptedCount = 0; updateDrillBadge();
+            currentDrillPage = 1;
+            workingDrills = (currentLang === 'hi' && activeTopicData?.mcqs_hi) ? activeTopicData.mcqs_hi : (activeTopicData?.mcqs || []);
+            document.getElementById('drillQuestionsContainer').innerHTML = "";
+            renderDrillPage();
+        }
+
+        window.loadMoreDrills = function() { currentDrillPage++; renderDrillPage(); };
+
+        function renderDrillPage() {
             const container = document.getElementById('drillQuestionsContainer');
-            const mcqsArray = (currentLang === 'hi' && activeTopicData?.mcqs_hi) ? activeTopicData.mcqs_hi : (activeTopicData?.mcqs || []);
-                
-            if (mcqsArray.length === 0) { 
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold text-sm">${currentLang === 'hi' ? 'अभ्यास लोड हो रहा है...' : 'Practice drill being loaded...'}</div>`; 
-                return; 
+            const pagContainer = document.getElementById('drillPaginationContainer');
+            
+            if (workingDrills.length === 0) { 
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold">No drills linked.</div>`; 
+                pagContainer.classList.add('hidden'); return; 
             }
 
-            const qLabel = currentLang === 'hi' ? 'प्रश्न' : 'Question';
-            const pyqLabel = currentLang === 'hi' ? 'पिछले वर्ष के प्रश्न' : 'PYQ';
-            const saveText = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
-            
+            const startIndex = (currentDrillPage - 1) * DRILLS_PER_PAGE;
+            const endIndex = currentDrillPage * DRILLS_PER_PAGE;
+            const batch = workingDrills.slice(startIndex, endIndex);
+
             let html = "";
-            mcqsArray.forEach((item, qIdx) => {
+            batch.forEach((item, bIdx) => {
+                const qIdx = startIndex + bIdx;
                 const safeExp = encodeURIComponent(item.explanation || '').replace(/'/g, "%27");
-                
                 html += `
-                    <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl" id="drillCard-${qIdx}">
+                    <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl">
                         <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">${qLabel} ${qIdx + 1}</span>
-                                <span class="text-xs text-slate-400 font-semibold">${escapeHtml(item.sourceExam || pyqLabel)}</span>
-                            </div>
-                            <button id="btnBookmarkDrill-${qIdx}" onclick="bookmarkItem(event, 'drill-${qIdx}')" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-400">${saveText}</button>
+                            <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Drill ${qIdx + 1}</span>
+                            <span class="text-xs text-slate-400 font-semibold">${escapeHtml(item.sourceExam)}</span>
                         </div>
                         <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(item.question)}</h4>
                         <div class="space-y-2.5" id="drillOptions-${qIdx}">
                             ${item.options.map((opt, oIdx) => `
-                                <button onclick="handleDrillAnswer(event, ${qIdx},${oIdx}, ${item.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm">
-                                    <span>${String.fromCharCode(65 + oIdx)}.${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                <button onclick="handleDrillAnswer(event, ${qIdx},${oIdx}, ${item.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm">
+                                    <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
                                 </button>
                             `).join('')}
                         </div>
                         <div id="drillExp-${qIdx}" class="hidden mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold"></div>
                     </div>`;
             });
-            container.innerHTML = html;
+            
+            container.insertAdjacentHTML('beforeend', html);
+
+            const showingCount = Math.min(endIndex, workingDrills.length);
+            document.getElementById('drillPaginationText').textContent = `Showing ${showingCount} of ${workingDrills.length} Questions`;
+            if (endIndex >= workingDrills.length) pagContainer.classList.add('hidden'); 
+            else pagContainer.classList.remove('hidden');
         }
 
         window.handleDrillAnswer = function(e, qIdx, selectedIdx, correctIdx, encodedExp) {
-            if(!requireLogin(e)) return; 
-            
-            const optionsContainer = document.getElementById(`drillOptions-${qIdx}`);
-            const buttons = optionsContainer.querySelectorAll('button');
+            const container = document.getElementById(`drillOptions-${qIdx}`);
+            const buttons = container.querySelectorAll('button');
             const expContainer = document.getElementById(`drillExp-${qIdx}`);
-            const explanation = decodeURIComponent(encodedExp);
+            if(buttons[0].disabled) return; // Prevent double click
+
+            buttons.forEach(btn => btn.disabled = true); drillAttemptedCount++;
             
-            const correctText = currentLang === 'hi' ? '✅ सही' : '✅ Correct';
-            const incorrectText = currentLang === 'hi' ? '❌ गलत' : '❌ Incorrect';
-            const expCorrectPrefix = currentLang === 'hi' ? '<strong>बिल्कुल सही!</strong>' : '<strong>Spot on!</strong>';
-            const expIncorrectPrefix = currentLang === 'hi' ? '<strong>गलत।</strong>' : '<strong>Incorrect.</strong>';
-            const tryAgainText = currentLang === 'hi' ? '🔄 पुनः प्रयास करें' : '🔄 Try Again';
-
-            buttons.forEach(btn => btn.disabled = true); 
-            drillAttemptedCount++;
-
-            let feedbackHTML = "";
-
             if (selectedIdx === correctIdx) {
-                drillCorrectCount++;
-                buttons[selectedIdx].classList.replace('border-slate-200', 'border-emerald-500'); 
-                buttons[selectedIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500');
-                buttons[selectedIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400');
-                buttons[selectedIdx].querySelector('.status-marker').textContent = correctText;
-                
+                drillCorrectCount++; playChime('success'); triggerHaptic(true);
+                buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                buttons[selectedIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
-                feedbackHTML = `${expCorrectPrefix} ${escapeHtml(explanation)}`;
             } else {
-                buttons[selectedIdx].classList.replace('border-slate-200', 'border-rose-500'); 
-                buttons[selectedIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500');
-                buttons[selectedIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400');
-                buttons[selectedIdx].querySelector('.status-marker').textContent = incorrectText;
-                
-                buttons[correctIdx].classList.replace('border-slate-200', 'border-emerald-500'); 
-                buttons[correctIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500');
-                buttons[correctIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400');
-                buttons[correctIdx].querySelector('.status-marker').textContent = correctText;
-                
+                playChime('flip'); triggerHaptic(false);
+                buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400";
+                buttons[selectedIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                buttons[correctIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                buttons[correctIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
-                feedbackHTML = `${expIncorrectPrefix} ${escapeHtml(explanation)}`;
             }
-            
-            feedbackHTML += `<div class="mt-3 pt-3 border-t border-black/10 dark:border-white/10"><button onclick="resetDrillQuestion(${qIdx})" class="text-xs font-black uppercase tracking-wider hover:underline flex items-center gap-1">${tryAgainText}</button></div>`;
-            expContainer.innerHTML = feedbackHTML;
-
-            updateDrillBadge();
-            
-            if (activeUser) { 
-                db.collection("users").doc(activeUser.uid).collection("quiz_history").add({ 
-                    type: "static_gk_drill", subject: currentSubject, topic: activeTopicData?.topicTitle || "Static GK", isCorrect: (selectedIdx === correctIdx), timestamp: firebase.firestore.FieldValue.serverTimestamp() 
-                }).catch(e => console.warn("Score logging skipped:", e)); 
-            }
+            expContainer.innerHTML = decodeURIComponent(encodedExp);
+            updateDrillBadge(); updateStreak();
         };
 
-        window.resetDrillQuestion = function(qIdx) {
-            const optionsContainer = document.getElementById(`drillOptions-${qIdx}`);
-            const buttons = optionsContainer.querySelectorAll('button');
-            const expContainer = document.getElementById(`drillExp-${qIdx}`);
+        function updateDrillBadge() { document.getElementById('drillScoreBadge').textContent = `Score: ${drillCorrectCount} / ${drillAttemptedCount}`; }
+
+        // ==========================================
+        // ANTI-THEFT SHIELD
+        // ==========================================
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) { e.preventDefault(); }
+        });
+
+        // ==========================================
+        // CLIENT-SIDE PDF GENERATOR (UPGRADED)
+        // ==========================================
+        window.generateTopicPDF = function() {
+            if (!activeTopicData) return;
+            const topicTitle = (currentLang === 'hi' && activeTopicData.topicTitle_hi) ? activeTopicData.topicTitle_hi : activeTopicData.topicTitle;
+            const subjName = activeTopicData.subjectName || "Static GK";
+            const notesHTML = (currentLang === 'hi' && activeTopicData.notes_hi) ? activeTopicData.notes_hi : activeTopicData.notes;
+            const flashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi) ? activeTopicData.flashcards_hi : (activeTopicData.flashcards || []);
+            const practiceQs = (currentLang === 'hi' && activeTopicData.practiceQs_hi) ? activeTopicData.practiceQs_hi : (activeTopicData.practiceQs || []);
+            const mcqs = (currentLang === 'hi' && activeTopicData.mcqs_hi) ? activeTopicData.mcqs_hi : (activeTopicData.mcqs || []);
             
-            buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.className = "w-full text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm";
-                btn.querySelector('.status-marker').textContent = '';
-            });
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+
+            let content = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
+                <style>
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .pdf-header-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+                    .pdf-logo-box { display: flex; align-items: center; gap: 12px; }
+                    .pdf-brand-title { font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff; margin: 0; }
+                    .pdf-brand-sub { font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px; }
+                    .pdf-topic-pill { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0; }
+                    .pdf-section-title { font-size: 15px; font-weight: 900; color: #0f172a; border-left: 4px solid #4f46e5; padding-left: 10px; margin: 24px 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+                    .pdf-notes-container { background: #ffffff; border: 1px solid #e2e8f0; padding: 18px; border-radius: 10px; font-size: 12px; line-height: 1.7; color: #334155; }
+                    .pdf-fc-card { border: 1px solid #e2e8f0; border-left: 3px solid #0284c7; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; page-break-inside: avoid; }
+                    .pdf-mcq-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 14px; page-break-inside: avoid; background: #ffffff; }
+                    .pdf-mcq-correct { background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 6px; font-weight: bold; color: #065f46; font-size: 11px; margin-top: 8px; }
+                    .pdf-footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 700; color: #64748b; }
+                </style>
+                <div class="pdf-watermark">STENOGYM • t.me/stenogym</div>
+                
+                <div class="pdf-header-banner">
+                    <div class="pdf-logo-box">
+                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                        <div>
+                            <div class="pdf-brand-title">STENOGYM</div>
+                            <div class="pdf-brand-sub">Exam Knowledge Hub</div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="pdf-topic-pill">${escapeHtml(subjName)}</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <h1 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 0 0 6px 0;">${escapeHtml(topicTitle)}</h1>
+                    <span style="font-size: 11px; font-weight: bold; color: #64748b;">🎯 Curated for SSC CGL • IBPS PO • RRB NTPC • State PSCs</span>
+                </div>
+
+                <div class="pdf-section-title">📘 Comprehensive Cheat Sheet</div>
+                <div class="pdf-notes-container">${notesHTML}</div>`;
+
+            if (flashcards.length > 0) {
+                content += `<div class="pdf-section-title">📇 Active Recall Flashcard Bank (${flashcards.length})</div>`;
+                flashcards.forEach((fc, i) => {
+                    content += `
+                        <div class="pdf-fc-card">
+                            <div style="font-size: 10px; font-weight: 800; color: #0284c7; text-transform: uppercase; margin-bottom: 4px;">Concept Recall #${i+1}</div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Q: ${escapeHtml(fc.front)}</div>
+                            <div style="font-size: 12px; font-weight: bold; color: #059669; margin-bottom: 2px;">A: ${escapeHtml(fc.back)}</div>
+                            ${fc.context ? `<div style="font-size: 10px; color: #64748b; font-style: italic;">Note: ${escapeHtml(fc.context)}</div>` : ''}
+                        </div>`;
+                });
+            }
             
-            expContainer.classList.add('hidden');
-            expContainer.innerHTML = '';
+            if (practiceQs.length > 0) {
+                content += `<div class="pdf-section-title">🎯 Concept Practice Questions (${practiceQs.length})</div>`;
+                practiceQs.forEach((pq, i) => {
+                    content += `
+                        <div class="pdf-mcq-box" style="border-left: 3px solid #0ea5e9;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 10px; font-weight: 900; color: #0ea5e9; text-transform: uppercase;">Practice #${i+1}</span>
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(pq.sourceExam || 'Concept Check')}</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(pq.question)}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
+                                <div>A. ${escapeHtml(pq.options[0])}</div>
+                                <div>B. ${escapeHtml(pq.options[1])}</div>
+                                <div>C. ${escapeHtml(pq.options[2])}</div>
+                                <div>D. ${escapeHtml(pq.options[3])}</div>
+                            </div>
+                            <div class="pdf-mcq-correct">
+                                Correct: Option ${String.fromCharCode(65 + pq.correctIndex)} &bull; ${escapeHtml(pq.options[pq.correctIndex])}
+                                ${pq.explanation ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(pq.explanation)}</div>` : ''}
+                            </div>
+                        </div>`;
+                });
+            }
+
+            if (mcqs.length > 0) {
+                content += `<div class="pdf-section-title">⚡ Previous Year & Verification Drills (${mcqs.length})</div>`;
+                mcqs.forEach((mq, i) => {
+                    content += `
+                        <div class="pdf-mcq-box" style="border-left: 3px solid #e11d48;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                <span style="font-size: 10px; font-weight: 900; color: #e11d48; text-transform: uppercase;">Drill #${i+1}</span>
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(mq.sourceExam)}</span>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(mq.question)}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
+                                <div>A. ${escapeHtml(mq.options[0])}</div>
+                                <div>B. ${escapeHtml(mq.options[1])}</div>
+                                <div>C. ${escapeHtml(mq.options[2])}</div>
+                                <div>D. ${escapeHtml(mq.options[3])}</div>
+                            </div>
+                            <div class="pdf-mcq-correct">
+                                Correct: Option ${String.fromCharCode(65 + mq.correctIndex)} &bull; ${escapeHtml(mq.options[mq.correctIndex])}
+                                ${mq.explanation ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(mq.explanation)}</div>` : ''}
+                            </div>
+                        </div>`;
+                });
+            }
+
+            content += `
+                <div class="pdf-footer">
+                    Exclusive Exam Resource prepared by STENOGYM &bull; Official Channel: t.me/stenogym &bull; Unauthorized distribution prohibited
+                </div>
+            </div>`;
+
+            const element = document.createElement('div');
+            element.innerHTML = content;
+            const opt = {
+                margin: 0.4,
+                filename: `Stenogym_${topicTitle.replace(/[^a-zA-Z0-9]/g, '_')}_Revision.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
         };
 
-        function updateDrillBadge() { 
-            const scoreLabel = currentLang === 'hi' ? 'स्कोर:' : 'Score:';
-            document.getElementById('drillScoreBadge').textContent = `${scoreLabel} ${drillCorrectCount} / ${drillAttemptedCount}`; 
-        }
-
-        // EMPTIED SEED FUNCTION (Ready for Firebase)
-        function getStaticGKSeedData(subjectKey) {
-            return [];
-        }
-        
-        document.addEventListener('DOMContentLoaded', () => loadSubjectTopics(currentSubject));
+        document.addEventListener('DOMContentLoaded', () => { loadSubjectTopics(currentSubject); });
     </script>
-    <!-- ========================================== -->
-<!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
-<!-- ========================================== -->
-<style>
-    #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
-    #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
-    #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
-    
-    /* Breathing Glow Effect Behind the Button */
-    #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
-    @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
-    
-    /* The "Shorthand Writer" Pencil Wiggle Animation */
-    .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
-    @keyframes writeWiggle {
-        0%, 85%, 100% { transform: rotate(0deg); }
-        88% { transform: rotate(-25deg); }
-        91% { transform: rotate(15deg); }
-        94% { transform: rotate(-10deg); }
-        97% { transform: rotate(5deg); }
-    }
-    
-    #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
-    #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
-    
-    .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
-    .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
-    .fab-tg { background-color: #0088cc; }
-    .fab-yt { background-color: #FF0000; }
-    .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
-    .fab-share { background-color: #25D366; }
-.active-nav {
-        color: #67e8f9 !important;
-        font-weight: 900 !important;
-    }
-</style>
 
-<div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
-    <!-- Hidden Menu -->
-    <div id="stenoFabMenu">
-        <!-- Telegram -->
-        <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
-        <!-- YouTube -->
-        <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
-        <!-- Clean Instagram Icon -->
-        <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-        <!-- Share Action -->
-        <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
+    <!-- ========================================== -->
+    <!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
+    <!-- ========================================== -->
+    <style>
+        #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+        #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+        #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+        #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+        @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+        .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+        @keyframes writeWiggle { 0%, 85%, 100% { transform: rotate(0deg); } 88% { transform: rotate(-25deg); } 91% { transform: rotate(15deg); } 94% { transform: rotate(-10deg); } 97% { transform: rotate(5deg); } }
+        #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+        #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+        .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
+        .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+        .fab-tg { background-color: #0088cc; }
+        .fab-yt { background-color: #FF0000; }
+        .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .fab-share { background-color: #25D366; }
+    </style>
+
+    <div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+        <div id="stenoFabMenu">
+            <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+            <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+            <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+            <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
+        </div>
+        <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
     </div>
     
-    <!-- Main Draggable Badge with Wiggling Pencil -->
-    <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const fabContainer = document.getElementById('stenoFabContainer');
-    const fabMain = document.getElementById('stenoFabMain');
-    const fabMenu = document.getElementById('stenoFabMenu');
-    const shareBtn = document.getElementById('fabShareBtn');
-
-    let isDragging = false, hasDragged = false;
-    let startX, startY, initialX, initialY;
-    const fabSize = 56;
-
-    const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
-
-    if (isMobile) {
-        // MOBILE: Firmly anchor to bottom-right so it never gets lost off-screen
-        fabContainer.style.left = 'auto';
-        fabContainer.style.top = 'auto';
-        fabContainer.style.right = '20px';
-        fabContainer.style.bottom = '24px';
-
-        // Instant tap to toggle menu
-        fabMain.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fabMenu.classList.toggle('active');
-        });
-    } else {
-        // DESKTOP: Safe drag handling
-        const savedX = localStorage.getItem('stenoFabX');
-        const savedY = localStorage.getItem('stenoFabY');
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const fabContainer = document.getElementById('stenoFabContainer');
+        const fabMain = document.getElementById('stenoFabMain');
+        const fabMenu = document.getElementById('stenoFabMenu');
+        const shareBtn = document.getElementById('fabShareBtn');
+    
+        let isDragging = false, hasDragged = false;
+        let startX, startY, initialX, initialY;
         const fabSize = 56;
-
-        if (savedX !== null && savedY !== null) {
-            const x = parseInt(savedX, 10);
-            const y = parseInt(savedY, 10);
-            if (x >= 0 && x <= window.innerWidth - fabSize && y >= 0 && y <= window.innerHeight - fabSize) {
-                fabContainer.style.left = x + 'px';
-                fabContainer.style.top = y + 'px';
+    
+        const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+    
+        if (isMobile) {
+            // MOBILE: Firmly anchor to bottom-right so it never gets lost off-screen
+            fabContainer.style.left = 'auto';
+            fabContainer.style.top = 'auto';
+            fabContainer.style.right = '20px';
+            fabContainer.style.bottom = '24px';
+    
+            // Instant tap to toggle menu
+            fabMain.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fabMenu.classList.toggle('active');
+            });
+        } else {
+            // DESKTOP: Safe drag handling
+            const savedX = localStorage.getItem('stenoFabX');
+            const savedY = localStorage.getItem('stenoFabY');
+            const fabSize = 56;
+    
+            if (savedX !== null && savedY !== null) {
+                const x = parseInt(savedX, 10);
+                const y = parseInt(savedY, 10);
+                if (x >= 0 && x <= window.innerWidth - fabSize && y >= 0 && y <= window.innerHeight - fabSize) {
+                    fabContainer.style.left = x + 'px';
+                    fabContainer.style.top = y + 'px';
+                    fabContainer.style.right = 'auto';
+                    fabContainer.style.bottom = 'auto';
+                }
+            }
+    
+            let isDragging = false, hasDragged = false;
+            let startX = 0, startY = 0, initialX = 0, initialY = 0;
+    
+            fabMain.addEventListener('mousedown', (e) => {
+                if (e.target.closest('#stenoFabMenu')) return;
+                isDragging = true;
+                hasDragged = false;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialX = fabContainer.offsetLeft;
+                initialY = fabContainer.offsetTop;
+                document.body.style.userSelect = "none";
+            });
+    
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                if (Math.abs(dx) > 12 || Math.abs(dy) > 12) hasDragged = true;
+                if (!hasDragged) return;
+    
+                fabMenu.classList.remove('active');
+                let newX = Math.max(0, Math.min(initialX + dx, window.innerWidth - fabSize));
+                let newY = Math.max(0, Math.min(initialY + dy, window.innerHeight - fabSize));
+                fabContainer.style.left = newX + 'px';
+                fabContainer.style.top = newY + 'px';
                 fabContainer.style.right = 'auto';
                 fabContainer.style.bottom = 'auto';
-            }
+            });
+    
+            document.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false;
+                document.body.style.userSelect = "auto";
+    
+                if (hasDragged) {
+                    const currentX = fabContainer.offsetLeft;
+                    const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
+                    fabContainer.style.transition = "left 0.3s ease-out";
+                    fabContainer.style.left = targetX + 'px';
+                    localStorage.setItem('stenoFabX', targetX);
+                    localStorage.setItem('stenoFabY', fabContainer.offsetTop);
+                    setTimeout(() => { fabContainer.style.transition = ""; }, 300);
+                } else {
+                    fabMenu.classList.toggle('active');
+                }
+            });
         }
-
-        let isDragging = false, hasDragged = false;
-        let startX = 0, startY = 0, initialX = 0, initialY = 0;
-
-        fabMain.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#stenoFabMenu')) return;
-            isDragging = true;
-            hasDragged = false;
-            startX = e.clientX;
-            startY = e.clientY;
-            initialX = fabContainer.offsetLeft;
-            initialY = fabContainer.offsetTop;
-            document.body.style.userSelect = "none";
+    
+        // Dismiss menu when clicking anywhere else
+        document.addEventListener('click', (e) => {
+            if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
         });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            if (Math.abs(dx) > 12 || Math.abs(dy) > 12) hasDragged = true;
-            if (!hasDragged) return;
-
-            fabMenu.classList.remove('active');
-            let newX = Math.max(0, Math.min(initialX + dx, window.innerWidth - fabSize));
-            let newY = Math.max(0, Math.min(initialY + dy, window.innerHeight - fabSize));
-            fabContainer.style.left = newX + 'px';
-            fabContainer.style.top = newY + 'px';
-            fabContainer.style.right = 'auto';
-            fabContainer.style.bottom = 'auto';
+    
+        shareBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
+            try {
+                if (navigator.share) await navigator.share(shareData);
+                else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); }
+            } catch (err) {}
         });
-
-        document.addEventListener('mouseup', () => {
-            if (!isDragging) return;
-            isDragging = false;
-            document.body.style.userSelect = "auto";
-
-            if (hasDragged) {
-                const currentX = fabContainer.offsetLeft;
-                const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
-                fabContainer.style.transition = "left 0.3s ease-out";
-                fabContainer.style.left = targetX + 'px';
-                localStorage.setItem('stenoFabX', targetX);
-                localStorage.setItem('stenoFabY', fabContainer.offsetTop);
-                setTimeout(() => { fabContainer.style.transition = ""; }, 300);
-            } else {
-                fabMenu.classList.toggle('active');
-            }
-        });
-    }
-
-    // Dismiss menu when clicking anywhere else
-    document.addEventListener('click', (e) => {
-        if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
     });
-
-    shareBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
-        try {
-            if (navigator.share) await navigator.share(shareData);
-            else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); }
-        } catch (err) {}
-    });
-});
-</script>
-<script>
+    </script>
+    <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath) currentPath = 'index';
+        let currentPath = window.location.pathname.split('?')[0].split('#')[0].replace(/\/$/, '').split('/').pop().replace('.html', '');
+        if (!currentPath || currentPath === "") currentPath = 'index';
 
         document.querySelectorAll('nav a').forEach(link => {
             const href = link.getAttribute('href');
-            if (href) {
-                const cleanHref = href.replace('.html', '');
-                if (cleanHref === currentPath) {
-                    link.classList.remove('text-slate-300');
+            if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+                const cleanHref = href.split('?')[0].split('#')[0].split('/').pop().replace('.html', '');
+                const targetFile = cleanHref || 'index';
+                
+                if (targetFile === currentPath) {
+                    link.classList.remove('text-slate-300', 'text-cyan-300', 'text-slate-400', 'text-slate-500', 'dark:text-slate-500');
                     link.classList.add('active-nav');
+                    
+                    if (link.closest('.glass-nav')) {
+                        link.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                    }
                 }
             }
         });
     });
 </script>
+<!-- MOBILE MENU & ACCORDION FIX -->
+    <script>
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+            document.getElementById('mobileMenu')?.classList.toggle('hidden');
+        });
+        document.getElementById('mobileStenoToggle')?.addEventListener('click', () => {
+            const stenoMenu = document.getElementById('mobileStenoMenu');
+            stenoMenu?.classList.toggle('hidden');
+            stenoMenu?.classList.toggle('flex');
+            const chev = document.getElementById('stenoChevron');
+            if(chev) chev.textContent = stenoMenu.classList.contains('hidden') ? '▼' : '▲';
+        });
+    </script>
 </body>
 </html>

@@ -20,31 +20,48 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     
-    <!-- Firebase SDKs -->
+    <!-- Firebase & PDF SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Link to Base64 logo asset -->
+    <script src="logo.js"></script>
 
     <style>
         .perspective-1000 { perspective: 1000px; } 
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .rotate-y-180 { transform: rotateY(180deg); } 
-        .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); }
+        
+        /* Auto-Fitting 3D Flip Card Fix */
+        .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); display: grid; }
+        .flip-card-front, .flip-card-back { grid-area: 1 / 1; backface-visibility: hidden; }
+        .flip-card-back { transform: rotateY(180deg); }
+        
         .hide-scrollbar::-webkit-scrollbar { display: none; } 
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .progress-glow { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         
-        /* Solid green border for completed cards */
-        .card-completed { border-left: 4px solid #10b981 !important; }
-        .dark .card-completed { border-left: 4px solid #34d399 !important; }
-    .active-nav {
-        color: #67e8f9 !important;
-        font-weight: 900 !important;
-    }
-</style>
+        .card-completed .flip-card-front { border-left: 4px solid #10b981 !important; }
+        .dark .card-completed .flip-card-front { border-left: 4px solid #34d399 !important; }
+        .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
+
+        /* Premium Glassmorphism (For Compilation Workspace) */
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 40px -10px rgba(30, 41, 59, 0.1); }
+        .dark .glass-card { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5); }
+
+        /* Anti-Theft Utilities */
+        .no-select { user-select: none; -webkit-user-select: none; -ms-user-select: none; }
+        #forensicWatermark { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; opacity: 0.03; font-size: 20px; font-weight: 900; color: #000; transform: rotate(-30deg) scale(1.5); display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 60px; letter-spacing: 2px; }
+        .dark #forensicWatermark { color: #fff; opacity: 0.02; }
+    </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col pt-20 transition-colors duration-300">
+
+    <!-- FLOATING FORENSIC WATERMARK -->
+    <div id="forensicWatermark" aria-hidden="true"></div>
 
     <!-- MASTER NAVIGATION BAR -->
     <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 dark:bg-slate-950 border-b border-white/10 dark:border-slate-800 shadow-sm transition-all duration-300 h-20">
@@ -54,7 +71,6 @@
             </a>
             
             <div class="hidden lg:flex items-center gap-6 font-semibold text-sm">
-                
                 <div class="flex items-center gap-2">
                     <button id="themeToggleBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition shadow-inner focus:outline-none">
                         <span id="themeIcon">🌙</span>
@@ -90,7 +106,6 @@
             </div>
             
             <div class="flex items-center gap-3 lg:hidden">
-                <!-- Mobile Bilingual Toggle -->
                 <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
                     <button id="btnLangEnMob" onclick="setLanguage('en')" class="px-2 py-1 rounded-md bg-indigo-600 text-white transition shadow-sm">EN</button>
                     <button id="btnLangHiMob" onclick="setLanguage('hi')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white transition">HI</button>
@@ -117,7 +132,7 @@
                         <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 Live Document Scanner</a>
                     </div>
                 </div>
-
+                
                 <a href="blog.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="✍️ Blog & Guides" data-hi="✍️ ब्लॉग और गाइड">✍️ Blog & Guides</a>
                 
                 <div class="pt-2 border-t border-indigo-800">
@@ -131,35 +146,36 @@
 
     <!-- HEADER & WRAPPING CATEGORY PILLS -->
     <header class="bg-slate-900 dark:bg-slate-950 text-white border-b border-slate-800 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-8">
-            <div class="text-center max-w-3xl mx-auto mb-6">
-                <h1 class="text-3xl md:text-4xl font-black text-white tracking-tight translation-el" data-en="The Daily News Desk" data-hi="दैनिक समाचार डेस्क">The Daily News Desk</h1>
-                <p class="text-slate-400 text-sm mt-2 translation-el" data-en="High-Yield Current Affairs curated for SSC & Banking." data-hi="SSC और बैंकिंग के लिए तैयार किए गए उच्च उपज वाले करेंट अफेयर्स।">High-Yield Current Affairs curated for SSC & Banking.</p>
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
+            <div class="text-center max-w-3xl mx-auto mb-4 md:mb-6">
+                <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight translation-el" data-en="The Daily News Desk" data-hi="दैनिक समाचार डेस्क">The Daily News Desk</h1>
+                <p class="text-slate-400 text-xs md:text-sm mt-1 md:mt-2 translation-el" data-en="High-Yield Current Affairs curated for SSC & Banking." data-hi="SSC और बैंकिंग के लिए तैयार किए गए उच्च उपज वाले करेंट अफेयर्स।">High-Yield Current Affairs curated for SSC & Banking.</p>
             </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-3 py-2 px-1 w-full" id="categoryPillContainer">
-                <button class="cat-pill active bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap shadow-md transition translation-el" data-cat="all" data-en="🌟 All News" data-hi="🌟 सभी समाचार">🌟 All News</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Banking & Economy" data-en="🏦 Banking & Economy" data-hi="🏦 बैंकिंग और अर्थव्यवस्था">🏦 Banking & Economy</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-cyan-600 hover:text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="National & Global" data-en="🌍 National & Global" data-hi="🌍 राष्ट्रीय और वैश्विक">🌍 National & Global</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Science & Defence" data-en="🚀 Science & Defence" data-hi="🚀 विज्ञान और रक्षा">🚀 Science & Defence</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-fuchsia-600 hover:text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Persons in News" data-en="👤 Persons in News" data-hi="👤 चर्चा में रहे व्यक्ति">👤 Persons in News</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Sports" data-en="🏆 Sports" data-hi="🏆 खेल जगत">🏆 Sports</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-violet-600 hover:text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Awards & Honours" data-en="🏅 Awards & Honours" data-hi="🏅 पुरस्कार और सम्मान">🏅 Awards & Honours</button>
+            <div class="flex flex-wrap items-center justify-center gap-2 py-2 px-1 w-full" id="categoryPillContainer">
+                <button class="cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el" data-cat="all" data-en="🌟 All News" data-hi="🌟 सभी समाचार">🌟 All News</button>
+                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Banking & Economy" data-en="🏦 Banking & Economy" data-hi="🏦 बैंकिंग और अर्थव्यवस्था">🏦 Banking & Economy</button>
+                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-cyan-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="National & Global" data-en="🌍 National & Global" data-hi="🌍 राष्ट्रीय और वैश्विक">🌍 National & Global</button>
+                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Science & Defence" data-en="🚀 Science & Defence" data-hi="🚀 विज्ञान और रक्षा">🚀 Science & Defence</button>
+                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-fuchsia-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Persons in News" data-en="👤 Persons in News" data-hi="👤 चर्चा में रहे व्यक्ति">👤 Persons in News</button>
+                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Sports" data-en="🏆 Sports" data-hi="🏆 खेल जगत">🏆 Sports</button>
+                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-violet-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Awards & Honours" data-en="🏅 Awards & Honours" data-hi="🏅 पुरस्कार और सम्मान">🏅 Awards & Honours</button>
             </div>
         </div>
     </header>
 
-    <!-- MOBILE-SMART UTILITY BAR WITH TOOLTIPS -->
-    <div class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 sticky top-[80px] z-40 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-colors">
+    <!-- MOBILE-SMART UTILITY BAR WITH SMART SCROLL / AUTO-HIDE -->
+    <div id="secondaryNavBar" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 sticky top-[80px] z-40 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-all duration-300 transform">
         <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
             
             <div class="flex items-center gap-4 w-full md:w-auto">
-                <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black w-full md:w-auto overflow-x-auto">
+                <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black w-full md:w-auto overflow-x-auto hide-scrollbar">
                     <button id="tabDaily" title="View Daily News Feed" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el whitespace-nowrap" data-en="📅 Daily" data-hi="📅 दैनिक">📅 Daily</button>
                     <button id="tabWeekly" title="View Weekly Compilation" class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition translation-el whitespace-nowrap" data-en="⚡ Weekly" data-hi="⚡ साप्ताहिक">⚡ Weekly</button>
                     <button id="tabMonthly" title="View Monthly Digest" class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition translation-el whitespace-nowrap" data-en="📥 Monthly" data-hi="📥 मासिक">📥 Monthly</button>
                 </div>
                 
+                <!-- Daily Progress Widget -->
                 <div class="hidden md:flex flex-col w-32 flex-shrink-0" id="progressWidget">
                     <div class="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
                         <span class="translation-el" data-en="Goal" data-hi="लक्ष्य">Goal</span>
@@ -171,73 +187,101 @@
                 </div>
             </div>
 
+            <!-- Control Bar (Visible on Daily Tab) -->
             <div id="dateControlBar" class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto pb-1 md:pb-0">
-                
-                <button id="btnAudioBrief" title="Listen to 2-Minute Audio Brief" class="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
+                <button id="btnAudioBrief" onclick="toggleAudioBrief()" title="Listen to 2-Minute Audio Brief" class="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
                     <span id="audioIcon">🎧</span> <span id="audioLabel" class="hidden sm:inline translation-el" data-en="2m Brief" data-hi="2 मिनट सारांश">2m Brief</span>
                 </button>
 
-                <div class="flex items-center bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-xl px-2 py-1 shadow-sm flex-shrink-0" title="Select Date">
-                    <button id="btnPrevDay" class="px-2 py-1 text-indigo-600 dark:text-indigo-400 font-black text-sm">&larr;</button>
-                    <input type="date" id="selectedDateInput" class="bg-transparent text-slate-800 dark:text-white font-mono text-xs font-black px-2 py-1 outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]">
-                    <button id="btnNextDay" class="px-2 py-1 text-indigo-600 dark:text-indigo-400 font-black text-sm">&rarr;</button>
+                <div class="flex flex-col items-center">
+                    <span id="displayDateBadge" class="text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-0.5"></span>
+                    <div class="flex items-center bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-xl px-2 py-1 shadow-sm flex-shrink-0" title="Select Date">
+                        <button id="btnPrevDay" class="px-2 py-1 text-indigo-600 dark:text-indigo-400 font-black text-sm">&larr;</button>
+                        <input type="date" id="selectedDateInput" class="bg-transparent text-slate-800 dark:text-white font-mono text-xs font-black px-2 py-1 outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]">
+                        <button id="btnNextDay" class="px-2 py-1 text-indigo-600 dark:text-indigo-400 font-black text-sm">&rarr;</button>
+                    </div>
                 </div>
                 
                 <button id="btnFlipAll" onclick="toggleFlipAll()" title="Flip all cards to see MCQs" class="flex items-center gap-1.5 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 text-indigo-700 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
                     <span>🔄</span> <span class="hidden sm:inline translation-el" data-en="Flip All" data-hi="सभी पलटें">Flip All</span>
                 </button>
 
-                <!-- MODIFIED: Linked directly to the Telegram Growth Modal -->
-                <button onclick="triggerTelegramDownload(event)" title="Download Daily PDF" class="flex items-center gap-1.5 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
+                <button onclick="triggerTelegramDownload(event, 'daily')" title="Download Daily PDF" class="flex items-center gap-1.5 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
                     <span>📄</span> <span class="hidden sm:inline translation-el" data-en="Daily PDF" data-hi="दैनिक PDF">Daily PDF</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- MAIN FEED CANVAS -->
-    <main class="flex-grow max-w-5xl mx-auto w-full px-4 md:px-6 py-8">
+    <!-- MAIN FEED CANVAS (ANTI-THEFT SHIELD) -->
+    <main class="flex-grow max-w-4xl mx-auto w-full px-4 md:px-6 py-6 md:py-8 no-select">
         
-        <div id="feedLoading" class="flex flex-col items-center justify-center py-24 text-slate-400">
-            <div class="text-4xl animate-bounce mb-3">🗞️</div>
-            <p class="font-bold uppercase tracking-wider text-xs translation-el" data-en="Fetching Exam Digest..." data-hi="समाचार लोड हो रहा है...">Fetching Exam Digest...</p>
+        <!-- SKELETON LOADER -->
+        <div id="feedLoading" class="hidden space-y-6 w-full">
+            <div class="animate-pulse bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-5 md:p-6">
+                <div class="flex justify-between items-center mb-4"><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/6"></div></div>
+                <div class="h-7 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
+                <div class="space-y-2"><div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full"></div><div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-5/6"></div></div>
+            </div>
         </div>
 
-        <div id="dailyFeedView" class="space-y-8 hidden"></div>
+        <!-- DAILY VIEW -->
+        <div id="dailyFeedView" class="space-y-6 hidden"></div>
 
+        <!-- WEEKLY / MONTHLY SHELVES (Dynamic Grids + Re-added Banner Buttons) -->
         <div id="weeklyDrillView" class="hidden space-y-6">
             <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">⚡</div>
-                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Weekly News Compilation" data-hi="साप्ताहिक समाचार संकलन">Weekly News Compilation</h2>
-                <p class="text-slate-300 text-sm mb-6 max-w-md mx-auto">Read the verified magazine notes and test your retention under timer.</p>
-                <!-- MODIFIED: Linked directly to the Telegram Growth Modal -->
-                <button onclick="triggerTelegramDownload(event)" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Weekly PDF 📄" data-hi="साप्ताहिक PDF डाउनलोड करें 📄">Download Weekly PDF 📄</button>
+                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Weekly Speed Drills" data-hi="साप्ताहिक स्पीड ड्रिल">Weekly Speed Drills</h2>
+                <p class="text-indigo-200 text-sm max-w-md mx-auto mb-6 translation-el" data-en="Select a published week below to start your timed drill or flip-card review." data-hi="अपनी क्विज़ शुरू करने के लिए नीचे एक सप्ताह चुनें।">Select a published week below to start your timed drill or flip-card review.</p>
+                <button onclick="triggerTelegramDownload(event, 'compilation', 'https://t.me/+3EJOKkceGBA4YWE1')" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Weekly PDF 📄" data-hi="साप्ताहिक PDF डाउनलोड करें 📄">Download Weekly PDF 📄</button>
             </div>
-            
-            <div id="weeklyPdfEmbedContainer" class="hidden rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900 h-96 mt-6">
-                <iframe id="weeklyPdfFrame" class="w-full h-full" src=""></iframe>
-            </div>
-            
-            <div id="weeklyQuizArena" class="space-y-6 mt-8"></div>
+            <div id="weeklyShelfGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"></div>
         </div>
 
         <div id="monthlyPdfView" class="hidden space-y-6">
             <div class="bg-emerald-900 border border-emerald-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">📥</div>
-                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Monthly Mega Compilation" data-hi="मासिक मेगा संकलन">Monthly Mega Compilation</h2>
-                <p class="text-slate-300 text-sm mb-6 max-w-md mx-auto">100-Question comprehensive mock exam covering all primary sectors.</p>
-                <!-- MODIFIED: Linked directly to the Telegram Growth Modal -->
-                <button onclick="triggerTelegramDownload(event)" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Monthly PDF 📄" data-hi="मासिक PDF डाउनलोड करें 📄">Download Monthly PDF 📄</button>
+                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Monthly Mega Digests" data-hi="मासिक मेगा संकलन">Monthly Mega Digests</h2>
+                <p class="text-emerald-200 text-sm max-w-md mx-auto mb-6 translation-el" data-en="Comprehensive 100+ question mock exams covering all primary sectors." data-hi="सभी प्रमुख क्षेत्रों को कवर करने वाले 100+ प्रश्नों वाले मॉक परीक्षा।">Comprehensive 100+ question mock exams covering all primary sectors.</p>
+                <button onclick="triggerTelegramDownload(event, 'compilation', 'https://t.me/+3EJOKkceGBA4YWE1')" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Monthly PDF 📄" data-hi="मासिक PDF डाउनलोड करें 📄">Download Monthly PDF 📄</button>
             </div>
-            
-            <div id="monthlyPdfEmbedContainer" class="hidden rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-900 h-96 mt-6">
-                <iframe id="monthlyPdfFrame" class="w-full h-full" src=""></iframe>
-            </div>
-            
-            <div id="monthlyQuizArena" class="space-y-6 mt-8"></div>
+            <div id="monthlyShelfGrid" class="grid grid-cols-1 gap-6 mt-6"></div>
         </div>
-        
-        <div id="emptyFeedState" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-12 text-center max-w-md mx-auto shadow-sm">
+
+        <!-- COMPILATION WORKSPACE (Flip vs Quiz Modes) -->
+        <div id="compilationWorkspace" class="hidden space-y-6">
+            <div class="glass-card border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 sticky top-[80px] z-30">
+                <button onclick="closeCompilation()" class="text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold text-sm flex items-center gap-1 transition translation-el" data-en="&larr; Back to Shelf" data-hi="&larr; वापस">
+                    &larr; Back to Shelf
+                </button>
+                <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl font-bold text-xs">
+                    <button id="btnModeFlip" onclick="setCompilationMode('flip')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" data-en="📇 Flip & Learn" data-hi="📇 फ्लैशकार्ड">📇 Flip & Learn</button>
+                    <button id="btnModeQuiz" onclick="setCompilationMode('quiz')" class="px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el" data-en="⚡ Rapid Quiz" data-hi="⚡ रैपिड क्विज़">⚡ Rapid Quiz</button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <span id="compilationScoreBadge" class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-lg hidden border border-emerald-200">Score: 0/0</span>
+                    <button id="btnRetakeCompQuiz" onclick="retakeCompilationQuiz()" class="hidden bg-amber-100 text-amber-800 hover:bg-amber-200 text-xs font-black px-3 py-1.5 rounded-lg transition border border-amber-200 flex items-center gap-1">
+                        🔄 Retake
+                    </button>
+                    <button id="btnDownloadCompilation" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs font-black px-4 py-2 rounded-xl transition flex items-center gap-1.5 translation-el" data-en="📥 Download PDF" data-hi="📥 PDF डाउनलोड">
+                        📥 Download PDF
+                    </button>
+                </div>
+            </div>
+            
+            <div id="compilationCardsContainer" class="space-y-6"></div>
+            
+            <!-- 20-Card Pagination -->
+            <div id="compilationPagination" class="text-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 hidden">
+                <p id="compilationPaginationText" class="text-xs font-bold text-slate-400 mb-4">Showing 20 of X</p>
+                <button onclick="loadMoreCompilationCards()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-black text-xs px-6 py-3 rounded-xl shadow-sm transition translation-el" data-en="⬇ Load Next 20 Questions" data-hi="⬇ अगले 20 प्रश्न लोड करें">
+                    ⬇ Load Next 20 Questions
+                </button>
+            </div>
+        </div>
+
+        <div id="emptyFeedState" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-10 md:p-12 text-center max-w-md mx-auto shadow-sm transition-all duration-300 mt-6">
             <div class="text-4xl mb-3" id="emptyIcon">☕</div>
             <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 translation-el" id="emptyText" data-en="No News Filed For This Date" data-hi="इस तिथि के लिए कोई समाचार नहीं है">No News Filed For This Date</h3>
             <p id="emptySubText" class="text-sm font-medium text-slate-500 mb-4 hidden"></p>
@@ -245,96 +289,34 @@
         </div>
     </main>
 
-    <!-- FULL FOOTER WITH DISCLAIMER -->
-    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
-            <div class="space-y-4">
-                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white">
-                    <span class="text-yellow-400">✏️</span> STENOGYM
-                </a>
-                <p class="text-sm text-slate-400 leading-relaxed" data-en="India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection." data-hi="भारत का प्रमुख AI-संचालित परीक्षा इकोसिस्टम। आशुलिपि में महारत हासिल करें, स्टेटिक GK और दैनिक करंट अफेयर्स पर विजय प्राप्त करें, और अपना अंतिम चयन सुनिश्चित करें।">
-                    India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.
-                </p>
-                <!-- ACTUAL COLOR BRAND ICONS -->
-                <div class="flex gap-4 pt-2">
-                    <!-- Instagram -->
-                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
-                    <!-- YouTube -->
-                    <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
-                    <!-- Telegram -->
-                    <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
-                    <!-- Contact -->
-                    <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
-                </div>
-            </div>
+    <!-- SCROLL TO TOP BUTTON -->
+    <button id="scrollToTopBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="fixed bottom-24 right-5 z-40 bg-indigo-600 hover:bg-indigo-500 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 translate-y-5 pointer-events-none" title="Back to Top">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
+    </button>
 
-            <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="The Platform" data-hi="प्लेटफ़ॉर्म">The Platform</h4>
-                <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="app.html" class="hover:text-cyan-400 transition" data-en="Steno Room" data-hi="स्टेनो रूम">Steno Room</a></li>
-                    <li><a href="generator.html" class="hover:text-cyan-400 transition" data-en="AI Dictation Studio" data-hi="AI डिक्टेशन स्टूडियो">AI Dictation Studio</a></li>
-                    <li><a href="scanner.html" class="hover:text-cyan-400 transition" data-en="Live Document Scanner" data-hi="लाइव डॉक्यूमेंट स्कैनर">Live Document Scanner</a></li>
-                    <li><a href="login.html" class="hover:text-cyan-400 transition" data-en="Student Login" data-hi="छात्र लॉगिन">Student Login</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Resources" data-hi="संसाधन">Resources</h4>
-                <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition" data-en="The Stenogym Blog" data-hi="स्टेनोजिम ब्लॉग">The Stenogym Blog</a></li>
-                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a></li>
-                    <li><a href="gk.html" class="hover:text-cyan-400 transition" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a></li>
-                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span data-en="Recommended Gear" data-hi="अनुशंसित उपकरण">Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Company & Legal" data-hi="कंपनी और कानूनी">Company & Legal</h4>
-                <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="about.html" class="hover:text-cyan-400 transition" data-en="About Us" data-hi="हमारे बारे में">About Us</a></li>
-                    <li><a href="contact.html" class="hover:text-cyan-400 transition" data-en="Contact Support" data-hi="संपर्क समर्थन">Contact Support</a></li>
-                    <li><a href="privacy.html" class="hover:text-cyan-400 transition" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
-                    <li><a href="terms.html" class="hover:text-cyan-400 transition" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
-            <div>&copy; 2026 Stenogym. All rights reserved.</div>
-            <div class="text-center md:text-right max-w-xl leading-relaxed">
-                <span class="text-slate-400" data-en="Disclaimer:" data-hi="अस्वीकरण:">Disclaimer:</span> 
-                <span data-en="We are reader-supported. Affiliate links incur zero extra cost to you." data-hi="हम पाठक-समर्थित हैं। सहबद्ध लिंक पर आपको कोई अतिरिक्त लागत नहीं लगती है।">We are reader-supported. Affiliate links incur zero extra cost to you.</span>
-            </div>
-        </div>
-    </footer>
-
-    <!-- ADDED: TELEGRAM EXCLUSIVE DOWNLOAD MODAL -->
+    <!-- SMART TELEGRAM DOWNLOAD GATE -->
     <div id="telegramGrowthModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700">
-            <div class="w-16 h-16 bg-[#0088cc]/10 text-[#0088cc] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
-                ✈️
-            </div>
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Join Official Telegram for PDF</h3>
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transition-all transform scale-100">
+            <div class="w-16 h-16 bg-[#0088cc]/10 text-[#0088cc] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✈</div>
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Join Official Telegram for PDFs</h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
                 Printable offline PDFs with detailed solution keys and watermarks are distributed exclusively inside our verified Telegram channel.
             </p>
             <div class="flex flex-col gap-3">
-                <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="closeTgModal()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                    <span>🚀</span> Join Telegram Channel (Free)
+                <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="acceptTelegramAndDownload()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                    <span>🚀</span> Join Telegram & Download
                 </a>
-                <button onclick="closeTgModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold py-2 text-xs transition">
-                    Continue Reading Online
-                </button>
+                <button onclick="closeTgModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold py-2 text-xs transition">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- PREMIUM LOCK MODAL -->
+    <!-- PREMIUM LOCK MODAL (Login Gate) -->
     <div id="premiumModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transform scale-100 transition-all">
             <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
             <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 translation-el" data-en="Premium Feature Locked" data-hi="प्रीमियम सुविधा लॉक है">Premium Feature Locked</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Please create a 100% free account to download PDFs, save bookmarks, and track your quiz scores on the dashboard." data-hi="PDF डाउनलोड करने, बुकमार्क सहेजने और क्विज़ स्कोर ट्रैक करने के लिए कृपया एक निःशुल्क खाता बनाएं।">Please create a 100% free account to download PDFs, save bookmarks, and track your quiz scores on the dashboard.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Please create a 100% free account to download PDFs and track your progress." data-hi="PDF डाउनलोड करने और अपनी प्रगति को ट्रैक करने के लिए कृपया एक निःशुल्क खाता बनाएं।">Please create a 100% free account to download PDFs and track your progress.</p>
             <div class="flex flex-col gap-3">
                 <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl shadow-md transition translation-el" data-en="Create Free Account / Login" data-hi="मुफ़्त खाता बनाएँ / लॉगिन करें">Create Free Account / Login</a>
                 <button onclick="closePremiumModal()" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold py-2 text-sm transition translation-el" data-en="Maybe Later" data-hi="शायद बाद में">Maybe Later</button>
@@ -342,218 +324,293 @@
         </div>
     </div>
 
-    <!-- INTERACTIVE JAVASCRIPT & NEWS ENGINE -->
+    <!-- FULL FOOTER WITH DISCLAIMER (100% Preserved) -->
+    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            <div class="space-y-4">
+                <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white"><span class="text-yellow-400">✏️</span> STENOGYM</a>
+                <p class="text-sm text-slate-400 leading-relaxed">India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.</p>
+                <div class="flex gap-4 pt-2">
+                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
+                    <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+                    <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+                    <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
+                </div>
+            </div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4><ul class="space-y-3 text-sm font-medium"><li><a href="app.html" class="hover:text-cyan-400 transition">Steno Room</a></li><li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li><li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li><li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li></ul></div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4><ul class="space-y-3 text-sm font-medium"><li><a href="blog.html" class="hover:text-cyan-400 transition">The Stenogym Blog</a></li><li><a href="current-affairs.html" class="hover:text-cyan-400 transition">Current Affairs</a></li><li><a href="gk.html" class="hover:text-cyan-400 transition">Static GK</a></li><li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span>Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li></ul></div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4><ul class="space-y-3 text-sm font-medium"><li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li><li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li><li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li><li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li></ul></div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
+            <div>&copy; 2026 Stenogym. All rights reserved.</div>
+            <div class="text-center md:text-right max-w-xl leading-relaxed">
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. Affiliate links incur zero extra cost to you.
+            </div>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT & DATABASE ENGINE -->
     <script>
-        const htmlTag = document.documentElement;
-        const themeBtn = document.getElementById('themeToggleBtn');
-        const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
-        
-        if (localStorage.getItem('theme') === 'dark') { 
-            htmlTag.classList.add('dark'); 
-            themeBtn.textContent = '☀️'; 
-            mobileThemeBtn.textContent = '☀️'; 
-        }
-        
-        function toggleTheme() {
-            if (htmlTag.classList.contains('dark')) {
-                htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙';
+        // ==========================================
+        // SMART SCROLL / AUTO-HIDE TOOLBAR LOGIC
+        // ==========================================
+        const secondaryNav = document.getElementById('secondaryNavBar');
+        let lastScrollY = window.scrollY;
+        let scrollPauseTimer = null; let autoHideTimer = null; let isInteractingWithNav = false;
+
+        secondaryNav.addEventListener('mouseenter', () => isInteractingWithNav = true);
+        secondaryNav.addEventListener('mouseleave', () => { isInteractingWithNav = false; startAutoHideTimer(); });
+        secondaryNav.addEventListener('touchstart', () => isInteractingWithNav = true, {passive: true});
+        secondaryNav.addEventListener('touchend', () => { isInteractingWithNav = false; startAutoHideTimer(); }, {passive: true});
+
+        function showNav() { secondaryNav.classList.remove('-translate-y-[150%]', 'opacity-0'); }
+        function hideNav() { if (window.scrollY > 150 && !isInteractingWithNav) secondaryNav.classList.add('-translate-y-[150%]', 'opacity-0'); }
+        function startAutoHideTimer() { clearTimeout(autoHideTimer); if (window.scrollY > 150) autoHideTimer = setTimeout(() => hideNav(), 3500); }
+
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            
+            const btnTop = document.getElementById('scrollToTopBtn');
+            if (currentScrollY > 350) {
+                btnTop.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
+                btnTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
             } else {
-                htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀';
+                btnTop.classList.add('opacity-0', 'translate-y-5', 'pointer-events-none');
+                btnTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
             }
-        }
-        themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
-        let currentLang = 'en';
-        
-        window.setLanguage = function(lang) {
-            currentLang = lang;
-            
-            const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')];
-            const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
-
-            if (lang === 'en') {
-                btnsEn.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
-                btnsHi.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
-            } else {
-                btnsHi.forEach(btn => { if(btn) { btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.remove('text-slate-400', 'hover:text-white'); }});
-                btnsEn.forEach(btn => { if(btn) { btn.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); btn.classList.add('text-slate-400', 'hover:text-white'); }});
+            if (currentScrollY <= 150) {
+                clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer); showNav(); lastScrollY = currentScrollY; return;
             }
-            
-            document.querySelectorAll('.translation-el').forEach(el => {
-                if(lang === 'hi' && el.hasAttribute('data-hi')) { el.innerHTML = el.getAttribute('data-hi'); } 
-                else if(el.hasAttribute('data-en')) { el.innerHTML = el.getAttribute('data-en'); }
-            });
-            
-            if (typeof resetAndFetchBlogs === 'function') resetAndFetchBlogs();
-            if (typeof updateProgress === 'function') updateProgress();
-            if (typeof renderFeedCards === 'function') renderFeedCards();
-            if (typeof renderTopicListUI === 'function') {
-                if (typeof activeTopicsList !== 'undefined' && activeTopicsList.length > 0) renderTopicListUI();
-                if (typeof currentTopicId !== 'undefined' && currentTopicId) selectTopic(currentTopicId);
-                if (typeof updateDrillBadge === 'function') updateDrillBadge();
-            }
-            if (typeof renderArticleContent === 'function' && typeof currentPost !== 'undefined' && currentPost) renderArticleContent();
-        };
 
-        document.getElementById('mobileMenuBtn').addEventListener('click', () => { document.getElementById('mobileMenu').classList.toggle('hidden'); });
-        document.getElementById('mobileStenoToggle').addEventListener('click', () => {
-            const menu = document.getElementById('mobileStenoMenu');
-            menu.classList.toggle('hidden'); menu.classList.toggle('flex');
-            document.getElementById('stenoChevron').textContent = menu.classList.contains('hidden') ? '▼' : '▲';
-        });
+            const delta = currentScrollY - lastScrollY;
+            if (Math.abs(delta) < 15) return; // Jitter filter
 
+            clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer);
+            if (delta > 0) hideNav(); 
+            else { scrollPauseTimer = setTimeout(() => { showNav(); startAutoHideTimer(); }, 150); }
+            lastScrollY = currentScrollY;
+        }, { passive: true });
+
+        // ==========================================
+        // FIREBASE, AUTH & ANTI-THEFT
+        // ==========================================
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); const db = firebase.firestore();
-
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch(err => console.warn(err));
+        const db = firebase.firestore();
         let activeUser = null;
+
         firebase.auth().onAuthStateChanged(user => {
             activeUser = user;
             if (user) {
                 document.getElementById('desktopLoginBtn')?.classList.add('hidden'); document.getElementById('mobileLoginBtn')?.classList.add('hidden');
-                document.getElementById('navDashboard')?.classList.remove('hidden'); document.getElementById('mobileDashboardBtn')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.remove('hidden'); document.getElementById('navDashboardMob')?.classList.remove('hidden');
                 document.getElementById('btnLogout')?.classList.remove('hidden'); document.getElementById('mobileLogoutBtn')?.classList.remove('hidden');
                 document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
                 document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
+                
+                const wm = document.getElementById('forensicWatermark');
+                wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
             } else {
                 document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.add('hidden'); document.getElementById('navDashboardMob')?.classList.add('hidden');
+                document.getElementById('forensicWatermark').innerHTML = '';
             }
         });
 
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault(); });
+
         function requireLogin(e) {
-            if (!activeUser) {
-                if(e) e.preventDefault();
-                document.getElementById('premiumModal').classList.remove('hidden');
-                return false;
-            }
+            if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
             return true;
         }
 
-        window.closePremiumModal = function() {
-            document.getElementById('premiumModal').classList.add('hidden');
-        };
+        // ==========================================
+        // SMART PDF DOWNLOAD GATE
+        // ==========================================
+        window.closePremiumModal = () => document.getElementById('premiumModal').classList.add('hidden');
+        window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
 
-        // ADDED: TELEGRAM TRIGGER LOGIC
-        window.triggerTelegramDownload = function(e) { 
+        window.triggerTelegramDownload = function(e, type = 'daily', url = null) { 
             if(e) e.preventDefault();
-            if(requireLogin(e)) {
-                document.getElementById('telegramGrowthModal').classList.remove('hidden'); 
-            }
+            if(!requireLogin(e)) return;
+            const hasJoined = localStorage.getItem('hasJoinedTelegram');
+            if (!hasJoined) {
+                window.pendingDownload = { type, url };
+                document.getElementById('telegramGrowthModal').classList.remove('hidden');
+            } else { executeDownload(type, url); }
         };
-        window.closeTgModal = function() {
-            document.getElementById('telegramGrowthModal').classList.add('hidden');
+
+        window.acceptTelegramAndDownload = function() {
+            localStorage.setItem('hasJoinedTelegram', 'true');
+            closeTgModal();
+            setTimeout(() => { if(window.pendingDownload) executeDownload(window.pendingDownload.type, window.pendingDownload.url); }, 1000);
         };
-        
-        window.bookmarkCard = function(e, uiIndex) { 
-            if(!requireLogin(e)) return; 
-            const btn = document.getElementById(`btnBookmark-${uiIndex}`);
-            
-            if(btn.classList.contains('bookmarked')) {
-                btn.classList.remove('bookmarked', 'bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
+
+        function executeDownload(type, url) {
+            if(type === 'daily') generateDailyPDF();
+            else if(type === 'compilation' && url) window.open(url, '_blank');
+            else if(type === 'compilation' && !url) window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); // fallback
+        }
+
+        // ==========================================
+        // BILINGUAL, DATES & STATE
+        // ==========================================
+        const htmlTag = document.documentElement; const themeBtn = document.getElementById('themeToggleBtn'); const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
+        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀️'; }
+        function toggleTheme() {
+            if (htmlTag.classList.contains('dark')) { htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙'; }
+            else { htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀'; }
+        }
+        themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
+
+        let currentLang = 'en';
+        window.setLanguage = function(lang) {
+            currentLang = lang;
+            const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')]; const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
+            if (lang === 'en') {
+                btnsEn.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
+                btnsHi.forEach(b => { if(b) { b.classList.remove('bg-indigo-600', 'text-white'); b.classList.add('text-slate-400'); }});
             } else {
-                btn.classList.add('bookmarked', 'bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
+                btnsHi.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
+                btnsEn.forEach(b => { if(b) { b.classList.remove('bg-indigo-600', 'text-white'); b.classList.add('text-slate-400'); }});
             }
+            document.querySelectorAll('.translation-el').forEach(el => {
+                if(lang === 'hi' && el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi'); 
+                else if(el.hasAttribute('data-en')) el.innerHTML = el.getAttribute('data-en');
+            });
+            if (activeView === 'daily') renderFeedCards();
+            if (activeView === 'compilationActive') renderCompilationPage();
         };
 
-        let isSpeakingAudio = false;
-        const btnAudioBrief = document.getElementById('btnAudioBrief');
-        const audioIcon = document.getElementById('audioIcon');
-        const audioLabel = document.getElementById('audioLabel');
+        function getISTDateObj(dateObj = new Date()) { const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 5.5)); }
+        function getISTDateString(dateObj = new Date()) { const istDate = getISTDateObj(dateObj); const yyyy = istDate.getFullYear(); const mm = String(istDate.getMonth() + 1).padStart(2, '0'); const dd = String(istDate.getDate()).padStart(2, '0'); return `${yyyy}-${mm}-${dd}`; }
+        function formatISTDisplay(dateStr) { const d = new Date(dateStr); return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+        function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
 
-        btnAudioBrief.addEventListener('click', () => {
-            if (!('speechSynthesis' in window)) { alert("Audio readout is not supported by your browser."); return; }
-
-            if (isSpeakingAudio) {
-                window.speechSynthesis.cancel(); isSpeakingAudio = false;
-                audioIcon.textContent = "🎧"; audioLabel.innerHTML = currentLang === 'hi' ? "2 मिनट सारांश" : "2m Brief";
-                btnAudioBrief.classList.remove('bg-emerald-100', 'dark:bg-emerald-900/50', 'text-emerald-800', 'dark:text-emerald-400', 'border-emerald-300', 'dark:border-emerald-700');
-                btnAudioBrief.classList.add('bg-amber-100', 'dark:bg-amber-900/50', 'text-amber-800', 'dark:text-amber-400', 'border-amber-300', 'dark:border-amber-700');
-            } else {
-                if (allArticlesCache.length === 0) { alert("No news items available to read."); return; }
-
-                const textStream = allArticlesCache.map((item, idx) => {
-                    const headline = (currentLang === 'hi' && item.oneLiner_hi) ? item.oneLiner_hi : item.oneLiner;
-                    return `Item ${idx + 1}. ${headline}`;
-                }).join('. ');
-
-                const utterance = new SpeechSynthesisUtterance(textStream);
-                utterance.rate = 0.95;
-                if(currentLang === 'hi') utterance.lang = 'hi-IN';
-
-                utterance.onstart = () => {
-                    isSpeakingAudio = true;
-                    audioIcon.textContent = "⏹"; audioLabel.innerHTML = currentLang === 'hi' ? "रोकें" : "Stop Audio";
-                    btnAudioBrief.classList.add('bg-emerald-100', 'dark:bg-emerald-900/50', 'text-emerald-800', 'dark:text-emerald-400', 'border-emerald-300', 'dark:border-emerald-700');
-                    btnAudioBrief.classList.remove('bg-amber-100', 'dark:bg-amber-900/50', 'text-amber-800', 'dark:text-amber-400', 'border-amber-300', 'dark:border-amber-700');
-                };
-
-                utterance.onend = () => {
-                    isSpeakingAudio = false;
-                    audioIcon.textContent = "🎧"; audioLabel.innerHTML = currentLang === 'hi' ? "2 मिनट सारांश" : "2m Brief";
-                    btnAudioBrief.classList.remove('bg-emerald-100', 'dark:bg-emerald-900/50', 'text-emerald-800', 'dark:text-emerald-400', 'border-emerald-300', 'dark:border-emerald-700');
-                    btnAudioBrief.classList.add('bg-amber-100', 'dark:bg-amber-900/50', 'text-amber-800', 'dark:text-amber-400', 'border-amber-300', 'dark:border-amber-700');
-                };
-
-                window.speechSynthesis.speak(utterance);
-            }
-        });
-
-        let selectedDateStr = new Date().toISOString().split('T')[0];
+        let selectedDateStr = getISTDateString();
         let allArticlesCache = []; let activeCategoryFilter = "all"; let globalFlipState = false; let readArticlesSet = new Set();
-        
-        const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
+        let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
+        let activeView = 'daily'; 
 
+        const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
         dateInput.addEventListener('change', (e) => { selectedDateStr = e.target.value; loadNewsForDate(selectedDateStr); });
         document.getElementById('btnPrevDay').addEventListener('click', () => { const d = new Date(selectedDateStr); d.setDate(d.getDate() - 1); selectedDateStr = d.toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
         document.getElementById('btnNextDay').addEventListener('click', () => { const d = new Date(selectedDateStr); d.setDate(d.getDate() + 1); selectedDateStr = d.toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
-        document.getElementById('btnResetToday').addEventListener('click', () => { selectedDateStr = new Date().toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
 
+        // ==========================================
+        // AUDIO BRIEF (Speech Synthesis)
+        // ==========================================
+        let audioSynth = window.speechSynthesis;
+        let isAudioPlaying = false;
+        
+        window.toggleAudioBrief = function() {
+            const btnIcon = document.getElementById('audioIcon');
+            const btnLabel = document.getElementById('audioLabel');
+            
+            if (isAudioPlaying) {
+                audioSynth.cancel();
+                isAudioPlaying = false;
+                btnIcon.textContent = '🎧';
+                btnLabel.textContent = currentLang === 'hi' ? '2 मिनट सारांश' : '2m Brief';
+                return;
+            }
+            
+            if (allArticlesCache.length === 0) return alert("No news available for audio brief.");
+            
+            let textToRead = currentLang === 'hi' ? "आज के करेंट अफेयर्स। " : "Here is your Stenogym Daily Brief. ";
+            allArticlesCache.forEach((item, idx) => {
+                const headline = (currentLang === 'hi' && item.oneLiner_hi) ? item.oneLiner_hi : item.oneLiner;
+                textToRead += `News item ${idx + 1}. ${headline}. `;
+            });
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+            utterance.rate = 1.0;
+            
+            utterance.onend = function() {
+                isAudioPlaying = false;
+                btnIcon.textContent = '🎧';
+                btnLabel.textContent = currentLang === 'hi' ? '2 मिनट सारांश' : '2m Brief';
+            };
+            
+            audioSynth.speak(utterance);
+            isAudioPlaying = true;
+            btnIcon.textContent = '⏹️';
+            btnLabel.textContent = currentLang === 'hi' ? 'रोकें' : 'Stop';
+        };
+
+        // ==========================================
+        // VIEW NAVIGATION & CATEGORIES
+        // ==========================================
         const tabDaily = document.getElementById('tabDaily'); const tabWeekly = document.getElementById('tabWeekly'); const tabMonthly = document.getElementById('tabMonthly');
         const dailyFeedView = document.getElementById('dailyFeedView'); const weeklyDrillView = document.getElementById('weeklyDrillView'); const monthlyPdfView = document.getElementById('monthlyPdfView');
-        const dateControlBar = document.getElementById('dateControlBar');
+        const compilationWorkspace = document.getElementById('compilationWorkspace'); const dateControlBar = document.getElementById('dateControlBar');
 
-        function setCadence(activeTab, viewElement) {
-            [tabDaily, tabWeekly, tabMonthly].forEach(t => t.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'));
-            [tabDaily, tabWeekly, tabMonthly].forEach(t => t.classList.add('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-800', 'dark:hover:text-white'));
-            activeTab.classList.remove('text-slate-500', 'dark:text-slate-400', 'hover:text-slate-800', 'dark:hover:text-white');
-            activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+        function setCadence(activeTab, viewElement, cadenceVal) {
+            activeView = cadenceVal;
+            [tabDaily, tabWeekly, tabMonthly].forEach(t => { t.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); t.classList.add('text-slate-500', 'dark:text-slate-400'); });
+            activeTab.classList.remove('text-slate-500', 'dark:text-slate-400'); activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
             
-            [dailyFeedView, weeklyDrillView, monthlyPdfView].forEach(v => v.classList.add('hidden'));
+            [dailyFeedView, weeklyDrillView, monthlyPdfView, compilationWorkspace, document.getElementById('emptyFeedState')].forEach(v => v.classList.add('hidden'));
             viewElement.classList.remove('hidden'); dateControlBar.style.display = (activeTab === tabDaily) ? 'flex' : 'none';
+            document.getElementById('progressWidget').style.display = (activeTab === tabDaily) ? 'flex' : 'none';
+            
+            if (cadenceVal === 'weekly' || cadenceVal === 'monthly') loadCompilationShelf(cadenceVal);
         }
-        tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView));
-        tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView));
-        tabMonthly.addEventListener('click', () => setCadence(tabMonthly, monthlyPdfView));
+        tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView, 'daily'));
+        tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView, 'weekly'));
+        tabMonthly.addEventListener('click', () => setCadence(tabMonthly, monthlyPdfView, 'monthly'));
 
         document.querySelectorAll('.cat-pill').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.cat-pill').forEach(p => p.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el");
-                btn.className = "cat-pill active bg-indigo-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap shadow-md transition translation-el";
+                document.querySelectorAll('.cat-pill').forEach(p => p.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el");
+                btn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
                 activeCategoryFilter = btn.getAttribute('data-cat');
-                renderFeedCards();
+                
+                if (activeView === 'daily') renderFeedCards();
+                if (activeView === 'compilationActive') { currentCompilationPage = 1; renderCompilationPage(); }
             });
         });
 
+        // ==========================================
+        // DAILY NEWS FEED (Original Baseline 100%)
+        // ==========================================
         window.toggleFlipAll = function() {
             globalFlipState = !globalFlipState;
-            document.querySelectorAll('.flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
+            document.querySelectorAll('#dailyFeedView .flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
+        };
+
+        window.toggleBookmark = function(e, docId, btnId) { 
+            if(!requireLogin(e)) return; 
+            const btn = document.getElementById(btnId);
+            const idx = savedBookmarks.indexOf(docId);
+            
+            if(idx > -1) {
+                savedBookmarks.splice(idx, 1);
+                btn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
+                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
+            } else {
+                savedBookmarks.push(docId);
+                btn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
+                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
+            }
+            localStorage.setItem('stenoBookmarks', JSON.stringify(savedBookmarks));
         };
 
         window.markAsRead = function(cardId, uiIndex) {
-            const card = document.getElementById(`cardContainer-${uiIndex}`);
+            const cardFront = document.getElementById(`cardContainer-${uiIndex}`);
             const btn = document.getElementById(`btnRead-${uiIndex}`);
-            
             if (readArticlesSet.has(cardId)) {
-                readArticlesSet.delete(cardId);
-                card.classList.remove('card-completed');
+                readArticlesSet.delete(cardId); cardFront.classList.remove('card-completed');
                 btn.innerHTML = currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read';
-                btn.className = "flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
+                btn.className = "flex-1 justify-center items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
             } else {
-                readArticlesSet.add(cardId);
-                card.classList.add('card-completed');
+                readArticlesSet.add(cardId); cardFront.classList.add('card-completed');
                 btn.innerHTML = currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed';
-                btn.className = "flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700";
+                btn.className = "flex-1 justify-center items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700";
             }
             updateProgress();
         };
@@ -564,74 +621,59 @@
             document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
         }
 
-        async function loadNewsForDate(dateStr) {
-            document.getElementById('dailyFeedView').classList.add('hidden'); 
-            document.getElementById('emptyFeedState').classList.add('hidden');
-            document.getElementById('feedLoading').classList.remove('hidden');
-            
-            try {
-                const snapshot = await db.collection("daily_news").where("date", "==", dateStr).get();
-                allArticlesCache = [];
-
-                // ADDED: The 6:00 AM Gatekeeper check
-                const now = new Date().toISOString();
-
-                snapshot.forEach(doc => {
-                    const data = doc.data();
-                    if (!data.publishAt || data.publishAt <= now) {
-                        allArticlesCache.push({ id: doc.id, ...data });
-                    }
-                });
-
-                document.getElementById('feedLoading').classList.add('hidden');
-                
-                if (allArticlesCache.length === 0) { 
-                    const todayStr = new Date().toISOString().split('T')[0];
-                    const emptyIcon = document.getElementById('emptyIcon');
-                    const emptyText = document.getElementById('emptyText');
-                    const emptySubText = document.getElementById('emptySubText');
-
-                    if(dateStr === todayStr && new Date().getHours() < 6) {
-                        emptyIcon.textContent = "🌅";
-                        emptyText.innerHTML = currentLang === 'hi' ? "आज का 25+ करंट अफेयर्स सुबह 6:00 बजे आएगा।" : "Today's 25+ Current Affairs digest drops sharp at 6:00 AM.";
-                        emptySubText.innerHTML = currentLang === 'hi' ? "इस बीच कल के समाचारों का अभ्यास करें!" : "Practice yesterday's news in the meantime!";
-                        emptySubText.classList.remove('hidden');
-                    } else {
-                        emptyIcon.textContent = "☕";
-                        emptyText.innerHTML = currentLang === 'hi' ? "इस तिथि के लिए कोई समाचार नहीं है" : "No News Filed For This Date";
-                        emptySubText.classList.add('hidden');
-                    }
-                    document.getElementById('emptyFeedState').classList.remove('hidden'); 
-                } 
-                else {
-                    readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards();
-                    document.getElementById('dailyFeedView').classList.remove('hidden');
-                }
-            } catch (err) {
-                console.error("Firestore error:", err); allArticlesCache = getFallbackDemoCards(dateStr);
-                document.getElementById('feedLoading').classList.add('hidden');
-                readArticlesSet.clear(); updateProgress(); renderFeedCards();
-                document.getElementById('dailyFeedView').classList.remove('hidden');
+        async function fetchDailyNews(dateStr) {
+            let attempts = 0;
+            while(attempts < 3) {
+                try { const snap = await db.collection("daily_news").where("date", "==", dateStr).get({ source: 'default' }); return snap; } 
+                catch(e) { attempts++; if(attempts === 3) throw e; await new Promise(res => setTimeout(res, 500)); }
             }
         }
 
-        function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
-        
+        async function loadNewsForDate(dateStr) {
+            document.getElementById('dailyFeedView').classList.add('hidden'); document.getElementById('emptyFeedState').classList.add('hidden'); document.getElementById('feedLoading').classList.remove('hidden');
+            document.getElementById('displayDateBadge').innerText = formatISTDisplay(dateStr);
+            try {
+                const snapshot = await fetchDailyNews(dateStr); allArticlesCache = []; const now = new Date().toISOString();
+                snapshot.forEach(doc => { const data = doc.data(); if (!data.publishAt || data.publishAt <= now) allArticlesCache.push({ id: doc.id, ...data }); });
+                document.getElementById('feedLoading').classList.add('hidden');
+                
+                const isBefore6AM = getISTDateObj().getHours() < 6;
+                if (allArticlesCache.length === 0) { 
+                    const resetBtn = document.getElementById('btnResetToday');
+                    if(dateStr === getISTDateString() && isBefore6AM) {
+                        document.getElementById('emptyIcon').textContent = "🌅"; document.getElementById('emptyText').innerHTML = currentLang === 'hi' ? "आज का 25+ करंट अफेयर्स सुबह 6:00 बजे आएगा।" : "Today's 25+ Current Affairs digest drops sharp at 6:00 AM.";
+                        resetBtn.innerHTML = currentLang === 'hi' ? "कल के समाचार पढ़ें" : "📖 Read Yesterday's Digest";
+                        resetBtn.onclick = () => { const y = getISTDateObj(); y.setDate(y.getDate() - 1); selectedDateStr = getISTDateString(y); dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); };
+                    } else {
+                        document.getElementById('emptyIcon').textContent = "☕"; document.getElementById('emptyText').innerHTML = currentLang === 'hi' ? "इस तिथि के लिए कोई समाचार नहीं है" : "No News Filed For This Date";
+                        resetBtn.innerHTML = currentLang === 'hi' ? "आज पर जाएं" : "Jump to Today";
+                        resetBtn.onclick = () => { selectedDateStr = getISTDateString(); dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); };
+                    }
+                    document.getElementById('emptyFeedState').classList.remove('hidden'); 
+                } 
+                else { readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); }
+            } catch (err) { document.getElementById('feedLoading').classList.add('hidden'); document.getElementById('emptyFeedState').classList.remove('hidden'); }
+        }
+
+        // DAILY FEED CARD RENDERER (Restored Metadata + FIXED Pinned Try Again Button)
         function renderFeedCards() {
             const feedContainer = document.getElementById('dailyFeedView'); feedContainer.innerHTML = "";
             const filtered = (activeCategoryFilter === "all") ? allArticlesCache : allArticlesCache.filter(item => item.category === activeCategoryFilter);
             
+            if (filtered.length === 0 && allArticlesCache.length > 0) {
+                feedContainer.innerHTML = `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-10 md:p-12 text-center max-w-md mx-auto shadow-sm my-8"><div class="text-4xl mb-3">📂</div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">No questions available for this section.</h3></div>`; return;
+            }
+
             const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
             const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
-            const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें (MCQ)' : 'Test Fact (MCQ)';
+            const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें' : 'Test Fact';
             const liveVerifLabel = currentLang === 'hi' ? 'लाइव सत्यापन क्विज़' : 'Live Verification Quiz';
-            const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं &rarr;' : 'Read Notes &rarr;';
-            const saveBtnLabel = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
+            const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं' : 'Read Notes';
+            const tryAgainLabel = currentLang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again';
 
             let html = "";
             filtered.forEach((card, idx) => {
                 const docId = card.id || `temp-${idx}`;
-                
                 const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
                 const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
                 const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
@@ -639,89 +681,77 @@
                 const displayBullets = (currentLang === 'hi' && card.contextBullets_hi) ? card.contextBullets_hi : (card.contextBullets || []);
                 const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
                 const staticBoxText = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || null);
-
                 const safeEmoji = card.emoji || '📰';
                 const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
+                
                 const isRead = readArticlesSet.has(docId);
                 const btnClass = isRead ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
                 const readBtnText = isRead ? (currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed') : (currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read');
+                
+                const isBkmrk = savedBookmarks.includes(docId);
+                const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
+                const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
 
-                const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-2.5 text-slate-700 dark:text-slate-300 text-sm md:text-base leading-relaxed font-medium"><span class="text-indigo-400 font-black mt-1">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
-
+                const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-1.5 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-400 font-black mt-1">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
                 let staticBoxHtml = "";
                 if (staticBoxText) {
-                    staticBoxHtml = `
-                        <div class="mt-5 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-4 flex items-start gap-3 shadow-inner">
-                            <span class="text-indigo-500 dark:text-indigo-400 text-xl mt-0.5">🧠</span>
-                            <div>
-                                <span class="text-[10px] font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-300 block mb-1">${staticContextLabel}</span>
-                                <p class="text-xs md:text-sm font-bold text-slate-700 dark:text-slate-300 leading-snug">${escapeHtml(staticBoxText)}</p>
-                            </div>
-                        </div>`;
+                    staticBoxHtml = `<div class="mt-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-3 flex items-start gap-2 shadow-inner"><span class="text-indigo-500 dark:text-indigo-400 text-base mt-0.5">🧠</span><div><span class="text-[9px] font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-bold text-slate-700 dark:text-slate-300 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
                 }
 
                 html += `
-                    <div class="perspective-1000 w-full transition-all duration-300" id="cardContainer-${idx}">
-                        <div class="flip-card-inner relative w-full transform-style-3d bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''} ${isRead ? 'card-completed' : ''}">
-                            
+                    <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}">
+                        <div class="flip-card-inner relative w-full transform-style-3d bg-transparent rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
                             <!-- FRONT SIDE -->
-                            <div class="p-6 md:p-8 backface-hidden flex flex-col justify-between h-full">
-                                <div>
-                                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4 border-b border-slate-100 dark:border-slate-700 pb-3">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-2xl">${safeEmoji}</span>
+                            <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-4 md:p-5 flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] shadow-sm hover:shadow-md transition cursor-pointer" onclick="flipCard(${idx})">
+                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xl">${safeEmoji}</span>
                                             <div class="flex flex-col">
-                                                <span class="text-slate-900 dark:text-white font-black text-sm uppercase tracking-tight">${escapeHtml(displayCat)}</span>
-                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
                                             </div>
                                         </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-slate-500 dark:text-slate-400 text-[10px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-3 py-1 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
-                                            <button id="btnBookmark-${idx}" onclick="bookmarkCard(event, ${idx})" class="text-xs font-bold border border-slate-200 dark:border-slate-600 px-3 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition text-slate-600 dark:text-slate-400">${saveBtnLabel}</button>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
+                                            <button id="btnBookmark-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmark-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass}">${bkmrkText}</button>
                                         </div>
                                     </div>
-                                    
-                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold px-3 py-1.5 rounded-lg inline-block mb-4">
-                                        ${impactLabel} ${escapeHtml(displayImpact)}
-                                    </div>
-
-                                    <h3 class="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-tight mb-5">${escapeHtml(displayHeadline)}</h3>
-                                    <ul class="space-y-3 mb-2">${bulletsHtml}</ul>
+                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
+                                    <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight mb-3">${escapeHtml(displayHeadline)}</h3>
+                                    <ul class="space-y-1.5 mb-2">${bulletsHtml}</ul>
                                     ${staticBoxHtml}
                                 </div>
-                                <div class="mt-6 pt-5 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3">
-                                    <div class="flex gap-3 w-full sm:w-auto">
-                                        <button onclick="flipCard(${idx})" class="flex-1 sm:flex-none justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl shadow-md transition hover:-translate-y-0.5">
-                                            <span>🔄</span> ${testFactLabel}
-                                        </button>
-                                        <button id="btnRead-${idx}" onclick="markAsRead('${docId}', ${idx})" class="flex-1 sm:flex-none justify-center flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition ${btnClass}">
-                                            ${readBtnText}
-                                        </button>
+                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                                    <div class="flex gap-2 w-full">
+                                        <button onclick="event.stopPropagation(); flipCard(${idx});" class="flex-1 justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
+                                        <button id="btnRead-${idx}" onclick="event.stopPropagation(); markAsRead('${docId}', ${idx});" class="flex-1 justify-center flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition ${btnClass}">${readBtnText}</button>
                                     </div>
                                 </div>
                             </div>
-
+                            
                             <!-- BACK SIDE -->
-                            <div class="p-6 md:p-8 absolute inset-0 bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl backface-hidden rotate-y-180 flex flex-col justify-between overflow-y-auto">
-                                <div>
-                                    <div class="flex justify-between items-center mb-6 border-b border-indigo-100 dark:border-indigo-800 pb-4">
-                                        <span class="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-3 py-1.5 rounded-md">${liveVerifLabel}</span>
-                                        <button onclick="flipCard(${idx})" class="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm px-3 py-1.5 rounded-lg transition">${backToNotesLabel}</button>
+                            <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm p-4 md:p-5 flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] cursor-pointer hover:shadow-md transition" onclick="flipCard(${idx})">
+                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
+                                    <div class="flex justify-between items-center mb-4 border-b border-indigo-100 dark:border-indigo-800 pb-2">
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
                                     </div>
-                                    <h4 class="font-black text-slate-900 dark:text-white text-lg mb-6 leading-snug">${escapeHtml(mcqData?.question)}</h4>
-                                    <div id="mcqOptions-${idx}">
-                                        ${(mcqData?.options||[]).map((opt, oIdx) => `
-                                            <button onclick="handleOptionSelect(event, '${docId}', ${idx},${oIdx}, ${mcqData.correctIndex}, '${encodeURIComponent(mcqData.explanation)}')"\ 
-                                                class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-sm p-4 rounded-xl transition flex items-center justify-between shadow-sm mb-3">
-                                                <span>${String.fromCharCode(65+oIdx)}.${escapeHtml(opt)}</span>
-                                                <span class="status-marker text-xs font-black"></span>
-                                            </button>
-                                        `).join('')}
+                                    <h4 class="font-black text-slate-900 dark:text-white text-base md:text-lg mb-4 leading-snug">${escapeHtml(mcqData?.question)}</h4>
+                                    <div id="mcqOptions-${idx}" class="space-y-2.5">
+                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx},${oIdx}, ${mcqData.correctIndex}, '${encodeURIComponent(mcqData.explanation)}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm"><span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
                                     </div>
-                                    <div id="mcqFeedback-${idx}" class="hidden mt-5 p-4 rounded-xl text-sm leading-relaxed font-medium shadow-inner"></div>
+                                    <div id="mcqFeedback-${idx}" class="hidden mt-4 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-2 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
+                                </div>
+                                <!-- PINNED FOOTER (FIXED TRY AGAIN BUTTON LOCATION) -->
+                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-indigo-100 dark:border-indigo-800 flex items-center justify-between w-full gap-2">
+                                    <button id="btnTryAgain-${idx}" onclick="event.stopPropagation(); resetQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white/70 dark:bg-slate-800 hover:bg-white text-slate-800 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 dark:border-slate-700">
+                                        <span>🔄</span> ${tryAgainLabel}
+                                    </button>
+                                    <button onclick="event.stopPropagation(); flipCard(${idx});" class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 rounded-xl transition">
+                                        &larr; ${backToNotesLabel}
+                                    </button>
                                 </div>
                             </div>
-
                         </div>
                     </div>`;
             });
@@ -732,227 +762,582 @@
         
         window.handleOptionSelect = function(e, docId, uiIdx, selIdx, corIdx, encodedExp) {
             if(!requireLogin(e)) return; 
-            
-            const container = document.getElementById(`mcqOptions-${uiIdx}`);
-            const buttons = container.querySelectorAll(`button`);
-            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
-            const explanation = decodeURIComponent(encodedExp);
+            const container = document.getElementById(`mcqOptions-${uiIdx}`); const buttons = container.querySelectorAll(`button`); const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
+            if(buttons[0].disabled) return; buttons.forEach(b => b.disabled = true);
             
             const correctText = currentLang === 'hi' ? '✅ सही' : '✅ Correct';
             const incorrectText = currentLang === 'hi' ? '❌ गलत' : '❌ Incorrect';
-            const expCorrectPrefix = currentLang === 'hi' ? '<strong>शानदार!</strong>' : '<strong>Excellent!</strong>';
-            const expIncorrectPrefix = currentLang === 'hi' ? '<strong>गलत।</strong>' : '<strong>Incorrect.</strong>';
+            const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
+            const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
 
-            buttons.forEach(b => b.disabled = true);
-            
             if (selIdx === corIdx) {
-                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500');
-                buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400');
-                buttons[selIdx].querySelector('.status-marker').textContent = correctText;
-                
-                feedback.className = "mt-5 p-4 rounded-xl text-sm leading-relaxed font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 block shadow-inner";
-                feedback.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(explanation)}`;
+                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = correctText;
+                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-2 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
+                feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             } else {
-                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500');
-                buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400');
-                buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
-
-                if(buttons[corIdx]) {
-                    buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500');
-                    buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400');
-                    buttons[corIdx].querySelector('.status-marker').textContent = correctText;
-                }
-
-                feedback.className = "mt-5 p-4 rounded-xl text-sm leading-relaxed font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 block shadow-inner";
-                feedback.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(explanation)}`;
+                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
+                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = correctText;
+                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-2 items-start bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner";
+                feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
+            
+            // Unhide the pinned Try Again button
+            const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
+            btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
             
             if(!readArticlesSet.has(docId)) markAsRead(docId, uiIdx);
         };
 
-        function getFallbackDemoCards(dateStr) {
-            return [];
+        window.resetQuiz = function(uiIdx) {
+            const container = document.getElementById(`mcqOptions-${uiIdx}`); const buttons = container.querySelectorAll(`button`); const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
+            buttons.forEach(b => { b.disabled = false; b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm"; b.querySelector('.status-marker').textContent = ""; });
+            feedback.classList.add('hidden'); feedback.classList.remove('flex');
+            // Hide the pinned Try Again button
+            const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
+            btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
+        };
+
+
+        // ==========================================
+        // DYNAMIC COMPILATION SHELF & WORKSPACE
+        // ==========================================
+        let compilationsData = {}; 
+        let workingCompilationCards = [];
+        let currentCompilationPage = 1;
+        const COMPILATION_PER_PAGE = 20;
+        let compilationMode = 'flip'; 
+        let currentCompId = null;
+
+        async function loadCompilationShelf(cadence) {
+            const shelfGrid = document.getElementById(`${cadence}ShelfGrid`);
+            shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8">Loading Archive...</div>`;
+            try {
+                const snap = await db.collection("ca_drills").where("cadence", "==", cadence).get();
+                compilationsData = {};
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if (!compilationsData[d.date]) compilationsData[d.date] = { id: d.date, cadence: d.cadence, pdfUrl: d.pdfEmbedUrl, cards: [] };
+                    compilationsData[d.date].cards.push({ id: doc.id, ...d });
+                });
+                
+                const editions = Object.values(compilationsData).sort((a,b) => b.id.localeCompare(a.id));
+                
+                // FIXED: Friendly Error Graceful State
+                if (editions.length === 0) { 
+                    shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
+                    return; 
+                }
+                
+                let html = "";
+                editions.forEach(ed => {
+                    html += `
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(ed.id)}</span>
+                            <span class="text-xs font-bold text-slate-400">${ed.cards.length} MCQs</span>
+                        </div>
+                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${cadence === 'weekly' ? 'Weekly Speed Drill' : 'Monthly Mega Digest'}</h3>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="openCompilation('${ed.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition">📖 Open Compilation Deck</button>
+                            <button onclick="triggerTelegramDownload(event, 'compilation', '${ed.pdfUrl || ''}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition">📥 Download Offline PDF</button>
+                        </div>
+                    </div>`;
+                });
+                shelfGrid.innerHTML = html;
+            } catch (err) { 
+                console.warn(err); 
+                // FIXED: Friendly Error Graceful State
+                shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
+            }
         }
 
+        window.openCompilation = function(compId) {
+            currentCompId = compId;
+            const ed = compilationsData[compId]; if(!ed) return;
+            workingCompilationCards = ed.cards;
+            currentCompilationPage = 1;
+            compilationMode = 'flip';
+            
+            activeView = 'compilationActive';
+            document.getElementById('weeklyDrillView').classList.add('hidden'); document.getElementById('monthlyPdfView').classList.add('hidden');
+            document.getElementById('compilationWorkspace').classList.remove('hidden');
+            setCompilationMode('flip');
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.closeCompilation = function() {
+            document.getElementById('compilationWorkspace').classList.add('hidden');
+            activeView = compilationsData[currentCompId].cadence;
+            document.getElementById(`${activeView}DrillView`).classList.remove('hidden');
+            if(activeView === 'monthly') document.getElementById('monthlyPdfView').classList.remove('hidden');
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.retakeCompilationQuiz = function() {
+            if(!confirm("Reset your score and restart this drill?")) return;
+            localStorage.removeItem(`quiz_prog_${currentCompId}`);
+            document.getElementById('compilationScoreBadge').textContent = `Score: 0/0`;
+            currentCompilationPage = 1;
+            document.getElementById('compilationCardsContainer').innerHTML = "";
+            renderCompilationPage();
+        };
+
+        window.setCompilationMode = function(mode) {
+            compilationMode = mode;
+            document.getElementById('btnModeFlip').className = mode === 'flip' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
+            document.getElementById('btnModeQuiz').className = mode === 'quiz' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
+            
+            document.getElementById('compilationScoreBadge').style.display = mode === 'quiz' ? 'inline-block' : 'none';
+            document.getElementById('btnRetakeCompQuiz').style.display = mode === 'quiz' ? 'inline-flex' : 'none';
+            document.getElementById('btnDownloadCompilation').onclick = (e) => triggerTelegramDownload(e, 'compilation', compilationsData[currentCompId].pdfUrl);
+            
+            if(mode === 'quiz') {
+                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
+            }
+            
+            currentCompilationPage = 1;
+            document.getElementById('compilationCardsContainer').innerHTML = "";
+            renderCompilationPage();
+        };
+
+        window.loadMoreCompilationCards = function() { currentCompilationPage++; renderCompilationPage(); };
+
+        window.toggleCompCard = function(idx) {
+            document.getElementById(`compCardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180');
+        };
+
+        function renderCompilationPage() {
+            const container = document.getElementById('compilationCardsContainer');
+            const pagContainer = document.getElementById('compilationPagination');
+            
+            let filtered = workingCompilationCards;
+            if (activeCategoryFilter !== 'all') filtered = filtered.filter(c => c.category === activeCategoryFilter);
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">No questions in this category.</div>`;
+                pagContainer.classList.add('hidden'); return;
+            }
+
+            const startIndex = (currentCompilationPage - 1) * COMPILATION_PER_PAGE;
+            const endIndex = currentCompilationPage * COMPILATION_PER_PAGE;
+            const batch = filtered.slice(startIndex, endIndex);
+
+            const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
+            const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
+            const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें' : 'Test Fact';
+            const liveVerifLabel = currentLang === 'hi' ? 'लाइव सत्यापन क्विज़' : 'Live Verification Quiz';
+            const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं' : 'Read Notes';
+            const saveBtnLabel = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
+            const tryAgainLabel = currentLang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again';
+
+            let html = "";
+            if (compilationMode === 'flip') {
+                batch.forEach((card, bIdx) => {
+                    const idx = startIndex + bIdx;
+                    const docId = card.id || `comp-${idx}`;
+                    const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
+                    const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
+                    const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
+                    const displayImpact = (currentLang === 'hi' && card.impact_hi) ? card.impact_hi : card.impact;
+                    const displayBullets = (currentLang === 'hi' && card.contextBullets_hi) ? card.contextBullets_hi : (card.contextBullets || []);
+                    const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                    const staticBoxText = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || null);
+                    
+                    const safeEmoji = card.emoji || '📰';
+                    const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
+                    const safeExp = encodeURIComponent(mcqData.explanation || '').replace(/'/g, "%27");
+                    
+                    const isBkmrk = savedBookmarks.includes(docId);
+                    const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
+                    const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
+
+                    const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-1.5 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-400 font-black mt-1">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+                    let staticBoxHtml = "";
+                    if (staticBoxText) {
+                        staticBoxHtml = `<div class="mt-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-3 flex items-start gap-2 shadow-inner"><span class="text-indigo-500 dark:text-indigo-400 text-base mt-0.5">🧠</span><div><span class="text-[9px] font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-bold text-slate-700 dark:text-slate-300 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
+                    }
+
+                    html += `
+                    <div class="perspective-1000 w-full transition-all duration-300" id="compCardContainer-${idx}">
+                        <div class="flip-card-inner relative w-full transform-style-3d glass-card rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
+                            <!-- FRONT SIDE -->
+                            <div class="flip-card-front flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] p-6 md:p-10 cursor-pointer" onclick="toggleCompCard(${idx})">
+                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xl">${safeEmoji}</span>
+                                            <div class="flex flex-col">
+                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
+                                            <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass}">${bkmrkText}</button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
+                                    <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight mb-3">${escapeHtml(displayHeadline)}</h3>
+                                    <ul class="space-y-1.5 mb-2">${bulletsHtml}</ul>
+                                    ${staticBoxHtml}
+                                </div>
+                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 text-center w-full">
+                                    <button onclick="event.stopPropagation(); toggleCompCard(${idx});" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition w-full sm:w-auto"><span>🔄</span> ${testFactLabel}</button>
+                                </div>
+                            </div>
+                            
+                            <!-- BACK SIDE (INTERACTIVE MCQ) -->
+                            <div class="flip-card-back flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] p-6 md:p-10 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl cursor-pointer" onclick="toggleCompCard(${idx})">
+                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
+                                    <div class="flex justify-between items-center mb-4 border-b border-indigo-100 dark:border-indigo-800 pb-2">
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
+                                    </div>
+                                    <h4 class="font-black text-slate-900 dark:text-white text-base md:text-lg mb-4 leading-snug">${escapeHtml(mcqData?.question)}</h4>
+                                    
+                                    <div id="compMcqOptions-${idx}" class="space-y-2.5">
+                                        ${(mcqData?.options||[]).map((opt, oIdx) => `
+                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${mcqData.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm">
+                                                <span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span>
+                                                <span class="status-marker text-xs font-black"></span>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    
+                                    <!-- FIXED FLEX LAYOUT FOR EXPLANATION -->
+                                    <div id="compMcqFeedback-${idx}" class="hidden mt-4 p-3 rounded-xl text-xs md:text-sm font-semibold shadow-inner flex-col gap-2 items-start">
+                                        <div id="compMcqFeedbackText-${idx}"></div>
+                                    </div>
+                                </div>
+                                <!-- PINNED FOOTER (FIXED TRY AGAIN BUTTON LOCATION) -->
+                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-indigo-100 dark:border-indigo-800 flex items-center justify-between w-full gap-2">
+                                    <button id="btnTryAgainComp-${idx}" onclick="event.stopPropagation(); resetCompFlipQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white/70 dark:bg-slate-800 hover:bg-white text-slate-800 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 dark:border-slate-700">
+                                        <span>🔄</span> ${tryAgainLabel}
+                                    </button>
+                                    <button onclick="event.stopPropagation(); toggleCompCard(${idx});" class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 rounded-xl transition">
+                                        &larr; ${backToNotesLabel}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                // RENDER RAPID QUIZ MODE
+                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                batch.forEach((card, bIdx) => {
+                    const idx = startIndex + bIdx;
+                    const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                    const safeExp = encodeURIComponent(mcqData.explanation || '').replace(/'/g, "%27");
+                    
+                    html += `
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm" id="quizCard-${idx}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Q${idx + 1}</span>
+                        </div>
+                        <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(mcqData.question)}</h4>
+                        <div class="space-y-2.5" id="quizOptions-${idx}">
+                            ${(mcqData.options||[]).map((opt, oIdx) => `
+                                <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${mcqData.correctIndex}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx}">
+                                    <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="quizExp-${idx}" class="hidden mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold"></div>
+                    </div>`;
+                });
+            }
+            
+            container.insertAdjacentHTML('beforeend', html);
+
+            if (compilationMode === 'quiz') {
+                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                batch.forEach((card, bIdx) => {
+                    const idx = startIndex + bIdx;
+                    const pastAnswer = saved.answers[`${currentCompId}_${card.id}`];
+                    if (pastAnswer !== undefined) {
+                        const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                        const safeExp = encodeURIComponent(mcqData.explanation || '');
+                        restoreCompQuizAnswerUI(idx, pastAnswer, mcqData.correctIndex, safeExp);
+                    }
+                });
+            }
+
+            const showingCount = Math.min(endIndex, filtered.length);
+            document.getElementById('compilationPaginationText').textContent = `Showing ${showingCount} of ${filtered.length} Cards`;
+            if (endIndex >= filtered.length) pagContainer.classList.add('hidden'); 
+            else pagContainer.classList.remove('hidden');
+        }
+
+        window.handleCompFlipAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
+            if(!requireLogin(e)) return; 
+            const container = document.getElementById(`compMcqOptions-${uiIdx}`); 
+            const buttons = container.querySelectorAll(`button`); 
+            const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`); 
+            const feedbackText = document.getElementById(`compMcqFeedbackText-${uiIdx}`);
+            if(buttons[0].disabled) return; buttons.forEach(b => b.disabled = true);
+            
+            const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
+            const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
+
+            if (selIdx === corIdx) {
+                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner flex flex-col gap-2 items-start block";
+                feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
+            } else {
+                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-2 items-start block";
+                feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
+            }
+            
+            // Show pinned Try Again button
+            const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
+            btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
+        };
+
+        window.resetCompFlipQuiz = function(uiIdx) {
+            const container = document.getElementById(`compMcqOptions-${uiIdx}`);
+            const buttons = container.querySelectorAll(`button`);
+            const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`);
+            
+            buttons.forEach(b => {
+                b.disabled = false;
+                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm";
+                b.querySelector('.status-marker').textContent = "";
+            });
+            
+            feedback.classList.add('hidden');
+            feedback.classList.remove('flex');
+            
+            // Hide pinned Try Again button
+            const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
+            btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
+        };
+
+        window.handleCompQuizAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
+            if(!requireLogin(e)) return; 
+            const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
+            if(btns[0].disabled) return;
+            btns.forEach(b => b.disabled = true);
+            
+            const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+            saved.attempted++;
+            if (selIdx === corIdx) saved.correct++;
+            saved.answers[`${currentCompId}_${cardId}`] = selIdx;
+            saved.lastUpdated = Date.now();
+            localStorage.setItem(`quiz_prog_${currentCompId}`, JSON.stringify(saved));
+            
+            document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
+            restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp);
+        };
+
+        function restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp) {
+            const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
+            const expContainer = document.getElementById(`quizExp-${uiIdx}`);
+            btns.forEach(b => b.disabled = true);
+            
+            if (selIdx === corIdx) {
+                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                btns[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
+            } else {
+                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 dark:border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400";
+                btns[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                btns[corIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                btns[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
+            }
+            expContainer.innerHTML = decodeURIComponent(encodedExp);
+        }
+
+        // ==========================================
+        // CLIENT-SIDE DAILY PDF GENERATOR
+        // ==========================================
+       window.generateDailyPDF = function() {
+            if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
+            
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+            
+            let content = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
+                <style>
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                </style>
+                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; font-weight: 900; letter-spacing: 2px;">STENOGYM • t.me/stenogym</div>
+                
+                <div style="background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                        <div>
+                            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
+                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">📅 ${formatISTDisplay(selectedDateStr)}</div>
+                </div>`;
+            
+            allArticlesCache.forEach((card, i) => {
+                const cat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
+                const hLine = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
+                const bullets = (currentLang === 'hi' && card.contextBullets_hi) ? card.contextBullets_hi : (card.contextBullets || []);
+                const stat = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || '');
+                const mcq = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+
+                content += `<div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin-bottom: 18px; page-break-inside: avoid; background: #fff;">`;
+                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
+                content += `<div style="font-size: 14px; font-weight: 900; margin-bottom: 8px;">${escapeHtml(hLine)}</div>`;
+                content += `<ul style="margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6;">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
+                if(stat) content += `<div style="background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px;">🧠 <strong>Static Context:</strong> ${escapeHtml(stat)}</div>`;
+                if(mcq) {
+                    content += `<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px; border-radius: 6px; font-size: 11px;"><strong>Drill:</strong> ${escapeHtml(mcq.question)}<br><div style="margin: 4px 0; color: #065f46; font-weight: bold;">Ans: Option ${String.fromCharCode(65 + mcq.correctIndex)} (${escapeHtml(mcq.options[mcq.correctIndex])})</div><div style="color: #475569;"><em>${escapeHtml(mcq.explanation)}</em></div></div>`;
+                }
+                content += `</div>`;
+            });
+
+            content += `<div style="margin-top: 30px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; padding-top: 12px;">Exclusive Exam Digest &bull; Join Telegram Channel: t.me/stenogym</div></div>`;
+
+            const element = document.createElement('div'); element.innerHTML = content;
+            const opt = { margin: 0.4, filename: `Stenogym_Daily_CA_${selectedDateStr}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
+        };
+        
         document.addEventListener('DOMContentLoaded', () => loadNewsForDate(selectedDateStr));
     </script>
 
-<!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
-<!-- ========================================== -->
-<style>
-    #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
-    #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
-    #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
-    
-    /* Breathing Glow Effect Behind the Button */
-    #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
-    @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
-    
-    /* The "Shorthand Writer" Pencil Wiggle Animation */
-    .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
-    @keyframes writeWiggle {
-        0%, 85%, 100% { transform: rotate(0deg); }
-        88% { transform: rotate(-25deg); }
-        91% { transform: rotate(15deg); }
-        94% { transform: rotate(-10deg); }
-        97% { transform: rotate(5deg); }
-    }
-    
-    #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
-    #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
-    
-    .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
-    .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
-    .fab-tg { background-color: #0088cc; }
-    .fab-yt { background-color: #FF0000; }
-    .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
-    .fab-share { background-color: #25D366; }
-.active-nav {
-        color: #67e8f9 !important;
-        font-weight: 900 !important;
-    }
-</style>
+    <!-- ========================================== -->
+    <!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
+    <!-- ========================================== -->
+    <style>
+        #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+        #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+        #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+        #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+        @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+        .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+        @keyframes writeWiggle { 0%, 85%, 100% { transform: rotate(0deg); } 88% { transform: rotate(-25deg); } 91% { transform: rotate(15deg); } 94% { transform: rotate(-10deg); } 97% { transform: rotate(5deg); } }
+        #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+        #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+        .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
+        .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+        .fab-tg { background-color: #0088cc; }
+        .fab-yt { background-color: #FF0000; }
+        .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .fab-share { background-color: #25D366; }
+    </style>
 
-<div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
-    <!-- Hidden Menu -->
-    <div id="stenoFabMenu">
-        <!-- Telegram -->
-        <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
-        <!-- YouTube -->
-        <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
-        <!-- Clean Instagram Icon -->
-        <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-        <!-- Share Action -->
-        <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
+    <div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+        <div id="stenoFabMenu">
+            <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+            <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+            <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+            <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
+        </div>
+        <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
     </div>
     
-    <!-- Main Draggable Badge with Wiggling Pencil -->
-    <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-    const fabContainer = document.getElementById('stenoFabContainer');
-    const fabMain = document.getElementById('stenoFabMain');
-    const fabMenu = document.getElementById('stenoFabMenu');
-    const shareBtn = document.getElementById('fabShareBtn');
-
-    let isDragging = false, hasDragged = false;
-    let startX, startY, initialX, initialY;
-    const fabSize = 56;
-
-    const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
-
-    if (isMobile) {
-        // MOBILE: Firmly anchor to bottom-right so it never gets lost off-screen
-        fabContainer.style.left = 'auto';
-        fabContainer.style.top = 'auto';
-        fabContainer.style.right = '20px';
-        fabContainer.style.bottom = '24px';
-
-        // Instant tap to toggle menu
-        fabMain.addEventListener('click', (e) => {
-            e.stopPropagation();
-            fabMenu.classList.toggle('active');
-        });
-    } else {
-        // DESKTOP: Safe drag handling
-        const savedX = localStorage.getItem('stenoFabX');
-        const savedY = localStorage.getItem('stenoFabY');
-        const fabSize = 56;
-
-        if (savedX !== null && savedY !== null) {
-            const x = parseInt(savedX, 10);
-            const y = parseInt(savedY, 10);
-            if (x >= 0 && x <= window.innerWidth - fabSize && y >= 0 && y <= window.innerHeight - fabSize) {
-                fabContainer.style.left = x + 'px';
-                fabContainer.style.top = y + 'px';
-                fabContainer.style.right = 'auto';
-                fabContainer.style.bottom = 'auto';
-            }
-        }
-
-        let isDragging = false, hasDragged = false;
-        let startX = 0, startY = 0, initialX = 0, initialY = 0;
-
-        fabMain.addEventListener('mousedown', (e) => {
-            if (e.target.closest('#stenoFabMenu')) return;
-            isDragging = true;
-            hasDragged = false;
-            startX = e.clientX;
-            startY = e.clientY;
-            initialX = fabContainer.offsetLeft;
-            initialY = fabContainer.offsetTop;
-            document.body.style.userSelect = "none";
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging) return;
-            const dx = e.clientX - startX;
-            const dy = e.clientY - startY;
-            if (Math.abs(dx) > 12 || Math.abs(dy) > 12) hasDragged = true;
-            if (!hasDragged) return;
-
-            fabMenu.classList.remove('active');
-            let newX = Math.max(0, Math.min(initialX + dx, window.innerWidth - fabSize));
-            let newY = Math.max(0, Math.min(initialY + dy, window.innerHeight - fabSize));
-            fabContainer.style.left = newX + 'px';
-            fabContainer.style.top = newY + 'px';
-            fabContainer.style.right = 'auto';
-            fabContainer.style.bottom = 'auto';
-        });
-
-        document.addEventListener('mouseup', () => {
-            if (!isDragging) return;
-            isDragging = false;
-            document.body.style.userSelect = "auto";
-
-            if (hasDragged) {
-                const currentX = fabContainer.offsetLeft;
-                const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
-                fabContainer.style.transition = "left 0.3s ease-out";
-                fabContainer.style.left = targetX + 'px';
-                localStorage.setItem('stenoFabX', targetX);
-                localStorage.setItem('stenoFabY', fabContainer.offsetTop);
-                setTimeout(() => { fabContainer.style.transition = ""; }, 300);
-            } else {
-                fabMenu.classList.toggle('active');
-            }
-        });
-    }
-
-    // Dismiss menu when clicking anywhere else
-    document.addEventListener('click', (e) => {
-        if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active');
-    });
-
-    shareBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
-        try {
-            if (navigator.share) await navigator.share(shareData);
-            else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); }
-        } catch (err) {}
-    });
-});
-</script>
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath) currentPath = 'index';
+        const fabContainer = document.getElementById('stenoFabContainer');
+        const fabMain = document.getElementById('stenoFabMain');
+        const fabMenu = document.getElementById('stenoFabMenu');
+        const shareBtn = document.getElementById('fabShareBtn');
+    
+        let isDragging = false, hasDragged = false;
+        let startX, startY, initialX, initialY;
+        const fabSize = 56;
+    
+        const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
+    
+        if (isMobile) {
+            fabContainer.style.left = 'auto'; fabContainer.style.top = 'auto';
+            fabContainer.style.right = '20px'; fabContainer.style.bottom = '24px';
+            fabMain.addEventListener('click', (e) => { e.stopPropagation(); fabMenu.classList.toggle('active'); });
+        } else {
+            const savedX = localStorage.getItem('stenoFabX'); const savedY = localStorage.getItem('stenoFabY');
+            if (savedX !== null && savedY !== null) {
+                const x = parseInt(savedX, 10); const y = parseInt(savedY, 10);
+                if (x >= 0 && x <= window.innerWidth - fabSize && y >= 0 && y <= window.innerHeight - fabSize) {
+                    fabContainer.style.left = x + 'px'; fabContainer.style.top = y + 'px';
+                    fabContainer.style.right = 'auto'; fabContainer.style.bottom = 'auto';
+                }
+            }
+    
+            fabMain.addEventListener('mousedown', (e) => {
+                if (e.target.closest('#stenoFabMenu')) return;
+                isDragging = true; hasDragged = false;
+                startX = e.clientX; startY = e.clientY;
+                initialX = fabContainer.offsetLeft; initialY = fabContainer.offsetTop;
+                document.body.style.userSelect = "none";
+            });
+    
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX; const dy = e.clientY - startY;
+                if (Math.abs(dx) > 12 || Math.abs(dy) > 12) hasDragged = true;
+                if (!hasDragged) return;
+                fabMenu.classList.remove('active');
+                let newX = Math.max(0, Math.min(initialX + dx, window.innerWidth - fabSize));
+                let newY = Math.max(0, Math.min(initialY + dy, window.innerHeight - fabSize));
+                fabContainer.style.left = newX + 'px'; fabContainer.style.top = newY + 'px';
+                fabContainer.style.right = 'auto'; fabContainer.style.bottom = 'auto';
+            });
+    
+            document.addEventListener('mouseup', () => {
+                if (!isDragging) return;
+                isDragging = false; document.body.style.userSelect = "auto";
+                if (hasDragged) {
+                    const currentX = fabContainer.offsetLeft;
+                    const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
+                    fabContainer.style.transition = "left 0.3s ease-out";
+                    fabContainer.style.left = targetX + 'px';
+                    localStorage.setItem('stenoFabX', targetX); localStorage.setItem('stenoFabY', fabContainer.offsetTop);
+                    setTimeout(() => { fabContainer.style.transition = ""; }, 300);
+                } else { fabMenu.classList.toggle('active'); }
+            });
+        }
+        document.addEventListener('click', (e) => { if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active'); });
+        shareBtn.addEventListener('click', async (e) => {
+            e.preventDefault(); const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
+            try { if (navigator.share) await navigator.share(shareData); else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); } } catch (err) {}
+        });
+    });
+    </script>
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        let currentPath = window.location.pathname.split('?')[0].split('#')[0].replace(/\/$/, '').split('/').pop().replace('.html', '');
+        if (!currentPath || currentPath === "") currentPath = 'index';
 
         document.querySelectorAll('nav a').forEach(link => {
             const href = link.getAttribute('href');
-            if (href) {
-                const cleanHref = href.replace('.html', '');
-                if (cleanHref === currentPath) {
-                    link.classList.remove('text-slate-300');
+            if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+                const cleanHref = href.split('?')[0].split('#')[0].split('/').pop().replace('.html', '');
+                const targetFile = cleanHref || 'index';
+                
+                if (targetFile === currentPath) {
+                    link.classList.remove('text-slate-300', 'text-cyan-300', 'text-slate-400', 'text-slate-500', 'dark:text-slate-500');
                     link.classList.add('active-nav');
+                    
+                    if (link.closest('.glass-nav')) {
+                        link.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                    }
                 }
             }
         });
     });
 </script>
+<!-- MOBILE MENU & ACCORDION FIX -->
+    <script>
+        document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+            document.getElementById('mobileMenu')?.classList.toggle('hidden');
+        });
+        document.getElementById('mobileStenoToggle')?.addEventListener('click', () => {
+            const stenoMenu = document.getElementById('mobileStenoMenu');
+            stenoMenu?.classList.toggle('hidden');
+            stenoMenu?.classList.toggle('flex');
+            const chev = document.getElementById('stenoChevron');
+            if(chev) chev.textContent = stenoMenu.classList.contains('hidden') ? '▼' : '▲';
+        });
+    </script>
 </body>
 </html>

@@ -56,7 +56,7 @@
             <a href="index.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
                 <span>🏠</span> Home
             </a>
-            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-900/50 transition transform hover:scale-105">
+            <a href="dashboard.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-900/50 transition transform hover:scale-105 active-nav">
                 <span>👤</span> Dashboard
             </a>
             <a href="app.html" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
@@ -184,7 +184,7 @@
                         <a href="gear.html#steno" class="min-w-[220px] flex-1 bg-white dark:bg-slate-900 border border-amber-100 dark:border-amber-900/30 rounded-3xl p-5 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group snap-start block">
                             <div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-50 dark:bg-amber-900/10 rounded-full group-hover:scale-[2] transition-transform duration-700 z-0"></div>
                             <div class="relative z-10">
-                                <div class="text-3xl mb-3">⌨️️</div>
+                                <div class="text-3xl mb-3">⌨</div>
                                 <h3 class="font-bold text-slate-800 dark:text-slate-200 text-sm mb-1 truncate transition-colors">Tactile Keyboard</h3>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 transition-colors">Reduce transcription typos.</p>
                                 <div class="text-xs font-bold text-amber-600 dark:text-amber-400 group-hover:text-amber-800 dark:group-hover:text-amber-300 flex items-center gap-1 transition-colors">Check Price <span class="group-hover:translate-x-1 transition-transform">&rarr;</span></div>
@@ -225,13 +225,15 @@
                         <div class="w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-3xl">🔥</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Reading Streak</p>
-                            <h3 class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">12 <span class="text-sm font-bold text-slate-500 dark:text-slate-400">Days</span></h3>
+                            <!-- DYNAMIC STREAK ID -->
+                            <h3 id="dashboardStreak" class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">0 <span class="text-sm font-bold text-slate-500 dark:text-slate-400">Days</span></h3>
                         </div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
                         <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-3xl">⚡</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total MCQs Solved</p>
+                            <!-- DYNAMIC TOTAL ID -->
                             <h3 id="cardTotalMcqs" class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">0</h3>
                         </div>
                     </div>
@@ -239,7 +241,8 @@
                         <div class="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-3xl">🔖</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Bookmarks</p>
-                            <h3 class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">28</h3>
+                            <!-- DYNAMIC BOOKMARKS ID -->
+                            <h3 id="dashboardBookmarks" class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">0</h3>
                         </div>
                     </div>
                 </div>
@@ -284,30 +287,12 @@
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm p-6 flex flex-col transition-colors">
                         <div class="flex justify-between items-center border-b border-slate-100 dark:border-slate-800 pb-4 mb-4 transition-colors">
-                            <h3 class="font-black text-slate-900 dark:text-white text-lg">My Saved Capsules (PDF)</h3>
+                            <h3 class="font-black text-slate-900 dark:text-white text-lg">My Saved Capsules</h3>
                             <a href="current-affairs.html" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg border border-transparent dark:border-indigo-800/50">View All</a>
                         </div>
-                        <ul class="space-y-3 flex-grow">
-                            <li class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 transition">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 font-black text-xs">PDF</div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">September Monthly</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Auto-generated</p>
-                                    </div>
-                                </div>
-                                <button class="text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-600 px-4 py-2 rounded-xl text-xs font-bold transition">Download</button>
-                            </li>
-                            <li class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 transition">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 font-black text-xs">PDF</div>
-                                    <div>
-                                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Indian Polity Notes</p>
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">Static GK Cheat Sheet</p>
-                                    </div>
-                                </div>
-                                <button class="text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-600 px-4 py-2 rounded-xl text-xs font-bold transition">Download</button>
-                            </li>
+                        <!-- DYNAMIC UNIFIED CAPSULES LIST -->
+                        <ul id="savedCapsulesList" class="space-y-3 flex-grow">
+                            <!-- Populated via JavaScript (Local Bookmarks + Database PDFs) -->
                         </ul>
                     </div>
 
@@ -316,8 +301,9 @@
                             <h3 class="font-black text-slate-900 dark:text-white text-lg">Recent MCQ Drills</h3>
                             <a href="gk.html" class="text-sm font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-lg border border-transparent dark:border-indigo-800/50">Take Quiz</a>
                         </div>
+                        <!-- DYNAMIC HYBRID HISTORY LIST -->
                         <ul id="gkHistoryBody" class="space-y-5 mt-2 flex-grow">
-                            <!-- Dynamic GK History populated via JS -->
+                            <!-- Populated via JS (Firebase GK + Local CA) -->
                         </ul>
                     </div>
                 </div>
@@ -325,7 +311,7 @@
             
         </main>
 
-        <!-- Full 4-Column Bilingual Footer -->
+    <!-- FULL 4-COLUMN FOOTER IMPORTED FROM INDEX.HTML -->
     <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <div class="space-y-4">
@@ -335,60 +321,50 @@
                 <p class="text-sm text-slate-400 leading-relaxed" data-en="India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection." data-hi="भारत का प्रमुख AI-संचालित परीक्षा इकोसिस्टम। आशुलिपि में महारत हासिल करें, स्टेटिक GK और दैनिक करंट अफेयर्स पर विजय प्राप्त करें, और अपना अंतिम चयन सुनिश्चित करें।">
                     India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.
                 </p>
-                <!-- ACTUAL COLOR BRAND ICONS -->
                 <div class="flex gap-4 pt-2">
-                    <!-- Instagram -->
                     <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
-                    <!-- YouTube -->
                     <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
-                    <!-- Telegram -->
                     <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
-                    <!-- Contact -->
                     <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
                 </div>
             </div>
-
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="The Platform" data-hi="प्लेटफ़ॉर्म">The Platform</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="app.html" class="hover:text-cyan-400 transition" data-en="Preset Room" data-hi="स्टेनो रूम">Steno Room</a></li>
-                    <li><a href="generator.html" class="hover:text-cyan-400 transition" data-en="AI Dictation Studio" data-hi="AI डिक्टेशन स्टूडियो">AI Dictation Studio</a></li>
-                    <li><a href="scanner.html" class="hover:text-cyan-400 transition" data-en="Live Document Scanner" data-hi="लाइव डॉक्यूमेंट स्कैनर">Live Document Scanner</a></li>
-                    <li><a href="login.html" class="hover:text-cyan-400 transition" data-en="Student Login" data-hi="छात्र लॉगिन">Student Login</a></li>
+                    <li><a href="app.html" class="hover:text-cyan-400 transition">Steno Room</a></li>
+                    <li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li>
+                    <li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li>
+                    <li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li>
                 </ul>
             </div>
-
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Resources" data-hi="संसाधन">Resources</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition" data-en="The Stenogym Blog" data-hi="स्टेनोजिम ब्लॉग">The Stenogym Blog</a></li>
-                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a></li>
-                    <li><a href="gk.html" class="hover:text-cyan-400 transition" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a></li>
-                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span data-en="Recommended Gear" data-hi="अनुशंसित उपकरण">Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
+                    <li><a href="blog.html" class="hover:text-cyan-400 transition">The Stenogym Blog</a></li>
+                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition">Current Affairs</a></li>
+                    <li><a href="gk.html" class="hover:text-cyan-400 transition">Static GK</a></li>
+                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2">Recommended Gear <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
                 </ul>
             </div>
-
             <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Company & Legal" data-hi="कंपनी और कानूनी">Company & Legal</h4>
+                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4>
                 <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="about.html" class="hover:text-cyan-400 transition" data-en="About Us" data-hi="हमारे बारे में">About Us</a></li>
-                    <li><a href="contact.html" class="hover:text-cyan-400 transition" data-en="Contact Support" data-hi="संपर्क समर्थन">Contact Support</a></li>
-                    <li><a href="privacy.html" class="hover:text-cyan-400 transition" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
-                    <li><a href="terms.html" class="hover:text-cyan-400 transition" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
+                    <li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li>
+                    <li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li>
+                    <li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li>
+                    <li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li>
                 </ul>
             </div>
         </div>
-
         <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
             <div>&copy; 2026 Stenogym. All rights reserved.</div>
             <div class="text-center md:text-right max-w-xl leading-relaxed">
-                <span class="text-slate-400" data-en="Disclaimer:" data-hi="अस्वीकरण:">Disclaimer:</span> 
-                <span data-en="We are reader-supported. Affiliate links incur zero extra cost to you." data-hi="हम पाठक-समर्थित हैं। सहबद्ध लिंक पर आपको कोई अतिरिक्त लागत नहीं लगती है।">We are reader-supported. Affiliate links incur zero extra cost to you.</span>
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. When you buy through links on our site, we may earn an affiliate commission at zero extra cost to you.
             </div>
         </div>
     </footer>
 
-    <!-- MOBILE BOTTOM NAVIGATION (Updated to 5 Icons) -->
+    <!-- MOBILE BOTTOM NAVIGATION -->
     <nav class="md:hidden glass-nav fixed bottom-0 w-full z-40 pb-safe shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] transition-colors">
         <div class="flex justify-between items-center px-4 py-3">
             <a href="index.html" class="flex flex-col items-center gap-1 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition flex-1 text-center">
@@ -431,7 +407,7 @@
             updateThemeIcon();
         });
 
-        // Tab Logic (Updated with Dark Mode support)
+        // Tab Logic
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => {
@@ -462,11 +438,99 @@
             return div.innerHTML;
         }
 
+        // ==========================================
+        // UNIFIED CAPSULES LOADER (Bug Fix)
+        // ==========================================
+        let currentFbCapsules = [];
+        
+        function renderSavedCapsules() {
+            const capsulesList = document.getElementById('savedCapsulesList');
+            let html = "";
+
+            // 1. Render Official Database PDFs
+            currentFbCapsules.forEach(doc => {
+                const data = doc.data();
+                let title = data.date ? "Digest: " + data.date : "Compilation";
+                let subtitle = data.cadence === 'weekly' ? "Weekly Speed Drill" : "Monthly Mega Digest";
+                let pdfUrl = data.pdfEmbedUrl || 'https://t.me/+3EJOKkceGBA4YWE1'; 
+                
+                html += `
+                <li class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 transition">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 font-black text-xs">PDF</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200">${escapeHtml(title)}</p>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${escapeHtml(subtitle)}</p>
+                        </div>
+                    </div>
+                    <button onclick="window.open('${pdfUrl}', '_blank')" class="text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-600 px-4 py-2 rounded-xl text-xs font-bold transition">Download</button>
+                </li>`;
+            });
+
+            // 2. Render Local Bookmarks
+            let bookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
+            if (bookmarks.length > 0) {
+                bookmarks.slice().reverse().slice(0, 4).forEach(bId => {
+                    let title = "Saved Content";
+                    let subtitle = "General Awareness";
+                    let linkUrl = "gk.html";
+                    
+                    if (bId.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        title = "Daily Digest: " + bId;
+                        subtitle = "Current Affairs Notes";
+                        linkUrl = "current-affairs.html";
+                    } else if (bId.includes('comp') || bId.includes('daily_news')) {
+                        title = "News Selection";
+                        subtitle = "Current Affairs";
+                        linkUrl = "current-affairs.html";
+                    } else {
+                        title = "Static GK Topic";
+                        subtitle = "Card Ref: " + bId.substring(0,6);
+                        linkUrl = "gk.html";
+                    }
+
+                    html += `
+                    <li class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 transition">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">🔖</div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-slate-200">${escapeHtml(title)}</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${escapeHtml(subtitle)}</p>
+                            </div>
+                        </div>
+                        <a href="${linkUrl}" class="text-indigo-600 dark:text-indigo-400 hover:text-white border border-indigo-200 dark:border-indigo-700 hover:bg-indigo-600 px-4 py-2 rounded-xl text-xs font-bold transition">Review</a>
+                    </li>`;
+                });
+            }
+
+            // 3. Absolute Empty State
+            if (html === "") {
+                html = `<li class="p-4 text-center text-slate-500 dark:text-slate-400 text-sm font-medium border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">No saved capsules or PDFs yet.</li>`;
+            }
+            
+            capsulesList.innerHTML = html;
+        }
+
+        function loadLocalGeneralAwarenessStats() {
+            // Live Study Streak
+            let streak = localStorage.getItem('studyStreak') || "0";
+            document.getElementById('dashboardStreak').innerHTML = `${streak} <span class="text-sm font-bold text-slate-500 dark:text-slate-400">Days</span>`;
+
+            // Live Bookmarks Count
+            let bookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
+            document.getElementById('dashboardBookmarks').textContent = bookmarks.length;
+            
+            // Instantly render local bookmarks without waiting for Firebase
+            renderSavedCapsules(); 
+        }
+
         firebase.auth().onAuthStateChanged(user => {
             if (!user) { window.location.href = "login.html"; return; }
             
             const name = user.email.split('@')[0];
             document.getElementById('welcomeMsg').textContent = `Welcome back, ${name.charAt(0).toUpperCase() + name.slice(1)}!`;
+
+            loadLocalGeneralAwarenessStats(); // Inject local storage data instantly
 
             db.collection("settings").orderBy("timestamp", "desc").limit(1).onSnapshot(snap => {
                 const banner = document.getElementById('announcementBanner');
@@ -534,50 +598,103 @@
                         maxSpeedEl.className = `text-2xl sm:text-3xl mt-2 font-black transition-colors ${maxWpmAvgAcc >= 90 ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`;
                     }
                 });
+                
+            // Fetch Firebase PDFs silently and append them
+            db.collection("ca_drills").orderBy("date", "desc").limit(2).onSnapshot(snap => {
+                currentFbCapsules = [];
+                if (!snap.empty) {
+                    snap.forEach(doc => currentFbCapsules.push(doc));
+                }
+                renderSavedCapsules(); 
+            });
 
+            // ==========================================
+            // HYBRID MCQ HISTORY (Firebase GK + Local CA)
+            // ==========================================
             db.collection("users").doc(user.uid).collection("gk_history")
-                .orderBy("timestamp", "desc").limit(5).onSnapshot(snap => {
+                .orderBy("timestamp", "desc").limit(10).onSnapshot(snap => {
                     const historyContainer = document.getElementById('gkHistoryBody');
-                    let totalSolved = 0;
-                    
-                    if (snap.empty) {
-                        historyContainer.innerHTML = `<li class="text-center py-6 text-slate-500 dark:text-slate-400 font-medium text-sm">No quizzes attempted yet. Head to Static GK to start your drills!</li>`;
-                        document.getElementById('cardTotalMcqs').textContent = "0";
-                    } else {
-                        let historyHtml = "";
-                        
-                        db.collection("users").doc(user.uid).collection("gk_history").get().then(fullSnap => {
-                            let grandTotal = 0;
-                            fullSnap.forEach(doc => {
-                                grandTotal += (Number(doc.data().totalQuestions) || 0);
-                            });
-                            document.getElementById('cardTotalMcqs').textContent = grandTotal;
-                        });
+                    let combinedHistory = [];
 
+                    // 1. Get Static GK from Firebase
+                    if (!snap.empty) {
                         snap.forEach(doc => {
                             const data = doc.data();
-                            const title = data.quizTitle || "GK Drill";
-                            const score = Number(data.score) || 0;
-                            const total = Number(data.totalQuestions) || 10;
-                            const percent = (score / total) * 100;
-                            
-                            let colorClass = "emerald";
-                            if(percent < 70) colorClass = "amber";
-                            if(percent < 50) colorClass = "rose";
-
-                            historyHtml += `
-                            <li>
-                                <div class="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
-                                    <span>${escapeHtml(title)}</span>
-                                    <span class="text-${colorClass}-600 dark:text-${colorClass}-400 bg-${colorClass}-50 dark:bg-${colorClass}-900/20 px-2 py-0.5 rounded">${score}/${total}</span>
-                                </div>
-                                <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5">
-                                    <div class="bg-${colorClass}-500 h-2.5 rounded-full" style="width: ${percent}%"></div>
-                                </div>
-                            </li>`;
+                            const ts = data.timestamp ? (typeof data.timestamp.toDate === 'function' ? data.timestamp.toDate().getTime() : Date.now()) : Date.now();
+                            combinedHistory.push({
+                                title: data.quizTitle || data.topic || "GK PYQ Drill",
+                                score: Number(data.score) || (data.isCorrect ? 1 : 0),
+                                total: Number(data.totalQuestions) || 1,
+                                timestamp: ts,
+                                type: 'gk'
+                            });
                         });
-                        historyContainer.innerHTML = historyHtml;
                     }
+
+                    // Total MCQs Calculation
+                    db.collection("users").doc(user.uid).collection("gk_history").get().then(fullSnap => {
+                        let fbTotal = 0;
+                        fullSnap.forEach(doc => { fbTotal += (Number(doc.data().totalQuestions) || 1); });
+                        
+                        // 2. Get Current Affairs from localStorage
+                        let localTotal = 0;
+                        for (let i = 0; i < localStorage.length; i++) {
+                            const key = localStorage.key(i);
+                            if (key && key.startsWith('quiz_prog_')) {
+                                try {
+                                    const saved = JSON.parse(localStorage.getItem(key));
+                                    if(saved && saved.attempted > 0) {
+                                        localTotal += saved.attempted;
+                                        const compId = key.replace('quiz_prog_', '');
+                                        combinedHistory.push({
+                                            title: "News Drill: " + compId,
+                                            score: saved.correct || 0,
+                                            total: saved.attempted || 1,
+                                            timestamp: saved.lastUpdated || (Date.now() - 1000), 
+                                            type: 'ca'
+                                        });
+                                    }
+                                } catch(e){}
+                            }
+                        }
+
+                        document.getElementById('cardTotalMcqs').textContent = fbTotal + localTotal;
+
+                        // 3. Merge, Sort, and Render
+                        combinedHistory.sort((a, b) => b.timestamp - a.timestamp);
+                        const top5 = combinedHistory.slice(0, 5);
+
+                        if (top5.length === 0) {
+                            historyContainer.innerHTML = `<li class="text-center py-6 text-slate-500 dark:text-slate-400 font-medium text-sm border border-dashed border-slate-300 dark:border-slate-700 rounded-2xl">No quizzes attempted yet. Head to Static GK or Current Affairs to start your drills!</li>`;
+                        } else {
+                            let historyHtml = "";
+                            top5.forEach(item => {
+                                const percent = (item.score / item.total) * 100;
+                                let colorClass = "emerald";
+                                if(percent < 70) colorClass = "amber";
+                                if(percent < 50) colorClass = "rose";
+                                
+                                const typeBadge = item.type === 'gk' 
+                                    ? `<span class="bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider mr-2 border border-indigo-200 dark:border-indigo-800">Static GK</span>`
+                                    : `<span class="bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wider mr-2 border border-sky-200 dark:border-sky-800">News</span>`;
+
+                                historyHtml += `
+                                <li>
+                                    <div class="flex justify-between items-center text-sm font-bold text-slate-700 dark:text-slate-300 mb-2">
+                                        <div class="flex items-center truncate max-w-[70%]">
+                                            ${typeBadge}
+                                            <span class="truncate">${escapeHtml(item.title)}</span>
+                                        </div>
+                                        <span class="text-${colorClass}-600 dark:text-${colorClass}-400 bg-${colorClass}-50 dark:bg-${colorClass}-900/20 px-2 py-0.5 rounded">${item.score}/${item.total}</span>
+                                    </div>
+                                    <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5">
+                                        <div class="bg-${colorClass}-500 h-2.5 rounded-full" style="width: ${percent}%"></div>
+                                    </div>
+                                </li>`;
+                            });
+                            historyContainer.innerHTML = historyHtml;
+                        }
+                    });
                 });
         });
 
@@ -745,37 +862,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-<script>
+    <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath) currentPath = 'index';
+        let currentPath = window.location.pathname.split('?')[0].split('#')[0].replace(/\/$/, '').split('/').pop().replace('.html', '');
+        if (!currentPath || currentPath === "") currentPath = 'index';
 
         document.querySelectorAll('nav a').forEach(link => {
             const href = link.getAttribute('href');
-            if (href) {
-                const cleanHref = href.replace('.html', '');
-                if (cleanHref === currentPath) {
-                    link.classList.remove('text-slate-300');
+            if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
+                const cleanHref = href.split('?')[0].split('#')[0].split('/').pop().replace('.html', '');
+                const targetFile = cleanHref || 'index';
+                
+                if (targetFile === currentPath) {
+                    link.classList.remove('text-slate-300', 'text-cyan-300', 'text-slate-400', 'text-slate-500', 'dark:text-slate-500');
                     link.classList.add('active-nav');
-                }
-            }
-        });
-    });
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        // Strip out slashes and .html so it matches both localhost and Netlify
-        let currentPath = window.location.pathname.replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath) currentPath = 'index';
-
-        document.querySelectorAll('nav a').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href) {
-                const cleanHref = href.replace('.html', '');
-                if (cleanHref === currentPath) {
-                    link.classList.remove('text-slate-300');
-                    link.classList.add('active-nav');
+                    
+                    if (link.closest('.glass-nav')) {
+                        link.classList.add('text-indigo-600', 'dark:text-indigo-400');
+                    }
                 }
             }
         });
