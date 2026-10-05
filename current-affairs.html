@@ -37,11 +37,30 @@
         
         /* Auto-Fitting 3D Flip Card Fix */
         .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); display: grid; }
-        .flip-card-front, .flip-card-back { grid-area: 1 / 1; backface-visibility: hidden; }
+        .flip-card-front, .flip-card-back { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .flip-card-back { transform: rotateY(180deg); }
         
-        .hide-scrollbar::-webkit-scrollbar { display: none; } 
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        /* Completely Hidden Scrollbars for Zen Reading */
+        .hide-scrollbar::-webkit-scrollbar { display: none !important; } 
+        .hide-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
+
+        /* Normal cursor on hover, grabbing ONLY on active click */
+        .drag-scroll-zone { 
+            cursor: default; 
+        }
+        .drag-scroll-zone.is-dragging { 
+            cursor: grabbing !important; 
+            user-select: none; 
+        }
+
+        /* Smart Overflow: Prevents wheel trap on PC, keeps native touch on Mobile */
+        @media (hover: hover) and (pointer: fine) {
+            .drag-scroll-zone, .custom-card-scroll { overflow: hidden !important; }
+        }
+        @media (hover: none) and (pointer: coarse) {
+            .drag-scroll-zone, .custom-card-scroll { overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+        }
+
         .progress-glow { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         
         .card-completed .flip-card-front { border-left: 4px solid #10b981 !important; }
@@ -164,7 +183,7 @@
         </div>
     </header>
 
-    <!-- MOBILE-SMART UTILITY BAR WITH SMART SCROLL / AUTO-HIDE -->
+    <!-- ZEN-MODE SECONDARY NAVBAR -->
     <div id="secondaryNavBar" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 sticky top-[80px] z-40 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-all duration-300 transform">
         <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
             
@@ -175,7 +194,6 @@
                     <button id="tabMonthly" title="View Monthly Digest" class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition translation-el whitespace-nowrap" data-en="📥 Monthly" data-hi="📥 मासिक">📥 Monthly</button>
                 </div>
                 
-                <!-- Daily Progress Widget -->
                 <div class="hidden md:flex flex-col w-32 flex-shrink-0" id="progressWidget">
                     <div class="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
                         <span class="translation-el" data-en="Goal" data-hi="लक्ष्य">Goal</span>
@@ -187,7 +205,6 @@
                 </div>
             </div>
 
-            <!-- Control Bar (Visible on Daily Tab) -->
             <div id="dateControlBar" class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto pb-1 md:pb-0">
                 <button id="btnAudioBrief" onclick="toggleAudioBrief()" title="Listen to 2-Minute Audio Brief" class="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
                     <span id="audioIcon">🎧</span> <span id="audioLabel" class="hidden sm:inline translation-el" data-en="2m Brief" data-hi="2 मिनट सारांश">2m Brief</span>
@@ -213,10 +230,8 @@
         </div>
     </div>
 
-    <!-- MAIN FEED CANVAS (ANTI-THEFT SHIELD) -->
     <main class="flex-grow max-w-4xl mx-auto w-full px-4 md:px-6 py-6 md:py-8 no-select">
         
-        <!-- SKELETON LOADER -->
         <div id="feedLoading" class="hidden space-y-6 w-full">
             <div class="animate-pulse bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-5 md:p-6">
                 <div class="flex justify-between items-center mb-4"><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/6"></div></div>
@@ -225,10 +240,8 @@
             </div>
         </div>
 
-        <!-- DAILY VIEW -->
         <div id="dailyFeedView" class="space-y-6 hidden"></div>
 
-        <!-- WEEKLY / MONTHLY SHELVES (Dynamic Grids + Re-added Banner Buttons) -->
         <div id="weeklyDrillView" class="hidden space-y-6">
             <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">⚡</div>
@@ -249,7 +262,6 @@
             <div id="monthlyShelfGrid" class="grid grid-cols-1 gap-6 mt-6"></div>
         </div>
 
-        <!-- COMPILATION WORKSPACE (Flip vs Quiz Modes) -->
         <div id="compilationWorkspace" class="hidden space-y-6">
             <div class="glass-card border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 sticky top-[80px] z-30">
                 <button onclick="closeCompilation()" class="text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold text-sm flex items-center gap-1 transition translation-el" data-en="&larr; Back to Shelf" data-hi="&larr; वापस">
@@ -272,7 +284,6 @@
             
             <div id="compilationCardsContainer" class="space-y-6"></div>
             
-            <!-- 20-Card Pagination -->
             <div id="compilationPagination" class="text-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 hidden">
                 <p id="compilationPaginationText" class="text-xs font-bold text-slate-400 mb-4">Showing 20 of X</p>
                 <button onclick="loadMoreCompilationCards()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-black text-xs px-6 py-3 rounded-xl shadow-sm transition translation-el" data-en="⬇ Load Next 20 Questions" data-hi="⬇ अगले 20 प्रश्न लोड करें">
@@ -289,12 +300,10 @@
         </div>
     </main>
 
-    <!-- SCROLL TO TOP BUTTON -->
     <button id="scrollToTopBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="fixed bottom-24 right-5 z-40 bg-indigo-600 hover:bg-indigo-500 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 translate-y-5 pointer-events-none" title="Back to Top">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
     </button>
 
-    <!-- SMART TELEGRAM DOWNLOAD GATE -->
     <div id="telegramGrowthModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transition-all transform scale-100">
             <div class="w-16 h-16 bg-[#0088cc]/10 text-[#0088cc] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✈</div>
@@ -311,7 +320,6 @@
         </div>
     </div>
 
-    <!-- PREMIUM LOCK MODAL (Login Gate) -->
     <div id="premiumModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transform scale-100 transition-all">
             <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
@@ -324,7 +332,6 @@
         </div>
     </div>
 
-    <!-- FULL FOOTER WITH DISCLAIMER (100% Preserved) -->
     <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
         <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
             <div class="space-y-4">
@@ -352,25 +359,14 @@
     <!-- INTERACTIVE JAVASCRIPT & DATABASE ENGINE -->
     <script>
         // ==========================================
-        // SMART SCROLL / AUTO-HIDE TOOLBAR LOGIC
+        // ZEN-MODE SCROLL LOGIC
         // ==========================================
         const secondaryNav = document.getElementById('secondaryNavBar');
-        let lastScrollY = window.scrollY;
-        let scrollPauseTimer = null; let autoHideTimer = null; let isInteractingWithNav = false;
-
-        secondaryNav.addEventListener('mouseenter', () => isInteractingWithNav = true);
-        secondaryNav.addEventListener('mouseleave', () => { isInteractingWithNav = false; startAutoHideTimer(); });
-        secondaryNav.addEventListener('touchstart', () => isInteractingWithNav = true, {passive: true});
-        secondaryNav.addEventListener('touchend', () => { isInteractingWithNav = false; startAutoHideTimer(); }, {passive: true});
-
-        function showNav() { secondaryNav.classList.remove('-translate-y-[150%]', 'opacity-0'); }
-        function hideNav() { if (window.scrollY > 150 && !isInteractingWithNav) secondaryNav.classList.add('-translate-y-[150%]', 'opacity-0'); }
-        function startAutoHideTimer() { clearTimeout(autoHideTimer); if (window.scrollY > 150) autoHideTimer = setTimeout(() => hideNav(), 3500); }
-
+        
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
-            
             const btnTop = document.getElementById('scrollToTopBtn');
+            
             if (currentScrollY > 350) {
                 btnTop.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
                 btnTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
@@ -379,21 +375,56 @@
                 btnTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
             }
 
-            if (currentScrollY <= 150) {
-                clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer); showNav(); lastScrollY = currentScrollY; return;
+            if (currentScrollY > 150) {
+                secondaryNav.classList.add('-translate-y-[150%]', 'opacity-0');
+            } else {
+                secondaryNav.classList.remove('-translate-y-[150%]', 'opacity-0');
             }
-
-            const delta = currentScrollY - lastScrollY;
-            if (Math.abs(delta) < 15) return; // Jitter filter
-
-            clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer);
-            if (delta > 0) hideNav(); 
-            else { scrollPauseTimer = setTimeout(() => { showNav(); startAutoHideTimer(); }, 150); }
-            lastScrollY = currentScrollY;
         }, { passive: true });
 
         // ==========================================
-        // FIREBASE, AUTH & ANTI-THEFT
+        // ZERO-LAG DRAG-TO-SCROLL (PC)
+        // ==========================================
+        let activeScrollZone = null;
+        let isDragging = false;
+        let startY, scrollTopTarget;
+
+        document.addEventListener('mousedown', (e) => {
+            const scrollZone = e.target.closest('.drag-scroll-zone');
+            if (!scrollZone) return;
+            
+            isDragging = true;
+            activeScrollZone = scrollZone;
+            startY = e.pageY - activeScrollZone.offsetTop;
+            scrollTopTarget = activeScrollZone.scrollTop;
+            activeScrollZone.classList.add('is-dragging');
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !activeScrollZone) return;
+            e.preventDefault(); 
+            
+            const y = e.pageY - activeScrollZone.offsetTop;
+            const walk = (y - startY) * 1.5; 
+            
+            // Hardware-accelerated scrolling (Eliminates the lag)
+            window.requestAnimationFrame(() => {
+                if(activeScrollZone) {
+                    activeScrollZone.scrollTop = scrollTopTarget - walk;
+                }
+            });
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (activeScrollZone) {
+                activeScrollZone.classList.remove('is-dragging');
+                activeScrollZone = null;
+            }
+            isDragging = false;
+        });
+
+        // ==========================================
+        // FIREBASE, AUTH & KEYBOARD SHORTCUTS
         // ==========================================
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
@@ -409,7 +440,6 @@
                 document.getElementById('btnLogout')?.classList.remove('hidden'); document.getElementById('mobileLogoutBtn')?.classList.remove('hidden');
                 document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
                 document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
-                
                 const wm = document.getElementById('forensicWatermark');
                 wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
             } else {
@@ -420,16 +450,24 @@
         });
 
         document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault(); });
+        document.addEventListener('keydown', e => { 
+            if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault(); 
+        });
+
+        window.addEventListener('keydown', e => {
+            if (['input', 'textarea'].includes(document.activeElement?.tagName?.toLowerCase())) return;
+            if (activeView === 'daily') {
+                if (e.key === 'ArrowLeft') { document.getElementById('btnPrevDay')?.click(); }
+                else if (e.key === 'ArrowRight') { document.getElementById('btnNextDay')?.click(); }
+                else if (e.key.toLowerCase() === 'f') { toggleFlipAll(); }
+            }
+        });
 
         function requireLogin(e) {
             if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
             return true;
         }
 
-        // ==========================================
-        // SMART PDF DOWNLOAD GATE
-        // ==========================================
         window.closePremiumModal = () => document.getElementById('premiumModal').classList.add('hidden');
         window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
 
@@ -452,14 +490,11 @@
         function executeDownload(type, url) {
             if(type === 'daily') generateDailyPDF();
             else if(type === 'compilation' && url) window.open(url, '_blank');
-            else if(type === 'compilation' && !url) window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); // fallback
+            else if(type === 'compilation' && !url) window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); 
         }
 
-        // ==========================================
-        // BILINGUAL, DATES & STATE
-        // ==========================================
         const htmlTag = document.documentElement; const themeBtn = document.getElementById('themeToggleBtn'); const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
-        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀️'; }
+        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀️️'; }
         function toggleTheme() {
             if (htmlTag.classList.contains('dark')) { htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙'; }
             else { htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀'; }
@@ -500,9 +535,6 @@
         document.getElementById('btnPrevDay').addEventListener('click', () => { const d = new Date(selectedDateStr); d.setDate(d.getDate() - 1); selectedDateStr = d.toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
         document.getElementById('btnNextDay').addEventListener('click', () => { const d = new Date(selectedDateStr); d.setDate(d.getDate() + 1); selectedDateStr = d.toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
 
-        // ==========================================
-        // AUDIO BRIEF (Speech Synthesis)
-        // ==========================================
         let audioSynth = window.speechSynthesis;
         let isAudioPlaying = false;
         
@@ -542,9 +574,6 @@
             btnLabel.textContent = currentLang === 'hi' ? 'रोकें' : 'Stop';
         };
 
-        // ==========================================
-        // VIEW NAVIGATION & CATEGORIES
-        // ==========================================
         const tabDaily = document.getElementById('tabDaily'); const tabWeekly = document.getElementById('tabWeekly'); const tabMonthly = document.getElementById('tabMonthly');
         const dailyFeedView = document.getElementById('dailyFeedView'); const weeklyDrillView = document.getElementById('weeklyDrillView'); const monthlyPdfView = document.getElementById('monthlyPdfView');
         const compilationWorkspace = document.getElementById('compilationWorkspace'); const dateControlBar = document.getElementById('dateControlBar');
@@ -575,9 +604,6 @@
             });
         });
 
-        // ==========================================
-        // DAILY NEWS FEED (Original Baseline 100%)
-        // ==========================================
         window.toggleFlipAll = function() {
             globalFlipState = !globalFlipState;
             document.querySelectorAll('#dailyFeedView .flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
@@ -655,7 +681,9 @@
             } catch (err) { document.getElementById('feedLoading').classList.add('hidden'); document.getElementById('emptyFeedState').classList.remove('hidden'); }
         }
 
-        // DAILY FEED CARD RENDERER (Restored Metadata + FIXED Pinned Try Again Button)
+        // ==========================================
+        // TWO-ZONE FLIP CARDS (Uniform Pushpins)
+        // ==========================================
         function renderFeedCards() {
             const feedContainer = document.getElementById('dailyFeedView'); feedContainer.innerHTML = "";
             const filtered = (activeCategoryFilter === "all") ? allArticlesCache : allArticlesCache.filter(item => item.category === activeCategoryFilter);
@@ -684,6 +712,9 @@
                 const safeEmoji = card.emoji || '📰';
                 const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
                 
+                const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                const correctIdx = Number(mcqData?.correctIndex) || 0;
+
                 const isRead = readArticlesSet.has(docId);
                 const btnClass = isRead ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
                 const readBtnText = isRead ? (currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed') : (currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read');
@@ -692,62 +723,67 @@
                 const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
                 const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
 
-                const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-1.5 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-400 font-black mt-1">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+                const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+
                 let staticBoxHtml = "";
                 if (staticBoxText) {
-                    staticBoxHtml = `<div class="mt-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-3 flex items-start gap-2 shadow-inner"><span class="text-indigo-500 dark:text-indigo-400 text-base mt-0.5">🧠</span><div><span class="text-[9px] font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-bold text-slate-700 dark:text-slate-300 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
+                    staticBoxHtml = `<div class="mt-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
                 }
 
                 html += `
                     <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}">
                         <div class="flip-card-inner relative w-full transform-style-3d bg-transparent rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
-                            <!-- FRONT SIDE -->
-                            <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-4 md:p-5 flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] shadow-sm hover:shadow-md transition cursor-pointer" onclick="flipCard(${idx})">
-                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
-                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
-                                        <div class="flex items-center gap-1.5">
+                            
+                            <!-- FRONT SIDE (TWO ZONES) -->
+                            <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl flex flex-col justify-between min-h-[420px] max-h-[540px] shadow-sm hover:shadow-md transition">
+                                <!-- ZONE 1: READING & DRAGGING (No Flip) -->
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700/80 pb-2.5">
+                                        <div class="flex items-center gap-2">
                                             <span class="text-xl">${safeEmoji}</span>
                                             <div class="flex flex-col">
                                                 <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
-                                                <span class="text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
                                             </div>
                                         </div>
-                                        <div class="flex items-center gap-1.5">
-                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
-                                            <button id="btnBookmark-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmark-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass}">${bkmrkText}</button>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
+                                            <button id="btnBookmark-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmark-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass} cursor-pointer">${bkmrkText}</button>
                                         </div>
                                     </div>
-                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
-                                    <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight mb-3">${escapeHtml(displayHeadline)}</h3>
-                                    <ul class="space-y-1.5 mb-2">${bulletsHtml}</ul>
+                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
+                                    <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${escapeHtml(displayHeadline)}</h3>
+                                    <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
                                     ${staticBoxHtml}
                                 </div>
-                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-slate-100 dark:border-slate-700 flex flex-wrap items-center justify-between gap-2">
+                                <!-- ZONE 2: ACTION FOOTER (Click Flips Card) -->
+                                <div class="flex-shrink-0 border-t border-slate-100 dark:border-slate-700/80 p-4 md:p-5 flex items-center justify-between gap-2 cursor-pointer bg-slate-50/50 dark:bg-slate-800 rounded-b-3xl" onclick="flipCard(${idx})">
                                     <div class="flex gap-2 w-full">
-                                        <button onclick="event.stopPropagation(); flipCard(${idx});" class="flex-1 justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
+                                        <button class="flex-1 justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
                                         <button id="btnRead-${idx}" onclick="event.stopPropagation(); markAsRead('${docId}', ${idx});" class="flex-1 justify-center flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition ${btnClass}">${readBtnText}</button>
                                     </div>
                                 </div>
                             </div>
                             
-                            <!-- BACK SIDE -->
-                            <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm p-4 md:p-5 flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] cursor-pointer hover:shadow-md transition" onclick="flipCard(${idx})">
-                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
-                                    <div class="flex justify-between items-center mb-4 border-b border-indigo-100 dark:border-indigo-800 pb-2">
+                            <!-- BACK SIDE (TWO ZONES) -->
+                            <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col justify-between min-h-[420px] max-h-[540px] hover:shadow-md transition">
+                                <!-- ZONE 1: READING & DRAGGING -->
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
+                                    <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
                                         <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
                                     </div>
-                                    <h4 class="font-black text-slate-900 dark:text-white text-base md:text-lg mb-4 leading-snug">${escapeHtml(mcqData?.question)}</h4>
-                                    <div id="mcqOptions-${idx}" class="space-y-2.5">
-                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx},${oIdx}, ${mcqData.correctIndex}, '${encodeURIComponent(mcqData.explanation)}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm"><span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
+                                    <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${escapeHtml(mcqData?.question)}</h4>
+                                    <div id="mcqOptions-${idx}" class="space-y-2">
+                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer"><span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
                                     </div>
-                                    <div id="mcqFeedback-${idx}" class="hidden mt-4 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-2 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
+                                    <div id="mcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-1.5 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
                                 </div>
-                                <!-- PINNED FOOTER (FIXED TRY AGAIN BUTTON LOCATION) -->
-                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-indigo-100 dark:border-indigo-800 flex items-center justify-between w-full gap-2">
-                                    <button id="btnTryAgain-${idx}" onclick="event.stopPropagation(); resetQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white/70 dark:bg-slate-800 hover:bg-white text-slate-800 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 dark:border-slate-700">
+                                <!-- ZONE 2: ACTION FOOTER -->
+                                <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-5 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900 rounded-b-3xl" onclick="flipCard(${idx})">
+                                    <button id="btnTryAgain-${idx}" onclick="event.stopPropagation(); resetQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer">
                                         <span>🔄</span> ${tryAgainLabel}
                                     </button>
-                                    <button onclick="event.stopPropagation(); flipCard(${idx});" class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 rounded-xl transition">
+                                    <button class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-xs px-4 py-2.5 rounded-xl transition">
                                         &larr; ${backToNotesLabel}
                                     </button>
                                 </div>
@@ -762,8 +798,12 @@
         
         window.handleOptionSelect = function(e, docId, uiIdx, selIdx, corIdx, encodedExp) {
             if(!requireLogin(e)) return; 
-            const container = document.getElementById(`mcqOptions-${uiIdx}`); const buttons = container.querySelectorAll(`button`); const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
-            if(buttons[0].disabled) return; buttons.forEach(b => b.disabled = true);
+            const container = document.getElementById(`mcqOptions-${uiIdx}`); 
+            const buttons = container.querySelectorAll(`button`); 
+            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); 
+            const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
+            if(buttons[0].disabled) return; 
+            buttons.forEach(b => b.disabled = true);
             
             const correctText = currentLang === 'hi' ? '✅ सही' : '✅ Correct';
             const incorrectText = currentLang === 'hi' ? '❌ गलत' : '❌ Incorrect';
@@ -771,17 +811,25 @@
             const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
 
             if (selIdx === corIdx) {
-                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = correctText;
-                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-2 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
+                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
+                buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
+                buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
+                buttons[selIdx].querySelector('.status-marker').textContent = correctText;
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
                 feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             } else {
-                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
-                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = correctText;
-                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-2 items-start bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner";
+                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); 
+                buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); 
+                buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); 
+                buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
+                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
+                buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
+                buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
+                buttons[corIdx].querySelector('.status-marker').textContent = correctText;
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner";
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
             
-            // Unhide the pinned Try Again button
             const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
             btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
             
@@ -789,14 +837,18 @@
         };
 
         window.resetQuiz = function(uiIdx) {
-            const container = document.getElementById(`mcqOptions-${uiIdx}`); const buttons = container.querySelectorAll(`button`); const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
-            buttons.forEach(b => { b.disabled = false; b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm"; b.querySelector('.status-marker').textContent = ""; });
+            const container = document.getElementById(`mcqOptions-${uiIdx}`); 
+            const buttons = container.querySelectorAll(`button`); 
+            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
+            buttons.forEach(b => { 
+                b.disabled = false; 
+                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer"; 
+                b.querySelector('.status-marker').textContent = ""; 
+            });
             feedback.classList.add('hidden'); feedback.classList.remove('flex');
-            // Hide the pinned Try Again button
             const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
             btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
         };
-
 
         // ==========================================
         // DYNAMIC COMPILATION SHELF & WORKSPACE
@@ -822,7 +874,6 @@
                 
                 const editions = Object.values(compilationsData).sort((a,b) => b.id.localeCompare(a.id));
                 
-                // FIXED: Friendly Error Graceful State
                 if (editions.length === 0) { 
                     shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
                     return; 
@@ -846,7 +897,6 @@
                 shelfGrid.innerHTML = html;
             } catch (err) { 
                 console.warn(err); 
-                // FIXED: Friendly Error Graceful State
                 shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
             }
         }
@@ -928,7 +978,6 @@
             const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें' : 'Test Fact';
             const liveVerifLabel = currentLang === 'hi' ? 'लाइव सत्यापन क्विज़' : 'Live Verification Quiz';
             const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं' : 'Read Notes';
-            const saveBtnLabel = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
             const tryAgainLabel = currentLang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again';
 
             let html = "";
@@ -946,75 +995,73 @@
                     
                     const safeEmoji = card.emoji || '📰';
                     const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
-                    const safeExp = encodeURIComponent(mcqData.explanation || '').replace(/'/g, "%27");
+                    const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                    const correctIdx = Number(mcqData?.correctIndex) || 0;
                     
                     const isBkmrk = savedBookmarks.includes(docId);
                     const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
                     const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
 
-                    const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-1.5 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-400 font-black mt-1">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+                    const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+
                     let staticBoxHtml = "";
                     if (staticBoxText) {
-                        staticBoxHtml = `<div class="mt-3 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800 rounded-xl p-3 flex items-start gap-2 shadow-inner"><span class="text-indigo-500 dark:text-indigo-400 text-base mt-0.5">🧠</span><div><span class="text-[9px] font-black uppercase tracking-wider text-indigo-800 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-bold text-slate-700 dark:text-slate-300 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
+                        staticBoxHtml = `<div class="mt-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
                     }
 
                     html += `
                     <div class="perspective-1000 w-full transition-all duration-300" id="compCardContainer-${idx}">
                         <div class="flip-card-inner relative w-full transform-style-3d glass-card rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
-                            <!-- FRONT SIDE -->
-                            <div class="flip-card-front flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] p-6 md:p-10 cursor-pointer" onclick="toggleCompCard(${idx})">
-                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
+                            <div class="flip-card-front flex flex-col justify-between min-h-[420px] max-h-[540px]">
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
                                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
                                         <div class="flex items-center gap-1.5">
                                             <span class="text-xl">${safeEmoji}</span>
                                             <div class="flex flex-col">
                                                 <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
-                                                <span class="text-indigo-600 dark:text-indigo-400 text-[9px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-1.5">
                                             <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
-                                            <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass}">${bkmrkText}</button>
+                                            <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass} cursor-pointer">${bkmrkText}</button>
                                         </div>
                                     </div>
                                     <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
-                                    <h3 class="text-lg md:text-xl font-black text-slate-900 dark:text-white leading-tight mb-3">${escapeHtml(displayHeadline)}</h3>
-                                    <ul class="space-y-1.5 mb-2">${bulletsHtml}</ul>
+                                    <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${escapeHtml(displayHeadline)}</h3>
+                                    <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
                                     ${staticBoxHtml}
                                 </div>
-                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 text-center w-full">
-                                    <button onclick="event.stopPropagation(); toggleCompCard(${idx});" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition w-full sm:w-auto"><span>🔄</span> ${testFactLabel}</button>
+                                <div class="flex-shrink-0 border-t border-slate-200 dark:border-slate-700 text-center w-full p-4 md:p-6 cursor-pointer bg-slate-50/50 dark:bg-slate-800/50 rounded-b-3xl" onclick="toggleCompCard(${idx})">
+                                    <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition w-full sm:w-auto"><span>🔄</span> ${testFactLabel}</button>
                                 </div>
                             </div>
                             
-                            <!-- BACK SIDE (INTERACTIVE MCQ) -->
-                            <div class="flip-card-back flex flex-col justify-between h-full max-h-[75vh] min-h-[350px] p-6 md:p-10 bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl cursor-pointer" onclick="toggleCompCard(${idx})">
-                                <div class="flex-grow overflow-y-auto hide-scrollbar" onclick="event.stopPropagation()">
-                                    <div class="flex justify-between items-center mb-4 border-b border-indigo-100 dark:border-indigo-800 pb-2">
+                            <div class="flip-card-back flex flex-col justify-between min-h-[420px] max-h-[540px] bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl hover:shadow-md transition">
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
+                                    <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
                                         <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
                                     </div>
-                                    <h4 class="font-black text-slate-900 dark:text-white text-base md:text-lg mb-4 leading-snug">${escapeHtml(mcqData?.question)}</h4>
+                                    <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${escapeHtml(mcqData?.question)}</h4>
                                     
-                                    <div id="compMcqOptions-${idx}" class="space-y-2.5">
+                                    <div id="compMcqOptions-${idx}" class="space-y-2">
                                         ${(mcqData?.options||[]).map((opt, oIdx) => `
-                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${mcqData.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm">
+                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer">
                                                 <span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span>
                                                 <span class="status-marker text-xs font-black"></span>
                                             </button>
                                         `).join('')}
                                     </div>
                                     
-                                    <!-- FIXED FLEX LAYOUT FOR EXPLANATION -->
-                                    <div id="compMcqFeedback-${idx}" class="hidden mt-4 p-3 rounded-xl text-xs md:text-sm font-semibold shadow-inner flex-col gap-2 items-start">
+                                    <div id="compMcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold shadow-inner flex-col gap-1.5 items-start">
                                         <div id="compMcqFeedbackText-${idx}"></div>
                                     </div>
                                 </div>
-                                <!-- PINNED FOOTER (FIXED TRY AGAIN BUTTON LOCATION) -->
-                                <div class="flex-shrink-0 mt-4 pt-3 border-t border-indigo-100 dark:border-indigo-800 flex items-center justify-between w-full gap-2">
-                                    <button id="btnTryAgainComp-${idx}" onclick="event.stopPropagation(); resetCompFlipQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white/70 dark:bg-slate-800 hover:bg-white text-slate-800 dark:text-slate-200 px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm border border-slate-200 dark:border-slate-700">
+                                <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-6 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900/50 rounded-b-3xl" onclick="toggleCompCard(${idx})">
+                                    <button id="btnTryAgainComp-${idx}" onclick="event.stopPropagation(); resetCompFlipQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer">
                                         <span>🔄</span> ${tryAgainLabel}
                                     </button>
-                                    <button onclick="event.stopPropagation(); toggleCompCard(${idx});" class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-sm px-4 py-2 rounded-xl transition">
+                                    <button class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-xs px-4 py-2.5 rounded-xl transition">
                                         &larr; ${backToNotesLabel}
                                     </button>
                                 </div>
@@ -1023,12 +1070,12 @@
                     </div>`;
                 });
             } else {
-                // RENDER RAPID QUIZ MODE
                 const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
                 batch.forEach((card, bIdx) => {
                     const idx = startIndex + bIdx;
                     const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
-                    const safeExp = encodeURIComponent(mcqData.explanation || '').replace(/'/g, "%27");
+                    const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                    const correctIdx = Number(mcqData?.correctIndex) || 0;
                     
                     html += `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm" id="quizCard-${idx}">
@@ -1038,7 +1085,7 @@
                         <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(mcqData.question)}</h4>
                         <div class="space-y-2.5" id="quizOptions-${idx}">
                             ${(mcqData.options||[]).map((opt, oIdx) => `
-                                <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${mcqData.correctIndex}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx}">
+                                <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx}">
                                     <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
                                 </button>
                             `).join('')}
@@ -1057,8 +1104,8 @@
                     const pastAnswer = saved.answers[`${currentCompId}_${card.id}`];
                     if (pastAnswer !== undefined) {
                         const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
-                        const safeExp = encodeURIComponent(mcqData.explanation || '');
-                        restoreCompQuizAnswerUI(idx, pastAnswer, mcqData.correctIndex, safeExp);
+                        const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                        restoreCompQuizAnswerUI(idx, pastAnswer, Number(mcqData?.correctIndex) || 0, safeExp);
                     }
                 });
             }
@@ -1082,16 +1129,15 @@
 
             if (selIdx === corIdx) {
                 buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
-                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner flex flex-col gap-2 items-start block";
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner flex flex-col gap-1.5 items-start block";
                 feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             } else {
                 buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
                 buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
-                feedback.className = "mt-4 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-2 items-start block";
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-1.5 items-start block";
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
             
-            // Show pinned Try Again button
             const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
             btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
         };
@@ -1103,14 +1149,13 @@
             
             buttons.forEach(b => {
                 b.disabled = false;
-                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-sm";
+                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer";
                 b.querySelector('.status-marker').textContent = "";
             });
             
             feedback.classList.add('hidden');
             feedback.classList.remove('flex');
             
-            // Hide pinned Try Again button
             const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
             btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
         };
@@ -1151,10 +1196,7 @@
             expContainer.innerHTML = decodeURIComponent(encodedExp);
         }
 
-        // ==========================================
-        // CLIENT-SIDE DAILY PDF GENERATOR
-        // ==========================================
-       window.generateDailyPDF = function() {
+        window.generateDailyPDF = function() {
             if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
             
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
@@ -1205,9 +1247,7 @@
         document.addEventListener('DOMContentLoaded', () => loadNewsForDate(selectedDateStr));
     </script>
 
-    <!-- ========================================== -->
-    <!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
-    <!-- ========================================== -->
+    <!-- STENOGYM FLOATING ASSISTIVE WIDGET -->
     <style>
         #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
         #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
@@ -1325,8 +1365,8 @@
             }
         });
     });
-</script>
-<!-- MOBILE MENU & ACCORDION FIX -->
+    </script>
+    <!-- MOBILE MENU & ACCORDION FIX -->
     <script>
         document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
             document.getElementById('mobileMenu')?.classList.toggle('hidden');
