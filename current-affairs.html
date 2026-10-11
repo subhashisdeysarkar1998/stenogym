@@ -245,10 +245,17 @@
         <div id="weeklyDrillView" class="hidden space-y-6">
             <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">⚡</div>
-                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Weekly Speed Drills" data-hi="साप्ताहिक स्पीड ड्रिल">Weekly Speed Drills</h2>
-                <p class="text-indigo-200 text-sm max-w-md mx-auto mb-6 translation-el" data-en="Select a published week below to start your timed drill or flip-card review." data-hi="अपनी क्विज़ शुरू करने के लिए नीचे एक सप्ताह चुनें।">Select a published week below to start your timed drill or flip-card review.</p>
+                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Speed Drills & Special Topics" data-hi="स्पीड ड्रिल और विशेष विषय">Speed Drills & Special Topics</h2>
+                <p class="text-indigo-200 text-sm max-w-md mx-auto mb-6 translation-el" data-en="Select a published week or special thematic booster to start your timed drill." data-hi="अपनी क्विज़ शुरू करने के लिए नीचे एक सप्ताह या विशेष विषय चुनें।">Select a published week or special thematic booster to start your timed drill.</p>
                 <button onclick="triggerTelegramDownload(event, 'compilation', 'https://t.me/+3EJOKkceGBA4YWE1')" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Weekly PDF 📄" data-hi="साप्ताहिक PDF डाउनलोड करें 📄">Download Weekly PDF 📄</button>
             </div>
+            
+            <!-- BY CALENDAR VS BY TOPIC TOGGLE -->
+            <div class="flex items-center justify-center gap-2 mt-6">
+                <button id="btnShelfWeekly" onclick="loadCompilationShelf('weekly')" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el" data-en="📅 By Calendar" data-hi="📅 कैलेंडर द्वारा">📅 By Calendar</button>
+                <button id="btnShelfSpecial" onclick="loadCompilationShelf('special')" class="px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el" data-en="🎯 By Topic (Special)" data-hi="🎯 विषय द्वारा (विशेष)">🎯 By Topic (Special)</button>
+            </div>
+
             <div id="weeklyShelfGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"></div>
         </div>
 
@@ -494,7 +501,7 @@
         }
 
         const htmlTag = document.documentElement; const themeBtn = document.getElementById('themeToggleBtn'); const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
-        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀️️'; }
+        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀'; }
         function toggleTheme() {
             if (htmlTag.classList.contains('dark')) { htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙'; }
             else { htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀'; }
@@ -525,15 +532,44 @@
         function formatISTDisplay(dateStr) { const d = new Date(dateStr); return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
         function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
 
-        let selectedDateStr = getISTDateString();
+        const urlParams = new URLSearchParams(window.location.search);
+        let selectedDateStr = urlParams.get('date') || getISTDateString();
+        
         let allArticlesCache = []; let activeCategoryFilter = "all"; let globalFlipState = false; let readArticlesSet = new Set();
         let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
         let activeView = 'daily'; 
 
         const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
-        dateInput.addEventListener('change', (e) => { selectedDateStr = e.target.value; loadNewsForDate(selectedDateStr); });
-        document.getElementById('btnPrevDay').addEventListener('click', () => { const d = new Date(selectedDateStr); d.setDate(d.getDate() - 1); selectedDateStr = d.toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
-        document.getElementById('btnNextDay').addEventListener('click', () => { const d = new Date(selectedDateStr); d.setDate(d.getDate() + 1); selectedDateStr = d.toISOString().split('T')[0]; dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); });
+        
+        // Pushes the date into the URL address bar so Google can index each day separately
+        function updateUrlAndLoad(dateStr) {
+            window.history.pushState({ path: window.location.href }, '', `?date=${dateStr}`);
+            loadNewsForDate(dateStr);
+        }
+
+        // Listens for the browser "Back" button to update the feed automatically
+        window.addEventListener('popstate', () => {
+            const params = new URLSearchParams(window.location.search);
+            selectedDateStr = params.get('date') || getISTDateString();
+            dateInput.value = selectedDateStr;
+            loadNewsForDate(selectedDateStr);
+        });
+
+        dateInput.addEventListener('change', (e) => { selectedDateStr = e.target.value; updateUrlAndLoad(selectedDateStr); });
+        
+        document.getElementById('btnPrevDay').addEventListener('click', () => { 
+            const [y,m,d] = selectedDateStr.split('-').map(Number);
+            const dt = new Date(y, m-1, d-1);
+            selectedDateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
+        });
+        
+        document.getElementById('btnNextDay').addEventListener('click', () => { 
+            const [y,m,d] = selectedDateStr.split('-').map(Number);
+            const dt = new Date(y, m-1, d+1);
+            selectedDateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
+        });
 
         let audioSynth = window.speechSynthesis;
         let isAudioPlaying = false;
@@ -587,7 +623,7 @@
             viewElement.classList.remove('hidden'); dateControlBar.style.display = (activeTab === tabDaily) ? 'flex' : 'none';
             document.getElementById('progressWidget').style.display = (activeTab === tabDaily) ? 'flex' : 'none';
             
-            if (cadenceVal === 'weekly' || cadenceVal === 'monthly') loadCompilationShelf(cadenceVal);
+            if (cadenceVal === 'weekly' || cadenceVal === 'monthly' || cadenceVal === 'special') loadCompilationShelf(cadenceVal);
         }
         tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView, 'daily'));
         tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView, 'weekly'));
@@ -648,18 +684,27 @@
         }
 
         async function fetchDailyNews(dateStr) {
-            let attempts = 0;
-            while(attempts < 3) {
-                try { const snap = await db.collection("daily_news").where("date", "==", dateStr).get({ source: 'default' }); return snap; } 
-                catch(e) { attempts++; if(attempts === 3) throw e; await new Promise(res => setTimeout(res, 500)); }
+            try {
+                // Smart Cache-Buster: Force server fetch first to skip empty cold cache
+                const snap = await db.collection("daily_news").where("date", "==", dateStr).get({ source: 'server' });
+                if (!snap.empty) return snap;
+            } catch(e) {
+                console.warn("Server fetch failed, falling back to cache logic...", e);
             }
+            
+            // Silent Retry Safety Net
+            await new Promise(res => setTimeout(res, 600));
+            return await db.collection("daily_news").where("date", "==", dateStr).get();
         }
 
         async function loadNewsForDate(dateStr) {
             document.getElementById('dailyFeedView').classList.add('hidden'); document.getElementById('emptyFeedState').classList.add('hidden'); document.getElementById('feedLoading').classList.remove('hidden');
             document.getElementById('displayDateBadge').innerText = formatISTDisplay(dateStr);
             try {
-                const snapshot = await fetchDailyNews(dateStr); allArticlesCache = []; const now = new Date().toISOString();
+                const snapshot = await fetchDailyNews(dateStr); 
+                allArticlesCache = []; 
+                const now = new Date().toISOString();
+                
                 snapshot.forEach(doc => { const data = doc.data(); if (!data.publishAt || data.publishAt <= now) allArticlesCache.push({ id: doc.id, ...data }); });
                 document.getElementById('feedLoading').classList.add('hidden');
                 
@@ -669,15 +714,51 @@
                     if(dateStr === getISTDateString() && isBefore6AM) {
                         document.getElementById('emptyIcon').textContent = "🌅"; document.getElementById('emptyText').innerHTML = currentLang === 'hi' ? "आज का 25+ करंट अफेयर्स सुबह 6:00 बजे आएगा।" : "Today's 25+ Current Affairs digest drops sharp at 6:00 AM.";
                         resetBtn.innerHTML = currentLang === 'hi' ? "कल के समाचार पढ़ें" : "📖 Read Yesterday's Digest";
-                        resetBtn.onclick = () => { const y = getISTDateObj(); y.setDate(y.getDate() - 1); selectedDateStr = getISTDateString(y); dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); };
+                        resetBtn.onclick = () => { 
+                            const [y,m,d] = getISTDateString().split('-').map(Number);
+                            const prev = new Date(y, m-1, d-1);
+                            selectedDateStr = `${prev.getFullYear()}-${String(prev.getMonth()+1).padStart(2,'0')}-${String(prev.getDate()).padStart(2,'0')}`;
+                            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
+                        };
                     } else {
                         document.getElementById('emptyIcon').textContent = "☕"; document.getElementById('emptyText').innerHTML = currentLang === 'hi' ? "इस तिथि के लिए कोई समाचार नहीं है" : "No News Filed For This Date";
                         resetBtn.innerHTML = currentLang === 'hi' ? "आज पर जाएं" : "Jump to Today";
-                        resetBtn.onclick = () => { selectedDateStr = getISTDateString(); dateInput.value = selectedDateStr; loadNewsForDate(selectedDateStr); };
+                        resetBtn.onclick = () => { selectedDateStr = getISTDateString(); dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); };
                     }
                     document.getElementById('emptyFeedState').classList.remove('hidden'); 
                 } 
-                else { readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); }
+                else { 
+                    // SEO INJECTOR: Dynamic Title, Meta, and JSON-LD FAQ Schema
+                    const topNews = allArticlesCache[0].oneLiner;
+                    document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
+                    document.querySelector('meta[name="description"]').setAttribute("content", `Daily Current Affairs for ${formatISTDisplay(dateStr)}. Top News: ${topNews}. Download free PDFs and take MCQs for SSC CGL, RRB NTPC, and IBPS PO.`);
+                    
+                    let schemaId = document.getElementById('dynamic-faq-schema');
+                    if(schemaId) schemaId.remove();
+                    
+                    const schemaData = {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": allArticlesCache.map(card => {
+                            const q = card.mcq?.question || card.oneLiner;
+                            const ansText = card.mcq?.options ? card.mcq.options[card.mcq.correctIndex || 0] : "";
+                            const exp = card.mcq?.explanation || "";
+                            return {
+                                "@type": "Question",
+                                "name": q,
+                                "acceptedAnswer": { "@type": "Answer", "text": `${ansText} - ${exp}` }
+                            };
+                        })
+                    };
+                    
+                    const script = document.createElement('script');
+                    script.id = 'dynamic-faq-schema';
+                    script.type = 'application/ld+json';
+                    script.text = JSON.stringify(schemaData);
+                    document.head.appendChild(script);
+
+                    readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); 
+                }
             } catch (err) { document.getElementById('feedLoading').classList.add('hidden'); document.getElementById('emptyFeedState').classList.remove('hidden'); }
         }
 
@@ -861,8 +942,25 @@
         let currentCompId = null;
 
         async function loadCompilationShelf(cadence) {
-            const shelfGrid = document.getElementById(`${cadence}ShelfGrid`);
+            
+            if (cadence === 'weekly' || cadence === 'special') {
+                const btnW = document.getElementById('btnShelfWeekly');
+                const btnS = document.getElementById('btnShelfSpecial');
+                if (btnW && btnS) {
+                    if (cadence === 'weekly') {
+                        btnW.className = "px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el";
+                        btnS.className = "px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el";
+                    } else {
+                        btnS.className = "px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el";
+                        btnW.className = "px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el";
+                    }
+                }
+            }
+
+            let shelfGridId = cadence === 'monthly' ? 'monthlyShelfGrid' : 'weeklyShelfGrid';
+            const shelfGrid = document.getElementById(shelfGridId);
             shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8">Loading Archive...</div>`;
+            
             try {
                 const snap = await db.collection("ca_drills").where("cadence", "==", cadence).get();
                 compilationsData = {};
@@ -881,13 +979,17 @@
                 
                 let html = "";
                 editions.forEach(ed => {
+                    let displayTitle = 'Weekly Speed Drill';
+                    if (cadence === 'monthly') displayTitle = 'Monthly Mega Digest';
+                    if (cadence === 'special') displayTitle = 'Special Topic Mock';
+
                     html += `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
                             <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(ed.id)}</span>
                             <span class="text-xs font-bold text-slate-400">${ed.cards.length} MCQs</span>
                         </div>
-                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${cadence === 'weekly' ? 'Weekly Speed Drill' : 'Monthly Mega Digest'}</h3>
+                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${displayTitle}</h3>
                         <div class="flex flex-col gap-2">
                             <button onclick="openCompilation('${ed.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition">📖 Open Compilation Deck</button>
                             <button onclick="triggerTelegramDownload(event, 'compilation', '${ed.pdfUrl || ''}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition">📥 Download Offline PDF</button>
@@ -918,8 +1020,12 @@
         window.closeCompilation = function() {
             document.getElementById('compilationWorkspace').classList.add('hidden');
             activeView = compilationsData[currentCompId].cadence;
-            document.getElementById(`${activeView}DrillView`).classList.remove('hidden');
-            if(activeView === 'monthly') document.getElementById('monthlyPdfView').classList.remove('hidden');
+            
+            if(activeView === 'monthly') {
+                document.getElementById('monthlyPdfView').classList.remove('hidden');
+            } else {
+                document.getElementById('weeklyDrillView').classList.remove('hidden');
+            }
             window.scrollTo({top:0, behavior:'smooth'});
         };
 
@@ -1086,7 +1192,7 @@
                         <div class="space-y-2.5" id="quizOptions-${idx}">
                             ${(mcqData.options||[]).map((opt, oIdx) => `
                                 <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx}">
-                                    <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                    <span>${String.fromCharCode(65 + oIdx)}.${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
                                 </button>
                             `).join('')}
                         </div>
@@ -1196,21 +1302,32 @@
             expContainer.innerHTML = decodeURIComponent(encodedExp);
         }
 
+        // DAILY PDF GENERATOR (NOW UNIFIED WITH FORENSIC SECURITY & BRANDING)
         window.generateDailyPDF = function() {
             if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
             
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
             
+            // Security Injection: Invisible Zero-Width Fingerprint
+            const injectZWS = (str) => {
+                if(!str) return "";
+                return str.split('').join('\u200B');
+            };
+            
             let content = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
                 <style>
                     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .ca-pdf-logo-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: -2; pointer-events: none; width: 400px; }
+                    .ca-micro-canary { font-size: 1px; color: transparent; user-select: text; opacity: 0.01; height: 1px; overflow: hidden; display: block; }
                 </style>
-                <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; font-weight: 900; letter-spacing: 2px;">STENOGYM • t.me/stenogym</div>
+                <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
+                ${logoDataUrl ? `<img src="${logoDataUrl}" class="ca-pdf-logo-bg">` : ''}
                 
                 <div style="background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">` : ''}
                         <div>
                             <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
                             <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</div>
@@ -1226,22 +1343,52 @@
                 const stat = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || '');
                 const mcq = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
 
-                content += `<div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin-bottom: 18px; page-break-inside: avoid; background: #fff;">`;
+                content += `<div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin-bottom: 18px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05);">`;
                 content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
-                content += `<div style="font-size: 14px; font-weight: 900; margin-bottom: 8px;">${escapeHtml(hLine)}</div>`;
-                content += `<ul style="margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6;">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
-                if(stat) content += `<div style="background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px;">🧠 <strong>Static Context:</strong> ${escapeHtml(stat)}</div>`;
-                if(mcq) {
-                    content += `<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px; border-radius: 6px; font-size: 11px;"><strong>Drill:</strong> ${escapeHtml(mcq.question)}<br><div style="margin: 4px 0; color: #065f46; font-weight: bold;">Ans: Option ${String.fromCharCode(65 + mcq.correctIndex)} (${escapeHtml(mcq.options[mcq.correctIndex])})</div><div style="color: #475569;"><em>${escapeHtml(mcq.explanation)}</em></div></div>`;
+                
+                // ZWS Fingerprint Injection
+                content += `<div style="font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">${injectZWS(escapeHtml(hLine))}</div>`;
+                
+                content += `<ul style="margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155;">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
+                
+                if(stat) content += `<div style="background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600;">🧠 <strong>Static Context:</strong> ${escapeHtml(stat)}</div>`;
+                
+                if(mcq && mcq.question) {
+                    content += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px 14px; border-radius: 6px; font-size: 11px;">
+                        <strong>Drill:</strong> ${escapeHtml(mcq.question)}<br>
+                        <div style="margin: 4px 0; color: #065f46; font-weight: bold;">Ans: Option ${String.fromCharCode(65 + mcq.correctIndex)} (${escapeHtml(mcq.options[mcq.correctIndex])})</div>
+                        <div style="color: #475569;"><em>${escapeHtml(mcq.explanation)}</em></div>
+                        <!-- Security Injection: Micro Text Canary -->
+                        <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
+                    </div>`;
                 }
                 content += `</div>`;
             });
 
-            content += `<div style="margin-top: 30px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; padding-top: 12px;">Exclusive Exam Digest &bull; Join Telegram Channel: t.me/stenogym</div></div>`;
+            content += `<div style="margin-top: 30px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; padding-top: 12px; font-weight: 700; color: #64748b;">Exclusive Exam Digest by STENOGYM &bull; Join Telegram Channel: t.me/stenogym &bull; All Rights Reserved</div></div>`;
 
             const element = document.createElement('div'); element.innerHTML = content;
-            const opt = { margin: 0.4, filename: `Stenogym_Daily_CA_${selectedDateStr}.pdf`, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } };
-            html2pdf().set(opt).from(element).save();
+            const finalFilename = `Stenogym_Daily_CA_${selectedDateStr}.pdf`;
+            
+            const opt = { 
+                margin: 0.4, 
+                filename: finalFilename, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+            };
+            
+            // Security Injection: Embedded PDF Metadata
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                pdf.setProperties({
+                    title: finalFilename,
+                    subject: 'Verified Exam Digest',
+                    author: 'Stenogym Content Bureau',
+                    keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
+                    creator: 'Stenogym Forensic Engine v2.0'
+                });
+            }).save();
         };
         
         document.addEventListener('DOMContentLoaded', () => loadNewsForDate(selectedDateStr));
@@ -1271,7 +1418,6 @@
             <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
             <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
             <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-            <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
         </div>
         <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
     </div>

@@ -78,15 +78,15 @@
     <div id="smartToolbar" class="bg-indigo-700 dark:bg-slate-900 border-b border-indigo-800 dark:border-slate-800 sticky top-20 z-40 transition-all duration-300 transform shadow-md"></div>
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-3">
             
-            <!-- Tool Tabs (Perfect 3-Column Fit for Mobile, No Scrolling Needed) -->
+           <!-- Tool Tabs -->
             <div class="grid grid-cols-3 sm:flex sm:justify-start gap-2 w-full text-[11px] min-[375px]:text-xs sm:text-sm font-bold pb-1">
-                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg bg-white/20 dark:bg-slate-800 text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden">
+                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg bg-indigo-100 text-indigo-800 dark:bg-slate-800 dark:text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden transition">
                     <span>🎧</span> <span class="truncate">Preset Room</span>
                 </a>
-                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg text-emerald-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg text-slate-600 dark:text-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-slate-800 dark:hover:text-white transition flex items-center justify-center gap-1 overflow-hidden">
                     <span>🧠</span> <span class="truncate">AI Studio</span>
                 </a>
-                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg text-fuchsia-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg text-slate-600 dark:text-fuchsia-300 hover:bg-fuchsia-50 hover:text-fuchsia-700 dark:hover:bg-slate-800 dark:hover:text-white transition flex items-center justify-center gap-1 overflow-hidden">
                     <span>📄</span> <span class="truncate">Scanner</span>
                 </a>
             </div>
@@ -330,22 +330,67 @@
             return truncated.join(" ");
         }
 
+        // ==========================================
+        // DYNAMIC SEO ENGINE (URL Routing, Tags, Schema)
+        // ==========================================
+        function updateDynamicSEO() {
+            // Extract the clean text from the dropdown (e.g., "SSC Parliamentary")
+            const catName = categorySelect.options[categorySelect.selectedIndex]?.text.replace(/[^a-zA-Z\s\/]/g, '').trim() || "Shorthand";
+            const wpmVal = wpmSelect.value;
+            
+            // 1. Dynamic Title Injection
+            document.title = `${catName} Dictation Practice Online at ${wpmVal} WPM | Free SSC Steno Test`;
+            
+            // 2. Dynamic Meta Description Injection
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = "description"; document.head.appendChild(metaDesc); }
+            metaDesc.setAttribute("content", `Practice free ${catName} shorthand dictation online at ${wpmVal} words per minute. Instant AI evaluation and transcription canvas for SSC, High Court, and RRB stenography exams.`);
+            
+            // 3. Dynamic URL Routing (e.g., ?cat=ssc&wpm=80)
+            const params = new URLSearchParams(window.location.search);
+            params.set('cat', categorySelect.value);
+            params.set('wpm', wpmVal);
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+
+            // 4. Software Application Schema (Tells Google this is an interactive tool)
+            let schemaId = document.getElementById('dynamic-app-schema');
+            if(!schemaId) {
+                const schemaData = {
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    "name": "Stenogym Preset Dictation Room",
+                    "applicationCategory": "EducationalApplication",
+                    "operatingSystem": "Any",
+                    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "INR" },
+                    "description": "Free online shorthand dictation audio player with adjustable WPM speeds and instant text evaluation for SSC Stenographer and High Court skill tests."
+                };
+                const script = document.createElement('script'); script.id = 'dynamic-app-schema'; script.type = 'application/ld+json'; script.text = JSON.stringify(schemaData); document.head.appendChild(script);
+            }
+        }
+
         function initApp() {
             loadVoices();
             window.speechSynthesis.onvoiceschanged = loadVoices;
-            categorySelect.addEventListener('change', populateSubCategories); 
+            
+            // Attach SEO updates to user interactions
+            categorySelect.addEventListener('change', () => { populateSubCategories(); updateDynamicSEO(); }); 
             subCategorySelect.addEventListener('change', populateLessons);    
             lessonSelect.addEventListener('change', buildActiveTrackData);
+            
             wordLimitSelect.addEventListener('change', () => {
                 activePassageText = applySmartTruncation(rawPassageText, wordLimitSelect.value);
                 if (!revealContainer.classList.contains('hidden')) revealContainer.textContent = activePassageText;
                 resetAudioEngine();
             });
+            
             wpmSelect.addEventListener('change', () => {
                 targetWPM = parseInt(wpmSelect.value);
+                updateDynamicSEO(); // Update URL and Meta tags when speed changes
                 if (activePassageText && activePassageText.trim() !== "") resetAudioEngine(); 
                 else compileTrackMetrics("");
             });
+            
             btnRevealPassage.addEventListener('click', () => {
                 if (revealContainer.classList.contains('hidden')) {
                     revealContainer.classList.remove('hidden');
@@ -364,7 +409,22 @@
                 const snapshot = await db.collection("lessons").get();
                 LIVE_EXAM_BANK = [];
                 snapshot.forEach(doc => { LIVE_EXAM_BANK.push({ id: doc.id, ...doc.data() }); });
+                
+                // Read incoming URL parameters so Google can index specific states
+                const urlParams = new URLSearchParams(window.location.search);
+                const initCat = urlParams.get('cat'); 
+                const initWpm = urlParams.get('wpm');
+                
+                if (initCat && Array.from(categorySelect.options).some(opt => opt.value === initCat)) {
+                    categorySelect.value = initCat;
+                }
+                if (initWpm && Array.from(wpmSelect.options).some(opt => opt.value === initWpm)) {
+                    wpmSelect.value = initWpm; 
+                    targetWPM = parseInt(initWpm); 
+                }
+                
                 populateSubCategories();
+                updateDynamicSEO(); // Fire SEO engine on load
             } catch (error) { console.error("Error:", error); }
         }
 

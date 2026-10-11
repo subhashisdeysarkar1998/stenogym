@@ -273,29 +273,52 @@
                     </div>
 
                     <div id="caDrillControls" class="hidden space-y-4">
+                        <!-- THE 2-WAY EDIT TOGGLE -->
+                        <div class="flex gap-6 mb-2 border-b border-slate-100 pb-4">
+                            <label class="flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition" id="lblDrillNew">
+                                <input type="radio" name="drillMode" value="new" checked onchange="toggleDrillMode(this.value)" class="accent-indigo-600"> ➕ Create New Drill
+                            </label>
+                            <label class="flex items-center gap-2 font-bold text-sm cursor-pointer text-slate-500 hover:text-indigo-600 transition" id="lblDrillEdit">
+                                <input type="radio" name="drillMode" value="edit" onchange="toggleDrillMode(this.value)" class="accent-indigo-600"> ✏️ Edit / Overwrite Existing
+                            </label>
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Drill Cadence</label>
                                 <select id="drillCadenceType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
                                     <option value="weekly">⚡ Weekly Speed Drill (50 MCQs)</option>
                                     <option value="monthly">📥 Monthly Mega Mock (100 MCQs)</option>
+                                    <option value="special">🎯 Special Topic (Nobel, Games)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Identifier / Tag (e.g., 2026-W40 or 2026-10)</label>
+                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Identifier / Tag (e.g., 2026-W40)</label>
                                 <input type="text" id="drillIdentifier" placeholder="2026-W40" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Watermarked PDF Embed URL (Drive / Firebase)</label>
+                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Watermarked PDF Embed URL</label>
                                 <input type="url" id="drillPdfEmbedUrl" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
                             </div>
                         </div>
-                        <div class="flex gap-2">
+                        
+                        <!-- CREATE NEW BUTTONS -->
+                        <div class="flex gap-2" id="drillActionBtnsNew">
                             <button onclick="ingestDrillFromClipboard()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
                                 <span>⚡</span> Ingest Drill from Clipboard
                             </button>
                             <button onclick="openPasteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 transition">
                                 📋 Paste Box
+                            </button>
+                        </div>
+
+                        <!-- EDIT EXISTING BUTTONS -->
+                        <div class="flex gap-2 hidden" id="drillActionBtnsEdit">
+                            <button onclick="fetchExistingDrill()" class="bg-amber-500 hover:bg-amber-400 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                                <span>📥</span> Fetch Drill
+                            </button>
+                            <button onclick="deleteEntireDrill()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 border border-rose-300 font-bold text-sm px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm">
+                                <span>🗑️</span> Delete Entire Drill
                             </button>
                         </div>
                     </div>
@@ -311,6 +334,9 @@
                             <p class="text-xs text-slate-400 mt-1" id="stagedScheduleBadge">Configured for 06:00 AM</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
+                            <button onclick="clearStagingArea()" class="bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 font-bold py-2.5 px-4 rounded-xl border border-slate-700 transition text-xs flex items-center gap-1.5 shadow-sm">
+                                <span>🧹</span> Clear Staging
+                            </button>
                             <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
                                 <span>⚡</span> Re-Translate
                             </button>
@@ -794,14 +820,14 @@
                         </div>
                         <div class="space-y-4 pt-4 border-t border-slate-200">
                             <div>
-    <div class="flex justify-between items-center mb-2">
-        <label class="block text-xs font-bold text-emerald-700 uppercase tracking-wider">Hindi Title (हिंदी)</label>
-        <button onclick="autoTranslateEditBlog()" id="btnAutoTranslateEditBlog" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1.5 text-xs">
-            <span>⚡</span> Auto-Translate
-        </button>
-    </div>
-    <input type="text" id="editBlogTitle_hi" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500">
-</div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-xs font-bold text-emerald-700 uppercase tracking-wider">Hindi Title (हिंदी)</label>
+                                    <button onclick="autoTranslateEditBlog()" id="btnAutoTranslateEditBlog" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-1.5 px-3 rounded-lg shadow-sm transition flex items-center gap-1.5 text-xs">
+                                        <span>⚡</span> Auto-Translate
+                                    </button>
+                                </div>
+                                <input type="text" id="editBlogTitle_hi" class="w-full bg-white border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-emerald-500">
+                            </div>
                             <div><label class="block text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">Hindi Content (हिंदी)</label><div id="quillEditBlogHi" class="bg-white"></div></div>
                         </div>
                     </div>
@@ -1086,7 +1112,7 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <input class="prac-hi-o1 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प A" value="${escapeHtml(o1Hi)}">
                                 <input class="prac-hi-o2 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प B" value="${escapeHtml(o2Hi)}">
-                                <input class="prac-hi-o3 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प C" value="${escapeHtml(o3Hi)}">
+                                <input class="prac-hi-o3 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प C" value="${escapeHtml(o2Hi)}">
                                 <input class="prac-hi-o4 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प D" value="${escapeHtml(o4Hi)}">
                             </div>
                             <input class="prac-hi-exp w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="व्याख्या (हिंदी)" value="${escapeHtml(expHi)}">
@@ -1280,13 +1306,13 @@
                 mcqs_hi.push({ 
                     question: el.querySelector('.mq-hi-q').value.trim() || el.querySelector('.mq-en-q').value.trim(), 
                     options: [
-                        el.querySelector('.mq-hi-o1').value.trim() || el.querySelector('.mq-en-o1').value.trim(),
-                        el.querySelector('.mq-hi-o2').value.trim() || el.querySelector('.mq-en-o2').value.trim(),
-                        el.querySelector('.mq-hi-o3').value.trim() || el.querySelector('.mq-en-o3').value.trim(),
-                        el.querySelector('.mq-hi-o4').value.trim() || el.querySelector('.mq-en-o4').value.trim()
+                        el.querySelector('.mq-hi-o1').value.trim() || el.querySelector('.prac-en-o1').value.trim(),
+                        el.querySelector('.mq-hi-o2').value.trim() || el.querySelector('.prac-en-o2').value.trim(),
+                        el.querySelector('.mq-hi-o3').value.trim() || el.querySelector('.prac-en-o3').value.trim(),
+                        el.querySelector('.mq-hi-o4').value.trim() || el.querySelector('.prac-en-o4').value.trim()
                     ], 
                     correctIndex: ans, 
-                    explanation: el.querySelector('.mq-hi-exp').value.trim() || el.querySelector('.mq-en-exp').value.trim(), 
+                    explanation: el.querySelector('.mq-hi-exp').value.trim() || el.querySelector('.prac-en-exp').value.trim(), 
                     sourceExam: src 
                 });
             });
@@ -1546,6 +1572,16 @@
         let currentCACadence = "daily";
         window.stagedNewsItems = [];
         window.activeStagingFilter = "all";
+        window.isEditingDrill = false;
+
+        window.clearStagingArea = function() {
+            if(window.stagedNewsItems.length === 0) return;
+            if(!confirm("Are you sure you want to completely clear the staging area? All unstaged cards will be removed.")) return;
+            window.stagedNewsItems = [];
+            document.getElementById('stagedCount').textContent = "0";
+            document.getElementById('caCardsContainer').innerHTML = "";
+            document.getElementById('caStagingArea').classList.add('hidden');
+        };
 
         window.switchCACadence = function(mode) {
             currentCACadence = mode;
@@ -1554,6 +1590,73 @@
             document.getElementById('caDrillControls').classList.toggle('hidden', isDaily);
             document.getElementById('btnCADailyTab').className = isDaily ? 'px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition' : 'px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition';
             document.getElementById('btnCADrillsTab').className = !isDaily ? 'px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition' : 'px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition';
+        };
+
+        window.toggleDrillMode = function(mode) {
+            window.isEditingDrill = (mode === 'edit');
+            document.getElementById('lblDrillNew').className = mode === 'new' ? 'flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition' : 'flex items-center gap-2 font-bold text-sm cursor-pointer text-slate-500 hover:text-indigo-600 transition';
+            document.getElementById('lblDrillEdit').className = mode === 'edit' ? 'flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition' : 'flex items-center gap-2 font-bold text-sm cursor-pointer text-slate-500 hover:text-indigo-600 transition';
+            
+            document.getElementById('drillActionBtnsNew').style.display = mode === 'new' ? 'flex' : 'none';
+            document.getElementById('drillActionBtnsEdit').style.display = mode === 'edit' ? 'flex' : 'none';
+            
+            const btnPublish = document.getElementById('btnPublishCA');
+            btnPublish.innerHTML = mode === 'edit' ? '<span>💾</span> Overwrite Live Drill' : '<span>🚀</span> Commit & Schedule Drop';
+            btnPublish.classList.toggle('bg-amber-500', mode === 'edit');
+            btnPublish.classList.toggle('hover:bg-amber-400', mode === 'edit');
+            btnPublish.classList.toggle('bg-emerald-500', mode === 'new');
+            btnPublish.classList.toggle('hover:bg-emerald-400', mode === 'new');
+        };
+
+        window.fetchExistingDrill = async function() {
+            const tag = document.getElementById('drillIdentifier').value.trim();
+            const cadence = document.getElementById('drillCadenceType').value;
+            if(!tag) return alert("Please enter an Identifier / Tag to fetch.");
+            
+            const btn = document.querySelector('#drillActionBtnsEdit button');
+            const origText = btn.innerHTML;
+            btn.innerHTML = "Fetching..."; btn.disabled = true;
+            
+            try {
+                const q = query(collection(db, "ca_drills"), where("date", "==", tag), where("cadence", "==", cadence));
+                const snap = await getDocs(q);
+                if(snap.empty) {
+                    alert(`No cards found for Tag: ${tag} and Cadence: ${cadence}`);
+                    return;
+                }
+                const fetchedCards = [];
+                snap.forEach(doc => fetchedCards.push({ id: doc.id, ...doc.data() }));
+                
+                window.stagedNewsItems = fetchedCards;
+                renderStagingCards();
+                alert(`✅ Fetched ${fetchedCards.length} cards into the visual editor!`);
+            } catch(e) {
+                alert("Error fetching drill: " + e.message);
+            } finally {
+                btn.innerHTML = origText; btn.disabled = false;
+            }
+        };
+
+        window.deleteEntireDrill = async function() {
+            const tag = document.getElementById('drillIdentifier').value.trim();
+            const cadence = document.getElementById('drillCadenceType').value;
+            if(!tag) return alert("Please enter the Identifier / Tag to delete.");
+            if(!confirm(`DANGER: Are you sure you want to completely delete the drill "${tag}"? This cannot be undone.`)) return;
+            
+            try {
+                const qDel = query(collection(db, "ca_drills"), where("date", "==", tag), where("cadence", "==", cadence));
+                const snapDel = await getDocs(qDel);
+                if(snapDel.empty) return alert("No drill found with that tag.");
+                
+                const batch = writeBatch(db);
+                snapDel.forEach(d => batch.delete(d.ref));
+                await batch.commit();
+                alert(`✅ Entire drill "${tag}" deleted successfully from the database.`);
+                document.getElementById('caStagingArea').classList.add('hidden');
+                window.stagedNewsItems = [];
+            } catch (err) {
+                alert("Error deleting drill: " + err.message);
+            }
         };
 
         window.openPasteModal = () => document.getElementById('jsonPasteModal').classList.remove('hidden');
@@ -1589,6 +1692,9 @@
 
         function parseAndStagePayload(rawText) {
             try {
+                // REGEX CLEANER: Strips all citation patterns and bracket annotations
+                rawText = rawText.replace(/\[cite:[^\]]*\]/g, "").replace(/\[\d+\]/g, "");
+
                 let clean = rawText.trim();
                 const start = clean.indexOf('[');
                 const end = clean.lastIndexOf(']');
@@ -1598,7 +1704,21 @@
                 const cards = Array.isArray(parsed) ? parsed : (parsed.news || parsed.data || Object.values(parsed)[0]);
                 if (!Array.isArray(cards) || cards.length === 0) throw new Error("Invalid format: expected array of cards.");
 
-                window.stagedNewsItems = cards;
+                // DATE GUARD LAYER 1: Mismatch Pre-Check
+                const isDaily = currentCACadence === 'daily';
+                const activeTarget = isDaily 
+                    ? document.getElementById('caTargetDate').value 
+                    : document.getElementById('drillIdentifier').value.trim();
+                
+                const cardDate = cards[0]?.date || cards[0]?.targetDate;
+
+                if (isDaily && cardDate && activeTarget && cardDate !== activeTarget) {
+                    alert(`🛑 DATE MISMATCH CANCELLED!\n\nThe JSON array is dated "${cardDate}", but your Target Date is set to "${activeTarget}".\n\nPlease correct your Target Date selector before ingesting.`);
+                    return;
+                }
+
+                // APPEND ENGINE: Stacks new batches instead of overwriting existing cards
+                window.stagedNewsItems = [...window.stagedNewsItems, ...cards];
                 renderStagingCards();
             } catch (err) { alert("Failed to ingest payload: " + err.message); }
         }
@@ -1711,74 +1831,147 @@
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
-        // BRANDED CURRENT AFFAIRS PDF GENERATOR
+        // BRANDED CURRENT AFFAIRS PDF GENERATOR (WITH INDEX & FORENSICS)
         window.generateStagedPDF = function() {
-            const cards = document.querySelectorAll('.ca-staged-card');
-            if (cards.length === 0) return alert("No cards in staging to generate PDF.");
+            const cardEls = document.querySelectorAll('.ca-staged-card');
+            if (cardEls.length === 0) return alert("No cards in staging to generate PDF.");
             
-            const dateStr = document.getElementById('caTargetDate').value;
+            const isDaily = currentCACadence === 'daily';
+            const dateStr = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+            const cadenceSelect = document.getElementById('drillCadenceType').value;
+            
+            let pdfTitle = "Daily Current Affairs Digest";
+            if (!isDaily) {
+                if(cadenceSelect === 'monthly') pdfTitle = "Monthly Mega Mock";
+                else if(cadenceSelect === 'special') pdfTitle = "Special Topic Compilation";
+                else pdfTitle = "Weekly Speed Drill";
+            }
+            
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
             
+            // 1. Extract Data from DOM to Group It
+            const editedCards = [];
+            cardEls.forEach((el) => {
+                editedCards.push({
+                    cat: el.querySelector('.ca-cat').value,
+                    oneLiner: el.querySelector('.ca-en-h').value,
+                    bullets: el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b),
+                    stFacts: el.querySelector('.ca-en-st').value,
+                    q: el.querySelector('.ca-mcq-en-q').value,
+                    opts: [
+                        el.querySelector('.ca-mcq-en-o0').value, 
+                        el.querySelector('.ca-mcq-en-o1').value, 
+                        el.querySelector('.ca-mcq-en-o2').value, 
+                        el.querySelector('.ca-mcq-en-o3').value
+                    ],
+                    ansIdx: parseInt(el.querySelector('.ca-mcq-ans').value) || 0,
+                    exp: el.querySelector('.ca-mcq-en-exp').value
+                });
+            });
+
+            // Group by Category
+            const grouped = {};
+            editedCards.forEach(c => {
+                if(!grouped[c.cat]) grouped[c.cat] = [];
+                grouped[c.cat].push(c);
+            });
+
+            // Security Injection 1: Invisible Zero-Width Fingerprint
+            const injectZWS = (str) => {
+                if(!str) return "";
+                return str.split('').join('\u200B'); // Injects invisible zero-width spaces
+            };
+
+            // 2. Build the HTML Document
             let content = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
                 <style>
                     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                     .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .ca-pdf-logo-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: -2; pointer-events: none; width: 400px; }
                     .ca-pdf-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
-                    .ca-pdf-card { border: 1px solid #e2e8f0; margin-bottom: 18px; padding: 16px; border-radius: 10px; page-break-inside: avoid; background: #ffffff; }
+                    .ca-pdf-card { border: 1px solid #e2e8f0; margin-bottom: 18px; padding: 16px; border-radius: 10px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
                     .ca-pdf-header { font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px; line-height: 1.4; }
                     .ca-pdf-bullets { margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155; }
                     .ca-pdf-static { background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600; }
                     .ca-pdf-mcq { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px 14px; border-radius: 6px; font-size: 11px; }
                     .ca-pdf-footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 700; color: #64748b; }
+                    .ca-pdf-section-break { page-break-before: always; }
+                    .ca-pdf-section-banner { background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; padding: 16px 20px; border-radius: 10px; margin: 20px 0; font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; justify-content: space-between; align-items: center; }
+                    .ca-index-box { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+                    .ca-index-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; font-size: 13px; font-weight: 700; color: #334155; }
+                    .ca-index-row:last-child { border-bottom: none; }
+                    .ca-micro-canary { font-size: 1px; color: transparent; user-select: text; opacity: 0.01; height: 1px; overflow: hidden; display: block; }
                 </style>
+                
                 <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
+                ${logoDataUrl ? `<img src="${logoDataUrl}" class="ca-pdf-logo-bg">` : ''}
                 
                 <div class="ca-pdf-banner">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;">` : ''}
                         <div>
                             <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
-                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</div>
+                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">${escapeHtml(pdfTitle)}</div>
                         </div>
                     </div>
                     <div>
                         <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">
-                            📅 ${escapeHtml(dateStr)} &bull; ${cards.length} Cards
+                            📅 ${escapeHtml(dateStr)} &bull; ${editedCards.length} Total Cards
                         </div>
                     </div>
                 </div>`;
-            
-            cards.forEach((el, i) => {
-                const cat = el.querySelector('.ca-cat').value;
-                const oneLiner = el.querySelector('.ca-en-h').value;
-                const bullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
-                const stFacts = el.querySelector('.ca-en-st').value;
-                const q = el.querySelector('.ca-mcq-en-q').value;
-                const optA = el.querySelector('.ca-mcq-en-o0').value;
-                const optB = el.querySelector('.ca-mcq-en-o1').value;
-                const optC = el.querySelector('.ca-mcq-en-o2').value;
-                const optD = el.querySelector('.ca-mcq-en-o3').value;
-                const ansIdx = parseInt(el.querySelector('.ca-mcq-ans').value) || 0;
-                const optionsArr = [optA, optB, optC, optD];
-                const exp = el.querySelector('.ca-mcq-en-exp').value;
 
-                content += `<div class="ca-pdf-card">`;
-                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
-                content += `<div class="ca-pdf-header">${escapeHtml(oneLiner)}</div>`;
-                content += `<ul class="ca-pdf-bullets">` + bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('') + `</ul>`;
-                if(stFacts) content += `<div class="ca-pdf-static">🧠 <strong>Static Context:</strong> ${escapeHtml(stFacts)}</div>`;
-                if(q) {
-                    content += `
-                    <div class="ca-pdf-mcq">
-                        <strong>Exam Drill:</strong> ${escapeHtml(q)}<br>
-                        <div style="margin: 4px 0; color: #065f46; font-weight: bold;">
-                            Ans: Option ${String.fromCharCode(65 + ansIdx)} (${escapeHtml(optionsArr[ansIdx])})
-                        </div>
-                        <div style="font-size: 10px; color: #475569;"><em>${escapeHtml(exp)}</em></div>
-                    </div>`;
-                }
+            // 3. TABLE OF CONTENTS INDEX (If Drills or Multiple Categories)
+            if (!isDaily || Object.keys(grouped).length > 1) {
+                content += `
+                <div class="ca-index-box">
+                    <h2 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Document Index</h2>`;
+                
+                Object.keys(grouped).forEach(cat => {
+                    content += `<div class="ca-index-row"><span>📁 ${escapeHtml(cat)}</span><span>${grouped[cat].length} Questions</span></div>`;
+                });
+                
                 content += `</div>`;
+            }
+
+            // 4. LOOP CATEGORIES AND CARDS
+            Object.keys(grouped).forEach((cat, index) => {
+                
+                // Add page break before every category (except if it's the very first element and there's no index, but we keep it safe)
+                if(!isDaily || index > 0 || Object.keys(grouped).length > 1) {
+                    content += `<div class="ca-pdf-section-break"></div>`;
+                }
+                
+                content += `
+                <div class="ca-pdf-section-banner">
+                    <span>📁 ${escapeHtml(cat)}</span>
+                    <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">${grouped[cat].length} Cards</span>
+                </div>`;
+                
+                grouped[cat].forEach((card, i) => {
+                    content += `<div class="ca-pdf-card">`;
+                    content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
+                    
+                    // Injecting Zero-Width Spaces into the headline
+                    content += `<div class="ca-pdf-header">${injectZWS(escapeHtml(card.oneLiner))}</div>`;
+                    
+                    content += `<ul class="ca-pdf-bullets">` + card.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('') + `</ul>`;
+                    if(card.stFacts) content += `<div class="ca-pdf-static">🧠 <strong>Static Context:</strong> ${escapeHtml(card.stFacts)}</div>`;
+                    if(card.q) {
+                        content += `
+                        <div class="ca-pdf-mcq">
+                            <strong>Exam Drill:</strong> ${escapeHtml(card.q)}<br>
+                            <div style="margin: 4px 0; color: #065f46; font-weight: bold;">
+                                Ans: Option ${String.fromCharCode(65 + card.ansIdx)} (${escapeHtml(card.opts[card.ansIdx])})
+                            </div>
+                            <div style="font-size: 10px; color: #475569;"><em>${escapeHtml(card.exp)}</em></div>
+                            <!-- Security Injection 2: Select-All Micro Text -->
+                            <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
+                        </div>`;
+                    }
+                    content += `</div>`;
+                });
             });
 
             content += `
@@ -1788,14 +1981,33 @@
             </div>`;
             
             const element = document.createElement('div'); element.innerHTML = content;
+            
+            const finalFilename = `Stenogym_${pdfTitle.replace(/\s+/g, '_')}_${dateStr}.pdf`;
+            
             const opt = { 
                 margin: 0.4, 
-                filename: `Stenogym_Daily_Current_Affairs_${dateStr}.pdf`, 
+                filename: finalFilename, 
                 image: { type: 'jpeg', quality: 0.98 }, 
                 html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
             };
-            html2pdf().set(opt).from(element).save();
+            
+            const btn = document.querySelector('button[onclick="generateStagedPDF()"]');
+            const origText = btn.innerHTML;
+            btn.innerHTML = "Generating..."; btn.disabled = true;
+
+            // Security Injection 4: File Metadata Properties
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                pdf.setProperties({
+                    title: finalFilename,
+                    subject: 'Verified Exam Digest',
+                    author: 'Stenogym Content Bureau',
+                    keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
+                    creator: 'Stenogym Forensic Engine v2.0'
+                });
+            }).save().then(() => {
+                btn.innerHTML = origText; btn.disabled = false;
+            });
         };
 
         window.autoTranslateCA = async function() {
@@ -1824,11 +2036,30 @@
             const cardElements = document.querySelectorAll('.ca-staged-card');
             if (cardElements.length === 0) return alert("No cards in staging.");
 
+            const isDaily = currentCACadence === 'daily';
+            const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+            const collectionName = isDaily ? "daily_news" : "ca_drills";
+
+            // DATE GUARD LAYER 2: Existing News Check
+            if (isDaily || !window.isEditingDrill) {
+                try {
+                    const checkQuery = query(collection(db, collectionName), where("date", "==", targetDate));
+                    const existingSnap = await getDocs(checkQuery);
+                    
+                    if (!existingSnap.empty) {
+                        const confirmAppend = confirm(
+                            `⚠️ EXISTING NEWS DETECTED!\n\nThere are already ${existingSnap.size} cards published for "${targetDate}" in the database.\n\nAre you sure you want to ADD these ${cardElements.length} staged cards to the existing ones?`
+                        );
+                        if (!confirmAppend) return;
+                    }
+                } catch (checkErr) {
+                    console.warn("Pre-check warning:", checkErr);
+                }
+            }
+
             const btn = document.getElementById('btnPublishCA');
             btn.innerHTML = "Scheduling Drop..."; btn.disabled = true;
 
-            const isDaily = currentCACadence === 'daily';
-            const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
             const scheduleMode = isDaily ? document.getElementById('caReleaseSchedule').value : 'instant';
             const pdfEmbedLink = !isDaily ? document.getElementById('drillPdfEmbedUrl').value.trim() : "";
 
@@ -1840,7 +2071,14 @@
 
             try {
                 const batch = writeBatch(db);
-                const collectionName = isDaily ? "daily_news" : "ca_drills";
+
+                // Safe Overwrite Engine: Delete existing drill cards first before inserting new ones
+                if (!isDaily && window.isEditingDrill) {
+                    const cadenceSelect = document.getElementById('drillCadenceType').value;
+                    const qDel = query(collection(db, collectionName), where("date", "==", targetDate), where("cadence", "==", cadenceSelect));
+                    const snapDel = await getDocs(qDel);
+                    snapDel.forEach(d => batch.delete(d.ref));
+                }
 
                 cardElements.forEach(el => {
                     const enBullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
@@ -1901,7 +2139,8 @@
                 document.getElementById('caCardsContainer').innerHTML = "";
                 window.stagedNewsItems = [];
             } catch (err) { alert("Error publishing cards: " + err.message); } finally {
-                btn.innerHTML = "<span>🚀</span> Commit & Schedule Drop"; btn.disabled = false;
+                btn.innerHTML = window.isEditingDrill && !isDaily ? '<span>💾</span> Overwrite Live Drill' : '<span>🚀</span> Commit & Schedule Drop'; 
+                btn.disabled = false;
             }
         };
 
@@ -2110,7 +2349,7 @@
                 blogTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">No blog posts found.</td></tr>';
                 
                 document.querySelectorAll('.btn-blog-delete').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Permanently delete this blog post?")) { await deleteDoc(doc(db, "blogs", e.target.getAttribute('data-id'))); fetchBlogs(); } }); });
-                document.querySelectorAll('.btn-blog-edit').forEach(btn => { btn.addEventListener('click', (e) => { 
+                document.querySelectorAll('.btn-edit-blog').forEach(btn => { btn.addEventListener('click', (e) => { 
                     document.getElementById('editBlogDocId').value = e.target.getAttribute('data-id');
                     document.getElementById('editBlogTitle_en').value = e.target.getAttribute('data-title_en');
                     document.getElementById('editBlogTitle_hi').value = e.target.getAttribute('data-title_hi');

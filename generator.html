@@ -110,14 +110,14 @@
             
             <!-- Tool Tabs -->
             <div class="grid grid-cols-3 lg:flex gap-2 w-full lg:w-auto text-[11px] min-[375px]:text-xs sm:text-sm font-bold pb-1 lg:pb-0">
-                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg text-indigo-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg text-slate-600 dark:text-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-slate-800 dark:hover:text-white transition flex items-center justify-center gap-1 overflow-hidden">
                     <span>🎧</span> <span class="truncate">Preset Room</span>
                 </a>
-                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg bg-white/20 dark:bg-slate-800 text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden relative">
+                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-slate-800 dark:text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden relative transition">
                     <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500"></span></span>
                     <span>🧠</span> <span class="truncate">AI Studio</span>
                 </a>
-                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg text-fuchsia-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg text-slate-600 dark:text-fuchsia-300 hover:bg-fuchsia-50 hover:text-fuchsia-700 dark:hover:bg-slate-800 dark:hover:text-white transition flex items-center justify-center gap-1 overflow-hidden">
                     <span>📄</span> <span class="truncate">Scanner</span>
                 </a>
             </div>
@@ -465,8 +465,66 @@
             "Global 🌐": ["🏛️ UN & Global Assembly Debate", "⚖️ International Arbitration", "🎙️ Diplomatic & Summit Address", "📰 Global Affairs Analysis"]
         };
 
+        // ==========================================
+        // DYNAMIC SEO & SCHEMA ENGINE (AI STUDIO)
+        // ==========================================
+        function updateGeneratorSEO() {
+            const countryClean = countrySelect.value.replace(/[^a-zA-Z\s]/g, '').trim();
+            const wpmVal = wpmSelect.value;
+            const themeClean = aiTheme.options[aiTheme.selectedIndex]?.text.replace(/[^a-zA-Z\s\/]/g, '').trim() || "Shorthand";
+
+            // 1. Target Title for Generic & International Searches
+            document.title = `Free ${countryClean} Shorthand AI Dictation Generator (${wpmVal} WPM) | Stenogym`;
+
+            // 2. Dynamic Meta Description
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = "description"; document.head.appendChild(metaDesc); }
+            metaDesc.setAttribute("content", `Generate unlimited custom ${themeClean} shorthand dictations at ${wpmVal} WPM for ${countryClean}. Live practice canvas and AI evaluation for stenographers worldwide.`);
+
+            // 3. Clean URL Parameters
+            const params = new URLSearchParams(window.location.search);
+            params.set('country', countryClean);
+            params.set('wpm', wpmVal);
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+
+            // 4. SoftwareApplication Schema for Tools
+            if (!document.getElementById('ai-studio-schema')) {
+                const schema = {
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    "name": "Stenogym AI Shorthand Dictation Studio",
+                    "applicationCategory": "EducationalApplication",
+                    "operatingSystem": "All",
+                    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                    "description": "Interactive AI engine generating instant, custom-tailored shorthand audio dictations with customizable speed thresholds and transcription evaluation."
+                };
+                const sc = document.createElement('script');
+                sc.id = 'ai-studio-schema';
+                sc.type = 'application/ld+json';
+                sc.text = JSON.stringify(schema);
+                document.head.appendChild(sc);
+            }
+        }
+
         const savedCountry = localStorage.getItem("stenogym_country") || "India 🇮🇳";
-        countrySelect.value = savedCountry;
+        
+        // Read URL query params on initial load
+        const genUrlParams = new URLSearchParams(window.location.search);
+        const urlCountry = genUrlParams.get('country');
+        const urlWpm = genUrlParams.get('wpm');
+
+        if (urlCountry) {
+            const matched = Array.from(countrySelect.options).find(o => o.value.toLowerCase().includes(urlCountry.toLowerCase()));
+            if (matched) countrySelect.value = matched.value;
+            else countrySelect.value = savedCountry;
+        } else {
+            countrySelect.value = savedCountry;
+        }
+
+        if (urlWpm && Array.from(wpmSelect.options).some(o => o.value === urlWpm)) {
+            wpmSelect.value = urlWpm;
+        }
 
         function updateThemes() {
             const selected = countrySelect.value;
@@ -479,9 +537,13 @@
                 option.textContent = theme;
                 aiTheme.appendChild(option);
             });
-            loadVoices(); 
+            loadVoices();
+            updateGeneratorSEO();
         }
+
         countrySelect.addEventListener('change', updateThemes);
+        wpmSelect.addEventListener('change', updateGeneratorSEO);
+        aiTheme.addEventListener('change', updateGeneratorSEO);
         updateThemes();
 
         // --- SMART AUDIO FALLBACKS ---

@@ -126,13 +126,13 @@
             
             <!-- Tool Tabs -->
             <div class="grid grid-cols-3 lg:flex gap-2 w-full lg:w-auto text-[11px] min-[375px]:text-xs sm:text-sm font-bold pb-1 lg:pb-0">
-                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg text-indigo-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                <a href="app.html" class="py-2 px-1 sm:px-4 rounded-lg text-slate-600 dark:text-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 dark:hover:bg-slate-800 dark:hover:text-white transition flex items-center justify-center gap-1 overflow-hidden">
                     <span>🎧</span> <span class="truncate">Preset Room</span>
                 </a>
-                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg text-emerald-300 hover:bg-white/10 dark:hover:bg-slate-800 transition flex items-center justify-center gap-1 overflow-hidden">
+                <a href="generator.html" class="py-2 px-1 sm:px-4 rounded-lg text-slate-600 dark:text-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-slate-800 dark:hover:text-white transition flex items-center justify-center gap-1 overflow-hidden">
                     <span>🧠</span> <span class="truncate">AI Studio</span>
                 </a>
-                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg bg-white/20 dark:bg-slate-800 text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden relative">
+                <a href="scanner.html" class="py-2 px-1 sm:px-4 rounded-lg bg-fuchsia-100 text-fuchsia-800 dark:bg-slate-800 dark:text-white shadow-sm flex items-center justify-center gap-1 overflow-hidden relative transition">
                     <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-fuchsia-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-fuchsia-500"></span></span>
                     <span>📄</span> <span class="truncate">Scanner</span>
                 </a>
@@ -1100,8 +1100,81 @@
         document.getElementById('btnPlayPause').addEventListener('click', toggleAudioEngine);
         document.getElementById('btnStop').addEventListener('click', resetAudioEngine);
         progressContainer.addEventListener('click', handleScrubberNavigation);
+        // ==========================================
+        // DYNAMIC SEO & HOWTO SCHEMA (SCANNER ROOM)
+        // ==========================================
+        function updateScannerSEO() {
+            const wpmVal = wpmSelect.value;
+            
+            // 1. Generic & Long-Tail Title
+            document.title = `Print to Audio Steno Scanner Online (${wpmVal} WPM) | Photo to Shorthand Dictation`;
+
+            // 2. Meta Description
+            let metaDesc = document.querySelector('meta[name="description"]');
+            if (!metaDesc) { metaDesc = document.createElement('meta'); metaDesc.name = "description"; document.head.appendChild(metaDesc); }
+            metaDesc.setAttribute("content", `Convert photos of newspaper or book shorthand exercises into custom ${wpmVal} WPM audio dictation. Free online OCR transcription test with error checking.`);
+
+            // 3. URL Parameter
+            const params = new URLSearchParams(window.location.search);
+            params.set('wpm', wpmVal);
+            const newUrl = `${window.location.pathname}?${params.toString()}`;
+            window.history.replaceState({ path: newUrl }, '', newUrl);
+
+            // 4. HowTo & Software Schema for Search Snippets
+            if (!document.getElementById('scanner-schema')) {
+                const schema = {
+                    "@context": "https://schema.org",
+                    "@graph": [
+                        {
+                            "@type": "SoftwareApplication",
+                            "name": "Stenogym Print-to-Audio Steno Scanner",
+                            "applicationCategory": "EducationalApplication",
+                            "operatingSystem": "All",
+                            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+                            "description": "Live optical character recognition scanner that extracts printed shorthand text and plays audio dictation at target words per minute."
+                        },
+                        {
+                            "@type": "HowTo",
+                            "name": "How to Convert Any Printed Text into a Shorthand Audio Dictation",
+                            "step": [
+                                {
+                                    "@type": "HowToStep",
+                                    "name": "Upload Document Photo",
+                                    "text": "Take a photo or upload an image of any printed shorthand passage, book, or editorial article."
+                                },
+                                {
+                                    "@type": "HowToStep",
+                                    "name": "OCR Scanning & Verification",
+                                    "text": "Review the automated text extraction on screen and adjust any typos."
+                                },
+                                {
+                                    "@type": "HowToStep",
+                                    "name": "Select Speed & Start",
+                                    "text": "Pick your target speed from 50 to 120 WPM and begin your shorthand dictation."
+                                }
+                            ]
+                        }
+                    ]
+                };
+                const sc = document.createElement('script');
+                sc.id = 'scanner-schema';
+                sc.type = 'application/ld+json';
+                sc.text = JSON.stringify(schema);
+                document.head.appendChild(sc);
+            }
+        }
+
+        const scanUrlParams = new URLSearchParams(window.location.search);
+        const scanInitWpm = scanUrlParams.get('wpm');
+        if (scanInitWpm && Array.from(wpmSelect.options).some(o => o.value === scanInitWpm)) {
+            wpmSelect.value = scanInitWpm;
+            targetWPM = parseInt(scanInitWpm);
+        }
+        updateScannerSEO();
+
         wpmSelect.addEventListener('change', () => {
             targetWPM = parseInt(wpmSelect.value);
+            updateScannerSEO();
             if (currentPassageText) compileTrackMetrics(currentPassageText);
         });
 

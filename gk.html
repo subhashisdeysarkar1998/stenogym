@@ -629,12 +629,11 @@
         window.acceptTelegramAndDownload = function() {
             localStorage.setItem('hasJoinedTelegram', 'true');
             closeTgModal();
-            // Allow native <a> tag to open TG link, timeout generates PDF
             setTimeout(() => generateTopicPDF(), 1000); 
         };
 
         // ==========================================
-        // CONTENT LOADING & TOPIC LOGIC
+        // CONTENT LOADING & SMART CACHE BUSTER
         // ==========================================
         let currentSubject = "polity"; let currentTopicId = null; let activeTopicsList = []; let activeTopicData = null;
         function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
@@ -651,10 +650,30 @@
             const listEl = document.getElementById('topicList');
             listEl.innerHTML = `<div class="p-3 text-xs font-bold text-slate-400">Loading...</div>`;
             try {
-                const snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get();
-                activeTopicsList = []; snap.forEach(doc => activeTopicsList.push({ id: doc.id, ...doc.data() }));
+                let snap;
+                // Smart Cache-Buster Engine
+                try {
+                    snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get({ source: 'server' });
+                } catch(e) {
+                    console.warn("Server fetch failed, falling back to cache...", e);
+                }
+                
+                // Silent Retry if empty
+                if (!snap || snap.empty) {
+                    await new Promise(res => setTimeout(res, 600));
+                    snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get();
+                }
+
+                activeTopicsList = []; 
+                snap.forEach(doc => activeTopicsList.push({ id: doc.id, ...doc.data() }));
                 document.getElementById('topicCountBadge').textContent = `${activeTopicsList.length} Topics`;
-                renderTopicListUI(); if (activeTopicsList.length > 0) selectTopic(activeTopicsList[0].id);
+                renderTopicListUI(); 
+                if (activeTopicsList.length > 0) selectTopic(activeTopicsList[0].id);
+                else {
+                    listEl.innerHTML = `<div class="p-3 text-xs font-bold text-slate-400">No topics found.</div>`;
+                    document.getElementById('activeTopicTitle').textContent = "Select a topic";
+                    document.getElementById('notesContentContainer').innerHTML = "";
+                }
             } catch (err) { listEl.innerHTML = "Error loading topics."; }
         }
 
@@ -679,8 +698,9 @@
             document.getElementById('activeTopicTitle').textContent = title || "";
             document.getElementById('notesContentContainer').innerHTML = notes || "<p class='text-slate-400'>Notes compiling...</p>";
             
-            // Reset Arrays
-            workingFlashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi) ? [...activeTopicData.flashcards_hi] : [...(activeTopicData.flashcards || [])];
+            // Bilingual Array Safeguards
+            workingFlashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi && activeTopicData.flashcards_hi.length > 0) ? [...activeTopicData.flashcards_hi] : [...(activeTopicData.flashcards || [])];
+            
             initFlashcardsView(); 
             initPracticeView();
             initDrillView();
@@ -741,7 +761,8 @@
         function initPracticeView() {
             practiceCorrectCount = 0; practiceAttemptedCount = 0; updatePracticeBadge();
             currentPracticePage = 1;
-            workingPracticeQs = (currentLang === 'hi' && activeTopicData?.practiceQs_hi) ? activeTopicData.practiceQs_hi : (activeTopicData?.practiceQs || []);
+            // Bilingual Array Safeguard
+            workingPracticeQs = (currentLang === 'hi' && activeTopicData?.practiceQs_hi && activeTopicData.practiceQs_hi.length > 0) ? activeTopicData.practiceQs_hi : (activeTopicData?.practiceQs || []);
             document.getElementById('practiceQuestionsContainer').innerHTML = "";
             renderPracticePage();
         }
@@ -775,7 +796,7 @@
                         <div class="space-y-2.5" id="practiceOptions-${qIdx}">
                             ${item.options.map((opt, oIdx) => `
                                 <button onclick="handlePracticeAnswer(event, ${qIdx},${oIdx}, ${item.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:border-sky-400 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm">
-                                    <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                    <span>${String.fromCharCode(65 + oIdx)}.${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
                                 </button>
                             `).join('')}
                         </div>
@@ -827,7 +848,8 @@
         function initDrillView() {
             drillCorrectCount = 0; drillAttemptedCount = 0; updateDrillBadge();
             currentDrillPage = 1;
-            workingDrills = (currentLang === 'hi' && activeTopicData?.mcqs_hi) ? activeTopicData.mcqs_hi : (activeTopicData?.mcqs || []);
+            // Bilingual Array Safeguard
+            workingDrills = (currentLang === 'hi' && activeTopicData?.mcqs_hi && activeTopicData.mcqs_hi.length > 0) ? activeTopicData.mcqs_hi : (activeTopicData?.mcqs || []);
             document.getElementById('drillQuestionsContainer').innerHTML = "";
             renderDrillPage();
         }
@@ -861,7 +883,7 @@
                         <div class="space-y-2.5" id="drillOptions-${qIdx}">
                             ${item.options.map((opt, oIdx) => `
                                 <button onclick="handleDrillAnswer(event, ${qIdx},${oIdx}, ${item.correctIndex}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm">
-                                    <span>${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                    <span>${String.fromCharCode(65 + oIdx)}.${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
                                 </button>
                             `).join('')}
                         </div>
@@ -913,83 +935,108 @@
         });
 
         // ==========================================
-        // CLIENT-SIDE PDF GENERATOR (UPGRADED)
+        // CLIENT-SIDE PDF GENERATOR (UPGRADED UI & FORENSICS)
         // ==========================================
         window.generateTopicPDF = function() {
             if (!activeTopicData) return;
+            
+            const btn = document.getElementById('dynamicActionBtn');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = "Generating..."; btn.disabled = true;
+
             const topicTitle = (currentLang === 'hi' && activeTopicData.topicTitle_hi) ? activeTopicData.topicTitle_hi : activeTopicData.topicTitle;
             const subjName = activeTopicData.subjectName || "Static GK";
             const notesHTML = (currentLang === 'hi' && activeTopicData.notes_hi) ? activeTopicData.notes_hi : activeTopicData.notes;
-            const flashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi) ? activeTopicData.flashcards_hi : (activeTopicData.flashcards || []);
-            const practiceQs = (currentLang === 'hi' && activeTopicData.practiceQs_hi) ? activeTopicData.practiceQs_hi : (activeTopicData.practiceQs || []);
-            const mcqs = (currentLang === 'hi' && activeTopicData.mcqs_hi) ? activeTopicData.mcqs_hi : (activeTopicData.mcqs || []);
+            
+            // Bilingual Safe Parsing
+            const flashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi && activeTopicData.flashcards_hi.length > 0) ? activeTopicData.flashcards_hi : (activeTopicData.flashcards || []);
+            const practiceQs = (currentLang === 'hi' && activeTopicData.practiceQs_hi && activeTopicData.practiceQs_hi.length > 0) ? activeTopicData.practiceQs_hi : (activeTopicData.practiceQs || []);
+            const mcqs = (currentLang === 'hi' && activeTopicData.mcqs_hi && activeTopicData.mcqs_hi.length > 0) ? activeTopicData.mcqs_hi : (activeTopicData.mcqs || []);
             
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+
+            // Security Injection 1: Zero-Width Fingerprint
+            const injectZWS = (str) => { if(!str) return ""; return str.split('').join('\u200B'); };
 
             let content = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
                 <style>
                     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                    .pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
-                    .pdf-header-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
-                    .pdf-logo-box { display: flex; align-items: center; gap: 12px; }
-                    .pdf-brand-title { font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff; margin: 0; }
-                    .pdf-brand-sub { font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px; }
-                    .pdf-topic-pill { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0; }
-                    .pdf-section-title { font-size: 15px; font-weight: 900; color: #0f172a; border-left: 4px solid #4f46e5; padding-left: 10px; margin: 24px 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
-                    .pdf-notes-container { background: #ffffff; border: 1px solid #e2e8f0; padding: 18px; border-radius: 10px; font-size: 12px; line-height: 1.7; color: #334155; }
-                    .pdf-fc-card { border: 1px solid #e2e8f0; border-left: 3px solid #0284c7; background: #f8fafc; padding: 12px; border-radius: 8px; margin-bottom: 12px; page-break-inside: avoid; }
-                    .pdf-mcq-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 14px; page-break-inside: avoid; background: #ffffff; }
-                    .pdf-mcq-correct { background: #ecfdf5; border: 1px solid #a7f3d0; padding: 6px 10px; border-radius: 6px; font-weight: bold; color: #065f46; font-size: 11px; margin-top: 8px; }
-                    .pdf-footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 700; color: #64748b; }
+                    .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .ca-pdf-logo-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: -2; pointer-events: none; width: 400px; }
+                    .pdf-header-banner { background: #0f172a; border-bottom: 4px solid #4f46e5; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
+                    .pdf-section-ribbon { background: linear-gradient(90deg, #4f46e5, #3730a3); color: white; padding: 12px 20px; border-radius: 8px; font-weight: 900; text-transform: uppercase; font-size: 14px; margin: 30px 0 16px 0; letter-spacing: 0.5px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+                    .pdf-notes-container { background: #ffffff; border: 1px solid #e2e8f0; padding: 24px; border-radius: 12px; font-size: 11px; line-height: 1.8; color: #334155; text-align: justify; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+                    .pdf-fc-card { border: 1px solid #e2e8f0; border-left: 4px solid #0284c7; background: #f8fafc; padding: 16px; border-radius: 10px; margin-bottom: 14px; page-break-inside: avoid; }
+                    .pdf-pinboard { background: #fffbeb; border-left: 4px solid #f59e0b; padding: 10px 14px; border-radius: 6px; font-size: 10px; font-style: italic; color: #92400e; margin-top: 8px; font-weight: 600; }
+                    .pdf-mcq-box { border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; margin-bottom: 14px; page-break-inside: avoid; }
+                    .pdf-mcq-correct { background: #ecfdf5; border: 1px solid #a7f3d0; padding: 8px 12px; border-radius: 6px; font-weight: bold; color: #065f46; font-size: 11px; margin-top: 10px; }
+                    .pdf-footer { margin-top: 40px; padding-top: 16px; border-top: 2px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; }
+                    .ca-micro-canary { font-size: 1px; color: transparent; user-select: text; opacity: 0.01; height: 1px; overflow: hidden; display: block; }
                 </style>
-                <div class="pdf-watermark">STENOGYM • t.me/stenogym</div>
+                
+                <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
+                ${logoDataUrl ? `<img src="${logoDataUrl}" class="ca-pdf-logo-bg">` : ''}
                 
                 <div class="pdf-header-banner">
-                    <div class="pdf-logo-box">
-                        <img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;">` : ''}
                         <div>
-                            <div class="pdf-brand-title">STENOGYM</div>
-                            <div class="pdf-brand-sub">Exam Knowledge Hub</div>
+                            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
+                            <div style="font-size: 10px; font-weight: 700; color: #818cf8; text-transform: uppercase; letter-spacing: 1.5px;">Premium GK Module</div>
                         </div>
                     </div>
                     <div>
-                        <div class="pdf-topic-pill">${escapeHtml(subjName)}</div>
+                        <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">
+                            ${escapeHtml(subjName)}
+                        </div>
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <h1 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 0 0 6px 0;">${escapeHtml(topicTitle)}</h1>
-                    <span style="font-size: 11px; font-weight: bold; color: #64748b;">🎯 Curated for SSC CGL • IBPS PO • RRB NTPC • State PSCs</span>
+                <div style="margin-bottom: 24px; text-align: center;">
+                    <h1 style="font-size: 26px; font-weight: 900; color: #0f172a; margin: 0 0 8px 0; text-transform: uppercase;">${injectZWS(escapeHtml(topicTitle))}</h1>
+                    <span style="font-size: 11px; font-weight: 900; color: #4f46e5; background: #e0e7ff; padding: 4px 12px; border-radius: 20px;">🎯 Curated for SSC CGL • IBPS PO • RRB NTPC • State PSCs</span>
                 </div>
 
-                <div class="pdf-section-title">📘 Comprehensive Cheat Sheet</div>
+                <div class="pdf-section-ribbon">
+                    <span>📘 Comprehensive Cheat Sheet</span>
+                </div>
                 <div class="pdf-notes-container">${notesHTML}</div>`;
 
             if (flashcards.length > 0) {
-                content += `<div class="pdf-section-title">📇 Active Recall Flashcard Bank (${flashcards.length})</div>`;
+                content += `<div class="pdf-section-ribbon">
+                    <span>📇 Active Recall Flashcard Bank</span>
+                    <span style="font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 12px;">${flashcards.length} Cards</span>
+                </div>`;
                 flashcards.forEach((fc, i) => {
                     content += `
                         <div class="pdf-fc-card">
-                            <div style="font-size: 10px; font-weight: 800; color: #0284c7; text-transform: uppercase; margin-bottom: 4px;">Concept Recall #${i+1}</div>
-                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Q: ${escapeHtml(fc.front)}</div>
-                            <div style="font-size: 12px; font-weight: bold; color: #059669; margin-bottom: 2px;">A: ${escapeHtml(fc.back)}</div>
-                            ${fc.context ? `<div style="font-size: 10px; color: #64748b; font-style: italic;">Note: ${escapeHtml(fc.context)}</div>` : ''}
+                            <div style="font-size: 10px; font-weight: 900; color: #0284c7; text-transform: uppercase; margin-bottom: 6px; letter-spacing: 0.5px;">Concept Recall #${i+1}</div>
+                            <div style="font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 6px;">Q: ${injectZWS(escapeHtml(fc.front))}</div>
+                            <div style="font-size: 12px; font-weight: bold; color: #059669;">A: ${escapeHtml(fc.back)}</div>
+                            ${fc.context ? `<div class="pdf-pinboard">📌 <strong>Exam Trap:</strong> ${escapeHtml(fc.context)}</div>` : ''}
+                            <!-- Security Injection 2: Micro Text Canary -->
+                            <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
                         </div>`;
                 });
             }
             
             if (practiceQs.length > 0) {
-                content += `<div class="pdf-section-title">🎯 Concept Practice Questions (${practiceQs.length})</div>`;
+                content += `<div class="pdf-section-ribbon" style="background: linear-gradient(90deg, #0284c7, #0369a1);">
+                    <span>🎯 Concept Practice Questions</span>
+                    <span style="font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 12px;">${practiceQs.length} Qs</span>
+                </div>`;
                 practiceQs.forEach((pq, i) => {
+                    // Zebra Striping background logic
+                    const bgCol = i % 2 === 0 ? '#ffffff' : '#f8fafc';
                     content += `
-                        <div class="pdf-mcq-box" style="border-left: 3px solid #0ea5e9;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                        <div class="pdf-mcq-box" style="background: ${bgCol}; border-left: 4px solid #0ea5e9;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                                 <span style="font-size: 10px; font-weight: 900; color: #0ea5e9; text-transform: uppercase;">Practice #${i+1}</span>
-                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(pq.sourceExam || 'Concept Check')}</span>
+                                <span style="font-size: 10px; font-weight: 800; color: #64748b; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${escapeHtml(pq.sourceExam || 'Concept Check')}</span>
                             </div>
-                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(pq.question)}</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 10px;">${injectZWS(escapeHtml(pq.question))}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; color: #334155; font-weight: 500;">
                                 <div>A. ${escapeHtml(pq.options[0])}</div>
                                 <div>B. ${escapeHtml(pq.options[1])}</div>
                                 <div>C. ${escapeHtml(pq.options[2])}</div>
@@ -997,32 +1044,38 @@
                             </div>
                             <div class="pdf-mcq-correct">
                                 Correct: Option ${String.fromCharCode(65 + pq.correctIndex)} &bull; ${escapeHtml(pq.options[pq.correctIndex])}
-                                ${pq.explanation ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(pq.explanation)}</div>` : ''}
+                                ${pq.explanation ? `<div style="font-size: 10px; font-weight: normal; color: #064e3b; margin-top: 4px;"><strong>Explanation:</strong> ${escapeHtml(pq.explanation)}</div>` : ''}
                             </div>
+                            <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
                         </div>`;
                 });
             }
 
             if (mcqs.length > 0) {
-                content += `<div class="pdf-section-title">⚡ Previous Year & Verification Drills (${mcqs.length})</div>`;
+                content += `<div class="pdf-section-ribbon" style="background: linear-gradient(90deg, #e11d48, #be123c);">
+                    <span>⚡ Previous Year & Verification Drills</span>
+                    <span style="font-size: 11px; background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 12px;">${mcqs.length} Qs</span>
+                </div>`;
                 mcqs.forEach((mq, i) => {
+                    const bgCol = i % 2 === 0 ? '#ffffff' : '#fef2f2';
                     content += `
-                        <div class="pdf-mcq-box" style="border-left: 3px solid #e11d48;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
-                                <span style="font-size: 10px; font-weight: 900; color: #e11d48; text-transform: uppercase;">Drill #${i+1}</span>
-                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(mq.sourceExam)}</span>
+                        <div class="pdf-mcq-box" style="background: ${bgCol}; border-left: 4px solid #e11d48;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 10px; font-weight: 900; color: #e11d48; text-transform: uppercase;">PYQ Drill #${i+1}</span>
+                                <span style="font-size: 10px; font-weight: 800; color: #64748b; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">${escapeHtml(mq.sourceExam)}</span>
                             </div>
-                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(mq.question)}</div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 10px;">${injectZWS(escapeHtml(mq.question))}</div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px; color: #334155; font-weight: 500;">
                                 <div>A. ${escapeHtml(mq.options[0])}</div>
                                 <div>B. ${escapeHtml(mq.options[1])}</div>
                                 <div>C. ${escapeHtml(mq.options[2])}</div>
                                 <div>D. ${escapeHtml(mq.options[3])}</div>
                             </div>
-                            <div class="pdf-mcq-correct">
+                            <div class="pdf-mcq-correct" style="background: #f0fdf4; border-color: #bbf7d0;">
                                 Correct: Option ${String.fromCharCode(65 + mq.correctIndex)} &bull; ${escapeHtml(mq.options[mq.correctIndex])}
-                                ${mq.explanation ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(mq.explanation)}</div>` : ''}
+                                ${mq.explanation ? `<div style="font-size: 10px; font-weight: normal; color: #064e3b; margin-top: 4px;"><strong>Explanation:</strong> ${escapeHtml(mq.explanation)}</div>` : ''}
                             </div>
+                            <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
                         </div>`;
                 });
             }
@@ -1035,14 +1088,29 @@
 
             const element = document.createElement('div');
             element.innerHTML = content;
+            
+            const finalFilename = `Stenogym_${topicTitle.replace(/[^a-zA-Z0-9]/g, '_')}_Revision.pdf`;
+            
             const opt = {
                 margin: 0.4,
-                filename: `Stenogym_${topicTitle.replace(/[^a-zA-Z0-9]/g, '_')}_Revision.pdf`,
+                filename: finalFilename,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+            
+            // Security Injection 3: Document Metadata
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                pdf.setProperties({
+                    title: finalFilename,
+                    subject: 'Verified Static GK Digest',
+                    author: 'Stenogym Content Bureau',
+                    keywords: 'SG-AUTH-DIGEST-VERIFIED, Static GK, SSC, Banking',
+                    creator: 'Stenogym Forensic Engine v2.0'
+                });
+            }).save().then(() => {
+                btn.innerHTML = origHtml; btn.disabled = false;
+            });
         };
 
         document.addEventListener('DOMContentLoaded', () => { loadSubjectTopics(currentSubject); });
@@ -1074,7 +1142,6 @@
             <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
             <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
             <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
-            <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
         </div>
         <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
     </div>
