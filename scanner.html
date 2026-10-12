@@ -121,7 +121,7 @@
     </nav>
 
     <!-- Tier 2: App Sticky Control Panel (Fuchsia Theme) -->
-    <div id="smartToolbar" class="bg-fuchsia-700 dark:bg-slate-900 border-b border-fuchsia-800 dark:border-slate-800 sticky top-20 z-40 transition-all duration-300 transform shadow-md"></div>
+    <div id="smartToolbar" class="bg-fuchsia-700 dark:bg-slate-900 border-b border-fuchsia-800 dark:border-slate-800 sticky top-20 z-40 transition-all duration-300 transform shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 lg:gap-6">
             
             <!-- Tool Tabs -->
@@ -893,8 +893,9 @@
             setPlayButtonLabel("Play", "bg-emerald-600 hover:bg-emerald-700");
             updateProgressBarUI(totalExpectedDurationMs, totalTargetWords);
             document.getElementById('gateOverlay').classList.remove('hidden');
-            btnTogglePassage.classList.remove('hidden'); btnTogglePassage.classList.add('flex');
-            passageViewer.classList.add('hidden'); btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
+            
+            const revealUI = document.getElementById('passageRevealUI');
+            if (revealUI) { revealUI.classList.remove('hidden'); revealUI.classList.add('flex'); }
         }
 
         function setPlayButtonLabel(txt, classes) {
@@ -965,8 +966,13 @@
             typingTimerDisplay.classList.add('hidden');
             isTypingActive = false; isFirstKeystrokeFired = false;
             
-            btnTogglePassage.classList.add('hidden'); btnTogglePassage.classList.remove('flex');
-            passageViewer.classList.add('hidden');
+            const revealUI = document.getElementById('passageRevealUI');
+            const revealContainer = document.getElementById('revealContainer');
+            const btnRevealPassage = document.getElementById('btnRevealPassage');
+            
+            if (revealUI) { revealUI.classList.add('hidden'); revealUI.classList.remove('flex'); }
+            if (revealContainer) revealContainer.classList.add('hidden');
+            if (btnRevealPassage) btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
         }
 
         btnClear.addEventListener('click', () => {
@@ -983,20 +989,12 @@
         typingArea.addEventListener('focus', () => {
             const evalPanel = document.getElementById('evaluationPanel');
             if(!evalPanel.classList.contains('hidden')) evalPanel.classList.add('hidden');
-            if (passageViewer && !passageViewer.classList.contains('hidden')) {
-                passageViewer.classList.add('hidden');
-                btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
-            }
-        });
-
-        btnTogglePassage.addEventListener('click', () => {
-            if (passageViewer.classList.contains('hidden')) {
-                passageViewer.classList.remove('hidden');
-                passageViewer.textContent = currentPassageText;
-                btnTogglePassage.innerHTML = `<span>🙈</span> Hide Passage`;
-            } else {
-                passageViewer.classList.add('hidden');
-                btnTogglePassage.innerHTML = `<span>👁️</span> View Passage`;
+            
+            const revealContainer = document.getElementById('revealContainer');
+            const btnRevealPassage = document.getElementById('btnRevealPassage');
+            if (revealContainer && !revealContainer.classList.contains('hidden')) {
+                revealContainer.classList.add('hidden');
+                btnRevealPassage.innerHTML = '<span>👁️</span> Reveal Original Passage';
             }
         });
 
@@ -1223,92 +1221,1073 @@
                     <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
                 </div>
             </div>
-
-            <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="The Platform" data-hi="प्लेटफ़ॉर्म">The Platform</h4>
-                <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="app.html" class="hover:text-cyan-400 transition" data-en="Steno Room" data-hi="स्टेनो रूम">Steno Room</a></li>
-                    <li><a href="generator.html" class="hover:text-cyan-400 transition" data-en="AI Dictation Studio" data-hi="AI डिक्टेशन स्टूडियो">AI Dictation Studio</a></li>
-                    <li><a href="scanner.html" class="hover:text-cyan-400 transition" data-en="Live Document Scanner" data-hi="लाइव डॉक्यूमेंट स्कैनर">Live Document Scanner</a></li>
-                    <li><a href="login.html" class="hover:text-cyan-400 transition" data-en="Student Login" data-hi="छात्र लॉगिन">Student Login</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Resources" data-hi="संसाधन">Resources</h4>
-                <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="blog.html" class="hover:text-cyan-400 transition" data-en="The Stenogym Blog" data-hi="स्टेनोजिम ब्लॉग">The Stenogym Blog</a></li>
-                    <li><a href="current-affairs.html" class="hover:text-cyan-400 transition" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a></li>
-                    <li><a href="gk.html" class="hover:text-cyan-400 transition" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a></li>
-                    <li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span data-en="Recommended Gear" data-hi="अनुशंसित उपकरण">Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5" data-en="Company & Legal" data-hi="कंपनी और कानूनी">Company & Legal</h4>
-                <ul class="space-y-3 text-sm font-medium">
-                    <li><a href="about.html" class="hover:text-cyan-400 transition" data-en="About Us" data-hi="हमारे बारे में">About Us</a></li>
-                    <li><a href="contact.html" class="hover:text-cyan-400 transition" data-en="Contact Support" data-hi="संपर्क समर्थन">Contact Support</a></li>
-                    <li><a href="privacy.html" class="hover:text-cyan-400 transition" data-en="Privacy Policy" data-hi="गोपनीयता नीति">Privacy Policy</a></li>
-                    <li><a href="terms.html" class="hover:text-cyan-400 transition" data-en="Terms of Service" data-hi="सेवा की शर्तें">Terms of Service</a></li>
-                </ul>
-            </div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4><ul class="space-y-3 text-sm font-medium"><li><a href="app.html" class="hover:text-cyan-400 transition">Steno Room</a></li><li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li><li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li><li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li></ul></div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4><ul class="space-y-3 text-sm font-medium"><li><a href="blog.html" class="hover:text-cyan-400 transition">The Stenogym Blog</a></li><li><a href="current-affairs.html" class="hover:text-cyan-400 transition">Current Affairs</a></li><li><a href="gk.html" class="hover:text-cyan-400 transition">Static GK</a></li><li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span>Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li></ul></div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4><ul class="space-y-3 text-sm font-medium"><li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li><li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li><li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li><li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li></ul></div>
         </div>
-
         <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
             <div>&copy; 2026 Stenogym. All rights reserved.</div>
             <div class="text-center md:text-right max-w-xl leading-relaxed">
-                <span class="text-slate-400" data-en="Disclaimer:" data-hi="अस्वीकरण:">Disclaimer:</span> 
-                <span data-en="We are reader-supported. Affiliate links incur zero extra cost to you." data-hi="हम पाठक-समर्थित हैं। सहबद्ध लिंक पर आपको कोई अतिरिक्त लागत नहीं लगती है।">We are reader-supported. Affiliate links incur zero extra cost to you.</span>
+                <span class="text-slate-400">Disclaimer:</span> We are reader-supported. Affiliate links incur zero extra cost to you.
             </div>
         </div>
     </footer>
-    <!-- ========================================== -->
-<!-- STENOGYM FLOATING ASSISTIVE WIDGET         -->
-<!-- ========================================== -->
-<style>
-    #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
-    #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
-    #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
-    
-    /* Breathing Glow Effect Behind the Button */
-    #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
-    @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
-    
-    /* The "Shorthand Writer" Pencil Wiggle Animation */
-    .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
-    @keyframes writeWiggle {
-        0%, 85%, 100% { transform: rotate(0deg); }
-        88% { transform: rotate(-25deg); }
-        91% { transform: rotate(15deg); }
-        94% { transform: rotate(-10deg); }
-        97% { transform: rotate(5deg); }
-    }
-    
-    #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
-    #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
-    
-    .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
-    .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
-    .fab-tg { background-color: #0088cc; }
-    .fab-yt { background-color: #FF0000; }
-    .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
-    .fab-share { background-color: #25D366; }
-.active-nav {
-        color: #67e8f9 !important;
-        font-weight: 900 !important;
-    }
-</style>
 
-<div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
-    <!-- Hidden Menu -->
-    <div id="stenoFabMenu">
-        <!-- Telegram -->
-        <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
-        <!-- YouTube -->
-        <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
-        <!-- Clean Instagram Icon -->
-        <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+    <!-- INTERACTIVE JAVASCRIPT & DATABASE ENGINE -->
+    <script>
+        // ==========================================
+        // ZEN-MODE SCROLL LOGIC
+        // ==========================================
+        const secondaryNav = document.getElementById('secondaryNavBar');
+        
+        window.addEventListener('scroll', () => {
+            const currentScrollY = window.scrollY;
+            const btnTop = document.getElementById('scrollToTopBtn');
+            
+            if (currentScrollY > 350) {
+                btnTop.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
+                btnTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            } else {
+                btnTop.classList.add('opacity-0', 'translate-y-5', 'pointer-events-none');
+                btnTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            }
+
+            if (currentScrollY > 150) {
+                secondaryNav.classList.add('-translate-y-[150%]', 'opacity-0');
+            } else {
+                secondaryNav.classList.remove('-translate-y-[150%]', 'opacity-0');
+            }
+        }, { passive: true });
+
+        // ==========================================
+        // ZERO-LAG DRAG-TO-SCROLL (PC)
+        // ==========================================
+        let activeScrollZone = null;
+        let isDragging = false;
+        let startY, scrollTopTarget;
+
+        document.addEventListener('mousedown', (e) => {
+            const scrollZone = e.target.closest('.drag-scroll-zone');
+            if (!scrollZone) return;
+            
+            isDragging = true;
+            activeScrollZone = scrollZone;
+            startY = e.pageY - activeScrollZone.offsetTop;
+            scrollTopTarget = activeScrollZone.scrollTop;
+            activeScrollZone.classList.add('is-dragging');
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging || !activeScrollZone) return;
+            e.preventDefault(); 
+            
+            const y = e.pageY - activeScrollZone.offsetTop;
+            const walk = (y - startY) * 1.5; 
+            
+            // Hardware-accelerated scrolling (Eliminates the lag)
+            window.requestAnimationFrame(() => {
+                if(activeScrollZone) {
+                    activeScrollZone.scrollTop = scrollTopTarget - walk;
+                }
+            });
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (activeScrollZone) {
+                activeScrollZone.classList.remove('is-dragging');
+                activeScrollZone = null;
+            }
+            isDragging = false;
+        });
+
+        // ==========================================
+        // FIREBASE, AUTH & KEYBOARD SHORTCUTS
+        // ==========================================
+        const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        firebase.firestore().enablePersistence({ synchronizeTabs: true }).catch(err => console.warn(err));
+        const db = firebase.firestore();
+        let activeUser = null;
+
+        firebase.auth().onAuthStateChanged(user => {
+            activeUser = user;
+            if (user) {
+                document.getElementById('desktopLoginBtn')?.classList.add('hidden'); document.getElementById('mobileLoginBtn')?.classList.add('hidden');
+                document.getElementById('navDashboard')?.classList.remove('hidden'); document.getElementById('navDashboardMob')?.classList.remove('hidden');
+                document.getElementById('btnLogout')?.classList.remove('hidden'); document.getElementById('mobileLogoutBtn')?.classList.remove('hidden');
+                document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
+                document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
+                const wm = document.getElementById('forensicWatermark');
+                wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
+            } else {
+                document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
+                document.getElementById('navDashboard')?.classList.add('hidden'); document.getElementById('navDashboardMob')?.classList.add('hidden');
+                document.getElementById('forensicWatermark').innerHTML = '';
+            }
+        });
+
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => { 
+            if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault(); 
+        });
+
+        window.addEventListener('keydown', e => {
+            if (['input', 'textarea'].includes(document.activeElement?.tagName?.toLowerCase())) return;
+            if (activeView === 'daily') {
+                if (e.key === 'ArrowLeft') { document.getElementById('btnPrevDay')?.click(); }
+                else if (e.key === 'ArrowRight') { document.getElementById('btnNextDay')?.click(); }
+                else if (e.key.toLowerCase() === 'f') { toggleFlipAll(); }
+            }
+        });
+
+        function requireLogin(e) {
+            if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
+            return true;
+        }
+
+        window.closePremiumModal = () => document.getElementById('premiumModal').classList.add('hidden');
+        window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
+
+        window.triggerTelegramDownload = function(e, type = 'daily', url = null) { 
+            if(e) e.preventDefault();
+            if(!requireLogin(e)) return;
+            const hasJoined = localStorage.getItem('hasJoinedTelegram');
+            if (!hasJoined) {
+                window.pendingDownload = { type, url };
+                document.getElementById('telegramGrowthModal').classList.remove('hidden');
+            } else { executeDownload(type, url); }
+        };
+
+        window.acceptTelegramAndDownload = function() {
+            localStorage.setItem('hasJoinedTelegram', 'true');
+            closeTgModal();
+            setTimeout(() => { if(window.pendingDownload) executeDownload(window.pendingDownload.type, window.pendingDownload.url); }, 1000);
+        };
+
+        function executeDownload(type, url) {
+            if(type === 'daily') generateDailyPDF();
+            else if(type === 'compilation' && url) window.open(url, '_blank');
+            else if(type === 'compilation' && !url) window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); 
+        }
+
+        const htmlTag = document.documentElement; const themeBtn = document.getElementById('themeToggleBtn'); const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
+        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀'; }
+        function toggleTheme() {
+            if (htmlTag.classList.contains('dark')) { htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙'; }
+            else { htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀'; }
+        }
+        themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
+
+        let currentLang = 'en';
+        window.setLanguage = function(lang) {
+            currentLang = lang;
+            const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')]; const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
+            if (lang === 'en') {
+                btnsEn.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
+                btnsHi.forEach(b => { if(b) { b.classList.remove('bg-indigo-600', 'text-white'); b.classList.add('text-slate-400'); }});
+            } else {
+                btnsHi.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
+                btnsEn.forEach(b => { if(b) { b.classList.remove('bg-indigo-600', 'text-white'); b.classList.add('text-slate-400'); }});
+            }
+            document.querySelectorAll('.translation-el').forEach(el => {
+                if(lang === 'hi' && el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi'); 
+                else if(el.hasAttribute('data-en')) el.innerHTML = el.getAttribute('data-en');
+            });
+            if (activeView === 'daily') renderFeedCards();
+            if (activeView === 'compilationActive') renderCompilationPage();
+        };
+
+        function getISTDateObj(dateObj = new Date()) { const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 5.5)); }
+        function getISTDateString(dateObj = new Date()) { const istDate = getISTDateObj(dateObj); const yyyy = istDate.getFullYear(); const mm = String(istDate.getMonth() + 1).padStart(2, '0'); const dd = String(istDate.getDate()).padStart(2, '0'); return `${yyyy}-${mm}-${dd}`; }
+        function formatISTDisplay(dateStr) { const d = new Date(dateStr); return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
+        function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        let selectedDateStr = urlParams.get('date') || getISTDateString();
+        
+        let allArticlesCache = []; let activeCategoryFilter = "all"; let globalFlipState = false; let readArticlesSet = new Set();
+        let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
+        let activeView = 'daily'; 
+
+        const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
+        
+        // Pushes the date into the URL address bar so Google can index each day separately
+        function updateUrlAndLoad(dateStr) {
+            window.history.pushState({ path: window.location.href }, '', `?date=${dateStr}`);
+            loadNewsForDate(dateStr);
+        }
+
+        // Listens for the browser "Back" button to update the feed automatically
+        window.addEventListener('popstate', () => {
+            const params = new URLSearchParams(window.location.search);
+            selectedDateStr = params.get('date') || getISTDateString();
+            dateInput.value = selectedDateStr;
+            loadNewsForDate(selectedDateStr);
+        });
+
+        dateInput.addEventListener('change', (e) => { selectedDateStr = e.target.value; updateUrlAndLoad(selectedDateStr); });
+        
+        document.getElementById('btnPrevDay').addEventListener('click', () => { 
+            const [y,m,d] = selectedDateStr.split('-').map(Number);
+            const dt = new Date(y, m-1, d-1);
+            selectedDateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
+        });
+        
+        document.getElementById('btnNextDay').addEventListener('click', () => { 
+            const [y,m,d] = selectedDateStr.split('-').map(Number);
+            const dt = new Date(y, m-1, d+1);
+            selectedDateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
+        });
+
+        let audioSynth = window.speechSynthesis;
+        let isAudioPlaying = false;
+        
+        window.toggleAudioBrief = function() {
+            const btnIcon = document.getElementById('audioIcon');
+            const btnLabel = document.getElementById('audioLabel');
+            
+            if (isAudioPlaying) {
+                audioSynth.cancel();
+                isAudioPlaying = false;
+                btnIcon.textContent = '🎧';
+                btnLabel.textContent = currentLang === 'hi' ? '2 मिनट सारांश' : '2m Brief';
+                return;
+            }
+            
+            if (allArticlesCache.length === 0) return alert("No news available for audio brief.");
+            
+            let textToRead = currentLang === 'hi' ? "आज के करेंट अफेयर्स। " : "Here is your Stenogym Daily Brief. ";
+            allArticlesCache.forEach((item, idx) => {
+                const headline = (currentLang === 'hi' && item.oneLiner_hi) ? item.oneLiner_hi : item.oneLiner;
+                textToRead += `News item ${idx + 1}. ${headline}. `;
+            });
+            
+            const utterance = new SpeechSynthesisUtterance(textToRead);
+            utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
+            utterance.rate = 1.0;
+            
+            utterance.onend = function() {
+                isAudioPlaying = false;
+                btnIcon.textContent = '🎧';
+                btnLabel.textContent = currentLang === 'hi' ? '2 मिनट सारांश' : '2m Brief';
+            };
+            
+            audioSynth.speak(utterance);
+            isAudioPlaying = true;
+            btnIcon.textContent = '⏹️';
+            btnLabel.textContent = currentLang === 'hi' ? 'रोकें' : 'Stop';
+        };
+
+        const tabDaily = document.getElementById('tabDaily'); const tabWeekly = document.getElementById('tabWeekly'); const tabMonthly = document.getElementById('tabMonthly');
+        const dailyFeedView = document.getElementById('dailyFeedView'); const weeklyDrillView = document.getElementById('weeklyDrillView'); const monthlyPdfView = document.getElementById('monthlyPdfView');
+        const compilationWorkspace = document.getElementById('compilationWorkspace'); const dateControlBar = document.getElementById('dateControlBar');
+
+        function setCadence(activeTab, viewElement, cadenceVal) {
+            activeView = cadenceVal;
+            [tabDaily, tabWeekly, tabMonthly].forEach(t => { t.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); t.classList.add('text-slate-500', 'dark:text-slate-400'); });
+            activeTab.classList.remove('text-slate-500', 'dark:text-slate-400'); activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+            
+            [dailyFeedView, weeklyDrillView, monthlyPdfView, compilationWorkspace, document.getElementById('emptyFeedState')].forEach(v => v.classList.add('hidden'));
+            viewElement.classList.remove('hidden'); dateControlBar.style.display = (activeTab === tabDaily) ? 'flex' : 'none';
+            document.getElementById('progressWidget').style.display = (activeTab === tabDaily) ? 'flex' : 'none';
+            
+            if (cadenceVal === 'weekly' || cadenceVal === 'monthly' || cadenceVal === 'special') loadCompilationShelf(cadenceVal);
+        }
+        tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView, 'daily'));
+        tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView, 'weekly'));
+        tabMonthly.addEventListener('click', () => setCadence(tabMonthly, monthlyPdfView, 'monthly'));
+
+        document.querySelectorAll('.cat-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-pill').forEach(p => p.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el");
+                btn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
+                activeCategoryFilter = btn.getAttribute('data-cat');
+                
+                if (activeView === 'daily') renderFeedCards();
+                if (activeView === 'compilationActive') { currentCompilationPage = 1; renderCompilationPage(); }
+            });
+        });
+
+        window.toggleFlipAll = function() {
+            globalFlipState = !globalFlipState;
+            document.querySelectorAll('#dailyFeedView .flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
+        };
+
+        window.toggleBookmark = function(e, docId, btnId) { 
+            if(!requireLogin(e)) return; 
+            const btn = document.getElementById(btnId);
+            const idx = savedBookmarks.indexOf(docId);
+            
+            if(idx > -1) {
+                savedBookmarks.splice(idx, 1);
+                btn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
+                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
+            } else {
+                savedBookmarks.push(docId);
+                btn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
+                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
+            }
+            localStorage.setItem('stenoBookmarks', JSON.stringify(savedBookmarks));
+        };
+
+        window.markAsRead = function(cardId, uiIndex) {
+            const cardFront = document.getElementById(`cardContainer-${uiIndex}`);
+            const btn = document.getElementById(`btnRead-${uiIndex}`);
+            if (readArticlesSet.has(cardId)) {
+                readArticlesSet.delete(cardId); cardFront.classList.remove('card-completed');
+                btn.innerHTML = currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read';
+                btn.className = "flex-1 justify-center items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
+            } else {
+                readArticlesSet.add(cardId); cardFront.classList.add('card-completed');
+                btn.innerHTML = currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed';
+                btn.className = "flex-1 justify-center items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700";
+            }
+            updateProgress();
+        };
+
+        function updateProgress() {
+            const total = allArticlesCache.length; const readCount = readArticlesSet.size;
+            document.getElementById('progressBarFiller').style.width = `${total === 0 ? 0 : (readCount / total) * 100}%`;
+            document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
+        }
+
+        async function fetchDailyNews(dateStr) {
+            try {
+                // Smart Cache-Buster: Force server fetch first to skip empty cold cache
+                const snap = await db.collection("daily_news").where("date", "==", dateStr).get({ source: 'server' });
+                if (!snap.empty) return snap;
+            } catch(e) {
+                console.warn("Server fetch failed, falling back to cache logic...", e);
+            }
+            
+            // Silent Retry Safety Net
+            await new Promise(res => setTimeout(res, 600));
+            return await db.collection("daily_news").where("date", "==", dateStr).get();
+        }
+
+        async function loadNewsForDate(dateStr) {
+            document.getElementById('dailyFeedView').classList.add('hidden'); document.getElementById('emptyFeedState').classList.add('hidden'); document.getElementById('feedLoading').classList.remove('hidden');
+            document.getElementById('displayDateBadge').innerText = formatISTDisplay(dateStr);
+            try {
+                const snapshot = await fetchDailyNews(dateStr); 
+                allArticlesCache = []; 
+                const now = new Date().toISOString();
+                
+                snapshot.forEach(doc => { const data = doc.data(); if (!data.publishAt || data.publishAt <= now) allArticlesCache.push({ id: doc.id, ...data }); });
+                document.getElementById('feedLoading').classList.add('hidden');
+                
+                const isBefore6AM = getISTDateObj().getHours() < 6;
+                if (allArticlesCache.length === 0) { 
+                    const resetBtn = document.getElementById('btnResetToday');
+                    if(dateStr === getISTDateString() && isBefore6AM) {
+                        document.getElementById('emptyIcon').textContent = "🌅"; document.getElementById('emptyText').innerHTML = currentLang === 'hi' ? "आज का 25+ करंट अफेयर्स सुबह 6:00 बजे आएगा।" : "Today's 25+ Current Affairs digest drops sharp at 6:00 AM.";
+                        resetBtn.innerHTML = currentLang === 'hi' ? "कल के समाचार पढ़ें" : "📖 Read Yesterday's Digest";
+                        resetBtn.onclick = () => { 
+                            const [y,m,d] = getISTDateString().split('-').map(Number);
+                            const prev = new Date(y, m-1, d-1);
+                            selectedDateStr = `${prev.getFullYear()}-${String(prev.getMonth()+1).padStart(2,'0')}-${String(prev.getDate()).padStart(2,'0')}`;
+                            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
+                        };
+                    } else {
+                        document.getElementById('emptyIcon').textContent = "☕"; document.getElementById('emptyText').innerHTML = currentLang === 'hi' ? "इस तिथि के लिए कोई समाचार नहीं है" : "No News Filed For This Date";
+                        resetBtn.innerHTML = currentLang === 'hi' ? "आज पर जाएं" : "Jump to Today";
+                        resetBtn.onclick = () => { selectedDateStr = getISTDateString(); dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); };
+                    }
+                    document.getElementById('emptyFeedState').classList.remove('hidden'); 
+                } 
+                else { 
+                    // SEO INJECTOR: Dynamic Title, Meta, and JSON-LD FAQ Schema
+                    const topNews = allArticlesCache[0].oneLiner;
+                    document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
+                    document.querySelector('meta[name="description"]').setAttribute("content", `Daily Current Affairs for ${formatISTDisplay(dateStr)}. Top News: ${topNews}. Download free PDFs and take MCQs for SSC CGL, RRB NTPC, and IBPS PO.`);
+                    
+                    let schemaId = document.getElementById('dynamic-faq-schema');
+                    if(schemaId) schemaId.remove();
+                    
+                    const schemaData = {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": allArticlesCache.map(card => {
+                            const q = card.mcq?.question || card.oneLiner;
+                            const ansText = card.mcq?.options ? card.mcq.options[card.mcq.correctIndex || 0] : "";
+                            const exp = card.mcq?.explanation || "";
+                            return {
+                                "@type": "Question",
+                                "name": q,
+                                "acceptedAnswer": { "@type": "Answer", "text": `${ansText} - ${exp}` }
+                            };
+                        })
+                    };
+                    
+                    const script = document.createElement('script');
+                    script.id = 'dynamic-faq-schema';
+                    script.type = 'application/ld+json';
+                    script.text = JSON.stringify(schemaData);
+                    document.head.appendChild(script);
+
+                    readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); 
+                }
+            } catch (err) { document.getElementById('feedLoading').classList.add('hidden'); document.getElementById('emptyFeedState').classList.remove('hidden'); }
+        }
+
+        // ==========================================
+        // TWO-ZONE FLIP CARDS (Uniform Pushpins)
+        // ==========================================
+        function renderFeedCards() {
+            const feedContainer = document.getElementById('dailyFeedView'); feedContainer.innerHTML = "";
+            const filtered = (activeCategoryFilter === "all") ? allArticlesCache : allArticlesCache.filter(item => item.category === activeCategoryFilter);
+            
+            if (filtered.length === 0 && allArticlesCache.length > 0) {
+                feedContainer.innerHTML = `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-10 md:p-12 text-center max-w-md mx-auto shadow-sm my-8"><div class="text-4xl mb-3">📂</div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">No questions available for this section.</h3></div>`; return;
+            }
+
+            const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
+            const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
+            const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें' : 'Test Fact';
+            const liveVerifLabel = currentLang === 'hi' ? 'लाइव सत्यापन क्विज़' : 'Live Verification Quiz';
+            const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं' : 'Read Notes';
+            const tryAgainLabel = currentLang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again';
+
+            let html = "";
+            filtered.forEach((card, idx) => {
+                const docId = card.id || `temp-${idx}`;
+                const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
+                const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
+                const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
+                const displayImpact = (currentLang === 'hi' && card.impact_hi) ? card.impact_hi : card.impact;
+                const displayBullets = (currentLang === 'hi' && card.contextBullets_hi) ? card.contextBullets_hi : (card.contextBullets || []);
+                const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                const staticBoxText = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || null);
+                const safeEmoji = card.emoji || '📰';
+                const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
+                
+                const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                const correctIdx = Number(mcqData?.correctIndex) || 0;
+
+                const isRead = readArticlesSet.has(docId);
+                const btnClass = isRead ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
+                const readBtnText = isRead ? (currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed') : (currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read');
+                
+                const isBkmrk = savedBookmarks.includes(docId);
+                const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
+                const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
+
+                const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+
+                let staticBoxHtml = "";
+                if (staticBoxText) {
+                    staticBoxHtml = `<div class="mt-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
+                }
+
+                html += `
+                    <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}">
+                        <div class="flip-card-inner relative w-full transform-style-3d bg-transparent rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
+                            
+                            <!-- FRONT SIDE (TWO ZONES) -->
+                            <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl flex flex-col justify-between min-h-[420px] max-h-[540px] shadow-sm hover:shadow-md transition">
+                                <!-- ZONE 1: READING & DRAGGING (No Flip) -->
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700/80 pb-2.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-xl">${safeEmoji}</span>
+                                            <div class="flex flex-col">
+                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
+                                            <button id="btnBookmark-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmark-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass} cursor-pointer">${bkmrkText}</button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
+                                    <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${escapeHtml(displayHeadline)}</h3>
+                                    <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
+                                    ${staticBoxHtml}
+                                </div>
+                                <!-- ZONE 2: ACTION FOOTER (Click Flips Card) -->
+                                <div class="flex-shrink-0 border-t border-slate-100 dark:border-slate-700/80 p-4 md:p-5 flex items-center justify-between gap-2 cursor-pointer bg-slate-50/50 dark:bg-slate-800 rounded-b-3xl" onclick="flipCard(${idx})">
+                                    <div class="flex gap-2 w-full">
+                                        <button class="flex-1 justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
+                                        <button id="btnRead-${idx}" onclick="event.stopPropagation(); markAsRead('${docId}', ${idx});" class="flex-1 justify-center flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition ${btnClass}">${readBtnText}</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- BACK SIDE (TWO ZONES) -->
+                            <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col justify-between min-h-[420px] max-h-[540px] hover:shadow-md transition">
+                                <!-- ZONE 1: READING & DRAGGING -->
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
+                                    <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
+                                    </div>
+                                    <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${escapeHtml(mcqData?.question)}</h4>
+                                    <div id="mcqOptions-${idx}" class="space-y-2">
+                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer"><span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
+                                    </div>
+                                    <div id="mcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-1.5 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
+                                </div>
+                                <!-- ZONE 2: ACTION FOOTER -->
+                                <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-5 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900 rounded-b-3xl" onclick="flipCard(${idx})">
+                                    <button id="btnTryAgain-${idx}" onclick="event.stopPropagation(); resetQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer">
+                                        <span>🔄</span> ${tryAgainLabel}
+                                    </button>
+                                    <button class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-xs px-4 py-2.5 rounded-xl transition">
+                                        &larr; ${backToNotesLabel}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+            feedContainer.innerHTML = html;
+        }
+
+        window.flipCard = function(idx) { document.getElementById(`cardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180'); };
+        
+        window.handleOptionSelect = function(e, docId, uiIdx, selIdx, corIdx, encodedExp) {
+            if(!requireLogin(e)) return; 
+            const container = document.getElementById(`mcqOptions-${uiIdx}`); 
+            const buttons = container.querySelectorAll(`button`); 
+            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); 
+            const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
+            if(buttons[0].disabled) return; 
+            buttons.forEach(b => b.disabled = true);
+            
+            const correctText = currentLang === 'hi' ? '✅ सही' : '✅ Correct';
+            const incorrectText = currentLang === 'hi' ? '❌ गलत' : '❌ Incorrect';
+            const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
+            const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
+
+            if (selIdx === corIdx) {
+                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
+                buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
+                buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
+                buttons[selIdx].querySelector('.status-marker').textContent = correctText;
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
+                feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
+            } else {
+                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); 
+                buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); 
+                buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); 
+                buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
+                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
+                buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
+                buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
+                buttons[corIdx].querySelector('.status-marker').textContent = correctText;
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner";
+                feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
+            }
+            
+            const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
+            btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
+            
+            if(!readArticlesSet.has(docId)) markAsRead(docId, uiIdx);
+        };
+
+        window.resetQuiz = function(uiIdx) {
+            const container = document.getElementById(`mcqOptions-${uiIdx}`); 
+            const buttons = container.querySelectorAll(`button`); 
+            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
+            buttons.forEach(b => { 
+                b.disabled = false; 
+                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer"; 
+                b.querySelector('.status-marker').textContent = ""; 
+            });
+            feedback.classList.add('hidden'); feedback.classList.remove('flex');
+            const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
+            btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
+        };
+
+        // ==========================================
+        // DYNAMIC COMPILATION SHELF & WORKSPACE
+        // ==========================================
+        let compilationsData = {}; 
+        let workingCompilationCards = [];
+        let currentCompilationPage = 1;
+        const COMPILATION_PER_PAGE = 20;
+        let compilationMode = 'flip'; 
+        let currentCompId = null;
+
+        async function loadCompilationShelf(cadence) {
+            
+            if (cadence === 'weekly' || cadence === 'special') {
+                const btnW = document.getElementById('btnShelfWeekly');
+                const btnS = document.getElementById('btnShelfSpecial');
+                if (btnW && btnS) {
+                    if (cadence === 'weekly') {
+                        btnW.className = "px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el";
+                        btnS.className = "px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el";
+                    } else {
+                        btnS.className = "px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el";
+                        btnW.className = "px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el";
+                    }
+                }
+            }
+
+            let shelfGridId = cadence === 'monthly' ? 'monthlyShelfGrid' : 'weeklyShelfGrid';
+            const shelfGrid = document.getElementById(shelfGridId);
+            shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8">Loading Archive...</div>`;
+            
+            try {
+                const snap = await db.collection("ca_drills").where("cadence", "==", cadence).get();
+                compilationsData = {};
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    if (!compilationsData[d.date]) compilationsData[d.date] = { id: d.date, cadence: d.cadence, pdfUrl: d.pdfEmbedUrl, cards: [] };
+                    compilationsData[d.date].cards.push({ id: doc.id, ...d });
+                });
+                
+                const editions = Object.values(compilationsData).sort((a,b) => b.id.localeCompare(a.id));
+                
+                if (editions.length === 0) { 
+                    shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
+                    return; 
+                }
+                
+                let html = "";
+                editions.forEach(ed => {
+                    let displayTitle = 'Weekly Speed Drill';
+                    if (cadence === 'monthly') displayTitle = 'Monthly Mega Digest';
+                    if (cadence === 'special') displayTitle = 'Special Topic Mock';
+
+                    html += `
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(ed.id)}</span>
+                            <span class="text-xs font-bold text-slate-400">${ed.cards.length} MCQs</span>
+                        </div>
+                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${displayTitle}</h3>
+                        <div class="flex flex-col gap-2">
+                            <button onclick="openCompilation('${ed.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition">📖 Open Compilation Deck</button>
+                            <button onclick="triggerTelegramDownload(event, 'compilation', '${ed.pdfUrl || ''}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition">📥 Download Offline PDF</button>
+                        </div>
+                    </div>`;
+                });
+                shelfGrid.innerHTML = html;
+            } catch (err) { 
+                console.warn(err); 
+                shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
+            }
+        }
+
+        window.openCompilation = function(compId) {
+            currentCompId = compId;
+            const ed = compilationsData[compId]; if(!ed) return;
+            workingCompilationCards = ed.cards;
+            currentCompilationPage = 1;
+            compilationMode = 'flip';
+            
+            activeView = 'compilationActive';
+            document.getElementById('weeklyDrillView').classList.add('hidden'); document.getElementById('monthlyPdfView').classList.add('hidden');
+            document.getElementById('compilationWorkspace').classList.remove('hidden');
+            setCompilationMode('flip');
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.closeCompilation = function() {
+            document.getElementById('compilationWorkspace').classList.add('hidden');
+            activeView = compilationsData[currentCompId].cadence;
+            
+            if(activeView === 'monthly') {
+                document.getElementById('monthlyPdfView').classList.remove('hidden');
+            } else {
+                document.getElementById('weeklyDrillView').classList.remove('hidden');
+            }
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+
+        window.retakeCompilationQuiz = function() {
+            if(!confirm("Reset your score and restart this drill?")) return;
+            localStorage.removeItem(`quiz_prog_${currentCompId}`);
+            document.getElementById('compilationScoreBadge').textContent = `Score: 0/0`;
+            currentCompilationPage = 1;
+            document.getElementById('compilationCardsContainer').innerHTML = "";
+            renderCompilationPage();
+        };
+
+        window.setCompilationMode = function(mode) {
+            compilationMode = mode;
+            document.getElementById('btnModeFlip').className = mode === 'flip' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
+            document.getElementById('btnModeQuiz').className = mode === 'quiz' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
+            
+            document.getElementById('compilationScoreBadge').style.display = mode === 'quiz' ? 'inline-block' : 'none';
+            document.getElementById('btnRetakeCompQuiz').style.display = mode === 'quiz' ? 'inline-flex' : 'none';
+            document.getElementById('btnDownloadCompilation').onclick = (e) => triggerTelegramDownload(e, 'compilation', compilationsData[currentCompId].pdfUrl);
+            
+            if(mode === 'quiz') {
+                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
+            }
+            
+            currentCompilationPage = 1;
+            document.getElementById('compilationCardsContainer').innerHTML = "";
+            renderCompilationPage();
+        };
+
+        window.loadMoreCompilationCards = function() { currentCompilationPage++; renderCompilationPage(); };
+
+        window.toggleCompCard = function(idx) {
+            document.getElementById(`compCardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180');
+        };
+
+        function renderCompilationPage() {
+            const container = document.getElementById('compilationCardsContainer');
+            const pagContainer = document.getElementById('compilationPagination');
+            
+            let filtered = workingCompilationCards;
+            if (activeCategoryFilter !== 'all') filtered = filtered.filter(c => c.category === activeCategoryFilter);
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">No questions in this category.</div>`;
+                pagContainer.classList.add('hidden'); return;
+            }
+
+            const startIndex = (currentCompilationPage - 1) * COMPILATION_PER_PAGE;
+            const endIndex = currentCompilationPage * COMPILATION_PER_PAGE;
+            const batch = filtered.slice(startIndex, endIndex);
+
+            const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
+            const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
+            const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें' : 'Test Fact';
+            const liveVerifLabel = currentLang === 'hi' ? 'लाइव सत्यापन क्विज़' : 'Live Verification Quiz';
+            const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं' : 'Read Notes';
+            const tryAgainLabel = currentLang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again';
+
+            let html = "";
+            if (compilationMode === 'flip') {
+                batch.forEach((card, bIdx) => {
+                    const idx = startIndex + bIdx;
+                    const docId = card.id || `comp-${idx}`;
+                    const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
+                    const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
+                    const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
+                    const displayImpact = (currentLang === 'hi' && card.impact_hi) ? card.impact_hi : card.impact;
+                    const displayBullets = (currentLang === 'hi' && card.contextBullets_hi) ? card.contextBullets_hi : (card.contextBullets || []);
+                    const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                    const staticBoxText = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || null);
+                    
+                    const safeEmoji = card.emoji || '📰';
+                    const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
+                    const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                    const correctIdx = Number(mcqData?.correctIndex) || 0;
+                    
+                    const isBkmrk = savedBookmarks.includes(docId);
+                    const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
+                    const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
+
+                    const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${escapeHtml(b)}</span></li>`).join('');
+
+                    let staticBoxHtml = "";
+                    if (staticBoxText) {
+                        staticBoxHtml = `<div class="mt-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
+                    }
+
+                    html += `
+                    <div class="perspective-1000 w-full transition-all duration-300" id="compCardContainer-${idx}">
+                        <div class="flip-card-inner relative w-full transform-style-3d glass-card rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
+                            <div class="flip-card-front flex flex-col justify-between min-h-[420px] max-h-[540px]">
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-xl">${safeEmoji}</span>
+                                            <div class="flex flex-col">
+                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
+                                            <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass} cursor-pointer">${bkmrkText}</button>
+                                        </div>
+                                    </div>
+                                    <div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>
+                                    <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${escapeHtml(displayHeadline)}</h3>
+                                    <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
+                                    ${staticBoxHtml}
+                                </div>
+                                <div class="flex-shrink-0 border-t border-slate-200 dark:border-slate-700 text-center w-full p-4 md:p-6 cursor-pointer bg-slate-50/50 dark:bg-slate-800/50 rounded-b-3xl" onclick="toggleCompCard(${idx})">
+                                    <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition w-full sm:w-auto"><span>🔄</span> ${testFactLabel}</button>
+                                </div>
+                            </div>
+                            
+                            <div class="flip-card-back flex flex-col justify-between min-h-[420px] max-h-[540px] bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl hover:shadow-md transition">
+                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
+                                    <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
+                                        <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
+                                    </div>
+                                    <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${escapeHtml(mcqData?.question)}</h4>
+                                    
+                                    <div id="compMcqOptions-${idx}" class="space-y-2">
+                                        ${(mcqData?.options||[]).map((opt, oIdx) => `
+                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer">
+                                                <span>${String.fromCharCode(65+oIdx)}. ${escapeHtml(opt)}</span>
+                                                <span class="status-marker text-xs font-black"></span>
+                                            </button>
+                                        `).join('')}
+                                    </div>
+                                    
+                                    <div id="compMcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold shadow-inner flex-col gap-1.5 items-start">
+                                        <div id="compMcqFeedbackText-${idx}"></div>
+                                    </div>
+                                </div>
+                                <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-6 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900/50 rounded-b-3xl" onclick="toggleCompCard(${idx})">
+                                    <button id="btnTryAgainComp-${idx}" onclick="event.stopPropagation(); resetCompFlipQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer">
+                                        <span>🔄</span> ${tryAgainLabel}
+                                    </button>
+                                    <button class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-xs px-4 py-2.5 rounded-xl transition">
+                                        &larr; ${backToNotesLabel}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                batch.forEach((card, bIdx) => {
+                    const idx = startIndex + bIdx;
+                    const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                    const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                    const correctIdx = Number(mcqData?.correctIndex) || 0;
+                    
+                    html += `
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm" id="quizCard-${idx}">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] font-black uppercase text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Q${idx + 1}</span>
+                        </div>
+                        <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(mcqData.question)}</h4>
+                        <div class="space-y-2.5" id="quizOptions-${idx}">
+                            ${(mcqData.options||[]).map((opt, oIdx) => `
+                                <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx}">
+                                    <span>${String.fromCharCode(65 + oIdx)}.${escapeHtml(opt)}</span><span class="status-marker text-xs font-black"></span>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="quizExp-${idx}" class="hidden mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold"></div>
+                    </div>`;
+                });
+            }
+            
+            container.insertAdjacentHTML('beforeend', html);
+
+            if (compilationMode === 'quiz') {
+                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                batch.forEach((card, bIdx) => {
+                    const idx = startIndex + bIdx;
+                    const pastAnswer = saved.answers[`${currentCompId}_${card.id}`];
+                    if (pastAnswer !== undefined) {
+                        const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+                        const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                        restoreCompQuizAnswerUI(idx, pastAnswer, Number(mcqData?.correctIndex) || 0, safeExp);
+                    }
+                });
+            }
+
+            const showingCount = Math.min(endIndex, filtered.length);
+            document.getElementById('compilationPaginationText').textContent = `Showing ${showingCount} of ${filtered.length} Cards`;
+            if (endIndex >= filtered.length) pagContainer.classList.add('hidden'); 
+            else pagContainer.classList.remove('hidden');
+        }
+
+        window.handleCompFlipAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
+            if(!requireLogin(e)) return; 
+            const container = document.getElementById(`compMcqOptions-${uiIdx}`); 
+            const buttons = container.querySelectorAll(`button`); 
+            const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`); 
+            const feedbackText = document.getElementById(`compMcqFeedbackText-${uiIdx}`);
+            if(buttons[0].disabled) return; buttons.forEach(b => b.disabled = true);
+            
+            const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
+            const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
+
+            if (selIdx === corIdx) {
+                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner flex flex-col gap-1.5 items-start block";
+                feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
+            } else {
+                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-1.5 items-start block";
+                feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
+            }
+            
+            const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
+            btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
+        };
+
+        window.resetCompFlipQuiz = function(uiIdx) {
+            const container = document.getElementById(`compMcqOptions-${uiIdx}`);
+            const buttons = container.querySelectorAll(`button`);
+            const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`);
+            
+            buttons.forEach(b => {
+                b.disabled = false;
+                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer";
+                b.querySelector('.status-marker').textContent = "";
+            });
+            
+            feedback.classList.add('hidden');
+            feedback.classList.remove('flex');
+            
+            const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
+            btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
+        };
+
+        window.handleCompQuizAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
+            if(!requireLogin(e)) return; 
+            const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
+            if(btns[0].disabled) return;
+            btns.forEach(b => b.disabled = true);
+            
+            const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+            saved.attempted++;
+            if (selIdx === corIdx) saved.correct++;
+            saved.answers[`${currentCompId}_${cardId}`] = selIdx;
+            saved.lastUpdated = Date.now();
+            localStorage.setItem(`quiz_prog_${currentCompId}`, JSON.stringify(saved));
+            
+            document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
+            restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp);
+        };
+
+        function restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp) {
+            const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
+            const expContainer = document.getElementById(`quizExp-${uiIdx}`);
+            btns.forEach(b => b.disabled = true);
+            
+            if (selIdx === corIdx) {
+                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                btns[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
+            } else {
+                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 dark:border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400";
+                btns[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                btns[corIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
+                btns[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
+            }
+            expContainer.innerHTML = decodeURIComponent(encodedExp);
+        }
+
+        // DAILY PDF GENERATOR (NOW UNIFIED WITH FORENSIC SECURITY & BRANDING)
+        window.generateDailyPDF = function() {
+            if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
+            
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+            
+            // Security Injection: Invisible Zero-Width Fingerprint
+            const injectZWS = (str) => {
+                if(!str) return "";
+                return str.split('').join('\u200B');
+            };
+            
+            let content = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
+                <style>
+                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+                    .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
+                    .ca-pdf-logo-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: -2; pointer-events: none; width: 400px; }
+                    .ca-micro-canary { font-size: 1px; color: transparent; user-select: text; opacity: 0.01; height: 1px; overflow: hidden; display: block; }
+                </style>
+                <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
+                ${logoDataUrl ? `<img src="${logoDataUrl}" class="ca-pdf-logo-bg">` : ''}
+                
+                <div style="background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">` : ''}
+                        <div>
+                            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
+                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</div>
+                        </div>
+                    </div>
+                    <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">📅 ${formatISTDisplay(selectedDateStr)}</div>
+                </div>`;
+            
+            allArticlesCache.forEach((card, i) => {
+                const cat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
+                const hLine = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
+                const bullets = (currentLang === 'hi' && card.contextBullets_hi) ? card.contextBullets_hi : (card.contextBullets || []);
+                const stat = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || '');
+                const mcq = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
+
+                content += `<div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin-bottom: 18px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05);">`;
+                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
+                
+                // ZWS Fingerprint Injection
+                content += `<div style="font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">${injectZWS(escapeHtml(hLine))}</div>`;
+                
+                content += `<ul style="margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155;">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
+                
+                if(stat) content += `<div style="background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600;">🧠 <strong>Static Context:</strong> ${escapeHtml(stat)}</div>`;
+                
+                if(mcq && mcq.question) {
+                    content += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px 14px; border-radius: 6px; font-size: 11px;">
+                        <strong>Drill:</strong> ${escapeHtml(mcq.question)}<br>
+                        <div style="margin: 4px 0; color: #065f46; font-weight: bold;">Ans: Option ${String.fromCharCode(65 + mcq.correctIndex)} (${escapeHtml(mcq.options[mcq.correctIndex])})</div>
+                        <div style="color: #475569;"><em>${escapeHtml(mcq.explanation)}</em></div>
+                        <!-- Security Injection: Micro Text Canary -->
+                        <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
+                    </div>`;
+                }
+                content += `</div>`;
+            });
+
+            content += `<div style="margin-top: 30px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; padding-top: 12px; font-weight: 700; color: #64748b;">Exclusive Exam Digest by STENOGYM &bull; Join Telegram Channel: t.me/stenogym &bull; All Rights Reserved</div></div>`;
+
+            const element = document.createElement('div'); element.innerHTML = content;
+            const finalFilename = `Stenogym_Daily_CA_${selectedDateStr}.pdf`;
+            
+            const opt = { 
+                margin: 0.4, 
+                filename: finalFilename, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+            };
+            
+            // Security Injection: Embedded PDF Metadata
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                pdf.setProperties({
+                    title: finalFilename,
+                    subject: 'Verified Exam Digest',
+                    author: 'Stenogym Content Bureau',
+                    keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
+                    creator: 'Stenogym Forensic Engine v2.0'
+                });
+            }).save();
+        };
+        
+        document.addEventListener('DOMContentLoaded', () => loadNewsForDate(selectedDateStr));
+    </script>
+
+    <!-- STENOGYM FLOATING ASSISTIVE WIDGET -->
+    <style>
+        #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+        #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+        #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+        #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+        @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+        .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+        @keyframes writeWiggle { 0%, 85%, 100% { transform: rotate(0deg); } 88% { transform: rotate(-25deg); } 91% { transform: rotate(15deg); } 94% { transform: rotate(-10deg); } 97% { transform: rotate(5deg); } }
+        #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
+        #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+        .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
+        .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+        .fab-tg { background-color: #0088cc; }
+        .fab-yt { background-color: #FF0000; }
+        .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .fab-share { background-color: #25D366; }
+    </style>
+
+    <div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+        <div id="stenoFabMenu">
+            <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
+            <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
+            <a href="https://www.instagram.com/stenogym" target="_blank" class="fab-item fab-ig" title="Instagram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
         <!-- Share Action -->
         <a href="#" id="fabShareBtn" class="fab-item fab-share" title="Share Content"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" /></svg></a>
     </div>

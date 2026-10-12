@@ -916,17 +916,5 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 </script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-        document.querySelectorAll('nav a').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && href === currentPage) {
-                link.classList.remove('text-slate-300');
-                link.classList.add('active-nav');
-            }
-        });
-    });
-</script>
 </body>
 </html>

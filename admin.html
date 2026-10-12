@@ -927,8 +927,7 @@
 
         let activeImageQuill = null;
         let savedCursorIndex = 0;
-        const IMGBB_API_KEY = "602c12ec7245c69088d472b8ea3c1d75";
-        
+         
         window.triggerImageUpload = function(editorStr) {
             if(editorStr === 'gk_en') activeImageQuill = window.quillGkEn;
             if(editorStr === 'gk_hi') activeImageQuill = window.quillGkHi;
@@ -945,15 +944,31 @@
             if (!file || !activeImageQuill) return;
 
             try {
-                const formData = new FormData();
-                formData.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-                const data = await res.json();
-                if (data.success && data.data?.url) {
-                    activeImageQuill.insertEmbed(savedCursorIndex, 'image', data.data.url);
-                    alert("Image uploaded and inserted successfully!");
-                } else { throw new Error(data.error?.message || "ImgBB upload failed."); }
-            } catch (err) { alert("Upload error: " + err.message); } finally { e.target.value = ''; }
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = async () => {
+                    const base64Image = reader.result.split(',')[1]; 
+
+                    const res = await fetch("/api/upload-image", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ image: base64Image })
+                    });
+                    
+                    const data = await res.json();
+                    
+                    if (data.success && data.data?.url) {
+                        activeImageQuill.insertEmbed(savedCursorIndex, 'image', data.data.url);
+                        alert("Image uploaded and inserted successfully!");
+                    } else { 
+                        throw new Error(data.error?.message || "ImgBB upload failed."); 
+                    }
+                };
+            } catch (err) { 
+                alert("Upload error: " + err.message); 
+            } finally { 
+                e.target.value = ''; 
+            }
         });
 
         /* ========================================================= */
