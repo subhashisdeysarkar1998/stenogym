@@ -44,13 +44,8 @@
         .hide-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
 
         /* Normal cursor on hover, grabbing ONLY on active click */
-        .drag-scroll-zone { 
-            cursor: default; 
-        }
-        .drag-scroll-zone.is-dragging { 
-            cursor: grabbing !important; 
-            user-select: none; 
-        }
+        .drag-scroll-zone { cursor: default; }
+        .drag-scroll-zone.is-dragging { cursor: grabbing !important; user-select: none; }
 
         /* Smart Overflow: Prevents wheel trap on PC, keeps native touch on Mobile */
         @media (hover: hover) and (pointer: fine) {
@@ -61,12 +56,11 @@
         }
 
         .progress-glow { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
-        
         .card-completed .flip-card-front { border-left: 4px solid #10b981 !important; }
         .dark .card-completed .flip-card-front { border-left: 4px solid #34d399 !important; }
         .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
 
-        /* Premium Glassmorphism (For Compilation Workspace) */
+        /* Premium Glassmorphism (For Compilation Workspace ONLY, not flip cards) */
         .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 40px -10px rgba(30, 41, 59, 0.1); }
         .dark .glass-card { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5); }
 
@@ -251,14 +245,12 @@
         <div id="dailyFeedView" class="space-y-6 hidden"></div>
 
         <div id="weeklyDrillView" class="hidden space-y-6">
-            <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
+            <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-6 md:p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">⚡</div>
                 <h2 class="text-2xl font-black mb-2 translation-el" data-en="Speed Drills & Special Topics" data-hi="स्पीड ड्रिल और विशेष विषय">Speed Drills & Special Topics</h2>
-                <p class="text-indigo-200 text-sm max-w-md mx-auto mb-6 translation-el" data-en="Select a published week or special thematic booster to start your timed drill." data-hi="अपनी क्विज़ शुरू करने के लिए नीचे एक सप्ताह या विशेष विषय चुनें।">Select a published week or special thematic booster to start your timed drill.</p>
-                <button onclick="triggerTelegramDownload(event, 'compilation', 'https://t.me/+3EJOKkceGBA4YWE1')" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Weekly PDF 📄" data-hi="साप्ताहिक PDF डाउनलोड करें 📄">Download Weekly PDF 📄</button>
+                <p class="text-indigo-200 text-sm max-w-md mx-auto translation-el" data-en="Select a published week or special thematic booster to start your timed drill." data-hi="अपनी क्विज़ शुरू करने के लिए नीचे एक सप्ताह या विशेष विषय चुनें।">Select a published week or special thematic booster to start your timed drill.</p>
             </div>
             
-            <!-- BY CALENDAR VS BY TOPIC TOGGLE -->
             <div class="flex items-center justify-center gap-2 mt-6">
                 <button id="btnShelfWeekly" onclick="loadCompilationShelf('weekly')" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el" data-en="📅 By Calendar" data-hi="📅 कैलेंडर द्वारा">📅 By Calendar</button>
                 <button id="btnShelfSpecial" onclick="loadCompilationShelf('special')" class="px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el" data-en="🎯 By Topic (Special)" data-hi="🎯 विषय द्वारा (विशेष)">🎯 By Topic (Special)</button>
@@ -268,11 +260,10 @@
         </div>
 
         <div id="monthlyPdfView" class="hidden space-y-6">
-            <div class="bg-emerald-900 border border-emerald-800 rounded-3xl p-8 shadow-sm text-center text-white flex flex-col items-center">
+            <div class="bg-emerald-900 border border-emerald-800 rounded-3xl p-6 md:p-8 shadow-sm text-center text-white flex flex-col items-center">
                 <div class="text-4xl mb-3">📥</div>
                 <h2 class="text-2xl font-black mb-2 translation-el" data-en="Monthly Mega Digests" data-hi="मासिक मेगा संकलन">Monthly Mega Digests</h2>
-                <p class="text-emerald-200 text-sm max-w-md mx-auto mb-6 translation-el" data-en="Comprehensive 100+ question mock exams covering all primary sectors." data-hi="सभी प्रमुख क्षेत्रों को कवर करने वाले 100+ प्रश्नों वाले मॉक परीक्षा।">Comprehensive 100+ question mock exams covering all primary sectors.</p>
-                <button onclick="triggerTelegramDownload(event, 'compilation', 'https://t.me/+3EJOKkceGBA4YWE1')" class="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-8 py-3 rounded-xl shadow-md transition text-sm translation-el" data-en="Download Monthly PDF 📄" data-hi="मासिक PDF डाउनलोड करें 📄">Download Monthly PDF 📄</button>
+                <p class="text-emerald-200 text-sm max-w-md mx-auto translation-el" data-en="Comprehensive 100+ question mock exams covering all primary sectors." data-hi="सभी प्रमुख क्षेत्रों को कवर करने वाले 100+ प्रश्नों वाले मॉक परीक्षा।">Comprehensive 100+ question mock exams covering all primary sectors.</p>
             </div>
             <div id="monthlyShelfGrid" class="grid grid-cols-1 gap-6 mt-6"></div>
         </div>
@@ -327,7 +318,6 @@
                 Printable offline PDFs with detailed solution keys and watermarks are distributed exclusively inside our verified Telegram channel.
             </p>
             <div class="flex flex-col gap-3">
-                <!-- GA4 EVENT ATTACHED HERE FOR TELEGRAM CONVERSION TRACKING -->
                 <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="gtag('event', 'telegram_join_click'); acceptTelegramAndDownload()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
                     <span>🚀</span> Join Telegram & Download
                 </a>
@@ -469,7 +459,6 @@
                     if (doc.exists && doc.data().bookmarks) {
                         cloudBookmarks = doc.data().bookmarks;
                     }
-                    // Merge local and cloud securely, removing duplicates
                     const mergedBookmarks = [...new Set([...localBookmarks, ...cloudBookmarks])];
                     
                     userRef.set({ bookmarks: mergedBookmarks }, { merge: true });
@@ -500,7 +489,6 @@
             }
         });
 
-        // Intent-Based Gate: Only runs for Bookmark tracking
         function requireLogin(e) {
             if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
             return true;
@@ -510,12 +498,10 @@
         window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
 
         // ==========================================
-        // PHASE 1: TELEGRAM SOFT GATE (NO LOGIN REQ)
+        // TELEGRAM SOFT GATE (NO LOGIN REQ)
         // ==========================================
         window.triggerTelegramDownload = function(e, type = 'daily', url = null) { 
             if(e) e.preventDefault();
-            
-            // REMOVED `if(!requireLogin(e)) return;` so everyone gets access via Telegram!
             const hasJoined = localStorage.getItem('hasJoinedTelegram');
             
             if (!hasJoined) {
@@ -546,7 +532,6 @@
         }
         themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
-        // Language Preference Persists
         let currentLang = localStorage.getItem('preferredLang') || 'en';
         window.setLanguage = function(lang) {
             currentLang = lang;
@@ -582,9 +567,6 @@
 
         const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
         
-        // ==========================================
-        // PHASE 2: SILENT LOCAL PROGRESS TRACKER
-        // ==========================================
         window.updateLocalStudyTracker = function(isDailyMcq = false) {
             const todayIST = getISTDateObj();
             const todayStr = getISTDateString(todayIST);
@@ -716,7 +698,6 @@
             document.querySelectorAll('#dailyFeedView .flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
         };
 
-        // Bookmarks remain login-protected (Value-First Intent)
         window.toggleBookmark = function(e, docId, btnId) { 
             if(!requireLogin(e)) return; 
             const btn = document.getElementById(btnId);
@@ -733,7 +714,6 @@
             }
             localStorage.setItem('stenoBookmarks', JSON.stringify(savedBookmarks));
             
-            // Background Cloud Sync if logged in
             if (activeUser) {
                 db.collection('users').doc(activeUser.uid).set({ bookmarks: savedBookmarks }, { merge: true });
             }
@@ -857,9 +837,7 @@
 
             let html = "";
             filtered.forEach((card, idx) => {
-                // PHASE 2 FIX: Prefixing the Bookmark ID natively so the Dashboard recognizes it as Current Affairs!
                 const docId = card.id ? `daily_news_${card.id}` : `daily_news_temp-${idx}`;
-                
                 const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
                 const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
                 const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
@@ -869,7 +847,6 @@
                 const staticBoxText = (currentLang === 'hi' && card.staticBox_hi?.facts) ? card.staticBox_hi.facts : (card.staticBox?.facts || null);
                 const safeEmoji = card.emoji || '📰';
                 const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
-                
                 const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
                 const correctIdx = Number(mcqData?.correctIndex) || 0;
 
@@ -894,7 +871,6 @@
                             
                             <!-- FRONT SIDE (TWO ZONES) -->
                             <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl flex flex-col justify-between min-h-[420px] max-h-[540px] shadow-sm hover:shadow-md transition">
-                                <!-- ZONE 1: READING & DRAGGING (No Flip) -->
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
                                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700/80 pb-2.5">
                                         <div class="flex items-center gap-2">
@@ -914,7 +890,6 @@
                                     <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
                                     ${staticBoxHtml}
                                 </div>
-                                <!-- ZONE 2: ACTION FOOTER (Click Flips Card) -->
                                 <div class="flex-shrink-0 border-t border-slate-100 dark:border-slate-700/80 p-4 md:p-5 flex items-center justify-between gap-2 cursor-pointer bg-slate-50/50 dark:bg-slate-800 rounded-b-3xl" onclick="flipCard(${idx})">
                                     <div class="flex gap-2 w-full">
                                         <button class="flex-1 justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
@@ -925,7 +900,6 @@
                             
                             <!-- BACK SIDE (TWO ZONES) -->
                             <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col justify-between min-h-[420px] max-h-[540px] hover:shadow-md transition">
-                                <!-- ZONE 1: READING & DRAGGING -->
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
                                     <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
                                         <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
@@ -936,7 +910,6 @@
                                     </div>
                                     <div id="mcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-1.5 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
                                 </div>
-                                <!-- ZONE 2: ACTION FOOTER -->
                                 <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-5 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900 rounded-b-3xl" onclick="flipCard(${idx})">
                                     <button id="btnTryAgain-${idx}" onclick="event.stopPropagation(); resetQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer">
                                         <span>🔄</span> ${tryAgainLabel}
@@ -955,8 +928,6 @@
         window.flipCard = function(idx) { document.getElementById(`cardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180'); };
         
         window.handleOptionSelect = function(e, docId, uiIdx, selIdx, corIdx, encodedExp) {
-            // PHASE 1 FIX: Removed `requireLogin(e)` check. Quizzes are now 100% Free for Guests!
-            
             const container = document.getElementById(`mcqOptions-${uiIdx}`); 
             const buttons = container.querySelectorAll(`button`); 
             const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); 
@@ -989,9 +960,7 @@
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
             
-            // PHASE 2: Silently track their progression 
             updateLocalStudyTracker(true);
-            
             const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
             btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
             
@@ -1062,17 +1031,25 @@
                     let displayTitle = 'Weekly Speed Drill';
                     if (cadence === 'monthly') displayTitle = 'Monthly Mega Digest';
                     if (cadence === 'special') displayTitle = 'Special Topic Mock';
+                    
+                    const topicNameClean = ed.id.replace(/-/g, ' ');
 
+                    // THE NEW DYNAMIC CARDS: No static links. Both buttons act on this specific item.
                     html += `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
-                            <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(ed.id)}</span>
+                            <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(displayTitle)}</span>
                             <span class="text-xs font-bold text-slate-400">${ed.cards.length} MCQs</span>
                         </div>
-                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${displayTitle}</h3>
+                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${escapeHtml(topicNameClean)}</h3>
                         <div class="flex flex-col gap-2">
-                            <button onclick="openCompilation('${ed.id}')" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition">📖 Open Compilation Deck</button>
-                            <button onclick="triggerTelegramDownload(event, 'compilation', '${ed.pdfUrl || ''}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition">📥 Download Offline PDF</button>
+                            <!-- SEO CRAWLABLE DEEP LINK -->
+                            <a href="?topic=${escapeHtml(ed.id)}" onclick="event.preventDefault(); window.history.pushState({}, '', '?topic=${escapeHtml(ed.id)}'); openCompilation('${escapeHtml(ed.id)}');" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition text-center inline-block w-full">
+                                📖 Open Compilation Deck
+                            </a>
+                            <button onclick="triggerTelegramDownload(event, 'compilation', '${ed.pdfUrl || ''}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition w-full">
+                                📥 Download Offline PDF
+                            </button>
                         </div>
                     </div>`;
                 });
@@ -1090,20 +1067,34 @@
             compilationMode = 'flip';
             
             activeView = 'compilationActive';
-            document.getElementById('weeklyDrillView').classList.add('hidden'); document.getElementById('monthlyPdfView').classList.add('hidden');
+            document.getElementById('weeklyDrillView').classList.add('hidden'); 
+            document.getElementById('monthlyPdfView').classList.add('hidden');
             document.getElementById('compilationWorkspace').classList.remove('hidden');
+            
+            // DYNAMIC SEO UPDATE: Now detects Monthly, Weekly, or Special!
+            let cadencePrefix = "Special Topic";
+            if (ed.cadence === 'monthly') cadencePrefix = "Monthly Mega Digest";
+            if (ed.cadence === 'weekly') cadencePrefix = "Weekly Speed Drill";
+            
+            let displayTitle = compId.replace(/-/g, ' ');
+            document.title = `${cadencePrefix}: ${displayTitle} Current Affairs MCQs | Stenogym`;
+            document.querySelector('meta[name="description"]').setAttribute("content", `Interactive practice deck and PDF for ${cadencePrefix} - ${displayTitle}. Master these MCQs for SSC and Banking exams.`);
+            
             setCompilationMode('flip');
             window.scrollTo({top:0, behavior:'smooth'});
         };
 
         window.closeCompilation = function() {
             document.getElementById('compilationWorkspace').classList.add('hidden');
-            activeView = compilationsData[currentCompId].cadence;
+            const targetCadence = compilationsData[currentCompId].cadence;
             
-            if(activeView === 'monthly') {
-                document.getElementById('monthlyPdfView').classList.remove('hidden');
+            // Clean the URL structure back to normal
+            window.history.pushState({}, '', window.location.pathname);
+            
+            if(targetCadence === 'monthly') {
+                document.getElementById('tabMonthly').click();
             } else {
-                document.getElementById('weeklyDrillView').classList.remove('hidden');
+                document.getElementById('tabWeekly').click();
             }
             window.scrollTo({top:0, behavior:'smooth'});
         };
@@ -1169,7 +1160,6 @@
             if (compilationMode === 'flip') {
                 batch.forEach((card, bIdx) => {
                     const idx = startIndex + bIdx;
-                    // PHASE 2 FIX: Prefixing Compilation ID natively
                     const docId = card.id ? `comp_${card.id}` : `comp_temp-${idx}`;
                     
                     const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
@@ -1196,10 +1186,11 @@
                         staticBoxHtml = `<div class="mt-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${escapeHtml(staticBoxText)}</p></div></div>`;
                     }
 
+                    // 3D MIRROR BUG FIXED: Fully solid backgrounds applied to .flip-card-front and .flip-card-back
                     html += `
                     <div class="perspective-1000 w-full transition-all duration-300" id="compCardContainer-${idx}" data-docid="${docId}">
-                        <div class="flip-card-inner relative w-full transform-style-3d glass-card rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
-                            <div class="flip-card-front flex flex-col justify-between min-h-[420px] max-h-[540px]">
+                        <div class="flip-card-inner relative w-full transform-style-3d rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
+                            <div class="flip-card-front flex flex-col justify-between min-h-[420px] max-h-[540px] bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
                                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700 pb-2">
                                         <div class="flex items-center gap-1.5">
@@ -1224,7 +1215,7 @@
                                 </div>
                             </div>
                             
-                            <div class="flip-card-back flex flex-col justify-between min-h-[420px] max-h-[540px] bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl hover:shadow-md transition">
+                            <div class="flip-card-back flex flex-col justify-between min-h-[420px] max-h-[540px] bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl hover:shadow-md transition">
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
                                     <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
                                         <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel}</span>
@@ -1305,7 +1296,6 @@
         }
 
         window.handleCompFlipAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
-            // PHASE 1 FIX: Unlocked
             const container = document.getElementById(`compMcqOptions-${uiIdx}`); 
             const buttons = container.querySelectorAll(`button`); 
             const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`); 
@@ -1326,9 +1316,7 @@
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
             
-            // PHASE 2: Track Streak
             updateLocalStudyTracker(false);
-            
             const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
             btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
         };
@@ -1352,7 +1340,6 @@
         };
 
         window.handleCompQuizAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
-            // PHASE 1 FIX: Unlocked
             const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
             if(btns[0].disabled) return;
             btns.forEach(b => b.disabled = true);
@@ -1365,10 +1352,7 @@
             localStorage.setItem(`quiz_prog_${currentCompId}`, JSON.stringify(saved));
             
             document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
-            
-            // PHASE 2: Track Streak
             updateLocalStudyTracker(false);
-            
             restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp);
         };
 
@@ -1391,17 +1375,11 @@
             expContainer.innerHTML = decodeURIComponent(encodedExp);
         }
 
-        // DAILY PDF GENERATOR (NOW UNIFIED WITH FORENSIC SECURITY & BRANDING)
+        // DAILY PDF GENERATOR
         window.generateDailyPDF = function() {
             if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
-            
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
-            
-            // Security Injection: Invisible Zero-Width Fingerprint
-            const injectZWS = (str) => {
-                if(!str) return "";
-                return str.split('').join('\u200B');
-            };
+            const injectZWS = (str) => str ? str.split('').join('\u200B') : "";
             
             let content = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
@@ -1434,10 +1412,7 @@
 
                 content += `<div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin-bottom: 18px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05);">`;
                 content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
-                
-                // ZWS Fingerprint Injection
                 content += `<div style="font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">${injectZWS(escapeHtml(hLine))}</div>`;
-                
                 content += `<ul style="margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155;">${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('')}</ul>`;
                 
                 if(stat) content += `<div style="background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600;">🧠 <strong>Static Context:</strong> ${escapeHtml(stat)}</div>`;
@@ -1448,7 +1423,6 @@
                         <strong>Drill:</strong> ${escapeHtml(mcq.question)}<br>
                         <div style="margin: 4px 0; color: #065f46; font-weight: bold;">Ans: Option ${String.fromCharCode(65 + mcq.correctIndex)} (${escapeHtml(mcq.options[mcq.correctIndex])})</div>
                         <div style="color: #475569;"><em>${escapeHtml(mcq.explanation)}</em></div>
-                        <!-- Security Injection: Micro Text Canary -->
                         <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
                     </div>`;
                 }
@@ -1468,7 +1442,6 @@
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
             };
             
-            // Security Injection: Embedded PDF Metadata
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
                 pdf.setProperties({
                     title: finalFilename,
@@ -1480,20 +1453,12 @@
             }).save();
         };
         
-        // ==========================================
-        // PHASE 4: URL DEEP-LINK HIGHLIGHTING
-        // ==========================================
         window.scrollToAndHighlight = function(bkmkParam, isComp = false) {
             const cardEl = document.querySelector(`[data-docid='${bkmkParam}']`);
             if (cardEl) {
                 cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 
-                let targetSurface = cardEl;
-                if (isComp) {
-                    targetSurface = cardEl.querySelector('.glass-card') || cardEl;
-                } else {
-                    targetSurface = cardEl.querySelector('.flip-card-front') || cardEl;
-                }
+                let targetSurface = cardEl.querySelector('.flip-card-front') || cardEl;
                 
                 const originalShadow = targetSurface.style.boxShadow;
                 targetSurface.style.boxShadow = "0 0 0 4px #6366f1, 0 10px 40px -10px rgba(99, 102, 241, 0.5)";
@@ -1502,18 +1467,17 @@
                 const flipInner = cardEl.querySelector('.flip-card-inner');
                 if(flipInner && !isComp) flipInner.classList.add('rotate-y-180');
                 
-                setTimeout(() => {
-                    targetSurface.style.boxShadow = originalShadow || '';
-                }, 3000);
+                setTimeout(() => { targetSurface.style.boxShadow = originalShadow || ''; }, 3000);
             }
         };
 
         // ==========================================
-        // SMART INITIALIZATION & ROUTER
+        // SMART INITIALIZATION & SEO ROUTER
         // ==========================================
         document.addEventListener('DOMContentLoaded', async () => {
             setLanguage(currentLang);
             const bkmkParam = urlParams.get('bookmark');
+            const topicParam = urlParams.get('topic');
 
             if (bkmkParam) {
                 if (bkmkParam.startsWith('daily_news_')) {
@@ -1534,25 +1498,106 @@
                         const doc = await db.collection('ca_drills').doc(docIdRaw).get();
                         if (doc.exists) {
                             const data = doc.data();
-                            const cadence = data.cadence;
                             const compDate = data.date;
                             
-                            if (cadence === 'weekly' || cadence === 'special') document.getElementById('tabWeekly').click();
-                            if (cadence === 'monthly') document.getElementById('tabMonthly').click();
-                            
-                            setTimeout(() => {
-                                openCompilation(compDate);
-                                setTimeout(() => scrollToAndHighlight(bkmkParam, true), 800);
-                            }, 1000);
+                            // Let the topic router handle the SEO and visual setup
+                            window.history.replaceState({}, '', `?topic=${compDate}&bookmark=${bkmkParam}`);
+                            triggerTopicRouter(compDate, bkmkParam);
                         } else { await loadNewsForDate(selectedDateStr); }
                     } catch(e) { await loadNewsForDate(selectedDateStr); }
                 } else {
                     await loadNewsForDate(selectedDateStr);
                 }
+            } else if (topicParam) {
+                triggerTopicRouter(topicParam);
             } else {
                 await loadNewsForDate(selectedDateStr);
             }
         });
+
+        // Dedicated Topic Router for Deep Links & Blogs
+        async function triggerTopicRouter(topicParam, bkmkParam = null) {
+            try {
+                const snap = await db.collection("ca_drills").where("date", "==", topicParam).get();
+                if (!snap.empty) {
+                    workingCompilationCards = [];
+                    let cadence = 'special';
+                    let pdfUrl = '';
+                    
+                    snap.forEach(doc => {
+                        const d = doc.data();
+                        cadence = d.cadence;
+                        pdfUrl = d.pdfEmbedUrl;
+                        workingCompilationCards.push({ id: doc.id, ...d });
+                    });
+                    
+                    currentCompId = topicParam;
+                    compilationsData[topicParam] = { id: topicParam, cadence: cadence, pdfUrl: pdfUrl, cards: workingCompilationCards };
+                    
+                    activeView = 'compilationActive';
+                    document.getElementById('dailyFeedView').classList.add('hidden');
+                    document.getElementById('emptyFeedState').classList.add('hidden');
+                    document.getElementById('weeklyDrillView').classList.add('hidden');
+                    document.getElementById('monthlyPdfView').classList.add('hidden');
+                    document.getElementById('compilationWorkspace').classList.remove('hidden');
+                    document.getElementById('dateControlBar').style.display = 'none';
+                    document.getElementById('progressWidget').style.display = 'none';
+                    
+                    const tabW = document.getElementById('tabWeekly');
+                    const tabM = document.getElementById('tabMonthly');
+                    const tabD = document.getElementById('tabDaily');
+                    [tabD, tabW, tabM].forEach(t => { 
+                        t.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); 
+                        t.classList.add('text-slate-500', 'dark:text-slate-400'); 
+                    });
+                    if(cadence === 'monthly') tabM.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+                    else tabW.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+                    
+                    // SEO Metatags: Monthly & Weekly Context Added
+                    let cadencePrefix = "Special Topic";
+                    if (cadence === 'monthly') cadencePrefix = "Monthly Mega Digest";
+                    if (cadence === 'weekly') cadencePrefix = "Weekly Speed Drill";
+                    
+                    let displayTitle = topicParam.replace(/-/g, ' ');
+                    document.title = `${cadencePrefix}: ${displayTitle} Current Affairs MCQs | Stenogym`;
+                    document.querySelector('meta[name="description"]').setAttribute("content", `Interactive practice deck and PDF for ${cadencePrefix} - ${displayTitle}. Master these MCQs for SSC and Banking exams.`);
+                    
+                    // SEO FAQ Schema Injection
+                    let schemaId = document.getElementById('dynamic-faq-schema');
+                    if(schemaId) schemaId.remove();
+                    const schemaData = {
+                        "@context": "https://schema.org",
+                        "@type": "FAQPage",
+                        "mainEntity": workingCompilationCards.map(card => {
+                            const mcq = currentLang === 'hi' && card.mcq_hi ? card.mcq_hi : card.mcq;
+                            const q = mcq?.question || card.oneLiner;
+                            const ansText = mcq?.options ? mcq.options[mcq.correctIndex || 0] : "";
+                            const exp = mcq?.explanation || "";
+                            return {
+                                "@type": "Question",
+                                "name": q,
+                                "acceptedAnswer": { "@type": "Answer", "text": `${ansText} - ${exp}` }
+                            };
+                        })
+                    };
+                    const script = document.createElement('script');
+                    script.id = 'dynamic-faq-schema';
+                    script.type = 'application/ld+json';
+                    script.text = JSON.stringify(schemaData);
+                    document.head.appendChild(script);
+
+                    setCompilationMode('flip');
+                    
+                    if(bkmkParam) {
+                        setTimeout(() => scrollToAndHighlight(bkmkParam, true), 800);
+                    }
+                } else {
+                    await loadNewsForDate(selectedDateStr);
+                }
+            } catch(e) {
+                await loadNewsForDate(selectedDateStr);
+            }
+        }
     </script>
 
     <!-- STENOGYM FLOATING ASSISTIVE WIDGET -->

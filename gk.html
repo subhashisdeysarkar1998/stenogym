@@ -224,7 +224,7 @@
                 </div>
             </div>
 
-            <!-- FLASHCARDS VIEW (GLASSMORPHISM) -->
+            <!-- FLASHCARDS VIEW -->
             <div id="flashcardsView" class="hidden space-y-6">
                 <div class="flex items-center justify-between text-xs font-bold text-slate-500 mb-2">
                     <div class="flex items-center gap-3">
@@ -238,18 +238,20 @@
                         <span id="flashcardCounter">Card 0 of 0</span>
                     </div>
                     <div class="flex items-center gap-3">
+                        <button id="btnBookmarkFc" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer translation-el" data-en="🔖 Save" data-hi="🔖 सहेजें">🔖 Save</button>
                         <span class="translation-el hidden sm:inline" data-en="💡 Tap card to reveal answer" data-hi="💡 उत्तर देखने के लिए कार्ड पर टैप करें">💡 Tap card to reveal answer</span>
                     </div>
                 </div>
 
+                <!-- 3D MIRROR BUG FIX: Removed glass-card, Added opaque bg classes -->
                 <div class="perspective-1000 w-full min-h-[350px] cursor-pointer no-select" onclick="toggleActiveFlashcard()">
-                    <div id="flashcardInner" class="flip-card-inner relative w-full h-[65vh] max-h-[75vh] min-h-[350px] transform-style-3d glass-card rounded-3xl transition-all duration-500 flex items-center justify-center p-6 md:p-10 text-center">
-                        <div class="flip-card-front flex flex-col items-center justify-center space-y-4 w-full h-full overflow-y-auto hide-scrollbar">
+                    <div id="flashcardInner" class="flip-card-inner relative w-full h-[65vh] max-h-[75vh] min-h-[350px] transform-style-3d rounded-3xl transition-all duration-500 flex items-center justify-center p-6 md:p-10 text-center">
+                        <div class="flip-card-front flex flex-col items-center justify-center space-y-4 w-full h-full overflow-y-auto hide-scrollbar bg-white dark:bg-slate-800 shadow-sm border border-slate-200 dark:border-slate-700 rounded-3xl p-6 md:p-10 text-center">
                             <span class="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1 rounded-full translation-el" data-en="Concept Recall" data-hi="कांसेप्ट रिकॉल">Concept Recall</span>
                             <h3 id="cardFrontText" class="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-relaxed w-full">--</h3>
                             <span class="text-[10px] text-slate-400 font-bold translation-el" data-en="Tap to flip &rarr;" data-hi="पलटने के लिए टैप करें &rarr;">Tap to flip &rarr;</span>
                         </div>
-                        <div class="flip-card-back flex flex-col items-center justify-center p-6 md:p-10 text-center space-y-4 w-full h-full overflow-y-auto hide-scrollbar bg-emerald-50/50 dark:bg-emerald-900/10 rounded-3xl">
+                        <div class="flip-card-back flex flex-col items-center justify-center space-y-4 w-full h-full overflow-y-auto hide-scrollbar bg-emerald-50/50 dark:bg-emerald-900/10 shadow-sm border border-emerald-200 dark:border-slate-700 rounded-3xl p-6 md:p-10 text-center">
                             <span class="text-[10px] font-black uppercase text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-900/30 px-3 py-1 rounded-full translation-el" data-en="Verified Fact" data-hi="सत्यापित तथ्य">Verified Fact</span>
                             <h3 id="cardBackText" class="text-xl md:text-3xl font-black text-indigo-950 dark:text-indigo-100 leading-relaxed w-full">--</h3>
                             <p id="cardBackContext" class="text-xs text-slate-600 dark:text-slate-400 font-semibold max-w-md bg-white/50 dark:bg-black/20 p-3 rounded-xl mt-4">--</p>
@@ -353,7 +355,6 @@
                 <p class="text-sm text-slate-400 leading-relaxed" data-en="India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection." data-hi="भारत का प्रमुख AI-संचालित परीक्षा इकोसिस्टम। आशुलिपि में महारत हासिल करें, स्टेटिक GK और दैनिक करंट अफेयर्स पर विजय प्राप्त करें, और अपना अंतिम चयन सुनिश्चित करें।">
                     India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.
                 </p>
-                <!-- ACTUAL COLOR BRAND ICONS -->
                 <div class="flex gap-4 pt-2">
                     <!-- Instagram -->
                     <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
@@ -432,7 +433,6 @@
         window.addEventListener('scroll', () => {
             const currentScrollY = window.scrollY;
             
-            // Glide-to-Top visibility
             const btnTop = document.getElementById('scrollToTopBtn');
             if (currentScrollY > 350) {
                 btnTop.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
@@ -442,22 +442,18 @@
                 btnTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
             }
 
-            // Toolbar Logic
             if (currentScrollY <= 150) {
                 clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer); showNav();
                 lastScrollY = currentScrollY; return;
             }
 
-            // Thumb Jitter Filter
             const delta = currentScrollY - lastScrollY;
             if (Math.abs(delta) < 15) return;
 
             clearTimeout(scrollPauseTimer); clearTimeout(autoHideTimer);
 
-            if (delta > 0) hideNav(); // Scroll down
-            else {
-                scrollPauseTimer = setTimeout(() => { showNav(); startAutoHideTimer(); }, 150); // Scroll up
-            }
+            if (delta > 0) hideNav();
+            else { scrollPauseTimer = setTimeout(() => { showNav(); startAutoHideTimer(); }, 150); }
             lastScrollY = currentScrollY;
         }, { passive: true });
 
@@ -475,7 +471,8 @@
         }
         themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
-        // Daily Streak Logic
+        let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
+
         function updateStreak() {
             const today = new Date().toISOString().split('T')[0];
             let lastStudyDate = localStorage.getItem('lastStudyDate');
@@ -494,9 +491,11 @@
             document.getElementById('streakCounterText').textContent = `${currentStreak} ${label}`;
         }
         
-        let currentLang = 'en';
+        let currentLang = localStorage.getItem('preferredLang') || 'en';
         window.setLanguage = function(lang) {
             currentLang = lang;
+            localStorage.setItem('preferredLang', lang);
+            
             const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')];
             const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
             if (lang === 'en') {
@@ -511,14 +510,13 @@
                 else if(el.hasAttribute('data-en')) el.innerHTML = el.getAttribute('data-en');
             });
             
-            // Re-render Dynamic Button
             const actionBtn = document.getElementById('dynamicActionBtn');
             if (activeMode === 'notes') { actionBtn.innerHTML = currentLang === 'hi' ? '📥 PDF डाउनलोड' : '📥 Download PDF'; }
             else if (activeMode === 'flashcards') { actionBtn.innerHTML = currentLang === 'hi' ? '🔀 कार्ड शफ़ल करें' : '🔀 Shuffle Deck'; }
             else if (activeMode === 'practice') { actionBtn.innerHTML = currentLang === 'hi' ? '🔄 मॉक पुनः प्रयास करें' : '🔄 Retake Mock'; }
             else if (activeMode === 'drill') { actionBtn.innerHTML = currentLang === 'hi' ? '🔄 क्विज़ पुनः प्रयास करें' : '🔄 Retake Quiz'; }
             
-            if (activeTopicData) selectTopic(currentTopicId); // Re-render content
+            if (activeTopicData) selectTopic(currentTopicId); 
             updateStreak();
         };
 
@@ -536,9 +534,20 @@
                 document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
                 document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
                 
-                // Fill floating forensic watermark
                 const wm = document.getElementById('forensicWatermark');
                 wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
+                
+                // MULTI-DEVICE BOOKMARK CLOUD SYNC
+                const userRef = db.collection('users').doc(user.uid);
+                userRef.get().then(doc => {
+                    let cloudBookmarks = [];
+                    if (doc.exists && doc.data().bookmarks) cloudBookmarks = doc.data().bookmarks;
+                    const mergedBookmarks = [...new Set([...savedBookmarks, ...cloudBookmarks])];
+                    userRef.set({ bookmarks: mergedBookmarks }, { merge: true });
+                    localStorage.setItem('stenoBookmarks', JSON.stringify(mergedBookmarks));
+                    savedBookmarks = mergedBookmarks;
+                    if(activeTopicData) selectTopic(currentTopicId); 
+                });
                 updateStreak();
             } else {
                 document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
@@ -547,18 +556,41 @@
             }
         });
 
+        function requireLogin(e) {
+            if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
+            return true;
+        }
+
+        window.toggleBookmark = function(e, docId, btnId) { 
+            if(!requireLogin(e)) return; 
+            const btn = document.getElementById(btnId);
+            const idx = savedBookmarks.indexOf(docId);
+            
+            if(idx > -1) {
+                savedBookmarks.splice(idx, 1);
+                btn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
+                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
+            } else {
+                savedBookmarks.push(docId);
+                btn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
+                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
+            }
+            localStorage.setItem('stenoBookmarks', JSON.stringify(savedBookmarks));
+            
+            if (activeUser) {
+                db.collection('users').doc(activeUser.uid).set({ bookmarks: savedBookmarks }, { merge: true });
+            }
+        };
+
         // ==========================================
-        // AUDIO & HAPTICS (Web Audio API)
+        // AUDIO & HAPTICS 
         // ==========================================
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         let audioCtx;
-        
         function initAudio() { if(!audioCtx) audioCtx = new AudioContext(); if(audioCtx.state === 'suspended') audioCtx.resume(); }
 
         function triggerHaptic(isSuccess) {
-            if (navigator.vibrate) {
-                navigator.vibrate(isSuccess ? [20, 40, 20] : 15);
-            }
+            if (navigator.vibrate) navigator.vibrate(isSuccess ? [20, 40, 20] : 15);
         }
 
         function playChime(type) {
@@ -570,8 +602,8 @@
                 
                 if (type === 'success') {
                     osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
-                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); 
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); 
                     gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
                     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.5);
@@ -582,7 +614,7 @@
                     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
                     osc.start(); osc.stop(audioCtx.currentTime + 0.15);
                 }
-            } catch(e) {} // Fallback for browsers blocking audio
+            } catch(e) {} 
         }
 
         // ==========================================
@@ -626,8 +658,12 @@
             } else if (activeMode === 'flashcards') {
                 shuffleCardsArray(); initFlashcardsView(); playChime('flip'); triggerHaptic(false);
             } else if (activeMode === 'practice') {
+                if(!confirm("Reset your score and restart this mock?")) return;
+                localStorage.removeItem(`gk_prac_prog_${currentTopicId}`);
                 initPracticeView(); playChime('flip'); triggerHaptic(false);
             } else if (activeMode === 'drill') {
+                if(!confirm("Reset your score and restart this quiz?")) return;
+                localStorage.removeItem(`gk_drill_prog_${currentTopicId}`);
                 initDrillView(); playChime('flip'); triggerHaptic(false);
             }
         };
@@ -642,10 +678,28 @@
         };
 
         // ==========================================
-        // CONTENT LOADING & SMART CACHE BUSTER
+        // CONTENT LOADING, SEO ROUTING & SMART CACHE
         // ==========================================
         let currentSubject = "polity"; let currentTopicId = null; let activeTopicsList = []; let activeTopicData = null;
         function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
+        const urlParams = new URLSearchParams(window.location.search);
+
+        document.addEventListener('DOMContentLoaded', () => { 
+            setLanguage(currentLang);
+            const topicParam = urlParams.get('topic');
+            if (topicParam) {
+                db.collection("static_gk").doc(topicParam).get().then(doc => {
+                    if (doc.exists) {
+                        const subj = doc.data().subjectKey;
+                        document.querySelectorAll('.subject-pill').forEach(p => p.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el");
+                        const activePill = document.querySelector(`.subject-pill[data-subject="${subj}"]`);
+                        if(activePill) activePill.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-indigo-600 text-white shadow-md translation-el";
+                        currentSubject = subj;
+                        loadSubjectTopics(subj, topicParam);
+                    } else { loadSubjectTopics(currentSubject); }
+                }).catch(() => loadSubjectTopics(currentSubject));
+            } else { loadSubjectTopics(currentSubject); }
+        });
 
         document.querySelectorAll('.subject-pill').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -655,30 +709,23 @@
             });
         });
 
-        async function loadSubjectTopics(subjectKey) {
+        async function loadSubjectTopics(subjectKey, topicToSelect = null) {
             const listEl = document.getElementById('topicList');
             listEl.innerHTML = `<div class="p-3 text-xs font-bold text-slate-400">Loading...</div>`;
             try {
                 let snap;
-                // Smart Cache-Buster Engine
-                try {
-                    snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get({ source: 'server' });
-                } catch(e) {
-                    console.warn("Server fetch failed, falling back to cache...", e);
-                }
+                try { snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get({ source: 'server' }); } 
+                catch(e) { snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get(); }
                 
-                // Silent Retry if empty
-                if (!snap || snap.empty) {
-                    await new Promise(res => setTimeout(res, 600));
-                    snap = await db.collection("static_gk").where("subjectKey", "==", subjectKey).get();
-                }
-
                 activeTopicsList = []; 
                 snap.forEach(doc => activeTopicsList.push({ id: doc.id, ...doc.data() }));
                 document.getElementById('topicCountBadge').textContent = `${activeTopicsList.length} Topics`;
                 renderTopicListUI(); 
-                if (activeTopicsList.length > 0) selectTopic(activeTopicsList[0].id);
-                else {
+                
+                if (activeTopicsList.length > 0) {
+                    if(topicToSelect && activeTopicsList.some(t => t.id === topicToSelect)) selectTopic(topicToSelect);
+                    else selectTopic(activeTopicsList[0].id);
+                } else {
                     listEl.innerHTML = `<div class="p-3 text-xs font-bold text-slate-400">No topics found.</div>`;
                     document.getElementById('activeTopicTitle').textContent = "Select a topic";
                     document.getElementById('notesContentContainer').innerHTML = "";
@@ -702,14 +749,37 @@
             
             const title = (currentLang === 'hi' && activeTopicData.topicTitle_hi) ? activeTopicData.topicTitle_hi : activeTopicData.topicTitle;
             const notes = (currentLang === 'hi' && activeTopicData.notes_hi) ? activeTopicData.notes_hi : activeTopicData.notes;
+            const subjName = activeTopicData.subjectName || "Static GK";
             
-            document.getElementById('activeTopicBadge').textContent = activeTopicData.subjectName || "GK";
+            document.getElementById('activeTopicBadge').textContent = subjName;
             document.getElementById('activeTopicTitle').textContent = title || "";
             document.getElementById('notesContentContainer').innerHTML = notes || "<p class='text-slate-400'>Notes compiling...</p>";
             
-            // Bilingual Array Safeguards
             workingFlashcards = (currentLang === 'hi' && activeTopicData.flashcards_hi && activeTopicData.flashcards_hi.length > 0) ? [...activeTopicData.flashcards_hi] : [...(activeTopicData.flashcards || [])];
             
+            // DYNAMIC SEO & SCHEMA INJECTION
+            window.history.pushState({}, '', `?topic=${topicId}`);
+            document.title = `${title} - ${subjName} Notes & PYQs | Stenogym`;
+            document.querySelector('meta[name="description"]').setAttribute("content", `Comprehensive ${subjName} notes, active-recall flashcards, and PYQ MCQs for ${title}. Master this topic for SSC and Banking exams.`);
+            
+            let schemaId = document.getElementById('dynamic-faq-schema');
+            if(schemaId) schemaId.remove();
+            
+            let allQuestions = [];
+            workingFlashcards.forEach(fc => {
+                if(fc.front && fc.back) allQuestions.push({ "@type": "Question", "name": fc.front, "acceptedAnswer": { "@type": "Answer", "text": fc.back + (fc.context ? ` (${fc.context})` : "") } });
+            });
+            const drs = (currentLang === 'hi' && activeTopicData.mcqs_hi && activeTopicData.mcqs_hi.length > 0) ? activeTopicData.mcqs_hi : (activeTopicData.mcqs || []);
+            drs.forEach(dr => {
+                if(dr.question && dr.options) allQuestions.push({ "@type": "Question", "name": dr.question, "acceptedAnswer": { "@type": "Answer", "text": `${dr.options[dr.correctIndex || 0]} - ${dr.explanation || ""}` } });
+            });
+            
+            if(allQuestions.length > 0) {
+                const schemaData = { "@context": "https://schema.org", "@type": "FAQPage", "mainEntity": allQuestions };
+                const script = document.createElement('script'); script.id = 'dynamic-faq-schema'; script.type = 'application/ld+json'; script.text = JSON.stringify(schemaData);
+                document.head.appendChild(script);
+            }
+
             initFlashcardsView(); 
             initPracticeView();
             initDrillView();
@@ -732,6 +802,13 @@
             document.getElementById('cardBackContext').textContent = card.context || "";
             document.getElementById('flashcardCounter').textContent = `Card ${currentFlashcardIndex + 1} of ${workingFlashcards.length}`;
             
+            const docId = `gk_fc_${currentTopicId}_${currentFlashcardIndex}`;
+            const btn = document.getElementById('btnBookmarkFc');
+            const isBkmrk = savedBookmarks.includes(docId);
+            btn.className = `text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition cursor-pointer translation-el ${isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400'}`;
+            btn.innerHTML = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
+            btn.setAttribute('onclick', `toggleBookmark(event, '${docId}', 'btnBookmarkFc')`);
+
             if (isCardFlipped) { document.getElementById('flashcardInner').classList.remove('rotate-y-180', 'glass-glow-success'); isCardFlipped = false; }
             updateSVGRing();
         }
@@ -768,9 +845,11 @@
         let currentPracticePage = 1; const PRACTICE_PER_PAGE = 20; let workingPracticeQs = [];
 
         function initPracticeView() {
-            practiceCorrectCount = 0; practiceAttemptedCount = 0; updatePracticeBadge();
+            const saved = JSON.parse(localStorage.getItem(`gk_prac_prog_${currentTopicId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+            practiceCorrectCount = saved.correct; 
+            practiceAttemptedCount = saved.attempted; 
+            updatePracticeBadge();
             currentPracticePage = 1;
-            // Bilingual Array Safeguard
             workingPracticeQs = (currentLang === 'hi' && activeTopicData?.practiceQs_hi && activeTopicData.practiceQs_hi.length > 0) ? activeTopicData.practiceQs_hi : (activeTopicData?.practiceQs || []);
             document.getElementById('practiceQuestionsContainer').innerHTML = "";
             renderPracticePage();
@@ -790,15 +869,21 @@
             const startIndex = (currentPracticePage - 1) * PRACTICE_PER_PAGE;
             const endIndex = currentPracticePage * PRACTICE_PER_PAGE;
             const batch = workingPracticeQs.slice(startIndex, endIndex);
+            const saved = JSON.parse(localStorage.getItem(`gk_prac_prog_${currentTopicId}`) || '{"correct":0,"attempted":0,"answers":{}}');
 
             let html = "";
             batch.forEach((item, bIdx) => {
                 const qIdx = startIndex + bIdx;
                 const safeExp = encodeURIComponent(item.explanation || '').replace(/'/g, "%27");
+                const bkmrkDoc = `gk_prac_${currentTopicId}_${qIdx}`;
+                const isBkmrk = savedBookmarks.includes(bkmrkDoc);
                 html += `
                     <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/50 px-2 py-0.5 rounded">Practice #${qIdx + 1}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-sky-700 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/50 px-2 py-0.5 rounded">Practice #${qIdx + 1}</span>
+                                <button id="btnBookmarkPrac-${qIdx}" onclick="toggleBookmark(event, '${bkmrkDoc}', 'btnBookmarkPrac-${qIdx}')" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400'} cursor-pointer translation-el" data-en="${isBkmrk ? '🔖 Saved' : '🔖 Save'}" data-hi="${isBkmrk ? '🔖 सहेजा गया' : '🔖 सहेजें'}">${isBkmrk ? (currentLang==='hi'?'🔖 सहेजा गया':'🔖 Saved') : (currentLang==='hi'?'🔖 सहेजें':'🔖 Save')}</button>
+                            </div>
                             <span class="text-xs text-slate-400 font-semibold">${escapeHtml(item.sourceExam || 'Concept Check')}</span>
                         </div>
                         <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(item.question)}</h4>
@@ -815,6 +900,14 @@
             
             container.insertAdjacentHTML('beforeend', html);
 
+            batch.forEach((item, bIdx) => {
+                const qIdx = startIndex + bIdx;
+                if (saved.answers[qIdx] !== undefined) {
+                    const safeExp = encodeURIComponent(item.explanation || '').replace(/'/g, "%27");
+                    restorePracticeAnswerUI(qIdx, saved.answers[qIdx], item.correctIndex, safeExp);
+                }
+            });
+
             const showingCount = Math.min(endIndex, workingPracticeQs.length);
             document.getElementById('practicePaginationText').textContent = `Showing ${showingCount} of ${workingPracticeQs.length} Questions`;
             if (endIndex >= workingPracticeQs.length) pagContainer.classList.add('hidden'); 
@@ -827,15 +920,43 @@
             const expContainer = document.getElementById(`practiceExp-${qIdx}`);
             if(buttons[0].disabled) return; 
 
-            buttons.forEach(btn => btn.disabled = true); practiceAttemptedCount++;
+            buttons.forEach(btn => btn.disabled = true); 
+            practiceAttemptedCount++;
+            
+            const saved = JSON.parse(localStorage.getItem(`gk_prac_prog_${currentTopicId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+            saved.attempted = practiceAttemptedCount;
+            if (selectedIdx === correctIdx) {
+                practiceCorrectCount++; 
+                saved.correct = practiceCorrectCount;
+                playChime('success'); triggerHaptic(true);
+            } else {
+                playChime('flip'); triggerHaptic(false);
+            }
+            saved.answers[qIdx] = selectedIdx;
+            saved.lastUpdated = Date.now();
+            localStorage.setItem(`gk_prac_prog_${currentTopicId}`, JSON.stringify(saved));
+            
+            if (activeUser) {
+                db.collection('users').doc(activeUser.uid).collection('quiz_scores').doc(`gk_prac_${currentTopicId}`).set({
+                    correct: practiceCorrectCount, attempted: practiceAttemptedCount, lastUpdated: new Date()
+                }, { merge: true });
+            }
+
+            restorePracticeAnswerUI(qIdx, selectedIdx, correctIdx, encodedExp);
+            updatePracticeBadge(); updateStreak();
+        };
+
+        function restorePracticeAnswerUI(qIdx, selectedIdx, correctIdx, encodedExp) {
+            const container = document.getElementById(`practiceOptions-${qIdx}`);
+            const buttons = container.querySelectorAll('button');
+            const expContainer = document.getElementById(`practiceExp-${qIdx}`);
+            buttons.forEach(btn => btn.disabled = true);
             
             if (selectedIdx === correctIdx) {
-                practiceCorrectCount++; playChime('success'); triggerHaptic(true);
                 buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
                 buttons[selectedIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
             } else {
-                playChime('flip'); triggerHaptic(false);
                 buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400";
                 buttons[selectedIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
                 buttons[correctIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
@@ -843,8 +964,7 @@
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
             }
             expContainer.innerHTML = decodeURIComponent(encodedExp);
-            updatePracticeBadge(); updateStreak();
-        };
+        }
 
         function updatePracticeBadge() { document.getElementById('practiceScoreBadge').textContent = `Score: ${practiceCorrectCount} / ${practiceAttemptedCount}`; }
 
@@ -855,9 +975,11 @@
         let currentDrillPage = 1; const DRILLS_PER_PAGE = 20; let workingDrills = [];
 
         function initDrillView() {
-            drillCorrectCount = 0; drillAttemptedCount = 0; updateDrillBadge();
+            const saved = JSON.parse(localStorage.getItem(`gk_drill_prog_${currentTopicId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+            drillCorrectCount = saved.correct; 
+            drillAttemptedCount = saved.attempted; 
+            updateDrillBadge();
             currentDrillPage = 1;
-            // Bilingual Array Safeguard
             workingDrills = (currentLang === 'hi' && activeTopicData?.mcqs_hi && activeTopicData.mcqs_hi.length > 0) ? activeTopicData.mcqs_hi : (activeTopicData?.mcqs || []);
             document.getElementById('drillQuestionsContainer').innerHTML = "";
             renderDrillPage();
@@ -877,15 +999,21 @@
             const startIndex = (currentDrillPage - 1) * DRILLS_PER_PAGE;
             const endIndex = currentDrillPage * DRILLS_PER_PAGE;
             const batch = workingDrills.slice(startIndex, endIndex);
+            const saved = JSON.parse(localStorage.getItem(`gk_drill_prog_${currentTopicId}`) || '{"correct":0,"attempted":0,"answers":{}}');
 
             let html = "";
             batch.forEach((item, bIdx) => {
                 const qIdx = startIndex + bIdx;
                 const safeExp = encodeURIComponent(item.explanation || '').replace(/'/g, "%27");
+                const bkmrkDoc = `gk_drill_${currentTopicId}_${qIdx}`;
+                const isBkmrk = savedBookmarks.includes(bkmrkDoc);
                 html += `
                     <div class="bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Drill ${qIdx + 1}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Drill ${qIdx + 1}</span>
+                                <button id="btnBookmarkDrill-${qIdx}" onclick="toggleBookmark(event, '${bkmrkDoc}', 'btnBookmarkDrill-${qIdx}')" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400'} cursor-pointer translation-el" data-en="${isBkmrk ? '🔖 Saved' : '🔖 Save'}" data-hi="${isBkmrk ? '🔖 सहेजा गया' : '🔖 सहेजें'}">${isBkmrk ? (currentLang==='hi'?'🔖 सहेजा गया':'🔖 Saved') : (currentLang==='hi'?'🔖 सहेजें':'🔖 Save')}</button>
+                            </div>
                             <span class="text-xs text-slate-400 font-semibold">${escapeHtml(item.sourceExam)}</span>
                         </div>
                         <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${escapeHtml(item.question)}</h4>
@@ -902,6 +1030,14 @@
             
             container.insertAdjacentHTML('beforeend', html);
 
+            batch.forEach((item, bIdx) => {
+                const qIdx = startIndex + bIdx;
+                if (saved.answers[qIdx] !== undefined) {
+                    const safeExp = encodeURIComponent(item.explanation || '').replace(/'/g, "%27");
+                    restoreDrillAnswerUI(qIdx, saved.answers[qIdx], item.correctIndex, safeExp);
+                }
+            });
+
             const showingCount = Math.min(endIndex, workingDrills.length);
             document.getElementById('drillPaginationText').textContent = `Showing ${showingCount} of ${workingDrills.length} Questions`;
             if (endIndex >= workingDrills.length) pagContainer.classList.add('hidden'); 
@@ -912,17 +1048,45 @@
             const container = document.getElementById(`drillOptions-${qIdx}`);
             const buttons = container.querySelectorAll('button');
             const expContainer = document.getElementById(`drillExp-${qIdx}`);
-            if(buttons[0].disabled) return; // Prevent double click
+            if(buttons[0].disabled) return; 
 
-            buttons.forEach(btn => btn.disabled = true); drillAttemptedCount++;
+            buttons.forEach(btn => btn.disabled = true); 
+            drillAttemptedCount++;
+            
+            const saved = JSON.parse(localStorage.getItem(`gk_drill_prog_${currentTopicId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+            saved.attempted = drillAttemptedCount;
+            if (selectedIdx === correctIdx) {
+                drillCorrectCount++; 
+                saved.correct = drillCorrectCount;
+                playChime('success'); triggerHaptic(true);
+            } else {
+                playChime('flip'); triggerHaptic(false);
+            }
+            saved.answers[qIdx] = selectedIdx;
+            saved.lastUpdated = Date.now();
+            localStorage.setItem(`gk_drill_prog_${currentTopicId}`, JSON.stringify(saved));
+            
+            if (activeUser) {
+                db.collection('users').doc(activeUser.uid).collection('quiz_scores').doc(`gk_drill_${currentTopicId}`).set({
+                    correct: drillCorrectCount, attempted: drillAttemptedCount, lastUpdated: new Date()
+                }, { merge: true });
+            }
+
+            restoreDrillAnswerUI(qIdx, selectedIdx, correctIdx, encodedExp);
+            updateDrillBadge(); updateStreak();
+        };
+
+        function restoreDrillAnswerUI(qIdx, selectedIdx, correctIdx, encodedExp) {
+            const container = document.getElementById(`drillOptions-${qIdx}`);
+            const buttons = container.querySelectorAll('button');
+            const expContainer = document.getElementById(`drillExp-${qIdx}`);
+            buttons.forEach(btn => btn.disabled = true);
             
             if (selectedIdx === correctIdx) {
-                drillCorrectCount++; playChime('success'); triggerHaptic(true);
                 buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
                 buttons[selectedIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
             } else {
-                playChime('flip'); triggerHaptic(false);
                 buttons[selectedIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400";
                 buttons[selectedIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
                 buttons[correctIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400";
@@ -930,8 +1094,7 @@
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
             }
             expContainer.innerHTML = decodeURIComponent(encodedExp);
-            updateDrillBadge(); updateStreak();
-        };
+        }
 
         function updateDrillBadge() { document.getElementById('drillScoreBadge').textContent = `Score: ${drillCorrectCount} / ${drillAttemptedCount}`; }
 
@@ -1122,7 +1285,22 @@
             });
         };
 
-        document.addEventListener('DOMContentLoaded', () => { loadSubjectTopics(currentSubject); });
+        document.addEventListener('DOMContentLoaded', () => { 
+            setLanguage(currentLang);
+            const topicParam = urlParams.get('topic');
+            if (topicParam) {
+                db.collection("static_gk").doc(topicParam).get().then(doc => {
+                    if (doc.exists) {
+                        const subj = doc.data().subjectKey;
+                        document.querySelectorAll('.subject-pill').forEach(p => p.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-slate-800 text-slate-300 hover:bg-slate-700 translation-el");
+                        const activePill = document.querySelector(`.subject-pill[data-subject="${subj}"]`);
+                        if(activePill) activePill.className = "subject-pill px-4 py-2.5 rounded-xl font-bold text-xs whitespace-nowrap transition bg-indigo-600 text-white shadow-md translation-el";
+                        currentSubject = subj;
+                        loadSubjectTopics(subj, topicParam);
+                    } else { loadSubjectTopics(currentSubject); }
+                }).catch(() => loadSubjectTopics(currentSubject));
+            } else { loadSubjectTopics(currentSubject); }
+        });
     </script>
 
     <!-- ========================================== -->
@@ -1189,7 +1367,6 @@
             // DESKTOP: Safe drag handling
             const savedX = localStorage.getItem('stenoFabX');
             const savedY = localStorage.getItem('stenoFabY');
-            const fabSize = 56;
     
             if (savedX !== null && savedY !== null) {
                 const x = parseInt(savedX, 10);
@@ -1201,9 +1378,6 @@
                     fabContainer.style.bottom = 'auto';
                 }
             }
-    
-            let isDragging = false, hasDragged = false;
-            let startX = 0, startY = 0, initialX = 0, initialY = 0;
     
             fabMain.addEventListener('mousedown', (e) => {
                 if (e.target.closest('#stenoFabMenu')) return;
