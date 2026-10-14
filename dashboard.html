@@ -148,19 +148,19 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="cardGrade" class="text-3xl font-black text-slate-300 dark:text-slate-600 mt-2 transition-colors">--</div>
+                        <div id="cardGrade" class="text-3xl font-black text-slate-300 dark:text-slate-700 mt-2 transition-colors animate-pulse">...</div>
                     </div>
 
                     <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm relative hover:shadow-md transition-all">
                         <div class="absolute top-5 right-5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black uppercase px-2 py-1 rounded tracking-wider transition-colors">Last 10 Practice</div>
                         <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Avg Accuracy</div>
-                        <div id="cardAccuracy" class="text-3xl font-black text-slate-300 dark:text-slate-600 mt-2 transition-colors">0%</div>
+                        <div id="cardAccuracy" class="text-3xl font-black text-slate-300 dark:text-slate-700 mt-2 transition-colors animate-pulse">...</div>
                     </div>
 
                     <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm relative hover:shadow-md transition-all">
                         <div class="absolute top-5 right-5 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 text-[9px] font-black uppercase px-2 py-1 rounded tracking-wider transition-colors">Last 10 Practice</div>
                         <div class="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Max Speed Acc.</div>
-                        <div id="cardMaxSpeed" class="text-2xl sm:text-3xl font-black text-slate-300 dark:text-slate-600 mt-2 transition-colors">--</div>
+                        <div id="cardMaxSpeed" class="text-2xl sm:text-3xl font-black text-slate-300 dark:text-slate-700 mt-2 transition-colors animate-pulse">...</div>
                     </div>
                 </div>
 
@@ -234,24 +234,22 @@
                         <div class="w-16 h-16 rounded-2xl bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-3xl">🔥</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Reading Streak</p>
-                            <!-- DYNAMIC STREAK ID -->
-                            <h3 id="dashboardStreak" class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">0 <span class="text-sm font-bold text-slate-500 dark:text-slate-400">Days</span></h3>
+                            <!-- UX Polish: Skeleton Loader pulsing until data arrives -->
+                            <h3 id="dashboardStreak" class="text-3xl font-black text-slate-300 dark:text-slate-700 mt-1 transition-colors animate-pulse">...</h3>
                         </div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
                         <div class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center text-3xl">⚡</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Total MCQs Solved</p>
-                            <!-- DYNAMIC TOTAL ID -->
-                            <h3 id="cardTotalMcqs" class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">0</h3>
+                            <h3 id="cardTotalMcqs" class="text-3xl font-black text-slate-300 dark:text-slate-700 mt-1 transition-colors animate-pulse">...</h3>
                         </div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl shadow-sm flex items-center gap-5 hover:shadow-md transition-all">
                         <div class="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-3xl">🔖</div>
                         <div>
                             <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Bookmarks</p>
-                            <!-- DYNAMIC BOOKMARKS ID -->
-                            <h3 id="dashboardBookmarks" class="text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors">0</h3>
+                            <h3 id="dashboardBookmarks" class="text-3xl font-black text-slate-300 dark:text-slate-700 mt-1 transition-colors animate-pulse">...</h3>
                         </div>
                     </div>
                 </div>
@@ -301,7 +299,7 @@
                         </div>
                         <!-- DYNAMIC UNIFIED CAPSULES LIST -->
                         <ul id="savedCapsulesList" class="space-y-3 flex-grow">
-                            <!-- Populated via JavaScript (Local Bookmarks + Database PDFs) -->
+                            <!-- Populated via JavaScript -->
                         </ul>
                     </div>
 
@@ -312,7 +310,7 @@
                         </div>
                         <!-- DYNAMIC HYBRID HISTORY LIST -->
                         <ul id="gkHistoryBody" class="space-y-5 mt-2 flex-grow">
-                            <!-- Populated via JS (Firebase GK + Local CA) -->
+                            <!-- Populated via JS -->
                         </ul>
                     </div>
                 </div>
@@ -448,7 +446,7 @@
         }
 
         // ==========================================
-        // UNIFIED CAPSULES LOADER (Bug Fix)
+        // PHASE 3: FIX BOOKMARK ROUTING & BADGES
         // ==========================================
         let currentFbCapsules = [];
         
@@ -476,32 +474,43 @@
                 </li>`;
             });
 
-            // 2. Render Local Bookmarks
+            // 2. Render Local Bookmarks (Now With Deep Link Routing)
             let bookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
             if (bookmarks.length > 0) {
-                bookmarks.slice().reverse().slice(0, 4).forEach(bId => {
+                // Ensure Unique display (in case of double saves during sync)
+                const uniqueBookmarks = [...new Set(bookmarks)];
+                
+                uniqueBookmarks.slice().reverse().slice(0, 5).forEach(bId => {
                     let title = "Saved Content";
                     let subtitle = "General Awareness";
                     let linkUrl = "gk.html";
+                    let badgeColor = "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400";
+                    let icon = "🔖";
                     
-                    if (bId.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                        title = "Daily Digest: " + bId;
-                        subtitle = "Current Affairs Notes";
-                        linkUrl = "current-affairs.html";
-                    } else if (bId.includes('comp') || bId.includes('daily_news')) {
-                        title = "News Selection";
-                        subtitle = "Current Affairs";
-                        linkUrl = "current-affairs.html";
+                    // PHASE 3 MAGIC: The Dashboard now recognizes the prefix!
+                    if (bId.startsWith('daily_news_')) {
+                        title = "News Bookmark";
+                        subtitle = "Daily Current Affairs";
+                        linkUrl = `current-affairs.html?bookmark=${bId}`;
+                        icon = "🗞️";
+                        badgeColor = "bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400";
+                    } else if (bId.startsWith('comp_')) {
+                        title = "Compilation Bookmark";
+                        subtitle = "Speed Drill MCQs";
+                        linkUrl = `current-affairs.html?bookmark=${bId}`;
+                        icon = "⚡";
+                        badgeColor = "bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400";
                     } else {
                         title = "Static GK Topic";
-                        subtitle = "Card Ref: " + bId.substring(0,6);
-                        linkUrl = "gk.html";
+                        subtitle = "Card Ref: " + bId.replace('gk_', '').substring(0,6);
+                        linkUrl = `gk.html?bookmark=${bId}`;
+                        icon = "📚";
                     }
 
                     html += `
                     <li class="flex justify-between items-center p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:border-indigo-200 dark:hover:border-indigo-500 transition">
                         <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-xl">🔖</div>
+                            <div class="w-10 h-10 rounded-xl ${badgeColor} flex items-center justify-center font-black text-xl">${icon}</div>
                             <div>
                                 <p class="text-sm font-bold text-slate-800 dark:text-slate-200">${escapeHtml(title)}</p>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 font-medium">${escapeHtml(subtitle)}</p>
@@ -521,13 +530,20 @@
         }
 
         function loadLocalGeneralAwarenessStats() {
-            // Live Study Streak
+            // PHASE 3: Fetch and Display Live Study Streak (removes pulse class)
             let streak = localStorage.getItem('studyStreak') || "0";
-            document.getElementById('dashboardStreak').innerHTML = `${streak} <span class="text-sm font-bold text-slate-500 dark:text-slate-400">Days</span>`;
+            const streakEl = document.getElementById('dashboardStreak');
+            streakEl.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
+            streakEl.className = "text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors";
+            streakEl.innerHTML = `${streak} <span class="text-sm font-bold text-slate-500 dark:text-slate-400">Days</span>`;
 
-            // Live Bookmarks Count
+            // PHASE 3: Fetch and Display Live Bookmarks (removes pulse class)
             let bookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
-            document.getElementById('dashboardBookmarks').textContent = bookmarks.length;
+            const uniqueBookmarks = [...new Set(bookmarks)]; // Prevent duplicates
+            const bkmkEl = document.getElementById('dashboardBookmarks');
+            bkmkEl.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
+            bkmkEl.className = "text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors";
+            bkmkEl.textContent = uniqueBookmarks.length;
             
             // Instantly render local bookmarks without waiting for Firebase
             renderSavedCapsules(); 
@@ -587,24 +603,36 @@
                     
                     if (count > 0) {
                         const avgAcc = totalAcc / count;
-                        document.getElementById('cardAccuracy').textContent = avgAcc.toFixed(1) + '%';
-                        document.getElementById('cardAccuracy').className = `text-3xl font-black mt-2 transition-colors ${avgAcc >= 90 ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`;
+                        const accEl = document.getElementById('cardAccuracy');
+                        accEl.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
+                        accEl.textContent = avgAcc.toFixed(1) + '%';
+                        accEl.className = `text-3xl font-black mt-2 transition-colors ${avgAcc >= 90 ? 'text-emerald-500 dark:text-emerald-400' : 'text-slate-700 dark:text-slate-300'}`;
 
                         let gradeText = "Beginner"; let gradeColor = "text-rose-500 dark:text-rose-400";
                         if (avgAcc >= 95) { gradeText = "Master"; gradeColor = "text-indigo-600 dark:text-indigo-400"; }
                         else if (avgAcc >= 90) { gradeText = "Advanced"; gradeColor = "text-emerald-500 dark:text-emerald-400"; }
                         else if (avgAcc >= 85) { gradeText = "Intermediate"; gradeColor = "text-amber-500 dark:text-amber-400"; }
                         
-                        document.getElementById('cardGrade').textContent = gradeText;
-                        document.getElementById('cardGrade').className = `text-3xl font-black mt-2 transition-colors ${gradeColor}`;
+                        const gradeEl = document.getElementById('cardGrade');
+                        gradeEl.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
+                        gradeEl.textContent = gradeText;
+                        gradeEl.className = `text-3xl font-black mt-2 transition-colors ${gradeColor}`;
 
                         const maxWpm = Math.max(...testDataArray.map(t => t.wpm)); 
                         const maxWpmTests = testDataArray.filter(t => t.wpm === maxWpm); 
                         const maxWpmAvgAcc = maxWpmTests.reduce((sum, t) => sum + t.accuracy, 0) / maxWpmTests.length; 
                         
                         const maxSpeedEl = document.getElementById('cardMaxSpeed');
+                        maxSpeedEl.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
                         maxSpeedEl.textContent = `${maxWpmAvgAcc.toFixed(1)}% @ ${maxWpm} WPM`;
                         maxSpeedEl.className = `text-2xl sm:text-3xl mt-2 font-black transition-colors ${maxWpmAvgAcc >= 90 ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500 dark:text-rose-400'}`;
+                    } else {
+                        ['cardGrade', 'cardAccuracy', 'cardMaxSpeed'].forEach(id => {
+                            const el = document.getElementById(id);
+                            el.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
+                            el.className = "text-3xl font-black mt-2 text-slate-400 dark:text-slate-600";
+                            el.textContent = "--";
+                        });
                     }
                 });
                 
@@ -618,7 +646,7 @@
             });
 
             // ==========================================
-            // HYBRID MCQ HISTORY (Firebase GK + Local CA)
+            // PHASE 3: HYBRID MCQ HISTORY MERGER
             // ==========================================
             db.collection("users").doc(user.uid).collection("gk_history")
                 .orderBy("timestamp", "desc").limit(10).onSnapshot(snap => {
@@ -645,7 +673,7 @@
                         let fbTotal = 0;
                         fullSnap.forEach(doc => { fbTotal += (Number(doc.data().totalQuestions) || 1); });
                         
-                        // 2. Get Current Affairs from localStorage
+                        // 2. Get Current Affairs from localStorage (Daily + Compilations)
                         let localTotal = 0;
                         for (let i = 0; i < localStorage.length; i++) {
                             const key = localStorage.key(i);
@@ -654,20 +682,35 @@
                                     const saved = JSON.parse(localStorage.getItem(key));
                                     if(saved && saved.attempted > 0) {
                                         localTotal += saved.attempted;
-                                        const compId = key.replace('quiz_prog_', '');
-                                        combinedHistory.push({
-                                            title: "News Drill: " + compId,
-                                            score: saved.correct || 0,
-                                            total: saved.attempted || 1,
-                                            timestamp: saved.lastUpdated || (Date.now() - 1000), 
-                                            type: 'ca'
-                                        });
+                                        
+                                        if (key === 'quiz_prog_daily') {
+                                            combinedHistory.push({
+                                                title: "Daily News Practice",
+                                                score: saved.correct || 0,
+                                                total: saved.attempted || 1,
+                                                timestamp: saved.lastUpdated || Date.now(),
+                                                type: 'ca'
+                                            });
+                                        } else {
+                                            const compId = key.replace('quiz_prog_', '');
+                                            combinedHistory.push({
+                                                title: "News Drill: " + compId,
+                                                score: saved.correct || 0,
+                                                total: saved.attempted || 1,
+                                                timestamp: saved.lastUpdated || (Date.now() - 1000), 
+                                                type: 'ca'
+                                            });
+                                        }
                                     }
                                 } catch(e){}
                             }
                         }
 
-                        document.getElementById('cardTotalMcqs').textContent = fbTotal + localTotal;
+                        // Remove Pulse and Show True Total
+                        const totalMcqsEl = document.getElementById('cardTotalMcqs');
+                        totalMcqsEl.classList.remove('animate-pulse', 'text-slate-300', 'dark:text-slate-700');
+                        totalMcqsEl.className = "text-3xl font-black text-slate-900 dark:text-white mt-1 transition-colors";
+                        totalMcqsEl.textContent = fbTotal + localTotal;
 
                         // 3. Merge, Sort, and Render
                         combinedHistory.sort((a, b) => b.timestamp - a.timestamp);

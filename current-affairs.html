@@ -311,7 +311,7 @@
             <div class="text-4xl mb-3" id="emptyIcon">☕</div>
             <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 translation-el" id="emptyText" data-en="No News Filed For This Date" data-hi="इस तिथि के लिए कोई समाचार नहीं है">No News Filed For This Date</h3>
             <p id="emptySubText" class="text-sm font-medium text-slate-500 mb-4 hidden"></p>
-            <button id="btnResetToday" class="mt-4 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-500 transition translation-el" data-en="Jump to Today" data-hi="आज पर जाएं">Jump to Today</button>
+            <button id="btnResetToday" class="mt-4 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-50 transition translation-el" data-en="Jump to Today" data-hi="आज पर जाएं">Jump to Today</button>
         </div>
     </main>
 
@@ -327,7 +327,8 @@
                 Printable offline PDFs with detailed solution keys and watermarks are distributed exclusively inside our verified Telegram channel.
             </p>
             <div class="flex flex-col gap-3">
-                <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="acceptTelegramAndDownload()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+                <!-- GA4 EVENT ATTACHED HERE FOR TELEGRAM CONVERSION TRACKING -->
+                <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="gtag('event', 'telegram_join_click'); acceptTelegramAndDownload()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
                     <span>🚀</span> Join Telegram & Download
                 </a>
                 <button onclick="closeTgModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold py-2 text-xs transition">Cancel</button>
@@ -335,11 +336,12 @@
         </div>
     </div>
 
+    <!-- Value-First Premium Modal for Saving/Progress Tracking -->
     <div id="premiumModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
         <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transform scale-100 transition-all">
-            <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/50 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 translation-el" data-en="Premium Feature Locked" data-hi="प्रीमियम सुविधा लॉक है">Premium Feature Locked</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Please create a 100% free account to download PDFs and track your progress." data-hi="PDF डाउनलोड करने और अपनी प्रगति को ट्रैक करने के लिए कृपया एक निःशुल्क खाता बनाएं।">Please create a 100% free account to download PDFs and track your progress.</p>
+            <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🔖</div>
+            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 translation-el" data-en="Save Your Progress" data-hi="अपनी प्रगति सहेजें">Save Your Progress</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Create a 100% free account to save bookmarks and track your reading streak on the Dashboard." data-hi="बुकमार्क सहेजने और डैशबोर्ड पर अपनी पढ़ने की स्ट्रीक को ट्रैक करने के लिए एक निःशुल्क खाता बनाएँ।">Create a 100% free account to save bookmarks and track your reading streak on the Dashboard.</p>
             <div class="flex flex-col gap-3">
                 <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl shadow-md transition translation-el" data-en="Create Free Account / Login" data-hi="मुफ़्त खाता बनाएँ / लॉगिन करें">Create Free Account / Login</a>
                 <button onclick="closePremiumModal()" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold py-2 text-sm transition translation-el" data-en="Maybe Later" data-hi="शायद बाद में">Maybe Later</button>
@@ -457,6 +459,26 @@
                 document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
                 const wm = document.getElementById('forensicWatermark');
                 wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
+                
+                // MULTI-DEVICE BOOKMARK CLOUD SYNC
+                const localBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
+                const userRef = db.collection('users').doc(user.uid);
+                
+                userRef.get().then(doc => {
+                    let cloudBookmarks = [];
+                    if (doc.exists && doc.data().bookmarks) {
+                        cloudBookmarks = doc.data().bookmarks;
+                    }
+                    // Merge local and cloud securely, removing duplicates
+                    const mergedBookmarks = [...new Set([...localBookmarks, ...cloudBookmarks])];
+                    
+                    userRef.set({ bookmarks: mergedBookmarks }, { merge: true });
+                    localStorage.setItem('stenoBookmarks', JSON.stringify(mergedBookmarks));
+                    savedBookmarks = mergedBookmarks;
+                    
+                    if (activeView === 'daily') renderFeedCards();
+                    if (activeView === 'compilationActive') renderCompilationPage();
+                });
             } else {
                 document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
                 document.getElementById('navDashboard')?.classList.add('hidden'); document.getElementById('navDashboardMob')?.classList.add('hidden');
@@ -478,6 +500,7 @@
             }
         });
 
+        // Intent-Based Gate: Only runs for Bookmark tracking
         function requireLogin(e) {
             if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
             return true;
@@ -486,14 +509,21 @@
         window.closePremiumModal = () => document.getElementById('premiumModal').classList.add('hidden');
         window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
 
+        // ==========================================
+        // PHASE 1: TELEGRAM SOFT GATE (NO LOGIN REQ)
+        // ==========================================
         window.triggerTelegramDownload = function(e, type = 'daily', url = null) { 
             if(e) e.preventDefault();
-            if(!requireLogin(e)) return;
+            
+            // REMOVED `if(!requireLogin(e)) return;` so everyone gets access via Telegram!
             const hasJoined = localStorage.getItem('hasJoinedTelegram');
+            
             if (!hasJoined) {
                 window.pendingDownload = { type, url };
                 document.getElementById('telegramGrowthModal').classList.remove('hidden');
-            } else { executeDownload(type, url); }
+            } else { 
+                executeDownload(type, url); 
+            }
         };
 
         window.acceptTelegramAndDownload = function() {
@@ -516,9 +546,12 @@
         }
         themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
-        let currentLang = 'en';
+        // Language Preference Persists
+        let currentLang = localStorage.getItem('preferredLang') || 'en';
         window.setLanguage = function(lang) {
             currentLang = lang;
+            localStorage.setItem('preferredLang', lang);
+            
             const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')]; const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
             if (lang === 'en') {
                 btnsEn.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
@@ -549,13 +582,43 @@
 
         const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
         
-        // Pushes the date into the URL address bar so Google can index each day separately
+        // ==========================================
+        // PHASE 2: SILENT LOCAL PROGRESS TRACKER
+        // ==========================================
+        window.updateLocalStudyTracker = function(isDailyMcq = false) {
+            const todayIST = getISTDateObj();
+            const todayStr = getISTDateString(todayIST);
+            
+            let lastStudyDate = localStorage.getItem('lastStudyDate');
+            let currentStreak = parseInt(localStorage.getItem('studyStreak') || '0');
+
+            if (lastStudyDate !== todayStr) {
+                if (lastStudyDate) {
+                    const yesterdayIST = new Date(todayIST.getTime() - 86400000); 
+                    const yesterdayStr = getISTDateString(yesterdayIST);
+                    
+                    if (lastStudyDate === yesterdayStr) currentStreak++;
+                    else currentStreak = 1; 
+                } else {
+                    currentStreak = 1;
+                }
+                localStorage.setItem('studyStreak', currentStreak.toString());
+                localStorage.setItem('lastStudyDate', todayStr);
+            }
+
+            if (isDailyMcq) {
+                let dailyProg = JSON.parse(localStorage.getItem('quiz_prog_daily') || '{"correct":0,"attempted":0,"answers":{},"lastUpdated":0}');
+                dailyProg.attempted++;
+                dailyProg.lastUpdated = Date.now();
+                localStorage.setItem('quiz_prog_daily', JSON.stringify(dailyProg));
+            }
+        };
+
         function updateUrlAndLoad(dateStr) {
             window.history.pushState({ path: window.location.href }, '', `?date=${dateStr}`);
             loadNewsForDate(dateStr);
         }
 
-        // Listens for the browser "Back" button to update the feed automatically
         window.addEventListener('popstate', () => {
             const params = new URLSearchParams(window.location.search);
             selectedDateStr = params.get('date') || getISTDateString();
@@ -653,6 +716,7 @@
             document.querySelectorAll('#dailyFeedView .flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
         };
 
+        // Bookmarks remain login-protected (Value-First Intent)
         window.toggleBookmark = function(e, docId, btnId) { 
             if(!requireLogin(e)) return; 
             const btn = document.getElementById(btnId);
@@ -668,6 +732,11 @@
                 btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
             }
             localStorage.setItem('stenoBookmarks', JSON.stringify(savedBookmarks));
+            
+            // Background Cloud Sync if logged in
+            if (activeUser) {
+                db.collection('users').doc(activeUser.uid).set({ bookmarks: savedBookmarks }, { merge: true });
+            }
         };
 
         window.markAsRead = function(cardId, uiIndex) {
@@ -693,14 +762,11 @@
 
         async function fetchDailyNews(dateStr) {
             try {
-                // Smart Cache-Buster: Force server fetch first to skip empty cold cache
                 const snap = await db.collection("daily_news").where("date", "==", dateStr).get({ source: 'server' });
                 if (!snap.empty) return snap;
             } catch(e) {
                 console.warn("Server fetch failed, falling back to cache logic...", e);
             }
-            
-            // Silent Retry Safety Net
             await new Promise(res => setTimeout(res, 600));
             return await db.collection("daily_news").where("date", "==", dateStr).get();
         }
@@ -736,7 +802,6 @@
                     document.getElementById('emptyFeedState').classList.remove('hidden'); 
                 } 
                 else { 
-                    // SEO INJECTOR: Dynamic Title, Meta, and JSON-LD FAQ Schema
                     const topNews = allArticlesCache[0].oneLiner;
                     document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
                     document.querySelector('meta[name="description"]').setAttribute("content", `Daily Current Affairs for ${formatISTDisplay(dateStr)}. Top News: ${topNews}. Download free PDFs and take MCQs for SSC CGL, RRB NTPC, and IBPS PO.`);
@@ -768,6 +833,8 @@
                     readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); 
                 }
             } catch (err) { document.getElementById('feedLoading').classList.add('hidden'); document.getElementById('emptyFeedState').classList.remove('hidden'); }
+            
+            return true;
         }
 
         // ==========================================
@@ -790,7 +857,9 @@
 
             let html = "";
             filtered.forEach((card, idx) => {
-                const docId = card.id || `temp-${idx}`;
+                // PHASE 2 FIX: Prefixing the Bookmark ID natively so the Dashboard recognizes it as Current Affairs!
+                const docId = card.id ? `daily_news_${card.id}` : `daily_news_temp-${idx}`;
+                
                 const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
                 const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
                 const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
@@ -820,7 +889,7 @@
                 }
 
                 html += `
-                    <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}">
+                    <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}" data-docid="${docId}">
                         <div class="flip-card-inner relative w-full transform-style-3d bg-transparent rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
                             
                             <!-- FRONT SIDE (TWO ZONES) -->
@@ -886,7 +955,8 @@
         window.flipCard = function(idx) { document.getElementById(`cardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180'); };
         
         window.handleOptionSelect = function(e, docId, uiIdx, selIdx, corIdx, encodedExp) {
-            if(!requireLogin(e)) return; 
+            // PHASE 1 FIX: Removed `requireLogin(e)` check. Quizzes are now 100% Free for Guests!
+            
             const container = document.getElementById(`mcqOptions-${uiIdx}`); 
             const buttons = container.querySelectorAll(`button`); 
             const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); 
@@ -919,6 +989,9 @@
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
             
+            // PHASE 2: Silently track their progression 
+            updateLocalStudyTracker(true);
+            
             const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
             btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
             
@@ -950,7 +1023,6 @@
         let currentCompId = null;
 
         async function loadCompilationShelf(cadence) {
-            
             if (cadence === 'weekly' || cadence === 'special') {
                 const btnW = document.getElementById('btnShelfWeekly');
                 const btnS = document.getElementById('btnShelfSpecial');
@@ -1006,7 +1078,6 @@
                 });
                 shelfGrid.innerHTML = html;
             } catch (err) { 
-                console.warn(err); 
                 shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
             }
         }
@@ -1098,7 +1169,9 @@
             if (compilationMode === 'flip') {
                 batch.forEach((card, bIdx) => {
                     const idx = startIndex + bIdx;
-                    const docId = card.id || `comp-${idx}`;
+                    // PHASE 2 FIX: Prefixing Compilation ID natively
+                    const docId = card.id ? `comp_${card.id}` : `comp_temp-${idx}`;
+                    
                     const displayCat = (currentLang === 'hi' && card.category_hi) ? card.category_hi : card.category;
                     const displaySub = (currentLang === 'hi' && card.subCategory_hi) ? card.subCategory_hi : card.subCategory;
                     const displayHeadline = (currentLang === 'hi' && card.oneLiner_hi) ? card.oneLiner_hi : card.oneLiner;
@@ -1124,7 +1197,7 @@
                     }
 
                     html += `
-                    <div class="perspective-1000 w-full transition-all duration-300" id="compCardContainer-${idx}">
+                    <div class="perspective-1000 w-full transition-all duration-300" id="compCardContainer-${idx}" data-docid="${docId}">
                         <div class="flip-card-inner relative w-full transform-style-3d glass-card rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
                             <div class="flip-card-front flex flex-col justify-between min-h-[420px] max-h-[540px]">
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-6 md:p-8 pb-2">
@@ -1187,12 +1260,13 @@
                 const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
                 batch.forEach((card, bIdx) => {
                     const idx = startIndex + bIdx;
+                    const docId = card.id ? `comp_${card.id}` : `comp_temp-${idx}`;
                     const mcqData = (currentLang === 'hi' && card.mcq_hi) ? card.mcq_hi : card.mcq;
                     const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
                     const correctIdx = Number(mcqData?.correctIndex) || 0;
                     
                     html += `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm" id="quizCard-${idx}">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm" id="quizCard-${idx}" data-docid="${docId}">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-[10px] font-black uppercase text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Q${idx + 1}</span>
                         </div>
@@ -1231,7 +1305,7 @@
         }
 
         window.handleCompFlipAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
-            if(!requireLogin(e)) return; 
+            // PHASE 1 FIX: Unlocked
             const container = document.getElementById(`compMcqOptions-${uiIdx}`); 
             const buttons = container.querySelectorAll(`button`); 
             const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`); 
@@ -1251,6 +1325,9 @@
                 feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-1.5 items-start block";
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${escapeHtml(decodeURIComponent(encodedExp))}`;
             }
+            
+            // PHASE 2: Track Streak
+            updateLocalStudyTracker(false);
             
             const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
             btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
@@ -1275,7 +1352,7 @@
         };
 
         window.handleCompQuizAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
-            if(!requireLogin(e)) return; 
+            // PHASE 1 FIX: Unlocked
             const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
             if(btns[0].disabled) return;
             btns.forEach(b => b.disabled = true);
@@ -1288,6 +1365,10 @@
             localStorage.setItem(`quiz_prog_${currentCompId}`, JSON.stringify(saved));
             
             document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
+            
+            // PHASE 2: Track Streak
+            updateLocalStudyTracker(false);
+            
             restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp);
         };
 
@@ -1399,7 +1480,79 @@
             }).save();
         };
         
-        document.addEventListener('DOMContentLoaded', () => loadNewsForDate(selectedDateStr));
+        // ==========================================
+        // PHASE 4: URL DEEP-LINK HIGHLIGHTING
+        // ==========================================
+        window.scrollToAndHighlight = function(bkmkParam, isComp = false) {
+            const cardEl = document.querySelector(`[data-docid='${bkmkParam}']`);
+            if (cardEl) {
+                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                let targetSurface = cardEl;
+                if (isComp) {
+                    targetSurface = cardEl.querySelector('.glass-card') || cardEl;
+                } else {
+                    targetSurface = cardEl.querySelector('.flip-card-front') || cardEl;
+                }
+                
+                const originalShadow = targetSurface.style.boxShadow;
+                targetSurface.style.boxShadow = "0 0 0 4px #6366f1, 0 10px 40px -10px rgba(99, 102, 241, 0.5)";
+                targetSurface.style.transition = "box-shadow 0.5s ease";
+                
+                const flipInner = cardEl.querySelector('.flip-card-inner');
+                if(flipInner && !isComp) flipInner.classList.add('rotate-y-180');
+                
+                setTimeout(() => {
+                    targetSurface.style.boxShadow = originalShadow || '';
+                }, 3000);
+            }
+        };
+
+        // ==========================================
+        // SMART INITIALIZATION & ROUTER
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            setLanguage(currentLang);
+            const bkmkParam = urlParams.get('bookmark');
+
+            if (bkmkParam) {
+                if (bkmkParam.startsWith('daily_news_')) {
+                    const docIdRaw = bkmkParam.replace('daily_news_', '');
+                    try {
+                        const doc = await db.collection('daily_news').doc(docIdRaw).get();
+                        if (doc.exists && doc.data().date) {
+                            selectedDateStr = doc.data().date;
+                            dateInput.value = selectedDateStr;
+                            window.history.replaceState({}, '', `?date=${selectedDateStr}&bookmark=${bkmkParam}`);
+                        }
+                    } catch(e) {}
+                    await loadNewsForDate(selectedDateStr);
+                    setTimeout(() => scrollToAndHighlight(bkmkParam, false), 500);
+                } else if (bkmkParam.startsWith('comp_')) {
+                    const docIdRaw = bkmkParam.replace('comp_', '');
+                    try {
+                        const doc = await db.collection('ca_drills').doc(docIdRaw).get();
+                        if (doc.exists) {
+                            const data = doc.data();
+                            const cadence = data.cadence;
+                            const compDate = data.date;
+                            
+                            if (cadence === 'weekly' || cadence === 'special') document.getElementById('tabWeekly').click();
+                            if (cadence === 'monthly') document.getElementById('tabMonthly').click();
+                            
+                            setTimeout(() => {
+                                openCompilation(compDate);
+                                setTimeout(() => scrollToAndHighlight(bkmkParam, true), 800);
+                            }, 1000);
+                        } else { await loadNewsForDate(selectedDateStr); }
+                    } catch(e) { await loadNewsForDate(selectedDateStr); }
+                } else {
+                    await loadNewsForDate(selectedDateStr);
+                }
+            } else {
+                await loadNewsForDate(selectedDateStr);
+            }
+        });
     </script>
 
     <!-- STENOGYM FLOATING ASSISTIVE WIDGET -->
