@@ -19,14 +19,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     
-    <!-- Firebase & PDF SDKs -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-    <!-- Link to Base64 logo asset -->
-    <script src="logo.js"></script>
+    
+    <!-- HEAVY ASSETS DEFERRED FOR MOBILE PERFORMANCE -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script defer src="logo.js"></script>
 
     <style>
         .perspective-1000 { perspective: 1000px; } 
@@ -746,16 +746,29 @@
             document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
         }
 
-        // OPTIMIZED INSTANT FETCHER (ZERO HANGS, CLEAN STRING MATCH)
+        // MOBILE-SAFE FETCHER WITH ANTI-HANG TIMEOUT
         async function fetchDailyNews(dateStr) {
             const cleanDate = (dateStr || '').trim();
+            
+            // Create a 3.5-second ticking clock
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("MOBILE_CACHE_HANG")), 3500)
+            );
+
             try {
-                return await db.collection("daily_news").where("date", "==", cleanDate).get();
+                // Race the Firebase query against the 3.5-second clock
+                return await Promise.race([
+                    db.collection("daily_news").where("date", "==", cleanDate).get(),
+                    timeoutPromise
+                ]);
             } catch(e) {
-                console.warn("Direct fetch warning, attempting reconnect:", e);
+                console.warn("Mobile cache frozen or network slow. Forcing server bypass...", e);
                 try {
-                    return await db.collection("daily_news").where("date", "==", cleanDate).get();
+                    // If the mobile cache is locked, { source: 'server' } forces it to bypass 
+                    // the frozen phone memory and fetch directly from the internet.
+                    return await db.collection("daily_news").where("date", "==", cleanDate).get({ source: 'server' });
                 } catch(err2) {
+                    console.error("Total fetch failure:", err2);
                     return { empty: true, forEach: () => {} };
                 }
             }
