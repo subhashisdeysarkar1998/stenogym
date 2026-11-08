@@ -12,7 +12,6 @@
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <!-- Link to our new Base64 logo asset -->
     <script src="logo.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
@@ -31,13 +30,11 @@
         .ql-editor { min-height: 250px; padding: 1.5rem; }
         .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
     </style>
-<!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH10S2KS46"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-HH10S2KS46');
 </script>
 </head>
@@ -124,7 +121,6 @@
                         </div>
                     </div>
 
-                    <!-- TOPIC METADATA SECTION -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 bg-slate-50 p-5 rounded-2xl border border-slate-200">
                         <div>
                             <label class="block text-xs font-black text-slate-600 uppercase tracking-wider mb-2">Subject Category</label>
@@ -147,7 +143,6 @@
                         </div>
                     </div>
 
-                    <!-- EDITOR VIEW TABS -->
                     <div class="flex gap-4 border-b border-slate-200 mb-6 overflow-x-auto hide-scrollbar">
                         <button onclick="switchGkEditor('notes')" id="btn-edit-notes" class="gk-tab-btn active pb-3 text-sm font-black text-indigo-600 whitespace-nowrap">📝 Master Cheat Sheet Notes</button>
                         <button onclick="switchGkEditor('flashcards')" id="btn-edit-flashcards" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">📇 Active Recall Flashcards (<span id="countGkFlashcards">0</span>)</button>
@@ -155,7 +150,6 @@
                         <button onclick="switchGkEditor('mcqs')" id="btn-edit-mcqs" class="gk-tab-btn pb-3 text-sm font-bold text-slate-500 whitespace-nowrap">⚡ Exam PYQ Drills (<span id="countGkMcqs">0</span>)</button>
                     </div>
 
-                    <!-- NOTES VIEW -->
                     <div id="editor-notes" class="grid grid-cols-1 xl:grid-cols-2 gap-8">
                         <div>
                             <div class="flex justify-between items-center mb-2">
@@ -174,7 +168,6 @@
                         <input type="file" id="globalImageUploader" accept="image/*" class="hidden">
                     </div>
 
-                    <!-- FLASHCARDS VIEW -->
                     <div id="editor-flashcards" class="hidden space-y-4">
                         <div id="flashcardsContainer" class="space-y-4"></div>
                         <button onclick="addFlashcardUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
@@ -182,7 +175,6 @@
                         </button>
                     </div>
 
-                    <!-- PRACTICE MOCK VIEW -->
                     <div id="editor-practice" class="hidden space-y-4">
                         <div id="practiceContainer" class="space-y-4"></div>
                         <button onclick="addPracticeUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
@@ -190,7 +182,6 @@
                         </button>
                     </div>
 
-                    <!-- MCQS / PYQ DRILL VIEW -->
                     <div id="editor-mcqs" class="hidden space-y-4">
                         <div id="mcqsContainer" class="space-y-4"></div>
                         <button onclick="addMcqUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
@@ -283,7 +274,6 @@
                     </div>
 
                     <div id="caDrillControls" class="hidden space-y-4">
-                        <!-- THE 2-WAY EDIT TOGGLE -->
                         <div class="flex gap-6 mb-2 border-b border-slate-100 pb-4">
                             <label class="flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition" id="lblDrillNew">
                                 <input type="radio" name="drillMode" value="new" checked onchange="toggleDrillMode(this.value)" class="accent-indigo-600"> ➕ Create New Drill
@@ -312,7 +302,6 @@
                             </div>
                         </div>
                         
-                        <!-- CREATE NEW BUTTONS -->
                         <div class="flex gap-2" id="drillActionBtnsNew">
                             <button onclick="ingestDrillFromClipboard()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
                                 <span>⚡</span> Ingest Drill from Clipboard
@@ -322,7 +311,6 @@
                             </button>
                         </div>
 
-                        <!-- EDIT EXISTING BUTTONS -->
                         <div class="flex gap-2 hidden" id="drillActionBtnsEdit">
                             <button onclick="fetchExistingDrill()" class="bg-amber-500 hover:bg-amber-400 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
                                 <span>📥</span> Fetch Drill
@@ -350,6 +338,7 @@
                             <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
                                 <span>⚡</span> Re-Translate
                             </button>
+                            <!-- RESTORED DAILY PDF BUTTON -->
                             <button onclick="generateStagedPDF()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
                                 <span>📄</span> Generate Watermarked PDF
                             </button>
@@ -360,17 +349,11 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2" id="stagingCategoryPills"></div>
-                    <!-- NEW TELEGRAM CHEAT SHEET CONTROLS -->
                     <div class="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50 flex flex-wrap items-end gap-4 shadow-sm">
                         <div>
                             <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Cheat Sheet Category</label>
                             <select id="pdfCategoryFilter" class="bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-indigo-500">
-                                <option value="all">All Categories</option>
-                                <option value="National Appointments">National Appointments</option>
-                                <option value="Sports & Tournaments">Sports & Tournaments</option>
-                                <option value="Banking & Economy">Banking & Economy</option>
-                                <option value="Awards & Honours">Awards & Honours</option>
-                                <option value="Books & Authors">Books & Authors</option>
+                                <!-- Will be dynamically populated by JS below -->
                             </select>
                         </div>
                         <button onclick="generateCheatSheetPDF()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-md transition flex items-center gap-2">
@@ -732,7 +715,7 @@
                 <button onclick="closeGKPasteModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
             </div>
             <div class="p-6">
-                <textarea id="rawGkJsonInput" rows="12" placeholder="Paste the complete Static GK Topic JSON (notes, flashcards, practiceQs, mcqs) here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
+                <textarea id="rawGkJsonInput" rows="12" placeholder="Paste the complete Static GK Topic JSON here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
             </div>
             <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
                 <button onclick="closeGKPasteModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
@@ -933,19 +916,13 @@
         // PDF SMART HIGHLIGHTING UTILITY
         function formatPDFText(str) {
             if(!str) return "";
-            let clean = escapeHtml(str); // Sanitize HTML first to prevent code injection
+            let clean = escapeHtml(str); 
             
-            // 1. Convert AI Bold into temporary placeholders
             clean = clean.replace(/\*\*(.*?)\*\*/g, '$$B$$$1$$/B$$');
-            
-            // 2. Safely highlight Keywords and Numbers (because all HTML tags were stripped)
             clean = clean.replace(/\b(First|Highest|Gold|Silver|Bronze|Winner|Champion|Top|Largest|Maiden)\b/gi, '$$G$$$1$$/G$$');
-            clean = clean.replace(/\b(\d+(?:-\d+)?(?:st|nd|rd|th)?)\b/g, '$$R$$$1$$/R$$');
             
-            // 3. Convert placeholders into actual CSS spans
             clean = clean.replace(/\$\$B\$\$(.*?)\$\$\/B\$\$/g, '<span style="background-color: #fef08a; padding: 1px 4px; border-radius: 4px; font-weight: 900; color: #0f172a;">$1</span>');
             clean = clean.replace(/\$\$G\$\$(.*?)\$\$\/G\$\$/g, '<span style="color: #059669; font-weight: 900;">$1</span>');
-            clean = clean.replace(/\$\$R\$\$(.*?)\$\$\/R\$\$/g, '<span style="color: #e11d48; font-weight: 900;">$1</span>');
             
             return clean;
         }
@@ -954,16 +931,13 @@
         /* 2. TRANSLATION ENGINE & QUILL EDITORS                     */
         /* ========================================================= */
         
-        // Helper function to force a pause and prevent Google IP Bans
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         async function translateEnToHi(text) {
             if (!text || text.trim() === "") return "";
             
-            // Throttle: Wait 300ms before every single request
             await delay(300); 
 
-            // If text is short, safely encode all symbols and translate
             if (text.length < 1200) {
                 try {
                     const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(text)}`);
@@ -973,10 +947,7 @@
                     console.error("Translation Error:", e); 
                     return ""; 
                 }
-            } 
-            // If text is huge (Blog Post), split it into safe chunks
-            else {
-                // Split safely by paragraphs, line breaks, or list items
+            } else {
                 let chunks = text.split(/(<\/p>|<br>|<\/h[1-6]>|<\/li>)/gi);
                 let translatedText = "";
                 
@@ -992,7 +963,7 @@
                             const data = await res.json();
                             translatedText += data[0].map(item => item[0]).join('');
                         } catch (e) { 
-                            translatedText += ""; // Strict Hindi isolation, fallback to empty string
+                            translatedText += ""; 
                         }
                     }
                 }
@@ -1006,7 +977,6 @@
         window.quillBlogEn = new Quill('#quillBlogEn', { ...qOptions, placeholder: 'Write English article...' });
         window.quillBlogHi = new Quill('#quillBlogHi', { ...qOptions, placeholder: 'यहाँ हिंदी लेख लिखें...' });
         
-        // New Modals Quills
         window.quillEditBlogEn = new Quill('#quillEditBlogEn', { ...qOptions, placeholder: 'Edit English article...' });
         window.quillEditBlogHi = new Quill('#quillEditBlogHi', { ...qOptions, placeholder: 'हिंदी लेख संपादित करें...' });
 
@@ -1105,7 +1075,6 @@
 
                 const data = JSON.parse(clean);
 
-                // Auto-fill subject & title
                 if (data.subjectKey) {
                     const subjSelect = document.getElementById('gkSubject');
                     if (subjSelect.querySelector(`option[value="${data.subjectKey}"]`)) {
@@ -1115,7 +1084,6 @@
                 if (data.topicTitle) document.getElementById('gkTopicTitle').value = data.topicTitle;
                 if (data.topicTitle_hi) document.getElementById('gkTopicTitle_hi').value = data.topicTitle_hi;
 
-                // Notes
                 if (data.notesHtml || data.notes) {
                     window.quillGkEn.clipboard.dangerouslyPasteHTML(data.notesHtml || data.notes);
                 }
@@ -1123,7 +1091,6 @@
                     window.quillGkHi.clipboard.dangerouslyPasteHTML(data.notesHtml_hi || data.notes_hi);
                 }
 
-                // Flashcards
                 if (Array.isArray(data.flashcards) && data.flashcards.length > 0) {
                     document.getElementById('flashcardsContainer').innerHTML = "";
                     const hiCards = Array.isArray(data.flashcards_hi) ? data.flashcards_hi : [];
@@ -1133,7 +1100,6 @@
                     });
                 }
                 
-                // Practice Questions
                 if (Array.isArray(data.practiceQs) && data.practiceQs.length > 0) {
                     document.getElementById('practiceContainer').innerHTML = "";
                     const hiPracs = Array.isArray(data.practiceQs_hi) ? data.practiceQs_hi : [];
@@ -1146,7 +1112,6 @@
                     });
                 }
 
-                // MCQs / PYQs
                 if (Array.isArray(data.mcqs) && data.mcqs.length > 0) {
                     document.getElementById('mcqsContainer').innerHTML = "";
                     const hiMcqs = Array.isArray(data.mcqs_hi) ? data.mcqs_hi : [];
@@ -1609,7 +1574,7 @@
                 margin: 0.4,
                 filename: `Stenogym_${topicTitle.replace(/[^a-zA-Z0-9]/g, '_')}_Revision.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
+                html2canvas: { scale: 1, useCORS: true },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
             
@@ -1823,10 +1788,12 @@
             closePasteModal();
         };
 
+        // FIXED 1: DESTROYS TAGS IMMEDIATELY UPON INGESTION
         function parseAndStagePayload(rawText) {
             try {
-                // REGEX CLEANER: Strips all citation patterns and bracket annotations
+                // Wipe Citations AND $R$/$G$ Tags globally before parsing
                 rawText = rawText.replace(/\[cite:[^\]]*\]/g, "").replace(/\[\d+\]/g, "");
+                rawText = rawText.replace(/\$[RG]\$/g, "").replace(/\$\/[RG]\$/g, "");
 
                 let clean = rawText.trim();
                 const start = clean.indexOf('[');
@@ -1837,7 +1804,6 @@
                 const cards = Array.isArray(parsed) ? parsed : (parsed.news || parsed.data || Object.values(parsed)[0]);
                 if (!Array.isArray(cards) || cards.length === 0) throw new Error("Invalid format: expected array of cards.");
 
-                // DATE GUARD LAYER 1: Mismatch Pre-Check
                 const isDaily = currentCACadence === 'daily';
                 const activeTarget = isDaily 
                     ? document.getElementById('caTargetDate').value 
@@ -1850,7 +1816,6 @@
                     return;
                 }
 
-                // APPEND ENGINE: Stacks new batches instead of overwriting existing cards
                 window.stagedNewsItems = [...window.stagedNewsItems, ...cards];
                 renderStagingCards();
             } catch (err) { alert("Failed to ingest payload: " + err.message); }
@@ -1860,13 +1825,23 @@
             document.getElementById('caStagingArea').classList.remove('hidden');
             document.getElementById('stagedCount').textContent = window.stagedNewsItems.length;
 
-            const categories = Array.from(new Set(window.stagedNewsItems.map(i => i.category || 'General')));
+            const categories = Array.from(new Set(window.stagedNewsItems.map(i => i.category || 'General'))).sort();
+            
             const pillsContainer = document.getElementById('stagingCategoryPills');
             pillsContainer.innerHTML = `<button onclick="setStagingFilter('all')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">All (${window.stagedNewsItems.length})</button>`;
             categories.forEach(cat => {
                 const count = window.stagedNewsItems.filter(i => (i.category || 'General') === cat).length;
                 pillsContainer.innerHTML += `<button onclick="setStagingFilter('${cat}')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === cat ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">${cat} (${count})</button>`;
             });
+
+            // FIXED 2: DYNAMIC PDF DROPDOWN UPDATES AUTOMATICALLY
+            const pdfDropdown = document.getElementById('pdfCategoryFilter');
+            if (pdfDropdown) {
+                pdfDropdown.innerHTML = `<option value="all">All Categories (Multi-Part Recommended)</option>`;
+                categories.forEach(cat => {
+                    pdfDropdown.innerHTML += `<option value="${cat}">${cat}</option>`;
+                });
+            }
 
             const list = document.getElementById('caCardsContainer');
             list.innerHTML = "";
@@ -1965,221 +1940,322 @@
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
-        // BRANDED CURRENT AFFAIRS PDF GENERATOR (WITH INDEX & FORENSICS)
+        // FIXED 3: RESTORED GENERATE DAILY DIGEST PDF FUNCTION
         window.generateStagedPDF = function() {
-            const cardEls = document.querySelectorAll('.ca-staged-card');
-            if (cardEls.length === 0) return alert("No cards in staging to generate PDF.");
-            
-            const isDaily = currentCACadence === 'daily';
-            const dateStr = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
-            const cadenceSelect = document.getElementById('drillCadenceType').value;
-            
-            let pdfTitle = "Daily Current Affairs Digest";
-            if (!isDaily) {
-                if(cadenceSelect === 'monthly') pdfTitle = "Monthly Mega Mock";
-                else if(cadenceSelect === 'special') pdfTitle = "Special Topic Compilation";
-                else pdfTitle = "Weekly Speed Drill";
+            if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
+                return alert("No cards in staging area. Please ingest data first.");
             }
-            
-            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
-            
-            // 1. Extract Data from DOM to Group It
-            const editedCards = [];
-            cardEls.forEach((el) => {
-                const dtVal = el.querySelector('.ca-dataTable')?.value;
-                editedCards.push({
-                    cat: el.querySelector('.ca-cat').value,
-                    oneLiner: el.querySelector('.ca-en-h').value,
-                    bullets: el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b),
-                    stFacts: el.querySelector('.ca-en-st').value,
-                    q: el.querySelector('.ca-mcq-en-q').value,
-                    opts: [
-                        el.querySelector('.ca-mcq-en-o0').value, 
-                        el.querySelector('.ca-mcq-en-o1').value, 
-                        el.querySelector('.ca-mcq-en-o2').value, 
-                        el.querySelector('.ca-mcq-en-o3').value
-                    ],
-                    ansIdx: parseInt(el.querySelector('.ca-mcq-ans').value) || 0,
-                    exp: el.querySelector('.ca-mcq-en-exp').value,
-                    dataTable: dtVal ? JSON.parse(dtVal) : null
-                });
-            });
-
-            // Group by Category
-            const grouped = {};
-            editedCards.forEach(c => {
-                if(!grouped[c.cat]) grouped[c.cat] = [];
-                grouped[c.cat].push(c);
-            });
-
-            // 2. Build the HTML Document
-            let content = `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
-                <style>
-                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                    .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
-                    .ca-pdf-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
-                    .ca-pdf-card { border: 1px solid #e2e8f0; margin-bottom: 18px; padding: 16px; border-radius: 10px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-                    .ca-pdf-header { font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px; line-height: 1.4; }
-                    .ca-pdf-bullets { margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155; }
-                    .ca-pdf-static { background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600; }
-                    .ca-pdf-mcq { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px 14px; border-radius: 6px; font-size: 11px; }
-                    .ca-pdf-footer { margin-top: 30px; padding-top: 12px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; font-weight: 700; color: #64748b; }
-                    .ca-pdf-section-break { page-break-before: always; }
-                    .ca-pdf-section-banner { background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; padding: 16px 20px; border-radius: 10px; margin: 20px 0; font-weight: 900; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); display: flex; justify-content: space-between; align-items: center; }
-                    .ca-index-box { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
-                    .ca-index-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; font-size: 13px; font-weight: 700; color: #334155; }
-                    .ca-index-row:last-child { border-bottom: none; }
-                    .ca-micro-canary { font-size: 1px; color: transparent; user-select: text; opacity: 0.01; height: 1px; overflow: hidden; display: block; }
-                </style>
-                
-                <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
-                
-                <div class="ca-pdf-banner">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;">` : ''}
-                        <div>
-                            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
-                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">${formatPDFText(pdfTitle)}</div>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">
-                            📅 ${formatPDFText(dateStr)} &bull; ${editedCards.length} Total Cards
-                        </div>
-                    </div>
-                </div>`;
-
-            // 3. TABLE OF CONTENTS INDEX
-            if (!isDaily || Object.keys(grouped).length > 1) {
-                content += `
-                <div class="ca-index-box">
-                    <h2 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Document Index</h2>`;
-                
-                Object.keys(grouped).forEach(cat => {
-                    content += `<div class="ca-index-row"><span>📁 ${formatPDFText(cat)}</span><span>${grouped[cat].length} Questions</span></div>`;
-                });
-                
-                content += `</div>`;
-            }
-
-            // 4. LOOP CATEGORIES AND CARDS
-            Object.keys(grouped).forEach((cat, index) => {
-                
-                if(!isDaily || index > 0 || Object.keys(grouped).length > 1) {
-                    content += `<div class="ca-pdf-section-break"></div>`;
-                }
-                
-                content += `
-                <div class="ca-pdf-section-banner">
-                    <span>📁 ${formatPDFText(cat)}</span>
-                    <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">${grouped[cat].length} Cards</span>
-                </div>`;
-                
-                grouped[cat].forEach((card, i) => {
-                    content += `<div class="ca-pdf-card">`;
-                    content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${formatPDFText(cat)}</div>`;
-                    
-                    content += `<div class="ca-pdf-header">${formatPDFText(card.oneLiner)}</div>`;
-                    
-                    if(card.bullets.length > 0) {
-                        content += `<ul class="ca-pdf-bullets">` + card.bullets.map(b => `<li>${formatPDFText(b)}</li>`).join('') + `</ul>`;
-                    }
-                    
-                    if(card.dataTable && Array.isArray(card.dataTable) && card.dataTable.length > 0) {
-                        content += `<table style="width: 100%; border-collapse: collapse; margin-top: 12px; margin-bottom: 16px; font-size: 11px; background: white; border: 1px solid #e2e8f0;">`;
-                        card.dataTable.forEach((row, rIdx) => {
-                            const bg = rIdx === 0 ? '#4f46e5' : (rIdx % 2 === 0 ? '#f8fafc' : '#ffffff');
-                            const textColor = rIdx === 0 ? '#ffffff' : '#334155';
-                            const fw = rIdx === 0 ? '900' : '600';
-                            
-                            content += `<tr style="background: ${bg}; color: ${textColor}; border-bottom: 1px solid #e2e8f0;">`;
-                            Object.values(row).forEach(val => {
-                                content += `<td style="padding: 8px 12px; font-weight: ${fw};">${formatPDFText(val)}</td>`;
-                            });
-                            content += `</tr>`;
-                        });
-                        content += `</table>`;
-                    }
-
-                    if(card.stFacts) content += `<div class="ca-pdf-static">🧠 <strong>Static Context:</strong> ${formatPDFText(card.stFacts)}</div>`;
-                    
-                    if(card.q) {
-                        content += `
-                        <div class="ca-pdf-mcq">
-                            <strong>Exam Drill:</strong> ${formatPDFText(card.q)}<br>
-                            <div style="margin: 4px 0; color: #065f46; font-weight: bold;">
-                                Ans: Option ${String.fromCharCode(65 + card.ansIdx)} (${formatPDFText(card.opts[card.ansIdx])})
-                            </div>
-                            <div style="font-size: 10px; color: #475569;"><em>${formatPDFText(card.exp)}</em></div>
-                            <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
-                        </div>`;
-                    }
-                    content += `</div>`;
-                });
-            });
-
-            // Teaser Hook added for Mega Mocks to drive Website Traffic
-            if (!isDaily) {
-                content += `
-                <div style="margin-top: 40px; background: #f0fdf4; border: 2px dashed #22c55e; padding: 24px; border-radius: 12px; text-align: center;">
-                    <h3 style="margin-top: 0; color: #166534; font-size: 18px; font-weight: 900;">🧠 Ready to test your memory?</h3>
-                    <p style="color: #15803d; font-size: 12px; font-weight: bold; margin-bottom: 16px;">Take the fully interactive, 50-Question Mega Mock Test on Stenogym to secure your rank!</p>
-                    <a style="display: inline-block; background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 900; font-size: 14px;">Take Live Mega Mock on Stenogym</a>
-                </div>`;
-            }
-
-            content += `
-                <div class="ca-pdf-footer">
-                    Exclusive Exam Digest by STENOGYM &bull; Join Telegram Channel: t.me/stenogym &bull; All Rights Reserved
-                </div>
-            </div>`;
-            
-            const element = document.createElement('div'); element.innerHTML = content;
-            
-            const finalFilename = `Stenogym_${pdfTitle.replace(/\s+/g, '_')}_${dateStr}.pdf`;
-            
-            const opt = { 
-                margin: 0.4, 
-                filename: finalFilename, 
-                image: { type: 'jpeg', quality: 0.98 }, 
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
-            };
-            
             const btn = document.querySelector('button[onclick="generateStagedPDF()"]');
             const origText = btn.innerHTML;
-            btn.innerHTML = "Generating..."; btn.disabled = true;
+            btn.innerHTML = "Generating PDF..."; btn.disabled = true;
+            
+            const isDaily = currentCACadence === 'daily';
+            const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+            
+            const formatHighlight = (text) => {
+                if(!text) return "";
+                let safeText = escapeHtml(text);
+                return safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
+            };
+
+            const groupedData = window.stagedNewsItems.reduce((acc, item) => {
+                const c = item.category || "General";
+                if(!acc[c]) acc[c] = [];
+                acc[c].push(item);
+                return acc;
+            }, {});
+
+            let htmlContent = `
+            <div style="font-family: 'Segoe UI', Roboto, sans-serif; width: 100%; box-sizing: border-box; background-color: #ffffff; position: relative;">
+                <div style="padding: 40px; page-break-after: always;">
+                    <div style="text-align: center; margin-bottom: 30px;">
+                        <h1 style="color: #0f172a; font-size: 32px; font-weight: 900; margin: 0; letter-spacing: 2px;">STENOGYM</h1>
+                        <h2 style="color: #e11d48; font-size: 16px; font-weight: 900; margin: 5px 0;">DAILY CURRENT AFFAIRS DIGEST</h2>
+                        <div style="background-color: #f1f5f9; display: inline-block; padding: 8px 20px; border-radius: 20px; margin-top: 15px; font-weight: bold; font-size: 14px; color: #334155;">
+                            ${targetDate} &bull; ${window.stagedNewsItems.length} Total Cards
+                        </div>
+                    </div>
+                    <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px;">
+                        <h3 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">DOCUMENT INDEX</h3>
+            `;
+            for (let cat in groupedData) {
+                htmlContent += `<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; font-weight: 700; color: #334155;"><span>📁 ${escapeHtml(cat)}</span><span>${groupedData[cat].length} Questions</span></div>`;
+            }
+            htmlContent += `</div></div>`;
+
+            for (let cat in groupedData) {
+                htmlContent += `
+                <div style="padding: 40px; page-break-before: always;">
+                    <div style="background: #0f172a; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
+                        <h2 style="margin: 0; font-size: 20px; font-weight: 900; text-transform: uppercase;">${escapeHtml(cat)}</h2>
+                        <span style="font-size: 14px; font-weight: bold; background: #e11d48; padding: 4px 10px; border-radius: 6px;">${groupedData[cat].length} CARDS</span>
+                    </div>`;
+
+                groupedData[cat].forEach((card, index) => {
+                    const bullets = (card.contextBullets || []).map(b => `<li style="margin: 6px 0; padding-left: 5px;">${formatHighlight(b)}</li>`).join('');
+                    const staticFacts = card.staticBox?.facts ? `<div style="background: #f8fafc; border-left: 4px solid #94a3b8; padding: 10px 14px; font-size: 12px; color: #475569; margin: 12px 0 16px 0; font-weight: 600;"><strong>Static Context:</strong> ${formatHighlight(card.staticBox.facts)}</div>` : '';
+                    let mcqHtml = '';
+                    if (card.mcq && card.mcq.question) {
+                        const ansChar = String.fromCharCode(65 + (card.mcq.correctIndex || 0));
+                        const ansText = card.mcq.options ? card.mcq.options[card.mcq.correctIndex || 0] : '';
+                        mcqHtml = `
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-top: 16px;">
+                            <div style="font-size: 13px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px;">Exam Drill: ${formatHighlight(card.mcq.question)}</div>
+                            <div style="font-size: 12.5px; font-weight: 700; color: #047857; margin-bottom: 8px;">Ans: Option ${ansChar} (${formatHighlight(ansText)})</div>
+                            <div style="font-size: 12px; color: #334155; line-height: 1.5;"><strong>Core Concept:</strong> ${formatHighlight(card.mcq.explanation)}</div>
+                        </div>`;
+                    }
+                    htmlContent += `
+                        <div style="margin-bottom: 35px; page-break-inside: avoid;">
+                            <h3 style="font-size: 15px; font-weight: 900; color: #e11d48; margin: 0 0 10px 0; text-transform: uppercase;">#${index + 1} ${escapeHtml(cat)}</h3>
+                            <div style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.5;">${formatHighlight(card.oneLiner)}</div>
+                            <ul style="font-size: 13.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 20px; list-style-type: disc;">${bullets}</ul>
+                            ${staticFacts}
+                            ${mcqHtml}
+                        </div>`;
+                });
+                htmlContent += `</div>`;
+            }
+            htmlContent += `</div>`;
+
+            const element = document.createElement('div');
+            element.innerHTML = htmlContent;
+            
+            // FIXED 2: Scale changed from 1.5 to 1.0 for perfect crisp margins
+            const opt = {
+                margin: [0, 0, 0.4, 0], 
+                filename: `Stenogym_Daily_Digest_${targetDate}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                html2canvas: { scale: 1, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
 
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                pdf.setProperties({
-                    title: finalFilename,
-                    subject: 'Verified Exam Digest',
-                    author: 'Stenogym Content Bureau',
-                    keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
-                    creator: 'Stenogym Forensic Engine v2.0'
-                });
-
-                if (logoDataUrl) {
-                    const totalPages = pdf.internal.getNumberOfPages();
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    const imgSize = 4;
-                    for (let i = 1; i <= totalPages; i++) {
-                        pdf.setPage(i);
+                // FIXED 1: Injected the watermark engine
+                const totalPages = pdf.internal.getNumberOfPages();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgSize = 4;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    
+                    if (logoDataUrl) {
                         try {
                             pdf.setGState(new pdf.GState({ opacity: 0.05 }));
                             pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
                             pdf.setGState(new pdf.GState({ opacity: 1.0 }));
                         } catch(e) {}
                     }
+                    
+                    pdf.setFontSize(9);
+                    pdf.setTextColor(100);
+                    const footerText = 'STENOGYM.COM • Official Telegram: t.me/stenogym';
+                    const pageText = 'Page ' + i + ' of ' + totalPages;
+                    pdf.text(footerText, 0.5, pageHeight - 0.2);
+                    pdf.text(pageText, pageWidth - 0.5 - (pdf.getStringUnitWidth(pageText) * 9 / 72), pageHeight - 0.2);
                 }
-            }).save().then(() => {
-                btn.innerHTML = origText; btn.disabled = false;
-            });
+            }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
         };
 
-        // NEW SMART BATCHING ENGINE: Sends one single request per card (Safeguards against Google API Blocks)
+        // FIXED 4: GENERATE CHEAT SHEET (FLEXBOX LAYOUT & SAFE LOOP)
+        window.generateCheatSheetPDF = function() {
+            if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
+                return alert("No cards in staging area. Please ingest JSON first.");
+            }
+
+            const catFilter = document.getElementById('pdfCategoryFilter').value;
+            let dataToPrint = window.stagedNewsItems;
+            if (catFilter !== 'all') {
+                dataToPrint = dataToPrint.filter(item => (item.category || "General") === catFilter);
+            }
+
+            if (dataToPrint.length === 0) return alert("No items match the selected category.");
+
+            const btn = document.querySelector('button[onclick="generateCheatSheetPDF()"]');
+            const origText = btn.innerHTML;
+            btn.innerHTML = "Generating PDF (Please Wait)..."; 
+            btn.disabled = true;
+
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+
+            try {
+                const formatHighlight = (text) => {
+                    if(!text) return "";
+                    let safeText = escapeHtml(text);
+                    return safeText.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
+                        const cleanStr = p1.trim();
+                        if (/^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr) || !isNaN(parseFloat(cleanStr))) {
+                            return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`; 
+                        }
+                        return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
+                    });
+                };
+
+                const deduplicatedData = [];
+                dataToPrint.forEach(card => {
+                    const isDuplicate = deduplicatedData.some(existing => {
+                        if (existing.category !== card.category || existing.subCategory !== card.subCategory) return false;
+                        const clean1 = (existing.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
+                        const clean2 = (card.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
+                        const words1 = clean1.split(/\s+/).filter(w => w.length > 3);
+                        const words2 = clean2.split(/\s+/).filter(w => w.length > 3);
+                        const overlap = words1.filter(w => words2.includes(w)).length;
+                        const matchRatio = overlap / Math.min(words1.length || 1, words2.length || 1);
+                        return matchRatio > 0.6;
+                    });
+                    if (!isDuplicate) deduplicatedData.push(card);
+                });
+
+                const groupedData = deduplicatedData.reduce((acc, item) => {
+                    const c = item.category || "General";
+                    if(!acc[c]) acc[c] = [];
+                    acc[c].push(item);
+                    return acc;
+                }, {});
+
+                const sortedCategories = Object.keys(groupedData).sort();
+                sortedCategories.forEach(category => {
+                    groupedData[category].sort((a, b) => {
+                        const subA = (a.subCategory || "").toLowerCase();
+                        const subB = (b.subCategory || "").toLowerCase();
+                        if (subA < subB) return -1;
+                        if (subA > subB) return 1;
+                        return 0;
+                    });
+                });
+
+                const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
+                let htmlContent = `<div style="font-family: 'Segoe UI', Roboto, sans-serif; width: 100%; box-sizing: border-box; background-color: #ffffff;">`;
+
+                // TOC PAGE
+                htmlContent += `
+                    <div style="padding: 40px; page-break-after: always;">
+                        <div style="text-align: center; margin-bottom: 35px;">
+                            <div style="background: linear-gradient(135deg, #000000 40%, #ca8a04 100%); padding: 25px; border-radius: 12px 12px 0 0; border-bottom: 5px solid #4f46e5; width: 100%;">
+                                <h1 style="color: #ffffff; font-size: 30px; font-weight: 900; margin: 0; letter-spacing: 1.5px;">🏆 STENOGYM</h1>
+                                <h2 style="color: #fef08a; font-size: 14px; font-weight: 900; margin: 6px 0 0 0; text-transform: uppercase;">THE MASTER CHEAT SHEET 2026</h2>
+                            </div>
+                            <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-top: none; padding: 6px 20px; border-radius: 0 0 12px 12px; display: inline-block; font-size: 12px; font-weight: 900; color: #334155;">
+                                Target: SSC & Banking | ${deduplicatedData.length} Verified Facts
+                            </div>
+                        </div>
+                        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
+                            <h2 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Index</h2>
+                `;
+
+                sortedCategories.forEach(cat => {
+                    htmlContent += `<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; font-weight: 700; color: #334155;"><span>📁 ${escapeHtml(cat)}</span><span>${groupedData[cat].length} Cards</span></div>`;
+                });
+                htmlContent += `</div></div>`;
+
+                let colorIndex = 0;
+                sortedCategories.forEach((category) => {
+                    const items = groupedData[category];
+                    const catColor = themeColors[colorIndex % themeColors.length];
+                    let catEmoji = "📌";
+                    
+                    htmlContent += `
+                    <div style="padding: 40px 40px 10px 40px; page-break-inside: auto;">
+                        <h3 style="font-size: 18px; font-weight: 900; color: #${catColor}; text-transform: uppercase; margin: 0 0 16px 0; border-bottom: 3px solid #${catColor}; padding-bottom: 8px;">
+                            <span style="font-size: 20px; margin-right: 8px;">${catEmoji}</span> ${escapeHtml(category)} (TIER 1)
+                        </h3>
+                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: white;">
+                    `;
+
+                    items.forEach((item, index) => {
+                        const bgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+                        const borderBottom = index === items.length - 1 ? 'none' : '1px solid #cbd5e1';
+                        
+                        // FIXED 3: Perfected Flexbox padding so labels don't get cut off or overlap
+                        htmlContent += `
+                            <div style="background-color: ${bgColor}; padding: 16px 20px; border-left: 5px solid #${catColor}; border-bottom: ${borderBottom}; page-break-inside: avoid; break-inside: avoid; display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: flex-end; width: 100%;">
+                                    <div style="background-color: #${catColor}; color: #ffffff; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;">
+                                        <span style="font-size: 14px;">${escapeHtml(item.emoji || '')}</span>
+                                        <span style="font-size: 11px; font-weight: 900; letter-spacing: 0.5px;">${escapeHtml(item.subCategory || 'NEWS').toUpperCase()}</span>
+                                    </div>
+                                </div>
+                                <div style="font-size: 14.5px; color: #1e293b; line-height: 1.6; text-align: left; font-weight: 500;">
+                                    ${formatHighlight(item.oneLiner || '')}
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    htmlContent += `</div></div>`;
+                    colorIndex++;
+                });
+
+                htmlContent += `
+                <div style="padding: 20px 40px 40px 40px; page-break-inside: avoid;">
+                    <div style="margin-top: 20px; padding: 24px; text-align: center; border: 1px solid #cbd5e1; background-color: #f8fafc; border-radius: 8px;">
+                        <div style="font-size: 16px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">Memory Check: Are you ready for the exam?</div>
+                        <div style="display: inline-block; background-color: #facc15; color: #000000; padding: 12px 24px; font-weight: 900; border-radius: 24px; font-size: 14px; border: 1px solid #000000;">
+                            📝 TAKE THE 50-MCQ MEGA MOCK TEST
+                        </div>
+                    </div>
+                </div></div>`;
+
+                const element = document.createElement('div');
+                element.innerHTML = htmlContent;
+
+                const opt = {
+                    margin: [0, 0, 0.4, 0], 
+                    filename: `Stenogym_Cheat_Sheet_${catFilter.replace(/\s+/g, '_')}.pdf`,
+                    image: { type: 'jpeg', quality: 0.95 }, 
+                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+                    html2canvas: { scale: 1, useCORS: true }, 
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgSize = 4;
+                    
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        
+                        if (logoDataUrl) {
+                            try {
+                                pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+                                pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
+                                pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+                            } catch(e) {}
+                        }
+                        
+                        pdf.setFontSize(9);
+                        pdf.setTextColor(100);
+                        const footerText = 'STENOGYM.COM • Official Telegram: t.me/stenogym';
+                        const pageText = 'Page ' + i + ' of ' + totalPages;
+                        
+                        pdf.setDrawColor(203, 213, 225); 
+                        pdf.line(0.5, pageHeight - 0.35, pageWidth - 0.5, pageHeight - 0.35);
+                        pdf.text(footerText, 0.5, pageHeight - 0.2);
+                        pdf.text(pageText, pageWidth - 0.5 - (pdf.getStringUnitWidth(pageText) * 9 / 72), pageHeight - 0.2);
+                    }
+                }).save().then(() => {
+                    btn.innerHTML = origText; 
+                    btn.disabled = false;
+                }).catch(err => {
+                    alert("PDF Engine Error: " + err.message);
+                    btn.innerHTML = origText; 
+                    btn.disabled = false;
+                });
+
+            } catch(e) {
+                alert("Processing Error: " + e.message);
+                btn.innerHTML = origText; 
+                btn.disabled = false;
+            }
+        };
+
+        // =========================================================================
+
         window.autoTranslateCA = async function() {
             const btn = document.getElementById('btnAutoTranslateCA'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
             try {
@@ -2198,14 +2274,12 @@
                     const mo3 = card.querySelector('.ca-mcq-en-o3').value;
                     const mexp = card.querySelector('.ca-mcq-en-exp').value;
 
-                    // Package everything into one safe string
                     const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
 
                     if (payload.trim() !== "") {
                         const translatedStr = await translateEnToHi(payload);
                         const parts = translatedStr.split(' ||| ');
 
-                        // Safely unpack the translated array directly into the input fields
                         card.querySelector('.ca-hi-cat').value = parts[0] ? parts[0].trim() : '';
                         card.querySelector('.ca-hi-h').value = parts[1] ? parts[1].trim() : '';
                         
@@ -2692,154 +2766,6 @@
             try { await addDoc(collection(db, "settings"), { bannerText: document.getElementById('bannerText').value.trim(), isActive: document.getElementById('bannerActive').checked, timestamp: serverTimestamp() }); alert("✅ Site Settings Updated Successfully!"); } 
             catch (err) { alert("Error updating settings: " + err.message); } finally { btnSave.innerHTML = `Update Settings`; btnSave.disabled = false; }
         });
-/* ========================================================= */
-        /* 9. TELEGRAM CHEAT SHEET PDF ENGINE (ULTIMATE VISUAL DESIGN)*/
-        /* ========================================================= */
-        window.generateCheatSheetPDF = function() {
-            if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
-                return alert("No cards in staging area. Please ingest JSON first.");
-            }
-
-            const catFilter = document.getElementById('pdfCategoryFilter').value;
-            let dataToPrint = window.stagedNewsItems;
-            if (catFilter !== 'all') {
-                dataToPrint = dataToPrint.filter(item => item.category === catFilter);
-            }
-
-            if (dataToPrint.length === 0) return alert("No items match the selected category.");
-
-            const btn = document.querySelector('button[onclick="generateCheatSheetPDF()"]');
-            const origText = btn.innerHTML;
-            btn.innerHTML = "Generating Masterpiece PDF..."; btn.disabled = true;
-
-            // Highlight Names in Premium Royal Blue, Numbers in Crimson Red
-            const formatHighlight = (text) => {
-                if(!text) return "";
-                let safeText = escapeHtml(text);
-                return safeText.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
-                    const cleanStr = p1.trim();
-                    if (/^[\₹\$€£]?[\d.,]+%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr)) {
-                        return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`;
-                    }
-                    return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`;
-                });
-            };
-
-            const groupedData = dataToPrint.reduce((acc, item) => {
-                const c = item.category || "General";
-                if(!acc[c]) acc[c] = [];
-                acc[c].push(item);
-                return acc;
-            }, {});
-
-            // Premium Color Palette for the Category Strips & Underlines (Indigo, Emerald Green, Amber, Violet, Rose)
-            const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
-
-            let htmlContent = `
-            <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; width: 100%; padding: 40px; box-sizing: border-box; background-color: #ffffff;">
-                
-                <!-- 1. GRADIENT MASTER HEADER WITH EMOJI & COLORED LINE -->
-                <div style="text-align: center; margin-bottom: 35px;">
-                    <div style="background: linear-gradient(135deg, #000000 40%, #ca8a04 100%); padding: 25px; border-radius: 12px 12px 0 0; border-bottom: 5px solid #4f46e5;">
-                        <h1 style="color: #ffffff; font-size: 30px; font-weight: 900; margin: 0; letter-spacing: 1.5px;">🏆 STENOGYM</h1>
-                        <h2 style="color: #fef08a; font-size: 14px; font-weight: 900; margin: 6px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">THE MASTER CHEAT SHEET OCT 2026</h2>
-                    </div>
-                    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-top: none; padding: 6px 20px; border-radius: 0 0 12px 12px; display: inline-block; font-size: 12px; font-weight: 900; color: #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                        Target: SSC & Banking
-                    </div>
-                </div>
-            `;
-
-            let colorIndex = 0;
-
-            for (const [category, items] of Object.entries(groupedData)) {
-                const catColor = themeColors[colorIndex % themeColors.length];
-                
-                // Assign a header emoji based on the category name
-                let catEmoji = "📌";
-                if(category.toLowerCase().includes('appointment')) catEmoji = "🤝";
-                else if(category.toLowerCase().includes('sport')) catEmoji = "🏅";
-                else if(category.toLowerCase().includes('bank') || category.toLowerCase().includes('econom')) catEmoji = "🏦";
-                else if(category.toLowerCase().includes('award')) catEmoji = "🏆";
-                else if(category.toLowerCase().includes('defence')) catEmoji = "⚔️";
-                else if(category.toLowerCase().includes('book')) catEmoji = "📖";
-
-                htmlContent += `
-                <div style="margin-bottom: 35px;">
-                    <!-- 2. CATEGORY HEADER WITH EMOJI & COLORED UNDERLINE -->
-                    <h3 style="font-size: 17px; font-weight: 900; color: #${catColor}; text-transform: uppercase; margin: 0 0 12px 0; border-bottom: 3px solid #${catColor}; padding-bottom: 6px;">
-                        <span style="font-size: 18px; margin-right: 6px;">${catEmoji}</span> ${escapeHtml(category)} (TIER 1)
-                    </h3>
-                    
-                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                `;
-
-                items.forEach((item, index) => {
-                    const bgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc'; // Zebra striping
-                    const isLast = index === items.length - 1;
-                    const borderBottom = isLast ? 'none' : '1px solid #cbd5e1';
-                    
-                    const formattedSentence = formatHighlight(item.oneLiner);
-                    const badgeText = escapeHtml(item.subCategory || 'NEWS').toUpperCase();
-                    const emoji = escapeHtml(item.emoji || '');
-
-                    htmlContent += `
-                        <!-- 3. BEAUTIFUL COLORED STRIP ON THE LEFT -->
-                        <div style="background-color: ${bgColor}; padding: 14px 18px; border-left: 5px solid #${catColor}; border-bottom: ${borderBottom}; page-break-inside: avoid;">
-                            
-                            <!-- 4. EMOJI BADGE -->
-                            <div style="float: right; background-color: #${catColor}; color: #ffffff; padding: 5px 12px; border-radius: 20px; margin-left: 15px; margin-bottom: 5px; display: inline-block;">
-                                <span style="font-size: 14px; vertical-align: middle; margin-right: 4px;">${emoji}</span>
-                                <span style="font-size: 10px; font-weight: 900; vertical-align: middle; letter-spacing: 0.5px;">${badgeText}</span>
-                            </div>
-                            
-                            <!-- 5. CONTINUOUS SENTENCE FLOW -->
-                            <div style="font-size: 14px; color: #1e293b; line-height: 1.6; text-align: left;">
-                                ${formattedSentence}
-                            </div>
-                            
-                            <div style="clear: both;"></div>
-                        </div>
-                    `;
-                });
-                
-                htmlContent += `
-                    </div>
-                </div>`;
-                colorIndex++; // Rotate to the next beautiful color for the next category
-            }
-
-            // Mega Mock Footer
-            htmlContent += `
-                <div style="margin-top: 30px; padding: 24px; text-align: center; border: 1px solid #cbd5e1; background-color: #f8fafc; border-radius: 8px; page-break-inside: avoid;">
-                    <div style="font-size: 15px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">Memory Check: Are you ready for the exam?</div>
-                    <div style="font-size: 12px; color: #475569; margin-bottom: 16px;">You've read the Cheat Sheet. Now, test your accuracy and speed.</div>
-                    <div style="display: inline-block; background-color: #facc15; color: #000000; padding: 10px 24px; font-weight: 900; border-radius: 24px; font-size: 13px; border: 1px solid #000000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        📝 TAKE THE 50-MCQ MEGA MOCK TEST
-                    </div>
-                </div>
-
-                <div style="text-align: center; font-size: 12px; font-weight: bold; color: #64748b; margin-top: 25px;">
-                    STENOGYM.COM • Official Telegram: t.me/stenogym
-                </div>
-            </div>
-            `;
-
-            const element = document.createElement('div');
-            element.innerHTML = htmlContent;
-
-            const opt = {
-                margin: 0,
-                filename: `Stenogym_Cheat_Sheet_${catFilter.replace(/\s+/g, '_')}.pdf`,
-                image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).toPdf().get('pdf').then(() => {
-                btn.innerHTML = origText; btn.disabled = false;
-            }).save();
-        };        
     </script>
 </body>
 </html>
