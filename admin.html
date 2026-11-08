@@ -14,6 +14,7 @@
     
     <!-- Link to our new Base64 logo asset -->
     <script src="logo.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
         .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
@@ -359,6 +360,23 @@
                     </div>
 
                     <div class="flex flex-wrap items-center gap-2" id="stagingCategoryPills"></div>
+                    <!-- NEW TELEGRAM CHEAT SHEET CONTROLS -->
+                    <div class="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50 flex flex-wrap items-end gap-4 shadow-sm">
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Cheat Sheet Category</label>
+                            <select id="pdfCategoryFilter" class="bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-indigo-500">
+                                <option value="all">All Categories</option>
+                                <option value="National Appointments">National Appointments</option>
+                                <option value="Sports & Tournaments">Sports & Tournaments</option>
+                                <option value="Banking & Economy">Banking & Economy</option>
+                                <option value="Awards & Honours">Awards & Honours</option>
+                                <option value="Books & Authors">Books & Authors</option>
+                            </select>
+                        </div>
+                        <button onclick="generateCheatSheetPDF()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-md transition flex items-center gap-2">
+                            📑 Generate Telegram Cheat Sheet
+                        </button>
+                    </div>
                     <div id="caCardsContainer" class="space-y-6"></div>
                 </div>
             </div>
@@ -912,16 +930,74 @@
 
         window.escapeHtml = (val) => { const d = document.createElement('div'); d.textContent = val ?? ''; return d.innerHTML; };
 
-        /* ========================================================= */
+        // PDF SMART HIGHLIGHTING UTILITY
+        function formatPDFText(str) {
+            if(!str) return "";
+            let clean = escapeHtml(str); // Sanitize HTML first to prevent code injection
+            
+            // 1. Convert AI Bold into temporary placeholders
+            clean = clean.replace(/\*\*(.*?)\*\*/g, '$$B$$$1$$/B$$');
+            
+            // 2. Safely highlight Keywords and Numbers (because all HTML tags were stripped)
+            clean = clean.replace(/\b(First|Highest|Gold|Silver|Bronze|Winner|Champion|Top|Largest|Maiden)\b/gi, '$$G$$$1$$/G$$');
+            clean = clean.replace(/\b(\d+(?:-\d+)?(?:st|nd|rd|th)?)\b/g, '$$R$$$1$$/R$$');
+            
+            // 3. Convert placeholders into actual CSS spans
+            clean = clean.replace(/\$\$B\$\$(.*?)\$\$\/B\$\$/g, '<span style="background-color: #fef08a; padding: 1px 4px; border-radius: 4px; font-weight: 900; color: #0f172a;">$1</span>');
+            clean = clean.replace(/\$\$G\$\$(.*?)\$\$\/G\$\$/g, '<span style="color: #059669; font-weight: 900;">$1</span>');
+            clean = clean.replace(/\$\$R\$\$(.*?)\$\$\/R\$\$/g, '<span style="color: #e11d48; font-weight: 900;">$1</span>');
+            
+            return clean;
+        }
+
+       /* ========================================================= */
         /* 2. TRANSLATION ENGINE & QUILL EDITORS                     */
         /* ========================================================= */
+        
+        // Helper function to force a pause and prevent Google IP Bans
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
         async function translateEnToHi(text) {
             if (!text || text.trim() === "") return "";
-            try {
-                const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURI(text)}`);
-                const data = await res.json();
-                return data[0].map(item => item[0]).join('');
-            } catch (e) { console.error("Translation Error:", e); return text; }
+            
+            // Throttle: Wait 300ms before every single request
+            await delay(300); 
+
+            // If text is short, safely encode all symbols and translate
+            if (text.length < 1200) {
+                try {
+                    const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(text)}`);
+                    const data = await res.json();
+                    return data[0].map(item => item[0]).join('');
+                } catch (e) { 
+                    console.error("Translation Error:", e); 
+                    return ""; 
+                }
+            } 
+            // If text is huge (Blog Post), split it into safe chunks
+            else {
+                // Split safely by paragraphs, line breaks, or list items
+                let chunks = text.split(/(<\/p>|<br>|<\/h[1-6]>|<\/li>)/gi);
+                let translatedText = "";
+                
+                for (let chunk of chunks) {
+                    if (chunk.trim() === "") continue;
+                    
+                    if (chunk.match(/(<\/p>|<br>|<\/h[1-6]>|<\/li>)/gi)) {
+                        translatedText += chunk;
+                    } else {
+                        try {
+                            await delay(350); 
+                            const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=hi&dt=t&q=${encodeURIComponent(chunk)}`);
+                            const data = await res.json();
+                            translatedText += data[0].map(item => item[0]).join('');
+                        } catch (e) { 
+                            translatedText += ""; // Strict Hindi isolation, fallback to empty string
+                        }
+                    }
+                }
+                return translatedText;
+            }
         }
 
         const qOptions = { theme: 'snow', modules: { toolbar: [[{'header': [1,2,3,false]}], ['bold','italic','underline'], [{'list': 'ordered'},{'list': 'bullet'}], ['blockquote', 'link', 'clean']] } };
@@ -1219,9 +1295,15 @@
                     const fEn = fc.querySelector('.fc-en-f').value;
                     const bEn = fc.querySelector('.fc-en-b').value;
                     const cEn = fc.querySelector('.fc-en-c').value;
-                    if(fEn) fc.querySelector('.fc-hi-f').value = await translateEnToHi(fEn);
-                    if(bEn) fc.querySelector('.fc-hi-b').value = await translateEnToHi(bEn);
-                    if(cEn) fc.querySelector('.fc-hi-c').value = await translateEnToHi(cEn);
+                    
+                    const payload = [fEn, bEn, cEn].join(' ||| ');
+                    if(payload.trim() !== "") {
+                        const translatedStr = await translateEnToHi(payload);
+                        const parts = translatedStr.split(' ||| ');
+                        fc.querySelector('.fc-hi-f').value = parts[0] ? parts[0].trim() : '';
+                        fc.querySelector('.fc-hi-b').value = parts[1] ? parts[1].trim() : '';
+                        fc.querySelector('.fc-hi-c').value = parts[2] ? parts[2].trim() : '';
+                    }
                 }
                 
                 const pracElements = document.querySelectorAll('.practice-entry');
@@ -1232,12 +1314,18 @@
                     const o3 = pq.querySelector('.prac-en-o3').value;
                     const o4 = pq.querySelector('.prac-en-o4').value;
                     const exp = pq.querySelector('.prac-en-exp').value;
-                    if(q) pq.querySelector('.prac-hi-q').value = await translateEnToHi(q);
-                    if(o1) pq.querySelector('.prac-hi-o1').value = await translateEnToHi(o1);
-                    if(o2) pq.querySelector('.prac-hi-o2').value = await translateEnToHi(o2);
-                    if(o3) pq.querySelector('.prac-hi-o3').value = await translateEnToHi(o3);
-                    if(o4) pq.querySelector('.prac-hi-o4').value = await translateEnToHi(o4);
-                    if(exp) pq.querySelector('.prac-hi-exp').value = await translateEnToHi(exp);
+                    
+                    const payload = [q, o1, o2, o3, o4, exp].join(' ||| ');
+                    if(payload.trim() !== "") {
+                        const translatedStr = await translateEnToHi(payload);
+                        const parts = translatedStr.split(' ||| ');
+                        pq.querySelector('.prac-hi-q').value = parts[0] ? parts[0].trim() : '';
+                        pq.querySelector('.prac-hi-o1').value = parts[1] ? parts[1].trim() : '';
+                        pq.querySelector('.prac-hi-o2').value = parts[2] ? parts[2].trim() : '';
+                        pq.querySelector('.prac-hi-o3').value = parts[3] ? parts[3].trim() : '';
+                        pq.querySelector('.prac-hi-o4').value = parts[4] ? parts[4].trim() : '';
+                        pq.querySelector('.prac-hi-exp').value = parts[5] ? parts[5].trim() : '';
+                    }
                 }
 
                 const mqElements = document.querySelectorAll('.mcq-entry');
@@ -1248,14 +1336,20 @@
                     const o3 = mq.querySelector('.mq-en-o3').value;
                     const o4 = mq.querySelector('.mq-en-o4').value;
                     const exp = mq.querySelector('.mq-en-exp').value;
-                    if(q) mq.querySelector('.mq-hi-q').value = await translateEnToHi(q);
-                    if(o1) mq.querySelector('.mq-hi-o1').value = await translateEnToHi(o1);
-                    if(o2) mq.querySelector('.mq-hi-o2').value = await translateEnToHi(o2);
-                    if(o3) mq.querySelector('.mq-hi-o3').value = await translateEnToHi(o3);
-                    if(o4) mq.querySelector('.mq-hi-o4').value = await translateEnToHi(o4);
-                    if(exp) mq.querySelector('.mq-hi-exp').value = await translateEnToHi(exp);
+                    
+                    const payload = [q, o1, o2, o3, o4, exp].join(' ||| ');
+                    if(payload.trim() !== "") {
+                        const translatedStr = await translateEnToHi(payload);
+                        const parts = translatedStr.split(' ||| ');
+                        mq.querySelector('.mq-hi-q').value = parts[0] ? parts[0].trim() : '';
+                        mq.querySelector('.mq-hi-o1').value = parts[1] ? parts[1].trim() : '';
+                        mq.querySelector('.mq-hi-o2').value = parts[2] ? parts[2].trim() : '';
+                        mq.querySelector('.mq-hi-o3').value = parts[3] ? parts[3].trim() : '';
+                        mq.querySelector('.mq-hi-o4').value = parts[4] ? parts[4].trim() : '';
+                        mq.querySelector('.mq-hi-exp').value = parts[5] ? parts[5].trim() : '';
+                    }
                 }
-                alert("Translation Complete! You can manually review the Hindi boxes before saving.");
+                alert("Translation Complete! Master fields populated via Smart Batching.");
             } catch(e) { alert("Translation failed. Try again."); } finally { btn.innerHTML = "<span>⚡</span> Auto-Translate to Hindi"; btn.disabled = false; }
         };
 
@@ -1273,9 +1367,9 @@
                     context: el.querySelector('.fc-en-c').value.trim() 
                 });
                 flashcards_hi.push({ 
-                    front: el.querySelector('.fc-hi-f').value.trim() || el.querySelector('.fc-en-f').value.trim(), 
-                    back: el.querySelector('.fc-hi-b').value.trim() || el.querySelector('.fc-en-b').value.trim(), 
-                    context: el.querySelector('.fc-hi-c').value.trim() || el.querySelector('.fc-en-c').value.trim() 
+                    front: el.querySelector('.fc-hi-f').value.trim(), 
+                    back: el.querySelector('.fc-hi-b').value.trim(), 
+                    context: el.querySelector('.fc-hi-c').value.trim() 
                 });
             });
             
@@ -1297,15 +1391,15 @@
                     sourceExam: src 
                 });
                 practiceQs_hi.push({ 
-                    question: el.querySelector('.prac-hi-q').value.trim() || el.querySelector('.prac-en-q').value.trim(), 
+                    question: el.querySelector('.prac-hi-q').value.trim(), 
                     options: [
-                        el.querySelector('.prac-hi-o1').value.trim() || el.querySelector('.prac-en-o1').value.trim(),
-                        el.querySelector('.prac-hi-o2').value.trim() || el.querySelector('.prac-en-o2').value.trim(),
-                        el.querySelector('.prac-hi-o3').value.trim() || el.querySelector('.prac-en-o3').value.trim(),
-                        el.querySelector('.prac-hi-o4').value.trim() || el.querySelector('.prac-en-o4').value.trim()
+                        el.querySelector('.prac-hi-o1').value.trim(),
+                        el.querySelector('.prac-hi-o2').value.trim(),
+                        el.querySelector('.prac-hi-o3').value.trim(),
+                        el.querySelector('.prac-hi-o4').value.trim()
                     ], 
                     correctIndex: ans, 
-                    explanation: el.querySelector('.prac-hi-exp').value.trim() || el.querySelector('.prac-en-exp').value.trim(), 
+                    explanation: el.querySelector('.prac-hi-exp').value.trim(), 
                     sourceExam: src 
                 });
             });
@@ -1328,15 +1422,15 @@
                     sourceExam: src 
                 });
                 mcqs_hi.push({ 
-                    question: el.querySelector('.mq-hi-q').value.trim() || el.querySelector('.mq-en-q').value.trim(), 
+                    question: el.querySelector('.mq-hi-q').value.trim(), 
                     options: [
-                        el.querySelector('.mq-hi-o1').value.trim() || el.querySelector('.prac-en-o1').value.trim(),
-                        el.querySelector('.mq-hi-o2').value.trim() || el.querySelector('.prac-en-o2').value.trim(),
-                        el.querySelector('.mq-hi-o3').value.trim() || el.querySelector('.prac-en-o3').value.trim(),
-                        el.querySelector('.mq-hi-o4').value.trim() || el.querySelector('.prac-en-o4').value.trim()
+                        el.querySelector('.mq-hi-o1').value.trim(),
+                        el.querySelector('.mq-hi-o2').value.trim(),
+                        el.querySelector('.mq-hi-o3').value.trim(),
+                        el.querySelector('.mq-hi-o4').value.trim()
                     ], 
                     correctIndex: ans, 
-                    explanation: el.querySelector('.mq-hi-exp').value.trim() || el.querySelector('.prac-en-exp').value.trim(), 
+                    explanation: el.querySelector('.mq-hi-exp').value.trim(), 
                     sourceExam: src 
                 });
             });
@@ -1369,7 +1463,6 @@
             const subjectName = subjEl.options[subjEl.selectedIndex].text;
             const notesHtml = window.quillGkEn.root.innerHTML;
             
-            // Check if logo string is available from logo.js
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
 
             const flashcards = [];
@@ -1436,7 +1529,7 @@
                 </div>
 
                 <div style="margin-bottom: 20px;">
-                    <h1 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 0 0 6px 0;">${escapeHtml(topicTitle)}</h1>
+                    <h1 style="font-size: 22px; font-weight: 900; color: #0f172a; margin: 0 0 6px 0;">${formatPDFText(topicTitle)}</h1>
                     <span style="font-size: 11px; font-weight: bold; color: #64748b;">🎯 Curated for SSC CGL • IBPS PO • RRB NTPC • State PSCs</span>
                 </div>
 
@@ -1449,9 +1542,9 @@
                     content += `
                         <div class="pdf-fc-card">
                             <div style="font-size: 10px; font-weight: 800; color: #0284c7; text-transform: uppercase; margin-bottom: 4px;">Concept Recall #${i+1}</div>
-                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Q: ${escapeHtml(fc.front)}</div>
-                            <div style="font-size: 12px; font-weight: bold; color: #059669; margin-bottom: 2px;">A: ${escapeHtml(fc.back)}</div>
-                            ${fc.context ? `<div style="font-size: 10px; color: #64748b; font-style: italic;">Note: ${escapeHtml(fc.context)}</div>` : ''}
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 4px;">Q: ${formatPDFText(fc.front)}</div>
+                            <div style="font-size: 12px; font-weight: bold; color: #059669; margin-bottom: 2px;">A: ${formatPDFText(fc.back)}</div>
+                            ${fc.context ? `<div style="font-size: 10px; color: #64748b; font-style: italic;">Note: ${formatPDFText(fc.context)}</div>` : ''}
                         </div>`;
                 });
             }
@@ -1463,18 +1556,18 @@
                         <div class="pdf-mcq-box" style="border-left: 3px solid #0ea5e9;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                                 <span style="font-size: 10px; font-weight: 900; color: #0ea5e9; text-transform: uppercase;">Practice #${i+1}</span>
-                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(pq.src)}</span>
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${formatPDFText(pq.src)}</span>
                             </div>
-                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(pq.q)}</div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${formatPDFText(pq.q)}</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
-                                <div>A. ${escapeHtml(pq.opts[0])}</div>
-                                <div>B. ${escapeHtml(pq.opts[1])}</div>
-                                <div>C. ${escapeHtml(pq.opts[2])}</div>
-                                <div>D. ${escapeHtml(pq.opts[3])}</div>
+                                <div>A. ${formatPDFText(pq.opts[0])}</div>
+                                <div>B. ${formatPDFText(pq.opts[1])}</div>
+                                <div>C. ${formatPDFText(pq.opts[2])}</div>
+                                <div>D. ${formatPDFText(pq.opts[3])}</div>
                             </div>
                             <div class="pdf-mcq-correct">
-                                Correct: Option ${String.fromCharCode(65 + pq.ans)} &bull; ${escapeHtml(pq.opts[pq.ans])}
-                                ${pq.exp ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(pq.exp)}</div>` : ''}
+                                Correct: Option ${String.fromCharCode(65 + pq.ans)} &bull; ${formatPDFText(pq.opts[pq.ans])}
+                                ${pq.exp ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${formatPDFText(pq.exp)}</div>` : ''}
                             </div>
                         </div>`;
                 });
@@ -1487,18 +1580,18 @@
                         <div class="pdf-mcq-box" style="border-left: 3px solid #e11d48;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
                                 <span style="font-size: 10px; font-weight: 900; color: #e11d48; text-transform: uppercase;">Drill #${i+1}</span>
-                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${escapeHtml(mq.src)}</span>
+                                <span style="font-size: 10px; font-weight: 700; color: #94a3b8;">${formatPDFText(mq.src)}</span>
                             </div>
-                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${escapeHtml(mq.q)}</div>
+                            <div style="font-size: 12px; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${formatPDFText(mq.q)}</div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 11px; color: #334155;">
-                                <div>A. ${escapeHtml(mq.opts[0])}</div>
-                                <div>B. ${escapeHtml(mq.opts[1])}</div>
-                                <div>C. ${escapeHtml(mq.opts[2])}</div>
-                                <div>D. ${escapeHtml(mq.opts[3])}</div>
+                                <div>A. ${formatPDFText(mq.opts[0])}</div>
+                                <div>B. ${formatPDFText(mq.opts[1])}</div>
+                                <div>C. ${formatPDFText(mq.opts[2])}</div>
+                                <div>D. ${formatPDFText(mq.opts[3])}</div>
                             </div>
                             <div class="pdf-mcq-correct">
-                                Correct: Option ${String.fromCharCode(65 + mq.ans)} &bull; ${escapeHtml(mq.opts[mq.ans])}
-                                ${mq.exp ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${escapeHtml(mq.exp)}</div>` : ''}
+                                Correct: Option ${String.fromCharCode(65 + mq.ans)} &bull; ${formatPDFText(mq.opts[mq.ans])}
+                                ${mq.exp ? `<div style="font-size: 10px; font-weight: normal; color: #065f46; margin-top: 3px;"><strong>Explanation:</strong> ${formatPDFText(mq.exp)}</div>` : ''}
                             </div>
                         </div>`;
                 });
@@ -1519,7 +1612,23 @@
                 html2canvas: { scale: 2, useCORS: true },
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().set(opt).from(element).save();
+            
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+                if (logoDataUrl) {
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgSize = 4;
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        try {
+                            pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+                            pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
+                            pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+                        } catch(e) {}
+                    }
+                }
+            }).save();
         };
 
         // MANAGE STATIC GK LOGIC
@@ -1784,6 +1893,7 @@
                             <input type="hidden" class="ca-cat" value="${escapeHtml(card.category || 'National & Global')}">
                             <input type="hidden" class="ca-sub" value="${escapeHtml(card.subCategory || 'General')}">
                             <input type="hidden" class="ca-emj" value="${escapeHtml(card.emoji || '📰')}">
+                            <textarea class="ca-dataTable hidden">${card.dataTable ? escapeHtml(JSON.stringify(card.dataTable)) : ''}</textarea>
                             
                             <div><label class="text-[10px] font-bold text-slate-500 uppercase">Headline</label>
                             <input type="text" class="ca-en-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner || '')}"></div>
@@ -1876,6 +1986,7 @@
             // 1. Extract Data from DOM to Group It
             const editedCards = [];
             cardEls.forEach((el) => {
+                const dtVal = el.querySelector('.ca-dataTable')?.value;
                 editedCards.push({
                     cat: el.querySelector('.ca-cat').value,
                     oneLiner: el.querySelector('.ca-en-h').value,
@@ -1889,7 +2000,8 @@
                         el.querySelector('.ca-mcq-en-o3').value
                     ],
                     ansIdx: parseInt(el.querySelector('.ca-mcq-ans').value) || 0,
-                    exp: el.querySelector('.ca-mcq-en-exp').value
+                    exp: el.querySelector('.ca-mcq-en-exp').value,
+                    dataTable: dtVal ? JSON.parse(dtVal) : null
                 });
             });
 
@@ -1900,19 +2012,12 @@
                 grouped[c.cat].push(c);
             });
 
-            // Security Injection 1: Invisible Zero-Width Fingerprint
-            const injectZWS = (str) => {
-                if(!str) return "";
-                return str.split('').join('\u200B'); // Injects invisible zero-width spaces
-            };
-
             // 2. Build the HTML Document
             let content = `
             <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
                 <style>
                     * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
                     .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
-                    .ca-pdf-logo-bg { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.04; z-index: -2; pointer-events: none; width: 400px; }
                     .ca-pdf-banner { background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between; }
                     .ca-pdf-card { border: 1px solid #e2e8f0; margin-bottom: 18px; padding: 16px; border-radius: 10px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
                     .ca-pdf-header { font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px; line-height: 1.4; }
@@ -1929,31 +2034,30 @@
                 </style>
                 
                 <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
-                ${logoDataUrl ? `<img src="${logoDataUrl}" class="ca-pdf-logo-bg">` : ''}
                 
                 <div class="ca-pdf-banner">
                     <div style="display: flex; align-items: center; gap: 12px;">
                         ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;">` : ''}
                         <div>
                             <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
-                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">${escapeHtml(pdfTitle)}</div>
+                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">${formatPDFText(pdfTitle)}</div>
                         </div>
                     </div>
                     <div>
                         <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">
-                            📅 ${escapeHtml(dateStr)} &bull; ${editedCards.length} Total Cards
+                            📅 ${formatPDFText(dateStr)} &bull; ${editedCards.length} Total Cards
                         </div>
                     </div>
                 </div>`;
 
-            // 3. TABLE OF CONTENTS INDEX (If Drills or Multiple Categories)
+            // 3. TABLE OF CONTENTS INDEX
             if (!isDaily || Object.keys(grouped).length > 1) {
                 content += `
                 <div class="ca-index-box">
                     <h2 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Document Index</h2>`;
                 
                 Object.keys(grouped).forEach(cat => {
-                    content += `<div class="ca-index-row"><span>📁 ${escapeHtml(cat)}</span><span>${grouped[cat].length} Questions</span></div>`;
+                    content += `<div class="ca-index-row"><span>📁 ${formatPDFText(cat)}</span><span>${grouped[cat].length} Questions</span></div>`;
                 });
                 
                 content += `</div>`;
@@ -1962,41 +2066,68 @@
             // 4. LOOP CATEGORIES AND CARDS
             Object.keys(grouped).forEach((cat, index) => {
                 
-                // Add page break before every category (except if it's the very first element and there's no index, but we keep it safe)
                 if(!isDaily || index > 0 || Object.keys(grouped).length > 1) {
                     content += `<div class="ca-pdf-section-break"></div>`;
                 }
                 
                 content += `
                 <div class="ca-pdf-section-banner">
-                    <span>📁 ${escapeHtml(cat)}</span>
+                    <span>📁 ${formatPDFText(cat)}</span>
                     <span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;">${grouped[cat].length} Cards</span>
                 </div>`;
                 
                 grouped[cat].forEach((card, i) => {
                     content += `<div class="ca-pdf-card">`;
-                    content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${escapeHtml(cat)}</div>`;
+                    content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${formatPDFText(cat)}</div>`;
                     
-                    // Injecting Zero-Width Spaces into the headline
-                    content += `<div class="ca-pdf-header">${injectZWS(escapeHtml(card.oneLiner))}</div>`;
+                    content += `<div class="ca-pdf-header">${formatPDFText(card.oneLiner)}</div>`;
                     
-                    content += `<ul class="ca-pdf-bullets">` + card.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join('') + `</ul>`;
-                    if(card.stFacts) content += `<div class="ca-pdf-static">🧠 <strong>Static Context:</strong> ${escapeHtml(card.stFacts)}</div>`;
+                    if(card.bullets.length > 0) {
+                        content += `<ul class="ca-pdf-bullets">` + card.bullets.map(b => `<li>${formatPDFText(b)}</li>`).join('') + `</ul>`;
+                    }
+                    
+                    if(card.dataTable && Array.isArray(card.dataTable) && card.dataTable.length > 0) {
+                        content += `<table style="width: 100%; border-collapse: collapse; margin-top: 12px; margin-bottom: 16px; font-size: 11px; background: white; border: 1px solid #e2e8f0;">`;
+                        card.dataTable.forEach((row, rIdx) => {
+                            const bg = rIdx === 0 ? '#4f46e5' : (rIdx % 2 === 0 ? '#f8fafc' : '#ffffff');
+                            const textColor = rIdx === 0 ? '#ffffff' : '#334155';
+                            const fw = rIdx === 0 ? '900' : '600';
+                            
+                            content += `<tr style="background: ${bg}; color: ${textColor}; border-bottom: 1px solid #e2e8f0;">`;
+                            Object.values(row).forEach(val => {
+                                content += `<td style="padding: 8px 12px; font-weight: ${fw};">${formatPDFText(val)}</td>`;
+                            });
+                            content += `</tr>`;
+                        });
+                        content += `</table>`;
+                    }
+
+                    if(card.stFacts) content += `<div class="ca-pdf-static">🧠 <strong>Static Context:</strong> ${formatPDFText(card.stFacts)}</div>`;
+                    
                     if(card.q) {
                         content += `
                         <div class="ca-pdf-mcq">
-                            <strong>Exam Drill:</strong> ${escapeHtml(card.q)}<br>
+                            <strong>Exam Drill:</strong> ${formatPDFText(card.q)}<br>
                             <div style="margin: 4px 0; color: #065f46; font-weight: bold;">
-                                Ans: Option ${String.fromCharCode(65 + card.ansIdx)} (${escapeHtml(card.opts[card.ansIdx])})
+                                Ans: Option ${String.fromCharCode(65 + card.ansIdx)} (${formatPDFText(card.opts[card.ansIdx])})
                             </div>
-                            <div style="font-size: 10px; color: #475569;"><em>${escapeHtml(card.exp)}</em></div>
-                            <!-- Security Injection 2: Select-All Micro Text -->
+                            <div style="font-size: 10px; color: #475569;"><em>${formatPDFText(card.exp)}</em></div>
                             <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
                         </div>`;
                     }
                     content += `</div>`;
                 });
             });
+
+            // Teaser Hook added for Mega Mocks to drive Website Traffic
+            if (!isDaily) {
+                content += `
+                <div style="margin-top: 40px; background: #f0fdf4; border: 2px dashed #22c55e; padding: 24px; border-radius: 12px; text-align: center;">
+                    <h3 style="margin-top: 0; color: #166534; font-size: 18px; font-weight: 900;">🧠 Ready to test your memory?</h3>
+                    <p style="color: #15803d; font-size: 12px; font-weight: bold; margin-bottom: 16px;">Take the fully interactive, 50-Question Mega Mock Test on Stenogym to secure your rank!</p>
+                    <a style="display: inline-block; background: #16a34a; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 900; font-size: 14px;">Take Live Mega Mock on Stenogym</a>
+                </div>`;
+            }
 
             content += `
                 <div class="ca-pdf-footer">
@@ -2020,7 +2151,6 @@
             const origText = btn.innerHTML;
             btn.innerHTML = "Generating..."; btn.disabled = true;
 
-            // Security Injection 4: File Metadata Properties
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
                 pdf.setProperties({
                     title: finalFilename,
@@ -2029,30 +2159,71 @@
                     keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
                     creator: 'Stenogym Forensic Engine v2.0'
                 });
+
+                if (logoDataUrl) {
+                    const totalPages = pdf.internal.getNumberOfPages();
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    const imgSize = 4;
+                    for (let i = 1; i <= totalPages; i++) {
+                        pdf.setPage(i);
+                        try {
+                            pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+                            pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
+                            pdf.setGState(new pdf.GState({ opacity: 1.0 }));
+                        } catch(e) {}
+                    }
+                }
             }).save().then(() => {
                 btn.innerHTML = origText; btn.disabled = false;
             });
         };
 
+        // NEW SMART BATCHING ENGINE: Sends one single request per card (Safeguards against Google API Blocks)
         window.autoTranslateCA = async function() {
             const btn = document.getElementById('btnAutoTranslateCA'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
             try {
                 const cards = document.querySelectorAll('.ca-staged-card');
                 for(let card of cards) {
-                    card.querySelector('.ca-hi-cat').value = await translateEnToHi(card.querySelector('.ca-cat').value);
-                    card.querySelector('.ca-hi-h').value = await translateEnToHi(card.querySelector('.ca-en-h').value);
-                    card.querySelector('.ca-hi-c').value = await translateEnToHi(card.querySelector('.ca-en-c').value);
-                    card.querySelector('.ca-hi-imp').value = await translateEnToHi(card.querySelector('.ca-en-imp').value);
-                    card.querySelector('.ca-hi-st').value = await translateEnToHi(card.querySelector('.ca-en-st').value);
+                    const cat = card.querySelector('.ca-cat').value;
+                    const hLine = card.querySelector('.ca-en-h').value;
+                    const bulletsStr = card.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b).join(' | ');
+                    const imp = card.querySelector('.ca-en-imp').value;
+                    const st = card.querySelector('.ca-en-st').value;
                     
-                    card.querySelector('.ca-mcq-hi-q').value = await translateEnToHi(card.querySelector('.ca-mcq-en-q').value);
-                    card.querySelector('.ca-mcq-hi-o0').value = await translateEnToHi(card.querySelector('.ca-mcq-en-o0').value);
-                    card.querySelector('.ca-mcq-hi-o1').value = await translateEnToHi(card.querySelector('.ca-mcq-en-o1').value);
-                    card.querySelector('.ca-mcq-hi-o2').value = await translateEnToHi(card.querySelector('.ca-mcq-en-o2').value);
-                    card.querySelector('.ca-mcq-hi-o3').value = await translateEnToHi(card.querySelector('.ca-mcq-en-o3').value);
-                    card.querySelector('.ca-mcq-hi-exp').value = await translateEnToHi(card.querySelector('.ca-mcq-en-exp').value);
+                    const mq = card.querySelector('.ca-mcq-en-q').value;
+                    const mo0 = card.querySelector('.ca-mcq-en-o0').value;
+                    const mo1 = card.querySelector('.ca-mcq-en-o1').value;
+                    const mo2 = card.querySelector('.ca-mcq-en-o2').value;
+                    const mo3 = card.querySelector('.ca-mcq-en-o3').value;
+                    const mexp = card.querySelector('.ca-mcq-en-exp').value;
+
+                    // Package everything into one safe string
+                    const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
+
+                    if (payload.trim() !== "") {
+                        const translatedStr = await translateEnToHi(payload);
+                        const parts = translatedStr.split(' ||| ');
+
+                        // Safely unpack the translated array directly into the input fields
+                        card.querySelector('.ca-hi-cat').value = parts[0] ? parts[0].trim() : '';
+                        card.querySelector('.ca-hi-h').value = parts[1] ? parts[1].trim() : '';
+                        
+                        let rawBullets = parts[2] ? parts[2].trim() : '';
+                        const translatedBullets = rawBullets.split(/\s*\|\s*/).map(b => b.trim()).filter(b=>b);
+                        card.querySelector('.ca-hi-c').value = translatedBullets.join('\n');
+                        
+                        card.querySelector('.ca-hi-imp').value = parts[3] ? parts[3].trim() : '';
+                        card.querySelector('.ca-hi-st').value = parts[4] ? parts[4].trim() : '';
+                        card.querySelector('.ca-mcq-hi-q').value = parts[5] ? parts[5].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o0').value = parts[6] ? parts[6].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o1').value = parts[7] ? parts[7].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o2').value = parts[8] ? parts[8].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o3').value = parts[9] ? parts[9].trim() : '';
+                        card.querySelector('.ca-mcq-hi-exp').value = parts[10] ? parts[10].trim() : '';
+                    }
                 }
-                alert("Translation Complete!");
+                alert("Translation Complete! Master fields populated via Smart Batching Engine without API drops.");
             } catch(e) { alert("Translation failed: " + e.message); } finally { btn.innerHTML = "<span>⚡</span> Re-Translate"; btn.disabled = false; }
         };
 
@@ -2064,7 +2235,6 @@
             const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
             const collectionName = isDaily ? "daily_news" : "ca_drills";
 
-            // DATE GUARD LAYER 2: Existing News Check
             if (isDaily || !window.isEditingDrill) {
                 try {
                     const checkQuery = query(collection(db, collectionName), where("date", "==", targetDate));
@@ -2096,7 +2266,6 @@
             try {
                 const batch = writeBatch(db);
 
-                // Safe Overwrite Engine: Delete existing drill cards first before inserting new ones
                 if (!isDaily && window.isEditingDrill) {
                     const cadenceSelect = document.getElementById('drillCadenceType').value;
                     const qDel = query(collection(db, collectionName), where("date", "==", targetDate), where("cadence", "==", cadenceSelect));
@@ -2109,6 +2278,9 @@
                     const hiBullets = el.querySelector('.ca-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
                     const exams = el.querySelector('.ca-exams').value.split(',').map(s=>s.trim()).filter(s=>s);
                     const ansIdx = parseInt(el.querySelector('.ca-mcq-ans').value) || 0;
+                    
+                    const dtVal = el.querySelector('.ca-dataTable')?.value;
+                    const dtParsed = dtVal ? JSON.parse(dtVal) : null;
 
                     const docRef = doc(collection(db, collectionName));
                     const docPayload = {
@@ -2125,6 +2297,7 @@
                         oneLiner_hi: el.querySelector('.ca-hi-h').value,
                         contextBullets: enBullets,
                         contextBullets_hi: hiBullets,
+                        dataTable: dtParsed,
                         impact: el.querySelector('.ca-en-imp').value,
                         impact_hi: el.querySelector('.ca-hi-imp').value,
                         staticBox: { facts: el.querySelector('.ca-en-st').value },
@@ -2373,7 +2546,7 @@
                 blogTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">No blog posts found.</td></tr>';
                 
                 document.querySelectorAll('.btn-blog-delete').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Permanently delete this blog post?")) { await deleteDoc(doc(db, "blogs", e.target.getAttribute('data-id'))); fetchBlogs(); } }); });
-                document.querySelectorAll('.btn-edit-blog').forEach(btn => { btn.addEventListener('click', (e) => { 
+                document.querySelectorAll('.btn-blog-edit').forEach(btn => { btn.addEventListener('click', (e) => {
                     document.getElementById('editBlogDocId').value = e.target.getAttribute('data-id');
                     document.getElementById('editBlogTitle_en').value = e.target.getAttribute('data-title_en');
                     document.getElementById('editBlogTitle_hi').value = e.target.getAttribute('data-title_hi');
@@ -2519,6 +2692,154 @@
             try { await addDoc(collection(db, "settings"), { bannerText: document.getElementById('bannerText').value.trim(), isActive: document.getElementById('bannerActive').checked, timestamp: serverTimestamp() }); alert("✅ Site Settings Updated Successfully!"); } 
             catch (err) { alert("Error updating settings: " + err.message); } finally { btnSave.innerHTML = `Update Settings`; btnSave.disabled = false; }
         });
+/* ========================================================= */
+        /* 9. TELEGRAM CHEAT SHEET PDF ENGINE (ULTIMATE VISUAL DESIGN)*/
+        /* ========================================================= */
+        window.generateCheatSheetPDF = function() {
+            if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
+                return alert("No cards in staging area. Please ingest JSON first.");
+            }
+
+            const catFilter = document.getElementById('pdfCategoryFilter').value;
+            let dataToPrint = window.stagedNewsItems;
+            if (catFilter !== 'all') {
+                dataToPrint = dataToPrint.filter(item => item.category === catFilter);
+            }
+
+            if (dataToPrint.length === 0) return alert("No items match the selected category.");
+
+            const btn = document.querySelector('button[onclick="generateCheatSheetPDF()"]');
+            const origText = btn.innerHTML;
+            btn.innerHTML = "Generating Masterpiece PDF..."; btn.disabled = true;
+
+            // Highlight Names in Premium Royal Blue, Numbers in Crimson Red
+            const formatHighlight = (text) => {
+                if(!text) return "";
+                let safeText = escapeHtml(text);
+                return safeText.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
+                    const cleanStr = p1.trim();
+                    if (/^[\₹\$€£]?[\d.,]+%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr)) {
+                        return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`;
+                    }
+                    return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`;
+                });
+            };
+
+            const groupedData = dataToPrint.reduce((acc, item) => {
+                const c = item.category || "General";
+                if(!acc[c]) acc[c] = [];
+                acc[c].push(item);
+                return acc;
+            }, {});
+
+            // Premium Color Palette for the Category Strips & Underlines (Indigo, Emerald Green, Amber, Violet, Rose)
+            const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
+
+            let htmlContent = `
+            <div style="font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; width: 100%; padding: 40px; box-sizing: border-box; background-color: #ffffff;">
+                
+                <!-- 1. GRADIENT MASTER HEADER WITH EMOJI & COLORED LINE -->
+                <div style="text-align: center; margin-bottom: 35px;">
+                    <div style="background: linear-gradient(135deg, #000000 40%, #ca8a04 100%); padding: 25px; border-radius: 12px 12px 0 0; border-bottom: 5px solid #4f46e5;">
+                        <h1 style="color: #ffffff; font-size: 30px; font-weight: 900; margin: 0; letter-spacing: 1.5px;">🏆 STENOGYM</h1>
+                        <h2 style="color: #fef08a; font-size: 14px; font-weight: 900; margin: 6px 0 0 0; text-transform: uppercase; letter-spacing: 1px;">THE MASTER CHEAT SHEET OCT 2026</h2>
+                    </div>
+                    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-top: none; padding: 6px 20px; border-radius: 0 0 12px 12px; display: inline-block; font-size: 12px; font-weight: 900; color: #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                        Target: SSC & Banking
+                    </div>
+                </div>
+            `;
+
+            let colorIndex = 0;
+
+            for (const [category, items] of Object.entries(groupedData)) {
+                const catColor = themeColors[colorIndex % themeColors.length];
+                
+                // Assign a header emoji based on the category name
+                let catEmoji = "📌";
+                if(category.toLowerCase().includes('appointment')) catEmoji = "🤝";
+                else if(category.toLowerCase().includes('sport')) catEmoji = "🏅";
+                else if(category.toLowerCase().includes('bank') || category.toLowerCase().includes('econom')) catEmoji = "🏦";
+                else if(category.toLowerCase().includes('award')) catEmoji = "🏆";
+                else if(category.toLowerCase().includes('defence')) catEmoji = "⚔️";
+                else if(category.toLowerCase().includes('book')) catEmoji = "📖";
+
+                htmlContent += `
+                <div style="margin-bottom: 35px;">
+                    <!-- 2. CATEGORY HEADER WITH EMOJI & COLORED UNDERLINE -->
+                    <h3 style="font-size: 17px; font-weight: 900; color: #${catColor}; text-transform: uppercase; margin: 0 0 12px 0; border-bottom: 3px solid #${catColor}; padding-bottom: 6px;">
+                        <span style="font-size: 18px; margin-right: 6px;">${catEmoji}</span> ${escapeHtml(category)} (TIER 1)
+                    </h3>
+                    
+                    <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                `;
+
+                items.forEach((item, index) => {
+                    const bgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc'; // Zebra striping
+                    const isLast = index === items.length - 1;
+                    const borderBottom = isLast ? 'none' : '1px solid #cbd5e1';
+                    
+                    const formattedSentence = formatHighlight(item.oneLiner);
+                    const badgeText = escapeHtml(item.subCategory || 'NEWS').toUpperCase();
+                    const emoji = escapeHtml(item.emoji || '');
+
+                    htmlContent += `
+                        <!-- 3. BEAUTIFUL COLORED STRIP ON THE LEFT -->
+                        <div style="background-color: ${bgColor}; padding: 14px 18px; border-left: 5px solid #${catColor}; border-bottom: ${borderBottom}; page-break-inside: avoid;">
+                            
+                            <!-- 4. EMOJI BADGE -->
+                            <div style="float: right; background-color: #${catColor}; color: #ffffff; padding: 5px 12px; border-radius: 20px; margin-left: 15px; margin-bottom: 5px; display: inline-block;">
+                                <span style="font-size: 14px; vertical-align: middle; margin-right: 4px;">${emoji}</span>
+                                <span style="font-size: 10px; font-weight: 900; vertical-align: middle; letter-spacing: 0.5px;">${badgeText}</span>
+                            </div>
+                            
+                            <!-- 5. CONTINUOUS SENTENCE FLOW -->
+                            <div style="font-size: 14px; color: #1e293b; line-height: 1.6; text-align: left;">
+                                ${formattedSentence}
+                            </div>
+                            
+                            <div style="clear: both;"></div>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `
+                    </div>
+                </div>`;
+                colorIndex++; // Rotate to the next beautiful color for the next category
+            }
+
+            // Mega Mock Footer
+            htmlContent += `
+                <div style="margin-top: 30px; padding: 24px; text-align: center; border: 1px solid #cbd5e1; background-color: #f8fafc; border-radius: 8px; page-break-inside: avoid;">
+                    <div style="font-size: 15px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">Memory Check: Are you ready for the exam?</div>
+                    <div style="font-size: 12px; color: #475569; margin-bottom: 16px;">You've read the Cheat Sheet. Now, test your accuracy and speed.</div>
+                    <div style="display: inline-block; background-color: #facc15; color: #000000; padding: 10px 24px; font-weight: 900; border-radius: 24px; font-size: 13px; border: 1px solid #000000; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        📝 TAKE THE 50-MCQ MEGA MOCK TEST
+                    </div>
+                </div>
+
+                <div style="text-align: center; font-size: 12px; font-weight: bold; color: #64748b; margin-top: 25px;">
+                    STENOGYM.COM • Official Telegram: t.me/stenogym
+                </div>
+            </div>
+            `;
+
+            const element = document.createElement('div');
+            element.innerHTML = htmlContent;
+
+            const opt = {
+                margin: 0,
+                filename: `Stenogym_Cheat_Sheet_${catFilter.replace(/\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(element).toPdf().get('pdf').then(() => {
+                btn.innerHTML = origText; btn.disabled = false;
+            }).save();
+        };        
     </script>
 </body>
 </html>
