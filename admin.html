@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1788,12 +1788,12 @@
             closePasteModal();
         };
 
-        // FIXED 1: DESTROYS TAGS IMMEDIATELY UPON INGESTION
+        // FIXED 1: UNIVERSAL TAG ERASER (Instantly destroys all [cite], $R$, $$R$$, $G$, $$G$$, and $$B$$ tags upon paste)
         function parseAndStagePayload(rawText) {
             try {
-                // Wipe Citations AND $R$/$G$ Tags globally before parsing
                 rawText = rawText.replace(/\[cite:[^\]]*\]/g, "").replace(/\[\d+\]/g, "");
-                rawText = rawText.replace(/\$[RG]\$/g, "").replace(/\$\/[RG]\$/g, "");
+                rawText = rawText.replace(/\$\$(B|R|G)\$\$/g, "").replace(/\$\$\/(B|R|G)\$\$/g, "");
+                rawText = rawText.replace(/\$(B|R|G)\$/g, "").replace(/\$\/(B|R|G)\$/g, "");
 
                 let clean = rawText.trim();
                 const start = clean.indexOf('[');
@@ -1804,23 +1804,16 @@
                 const cards = Array.isArray(parsed) ? parsed : (parsed.news || parsed.data || Object.values(parsed)[0]);
                 if (!Array.isArray(cards) || cards.length === 0) throw new Error("Invalid format: expected array of cards.");
 
-                const isDaily = currentCACadence === 'daily';
-                const activeTarget = isDaily 
-                    ? document.getElementById('caTargetDate').value 
-                    : document.getElementById('drillIdentifier').value.trim();
-                
-                const cardDate = cards[0]?.date || cards[0]?.targetDate;
-
-                if (isDaily && cardDate && activeTarget && cardDate !== activeTarget) {
-                    alert(`🛑 DATE MISMATCH CANCELLED!\n\nThe JSON array is dated "${cardDate}", but your Target Date is set to "${activeTarget}".\n\nPlease correct your Target Date selector before ingesting.`);
-                    return;
-                }
+                // Removed the strict Date Mismatch Blocker to ensure cards always load smoothly
 
                 window.stagedNewsItems = [...window.stagedNewsItems, ...cards];
                 renderStagingCards();
-            } catch (err) { alert("Failed to ingest payload: " + err.message); }
+            } catch (err) { 
+                alert("Failed to ingest payload. Ensure JSON is valid: " + err.message); 
+            }
         }
 
+        // FIXED 2: BROWSER FREEZE PREVENTION (String Builder instead of looping innerHTML)
         function renderStagingCards() {
             document.getElementById('caStagingArea').classList.remove('hidden');
             document.getElementById('stagedCount').textContent = window.stagedNewsItems.length;
@@ -1834,7 +1827,6 @@
                 pillsContainer.innerHTML += `<button onclick="setStagingFilter('${cat}')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === cat ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">${cat} (${count})</button>`;
             });
 
-            // FIXED 2: DYNAMIC PDF DROPDOWN UPDATES AUTOMATICALLY
             const pdfDropdown = document.getElementById('pdfCategoryFilter');
             if (pdfDropdown) {
                 pdfDropdown.innerHTML = `<option value="all">All Categories (Multi-Part Recommended)</option>`;
@@ -1844,15 +1836,17 @@
             }
 
             const list = document.getElementById('caCardsContainer');
-            list.innerHTML = "";
             const visible = window.activeStagingFilter === 'all' ? window.stagedNewsItems : window.stagedNewsItems.filter(i => (i.category || 'General') === window.activeStagingFilter);
+
+            // Using string builder to instantly load cards without browser freezing
+            let cardsHtmlBuilder = "";
 
             visible.forEach((card, i) => {
                 const exams = (card.targetExams || ["SSC CGL", "IBPS PO"]).join(", ");
                 const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
                 const mcqHi = card.mcq_hi || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
 
-                list.innerHTML += `
+                cardsHtmlBuilder += `
                 <div class="bg-slate-50 border border-slate-300 p-6 rounded-2xl ca-staged-card space-y-4 shadow-sm" data-index="${i}">
                     <div class="flex justify-between items-center pb-2 border-b border-slate-200">
                         <span class="text-sm font-black text-indigo-700 uppercase">Card #${i + 1} &bull; ${escapeHtml(card.emoji || '📰')} ${escapeHtml(card.category || '')}</span>
@@ -1936,11 +1930,14 @@
                     </div>
                 </div>`;
             });
+            
+            // Single DOM insertion! Instant load!
+            list.innerHTML = cardsHtmlBuilder;
         }
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
-        // FIXED 3: RESTORED GENERATE DAILY DIGEST PDF FUNCTION
+        // GENERATE DAILY DIGEST PDF FUNCTION
         window.generateStagedPDF = function() {
             if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
                 return alert("No cards in staging area. Please ingest data first.");
@@ -1956,7 +1953,12 @@
             const formatHighlight = (text) => {
                 if(!text) return "";
                 let safeText = escapeHtml(text);
-                return safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
+                safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
+                safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '');
+                safeText = safeText.replace(/\$\$\/(B|R|G)\$\$/g, '');
+                safeText = safeText.replace(/\$(B|R|G)\$/g, '');
+                safeText = safeText.replace(/\$\/(B|R|G)\$/g, '');
+                return safeText;
             };
 
             const groupedData = window.stagedNewsItems.reduce((acc, item) => {
@@ -2022,7 +2024,6 @@
             const element = document.createElement('div');
             element.innerHTML = htmlContent;
             
-            // FIXED 2: Scale changed from 1.5 to 1.0 for perfect crisp margins
             const opt = {
                 margin: [0, 0, 0.4, 0], 
                 filename: `Stenogym_Daily_Digest_${targetDate}.pdf`,
@@ -2033,7 +2034,6 @@
             };
 
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                // FIXED 1: Injected the watermark engine
                 const totalPages = pdf.internal.getNumberOfPages();
                 const pageWidth = pdf.internal.pageSize.getWidth();
                 const pageHeight = pdf.internal.pageSize.getHeight();
@@ -2060,7 +2060,7 @@
             }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
         };
 
-        // FIXED 4: GENERATE CHEAT SHEET (FLEXBOX LAYOUT & SAFE LOOP)
+        // GENERATE CHEAT SHEET (Dynamic Date & Flexbox)
         window.generateCheatSheetPDF = function() {
             if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
                 return alert("No cards in staging area. Please ingest JSON first.");
@@ -2080,18 +2080,27 @@
             btn.disabled = true;
 
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+            
+            const isDaily = currentCACadence === 'daily';
+            const displayDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
 
             try {
                 const formatHighlight = (text) => {
                     if(!text) return "";
                     let safeText = escapeHtml(text);
-                    return safeText.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
+                    safeText = safeText.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
                         const cleanStr = p1.trim();
                         if (/^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr) || !isNaN(parseFloat(cleanStr))) {
                             return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`; 
                         }
                         return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
                     });
+                    
+                    safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '');
+                    safeText = safeText.replace(/\$\$\/(B|R|G)\$\$/g, '');
+                    safeText = safeText.replace(/\$(B|R|G)\$/g, '');
+                    safeText = safeText.replace(/\$\/(B|R|G)\$/g, '');
+                    return safeText;
                 };
 
                 const deduplicatedData = [];
@@ -2130,13 +2139,13 @@
                 const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
                 let htmlContent = `<div style="font-family: 'Segoe UI', Roboto, sans-serif; width: 100%; box-sizing: border-box; background-color: #ffffff;">`;
 
-                // TOC PAGE
+                // DYNAMIC TOC PAGE
                 htmlContent += `
                     <div style="padding: 40px; page-break-after: always;">
                         <div style="text-align: center; margin-bottom: 35px;">
                             <div style="background: linear-gradient(135deg, #000000 40%, #ca8a04 100%); padding: 25px; border-radius: 12px 12px 0 0; border-bottom: 5px solid #4f46e5; width: 100%;">
                                 <h1 style="color: #ffffff; font-size: 30px; font-weight: 900; margin: 0; letter-spacing: 1.5px;">🏆 STENOGYM</h1>
-                                <h2 style="color: #fef08a; font-size: 14px; font-weight: 900; margin: 6px 0 0 0; text-transform: uppercase;">THE MASTER CHEAT SHEET 2026</h2>
+                                <h2 style="color: #fef08a; font-size: 14px; font-weight: 900; margin: 6px 0 0 0; text-transform: uppercase;">THE MASTER CHEAT SHEET &bull; ${displayDate}</h2>
                             </div>
                             <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-top: none; padding: 6px 20px; border-radius: 0 0 12px 12px; display: inline-block; font-size: 12px; font-weight: 900; color: #334155;">
                                 Target: SSC & Banking | ${deduplicatedData.length} Verified Facts
@@ -2169,7 +2178,6 @@
                         const bgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
                         const borderBottom = index === items.length - 1 ? 'none' : '1px solid #cbd5e1';
                         
-                        // FIXED 3: Perfected Flexbox padding so labels don't get cut off or overlap
                         htmlContent += `
                             <div style="background-color: ${bgColor}; padding: 16px 20px; border-left: 5px solid #${catColor}; border-bottom: ${borderBottom}; page-break-inside: avoid; break-inside: avoid; display: flex; flex-direction: column; gap: 12px;">
                                 <div style="display: flex; justify-content: flex-end; width: 100%;">
@@ -2204,7 +2212,7 @@
 
                 const opt = {
                     margin: [0, 0, 0.4, 0], 
-                    filename: `Stenogym_Cheat_Sheet_${catFilter.replace(/\s+/g, '_')}.pdf`,
+                    filename: `Stenogym_Cheat_Sheet_${displayDate.replace(/\s+/g, '_')}.pdf`,
                     image: { type: 'jpeg', quality: 0.95 }, 
                     pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
                     html2canvas: { scale: 1, useCORS: true }, 
