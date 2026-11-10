@@ -1621,87 +1621,131 @@
             return clean;
         }
 
-        // DAILY PDF GENERATOR
+        // DAILY PDF GENERATOR (UPGRADED TO MATCH PREMIUM ADMIN LAYOUT)
         window.generateDailyPDF = function() {
             if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
+            
+            const btn = document.querySelector('button[onclick="triggerTelegramDownload(event, \'daily\')"]');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = "<span>⏳</span> Generating..."; btn.disabled = true;
+
+            const targetDate = formatISTDisplay(selectedDateStr);
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
             
-            let content = `
-            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1e293b; padding: 24px; position: relative;">
-                <style>
-                    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-                    .ca-pdf-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-45deg); font-size: 55px; color: rgba(15, 23, 42, 0.05); z-index: -1; white-space: nowrap; font-weight: 900; pointer-events: none; letter-spacing: 2px; }
-                    .ca-micro-canary { font-size: 1px; color: transparent; user-select: text; opacity: 0.01; height: 1px; overflow: hidden; display: block; }
-                </style>
-                <div class="ca-pdf-watermark">STENOGYM • t.me/stenogym</div>
-                
-                <div style="background: #0f172a; border-bottom: 4px solid #e11d48; color: white; padding: 20px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 12px;">
-                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 44px; height: 44px; object-fit: contain; border-radius: 8px;" onerror="this.style.display='none'">` : ''}
-                        <div>
-                            <div style="font-size: 20px; font-weight: 900; letter-spacing: 1px; color: #ffffff;">STENOGYM</div>
-                            <div style="font-size: 10px; font-weight: 700; color: #f43f5e; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</div>
-                        </div>
-                    </div>
-                    <div style="background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); padding: 6px 14px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #e2e8f0;">📅 ${formatISTDisplay(selectedDateStr)}</div>
-                </div>`;
+            const formatHighlight = (text) => {
+                if(!text) return "";
+                let safeText = escapeHtml(text);
+                safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
+                safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
+                return safeText;
+            };
+
+            // Group the data by category just like the Admin panel does
+            const groupedData = allArticlesCache.reduce((acc, item) => {
+                const c = (currentLang === 'hi' ? item.category_hi : item.category) || "General";
+                if(!acc[c]) acc[c] = [];
+                acc[c].push(item);
+                return acc;
+            }, {});
+
+            let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
             
-            allArticlesCache.forEach((card, i) => {
-                const cat = currentLang === 'hi' ? (card.category_hi || '') : (card.category || '');
-                const hLine = currentLang === 'hi' ? (card.oneLiner_hi || '') : (card.oneLiner || '');
-                const bullets = (currentLang === 'hi' ? (card.contextBullets_hi || []) : (card.contextBullets || [])).filter(b => b.trim() !== "");
-                const stat = currentLang === 'hi' ? (card.staticBox_hi?.facts || '') : (card.staticBox?.facts || '');
-                const mcq = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
-
-                content += `<div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 10px; margin-bottom: 18px; page-break-inside: avoid; background: rgba(255, 255, 255, 0.95); box-shadow: 0 1px 2px rgba(0,0,0,0.05);">`;
-                content += `<div style="font-size: 10px; color: #4f46e5; font-weight: 900; text-transform: uppercase; margin-bottom: 4px;">#${i+1} &bull; ${formatPDFText(cat)}</div>`;
-                content += `<div style="font-size: 14px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">${formatPDFText(hLine)}</div>`;
+            // CLEAN MINIMALIST COVER PAGE (Matching Admin)
+            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
+            
+            htmlContent += `
+                <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
+                        <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${currentLang === 'hi' ? 'दैनिक करेंट अफेयर्स' : 'Daily Current Affairs Digest'}</h2>
+                    </div>
+                    ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
+                </div>
                 
-                if (bullets.length > 0) {
-                    content += `<ul style="margin: 8px 0 10px 18px; font-size: 11px; line-height: 1.6; color: #334155;">${bullets.map(b => `<li>${formatPDFText(b)}</li>`).join('')}</ul>`;
-                }
-
-                if(card.dataTable && Array.isArray(card.dataTable) && card.dataTable.length > 0) {
-                    content += `<table style="width: 100%; border-collapse: collapse; margin-top: 12px; margin-bottom: 16px; font-size: 11px; background: white; border: 1px solid #e2e8f0;">`;
-                    card.dataTable.forEach((row, rIdx) => {
-                        const bg = rIdx === 0 ? '#4f46e5' : (rIdx % 2 === 0 ? '#f8fafc' : '#ffffff');
-                        const textColor = rIdx === 0 ? '#ffffff' : '#334155';
-                        const fw = rIdx === 0 ? '900' : '600';
-                        
-                        content += `<tr style="background: ${bg}; color: ${textColor}; border-bottom: 1px solid #e2e8f0;">`;
-                        Object.values(row).forEach(val => { content += `<td style="padding: 8px 12px; font-weight: ${fw};">${formatPDFText(val)}</td>`; });
-                        content += `</tr>`;
-                    });
-                    content += `</table>`;
-                }
+                <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                    📅 ${targetDate} &nbsp;&bull;&nbsp; ${allArticlesCache.length} Total Cards
+                </div>
                 
-                if(stat) content += `<div style="background: #eef2ff; border-left: 3px solid #6366f1; padding: 8px 12px; border-radius: 6px; font-size: 11px; color: #3730a3; margin-bottom: 10px; font-weight: 600;">🧠 <strong>Static Context:</strong> ${formatPDFText(stat)}</div>`;
+                <div style="margin-bottom: 40px;">
+                    <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
+            `;
+            
+            for (let cat in groupedData) {
+                htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
+                    <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
+                </div>`;
+            }
+            
+            htmlContent += `</div>
+                <div style="text-align: center; margin-top: auto; padding-top: 20px;">
+                    <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
+                </div>
+            </div>`;
+
+            // CONTENT FEED WITH ATOMIC MICRO-PROTECTION & RESTORED COLORS
+            for (let cat in groupedData) {
+                const catEmoji = groupedData[cat][0]?.emoji || '📌';
                 
-                if(mcq && mcq.question) {
-                    content += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #059669; padding: 10px 14px; border-radius: 6px; font-size: 11px;">
-                        <strong>Drill:</strong> ${formatPDFText(mcq.question)}<br>
-                        <div style="margin: 4px 0; color: #065f46; font-weight: bold;">Ans: Option ${String.fromCharCode(65 + (mcq.correctIndex||0))} (${formatPDFText(mcq.options[mcq.correctIndex||0])})</div>
-                        <div style="color: #475569;"><em>${formatPDFText(mcq.explanation)}</em></div>
-                        <div class="ca-micro-canary">[ORIGINAL PROPERTY OF STENOGYM - VERIFIED SG-AUTH-DIGEST]</div>
-                    </div>`;
-                }
-                content += `</div>`;
-            });
+                htmlContent += `
+                <div style="background-color: #4f46e5; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(cat)}</h2>
+                </div>`;
 
-            content += `<div style="margin-top: 30px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 10px; padding-top: 12px; font-weight: 700; color: #64748b;">Exclusive Exam Digest by STENOGYM &bull; Join Telegram Channel: t.me/stenogym &bull; All Rights Reserved</div></div>`;
+                groupedData[cat].forEach((card, index) => {
+                    const hLine = currentLang === 'hi' ? (card.oneLiner_hi || '') : (card.oneLiner || '');
+                    const cBullets = currentLang === 'hi' ? (card.contextBullets_hi || []) : (card.contextBullets || []);
+                    const subCat = currentLang === 'hi' ? (card.subCategory_hi || '') : (card.subCategory || '');
+                    const statBox = currentLang === 'hi' ? (card.staticBox_hi?.facts || '') : (card.staticBox?.facts || '');
+                    const mcq = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
 
-            const element = document.createElement('div'); element.innerHTML = content;
+                    const bullets = cBullets.filter(b => b.trim() !== "").map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
+                    
+                    const staticFacts = statBox ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(statBox)}</div>` : '';
+
+                    let mcqHtml = '';
+                    if (mcq && mcq.question) {
+                        const ansIdx = mcq.correctIndex || 0;
+                        const ansChar = String.fromCharCode(65 + ansIdx);
+                        const ansText = mcq.options ? mcq.options[ansIdx] : '';
+
+                        mcqHtml = `
+                        <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                            <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">Q. ${formatHighlight(mcq.question)}</div>
+                            <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">Ans: ${ansChar}. ${formatHighlight(ansText)}</div>
+                            <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(mcq.explanation)}</em></div>
+                        </div>`;
+                    }
+                    
+                    htmlContent += `
+                        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
+                            <div style="page-break-inside: avoid; page-break-after: avoid;">
+                                <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(subCat || 'NEWS')}</div>
+                                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(hLine)}</div>
+                            </div>
+                            <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
+                            ${staticFacts}
+                            ${mcqHtml}
+                        </div>`;
+                });
+            }
+            
+            htmlContent += `</div>`;
+
+            const element = document.createElement('div');
+            element.innerHTML = htmlContent;
+            
             const finalFilename = `Stenogym_Daily_CA_${selectedDateStr}.pdf`;
             
-            const opt = { 
-                margin: 0.4, 
-                filename: finalFilename, 
-                image: { type: 'jpeg', quality: 0.98 }, 
+            const opt = {
+                margin: [0.5, 0.5, 0.8, 0.5], 
+                filename: finalFilename,
+                image: { type: 'jpeg', quality: 0.98 },
+                pagebreak: { mode: ['css', 'legacy'] },
+                enableLinks: true, 
                 html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
-            
+
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
                 pdf.setProperties({
                     title: finalFilename,
@@ -1710,39 +1754,43 @@
                     keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
                     creator: 'Stenogym Forensic Engine v2.0'
                 });
-                if (logoDataUrl) {
-                    const totalPages = pdf.internal.getNumberOfPages();
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    const imgSize = 4;
-                    for (let i = 1; i <= totalPages; i++) {
-                        pdf.setPage(i);
+                
+                const totalPages = pdf.internal.getNumberOfPages();
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const imgSize = 4;
+                
+                for (let i = 1; i <= totalPages; i++) {
+                    pdf.setPage(i);
+                    pdf.setDrawColor(15, 23, 42); 
+                    pdf.setLineWidth(0.02); 
+                    pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
+
+                    if (logoDataUrl) {
                         try {
-                            pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+                            pdf.setGState(new pdf.GState({ opacity: 0.03 }));
                             pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
                             pdf.setGState(new pdf.GState({ opacity: 1.0 }));
                         } catch(e) {}
                     }
+                    
+                    pdf.setDrawColor(226, 232, 240); 
+                    pdf.setLineWidth(0.01);
+                    pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
+
+                    pdf.setFontSize(9);
+                    pdf.setFont("helvetica", "bold");
+                    pdf.setTextColor(15, 23, 42);
+                    pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
+
+                    pdf.setFont("helvetica", "normal");
+                    pdf.setTextColor(100, 116, 139);
+                    pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
+
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
                 }
-            }).save();
-        };
-        
-        window.scrollToAndHighlight = function(bkmkParam, isComp = false) {
-            const cardEl = document.querySelector(`[data-docid='${bkmkParam}']`);
-            if (cardEl) {
-                cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                let targetSurface = cardEl.querySelector('.flip-card-front') || cardEl;
-                
-                const originalShadow = targetSurface.style.boxShadow;
-                targetSurface.style.boxShadow = "0 0 0 4px #6366f1, 0 10px 40px -10px rgba(99, 102, 241, 0.5)";
-                targetSurface.style.transition = "box-shadow 0.5s ease";
-                
-                const flipInner = cardEl.querySelector('.flip-card-inner');
-                if(flipInner && !isComp) flipInner.classList.add('rotate-y-180');
-                
-                setTimeout(() => { targetSurface.style.boxShadow = originalShadow || ''; }, 3000);
-            }
+            }).save().then(() => { btn.innerHTML = origHtml; btn.disabled = false; });
         };
 
         // ==========================================
