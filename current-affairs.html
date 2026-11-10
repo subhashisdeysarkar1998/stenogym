@@ -392,44 +392,48 @@
         }, { passive: true });
 
         // ==========================================
-        // ZERO-LAG DRAG-TO-SCROLL (PC)
+        // ZERO-LAG DRAG-TO-SCROLL (PC ONLY)
         // ==========================================
-        let activeScrollZone = null;
-        let isDragging = false;
-        let startY, scrollTopTarget;
+        const isMobileDevice = window.innerWidth < 768 || ('ontouchstart' in window);
+        
+        if (!isMobileDevice) {
+            let activeScrollZone = null;
+            let isDragging = false;
+            let startY, scrollTopTarget;
 
-        document.addEventListener('mousedown', (e) => {
-            const scrollZone = e.target.closest('.drag-scroll-zone');
-            if (!scrollZone) return;
-            
-            isDragging = true;
-            activeScrollZone = scrollZone;
-            startY = e.pageY - activeScrollZone.offsetTop;
-            scrollTopTarget = activeScrollZone.scrollTop;
-            activeScrollZone.classList.add('is-dragging');
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isDragging || !activeScrollZone) return;
-            e.preventDefault(); 
-            
-            const y = e.pageY - activeScrollZone.offsetTop;
-            const walk = (y - startY) * 1.5; 
-            
-            window.requestAnimationFrame(() => {
-                if(activeScrollZone) {
-                    activeScrollZone.scrollTop = scrollTopTarget - walk;
-                }
+            document.addEventListener('mousedown', (e) => {
+                const scrollZone = e.target.closest('.drag-scroll-zone');
+                if (!scrollZone) return;
+                
+                isDragging = true;
+                activeScrollZone = scrollZone;
+                startY = e.pageY - activeScrollZone.offsetTop;
+                scrollTopTarget = activeScrollZone.scrollTop;
+                activeScrollZone.classList.add('is-dragging');
             });
-        });
 
-        document.addEventListener('mouseup', () => {
-            if (activeScrollZone) {
-                activeScrollZone.classList.remove('is-dragging');
-                activeScrollZone = null;
-            }
-            isDragging = false;
-        });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging || !activeScrollZone) return;
+                e.preventDefault(); 
+                
+                const y = e.pageY - activeScrollZone.offsetTop;
+                const walk = (y - startY) * 1.5; 
+                
+                window.requestAnimationFrame(() => {
+                    if(activeScrollZone) {
+                        activeScrollZone.scrollTop = scrollTopTarget - walk;
+                    }
+                });
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (activeScrollZone) {
+                    activeScrollZone.classList.remove('is-dragging');
+                    activeScrollZone = null;
+                }
+                isDragging = false;
+            });
+        }
 
         // ==========================================
         // FIREBASE, AUTH & PERSISTENCE INITIALIZATION
@@ -757,14 +761,14 @@
             document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
         }
 
-        // ACCELERATED SERVER-FIRST FETCHER (Bypasses Local Cache Locks entirely)
+        // ACCELERATED FETCHER (Removed the strict `{ source: 'server' }` limit to fix connection drops)
         async function fetchDailyNews(dateStr) {
             const cleanDate = (dateStr || '').trim();
             try {
-                return await db.collection("daily_news").where("date", "==", cleanDate).get({ source: 'server' });
+                // By omitting {source: 'server'}, Firebase will automatically fall back to its internal resilient cache if the network fluctuates, preventing the site from throwing a connection error.
+                return await db.collection("daily_news").where("date", "==", cleanDate).get();
             } catch(e) {
                 console.error("Total fetch failure:", e);
-                // Send an error flag back so the UI knows it was a network glitch, not an empty database
                 return { empty: true, error: true, forEach: () => {} };
             }
         }
@@ -902,7 +906,7 @@
         }
 
         // ==========================================
-        // TWO-ZONE FLIP CARDS WITH MEGA EVENT TABLES
+        // TWO-ZONE FLIP CARDS WITH SMART BATCH RENDERING
         // ==========================================
         function renderFeedCards() {
             const feedContainer = document.getElementById('dailyFeedView'); feedContainer.innerHTML = "";
@@ -1007,7 +1011,7 @@
                                     </div>
                                     <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${formatUIText(mcqData?.question)}</h4>
                                     <div id="mcqOptions-${idx}" class="space-y-2">
-                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"><span>${String.fromCharCode(65+oIdx)}. ${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
+                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:cursor-not-allowed"><span>${String.fromCharCode(65+oIdx)}. ${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
                                     </div>
                                     <div id="mcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-1.5 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
                                 </div>
@@ -1023,7 +1027,27 @@
                         </div>
                     </div>`;
             });
-            feedContainer.innerHTML = html;
+            
+            // CHUNKED DOM INSERTION (Prevents browser lock-ups on mobile devices)
+            feedContainer.innerHTML = "";
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const allNewCards = Array.from(tempDiv.children);
+
+            let chunkIndex = 0;
+            const chunkSize = 5; 
+
+            function renderChunk() {
+                const end = Math.min(chunkIndex + chunkSize, allNewCards.length);
+                for (let i = chunkIndex; i < end; i++) {
+                    feedContainer.appendChild(allNewCards[i]);
+                }
+                chunkIndex += chunkSize;
+                if (chunkIndex < allNewCards.length) {
+                    requestAnimationFrame(renderChunk);
+                }
+            }
+            requestAnimationFrame(renderChunk);
         }
 
         window.flipCard = function(idx) { document.getElementById(`cardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180'); };
@@ -1034,7 +1058,12 @@
             const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); 
             const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
             if(buttons[0].disabled) return; 
-            buttons.forEach(b => b.disabled = true);
+            
+            // Apply a fade to ALL buttons first, then we will 'unfade' the correct/selected ones below
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-50'); 
+            });
             
             const correctText = currentLang === 'hi' ? '✅ सही' : '✅ Correct';
             const incorrectText = currentLang === 'hi' ? '❌ गलत' : '❌ Incorrect';
@@ -1042,6 +1071,7 @@
             const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
 
             if (selIdx === corIdx) {
+                buttons[selIdx].classList.remove('opacity-50'); // Keep chosen correct answer bright
                 buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
                 buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
                 buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
@@ -1049,14 +1079,18 @@
                 feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
                 feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
             } else {
+                buttons[selIdx].classList.remove('opacity-50'); // Keep chosen wrong answer bright
                 buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); 
                 buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); 
                 buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); 
                 buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
+                
+                buttons[corIdx].classList.remove('opacity-50'); // Highlight the actual correct answer
                 buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
                 buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
                 buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
                 buttons[corIdx].querySelector('.status-marker').textContent = correctText;
+                
                 feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner";
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
             }
@@ -1074,7 +1108,8 @@
             const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
             buttons.forEach(b => { 
                 b.disabled = false; 
-                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"; 
+                b.classList.remove('opacity-50', 'bg-emerald-50', 'bg-rose-50', 'dark:bg-emerald-900/30', 'dark:bg-rose-900/30', 'text-emerald-900', 'text-rose-900', 'dark:text-emerald-400', 'dark:text-rose-400', 'border-emerald-500', 'dark:border-emerald-500', 'border-rose-500', 'dark:border-rose-500');
+                b.classList.add('bg-white', 'dark:bg-slate-800', 'border-slate-100', 'dark:border-slate-600', 'text-slate-700', 'dark:text-slate-300');
                 b.querySelector('.status-marker').textContent = ""; 
             });
             feedback.classList.add('hidden'); feedback.classList.remove('flex');
@@ -1083,7 +1118,7 @@
         };
 
         // ==========================================
-        // DYNAMIC COMPILATION SHELF & WORKSPACE
+        // DYNAMIC COMPILATION SHELF (LAZY-LOADING IMPLEMENTED)
         // ==========================================
         let compilationsData = {}; 
         let workingCompilationCards = [];
@@ -1112,15 +1147,28 @@
             shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8">Loading Archive...</div>`;
             
             try {
-                const snap = await db.collection("ca_drills").where("cadence", "==", cadence).get();
-                compilationsData = {};
-                snap.forEach(doc => {
-                    const d = doc.data();
-                    if (!compilationsData[d.date]) compilationsData[d.date] = { id: d.date, cadence: d.cadence, pdfUrl: d.pdfEmbedUrl, cards: [] };
-                    compilationsData[d.date].cards.push({ id: doc.id, ...d });
-                });
+                // FIXED THE TIMEBOMB: We only query a lightweight metadata collection instead of downloading 50,000 cards.
+                // NOTE TO DEV: You will need to maintain a 'ca_drill_metadata' collection to power this menu instantly.
+                // For now, if the metadata doesn't exist, it falls back safely.
+                let snap = await db.collection("ca_drill_metadata").where("cadence", "==", cadence).get();
                 
-                const editions = Object.values(compilationsData).sort((a,b) => b.id.localeCompare(a.id));
+                let editions = [];
+                if (!snap.empty) {
+                    snap.forEach(doc => { editions.push({ id: doc.data().date, ...doc.data() }); });
+                } else {
+                    // Fallback to old heavy query if metadata collection isn't built yet, but grouped to prevent total crash.
+                    console.warn("Using heavy query fallback. Please create a 'ca_drill_metadata' collection.");
+                    const heavySnap = await db.collection("ca_drills").where("cadence", "==", cadence).get();
+                    let groups = {};
+                    heavySnap.forEach(doc => {
+                        const d = doc.data();
+                        if (!groups[d.date]) groups[d.date] = { id: d.date, count: 0, pdfUrl: d.pdfEmbedUrl };
+                        groups[d.date].count++;
+                    });
+                    editions = Object.values(groups);
+                }
+                
+                editions.sort((a,b) => b.id.localeCompare(a.id));
                 
                 if (editions.length === 0) { 
                     shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
@@ -1134,12 +1182,13 @@
                     if (cadence === 'special') displayTitle = 'Special Topic Mock';
                     
                     const topicNameClean = ed.id.replace(/-/g, ' ');
+                    const countDisplay = ed.count ? `${ed.count} MCQs` : `50+ MCQs`;
 
                     html += `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
                             <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(displayTitle)}</span>
-                            <span class="text-xs font-bold text-slate-400">${ed.cards.length} MCQs</span>
+                            <span class="text-xs font-bold text-slate-400">${countDisplay}</span>
                         </div>
                         <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${escapeHtml(topicNameClean)}</h3>
                         <div class="flex flex-col gap-2">
@@ -1158,41 +1207,62 @@
             }
         }
 
-        window.openCompilation = function(compId) {
+        window.openCompilation = async function(compId) {
             currentCompId = compId;
-            const ed = compilationsData[compId]; if(!ed) return;
-            workingCompilationCards = ed.cards;
-            currentCompilationPage = 1;
-            compilationMode = 'flip';
             
-            // STRICT FILTER RESET (Prevents vanished cards)
-            activeCategoryFilter = "all";
-            document.querySelectorAll('.cat-pill').forEach(btn => {
-                btn.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el";
-            });
-            const allBtn = document.querySelector('.cat-pill[data-cat="all"]');
-            if(allBtn) allBtn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
+            // We now load the heavy data ONLY when the user clicks 'Open Deck'
+            document.getElementById('compilationCardsContainer').innerHTML = `<div class="p-8 text-center text-indigo-500 font-bold bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 animate-pulse">Loading Heavy Drill Data...</div>`;
             
             activeView = 'compilationActive';
             document.getElementById('weeklyDrillView').classList.add('hidden'); 
             document.getElementById('monthlyPdfView').classList.add('hidden');
             document.getElementById('compilationWorkspace').classList.remove('hidden');
-            
-            let cadencePrefix = "Special Topic";
-            if (ed.cadence === 'monthly') cadencePrefix = "Monthly Mega Digest";
-            if (ed.cadence === 'weekly') cadencePrefix = "Weekly Speed Drill";
-            
-            let displayTitle = compId.replace(/-/g, ' ');
-            document.title = `${cadencePrefix}: ${displayTitle} Current Affairs MCQs | Stenogym`;
-            document.querySelector('meta[name="description"]').setAttribute("content", `Interactive practice deck and PDF for ${cadencePrefix} - ${displayTitle}. Master these MCQs for SSC and Banking exams.`);
-            
-            setCompilationMode('flip');
-            window.scrollTo({top:0, behavior:'smooth'});
+            document.getElementById('dateControlBar').style.display = 'none';
+            document.getElementById('progressWidget').style.display = 'none';
+
+            try {
+                const snap = await db.collection("ca_drills").where("date", "==", compId).get();
+                workingCompilationCards = [];
+                let cadence = 'weekly';
+                let pdfUrl = '';
+                
+                snap.forEach(doc => {
+                    const d = doc.data();
+                    cadence = d.cadence;
+                    pdfUrl = d.pdfEmbedUrl;
+                    workingCompilationCards.push({ id: doc.id, ...d });
+                });
+
+                compilationsData[compId] = { id: compId, cadence: cadence, pdfUrl: pdfUrl, cards: workingCompilationCards };
+
+                currentCompilationPage = 1;
+                compilationMode = 'flip';
+                
+                // STRICT FILTER RESET (Prevents vanished cards)
+                activeCategoryFilter = "all";
+                document.querySelectorAll('.cat-pill').forEach(btn => {
+                    btn.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el";
+                });
+                const allBtn = document.querySelector('.cat-pill[data-cat="all"]');
+                if(allBtn) allBtn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
+                
+                let cadencePrefix = "Special Topic";
+                if (cadence === 'monthly') cadencePrefix = "Monthly Mega Digest";
+                if (cadence === 'weekly') cadencePrefix = "Weekly Speed Drill";
+                
+                let displayTitle = compId.replace(/-/g, ' ');
+                document.title = `${cadencePrefix}: ${displayTitle} Current Affairs MCQs | Stenogym`;
+                
+                setCompilationMode('flip');
+                window.scrollTo({top:0, behavior:'smooth'});
+            } catch(e) {
+                document.getElementById('compilationCardsContainer').innerHTML = `<div class="p-8 text-center text-rose-500 font-bold bg-white rounded-2xl">Error loading drill data. Please try again.</div>`;
+            }
         };
 
         window.closeCompilation = function() {
             document.getElementById('compilationWorkspace').classList.add('hidden');
-            const targetCadence = compilationsData[currentCompId]?.cadence;
+            const targetCadence = compilationsData[currentCompId]?.cadence || 'weekly';
             
             window.history.pushState({}, '', window.location.pathname);
             
@@ -1342,7 +1412,7 @@
                                     
                                     <div id="compMcqOptions-${idx}" class="space-y-2">
                                         ${(mcqData?.options||[]).map((opt, oIdx) => `
-                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:cursor-not-allowed">
                                                 <span>${String.fromCharCode(65+oIdx)}. ${formatUIText(opt)}</span>
                                                 <span class="status-marker text-xs font-black"></span>
                                             </button>
@@ -1382,7 +1452,7 @@
                         <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${formatUIText(mcqData.question)}</h4>
                         <div class="space-y-2.5" id="quizOptions-${idx}">
                             ${(mcqData.options||[]).map((opt, oIdx) => `
-                                <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx} disabled:opacity-50 disabled:cursor-not-allowed">
+                                <button onclick="handleCompQuizAnswer(event, '${card.id}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 dark:hover:border-indigo-500 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx} disabled:cursor-not-allowed">
                                     <span>${String.fromCharCode(65 + oIdx)}.${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span>
                                 </button>
                             `).join('')}
@@ -1418,18 +1488,28 @@
             const buttons = container.querySelectorAll(`button`); 
             const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`); 
             const feedbackText = document.getElementById(`compMcqFeedbackText-${uiIdx}`);
-            if(buttons[0].disabled) return; buttons.forEach(b => b.disabled = true);
+            if(buttons[0].disabled) return; 
+            
+            buttons.forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-50'); 
+            });
             
             const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
             const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
 
             if (selIdx === corIdx) {
+                buttons[selIdx].classList.remove('opacity-50');
                 buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner flex flex-col gap-1.5 items-start block";
                 feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
             } else {
+                buttons[selIdx].classList.remove('opacity-50');
                 buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
+                
+                buttons[corIdx].classList.remove('opacity-50');
                 buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
+                
                 feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-1.5 items-start block";
                 feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
             }
@@ -1446,7 +1526,8 @@
             
             buttons.forEach(b => {
                 b.disabled = false;
-                b.className = "w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed";
+                b.classList.remove('opacity-50', 'bg-emerald-50', 'bg-rose-50', 'dark:bg-emerald-900/30', 'dark:bg-rose-900/30', 'text-emerald-900', 'text-rose-900', 'dark:text-emerald-400', 'dark:text-rose-400', 'border-emerald-500', 'dark:border-emerald-500', 'border-rose-500', 'dark:border-rose-500');
+                b.classList.add('bg-white', 'dark:bg-slate-800', 'border-slate-100', 'dark:border-slate-600', 'text-slate-700', 'dark:text-slate-300');
                 b.querySelector('.status-marker').textContent = "";
             });
             
@@ -1460,7 +1541,11 @@
         window.handleCompQuizAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
             const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
             if(btns[0].disabled) return;
-            btns.forEach(b => b.disabled = true);
+            
+            btns.forEach(b => {
+                b.disabled = true;
+                b.classList.add('opacity-50'); 
+            });
             
             const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
             saved.attempted++;
@@ -1477,16 +1562,26 @@
         function restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp) {
             const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
             const expContainer = document.getElementById(`quizExp-${uiIdx}`);
-            btns.forEach(b => b.disabled = true);
+            
+            btns.forEach(b => {
+                b.disabled = true;
+                if(!b.classList.contains('bg-emerald-50') && !b.classList.contains('bg-rose-50')) {
+                    b.classList.add('opacity-50');
+                }
+            });
             
             if (selIdx === corIdx) {
-                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed";
+                btns[selIdx].classList.remove('opacity-50');
+                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 disabled:cursor-not-allowed";
                 btns[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
             } else {
-                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 dark:border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 disabled:opacity-50 disabled:cursor-not-allowed";
+                btns[selIdx].classList.remove('opacity-50');
+                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 dark:border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 disabled:cursor-not-allowed";
                 btns[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
-                btns[corIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed";
+                
+                btns[corIdx].classList.remove('opacity-50');
+                btns[corIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 disabled:cursor-not-allowed";
                 btns[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
                 expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
             }
@@ -1675,7 +1770,8 @@
         // Dedicated Topic Router for Deep Links & Master Blog
         async function triggerTopicRouter(topicParam, bkmkParam = null) {
             try {
-                const snap = await db.collection("ca_drills").where("date", "==", topicParam).get({ source: 'server' });
+                // By omitting {source: 'server'}, Firebase will automatically fall back to its internal resilient cache if the network fluctuates.
+                const snap = await db.collection("ca_drills").where("date", "==", topicParam).get();
                 if (!snap.empty) {
                     workingCompilationCards = [];
                     let cadence = 'special';

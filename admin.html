@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -1937,7 +1937,7 @@
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
-        // GENERATE DAILY DIGEST PDF FUNCTION
+        // GENERATE DAILY DIGEST PDF (ATOMIC PROTECTION & RESTORED COLORS)
         window.generateStagedPDF = function() {
             if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
                 return alert("No cards in staging area. Please ingest data first.");
@@ -1954,10 +1954,7 @@
                 if(!text) return "";
                 let safeText = escapeHtml(text);
                 safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
-                safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '');
-                safeText = safeText.replace(/\$\$\/(B|R|G)\$\$/g, '');
-                safeText = safeText.replace(/\$(B|R|G)\$/g, '');
-                safeText = safeText.replace(/\$\/(B|R|G)\$/g, '');
+                safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
                 return safeText;
             };
 
@@ -1968,68 +1965,96 @@
                 return acc;
             }, {});
 
-            let htmlContent = `
-            <div style="font-family: 'Segoe UI', Roboto, sans-serif; width: 100%; box-sizing: border-box; background-color: #ffffff; position: relative;">
-                <div style="padding: 40px; page-break-after: always;">
-                    <div style="text-align: center; margin-bottom: 30px;">
-                        <h1 style="color: #0f172a; font-size: 32px; font-weight: 900; margin: 0; letter-spacing: 2px;">STENOGYM</h1>
-                        <h2 style="color: #e11d48; font-size: 16px; font-weight: 900; margin: 5px 0;">DAILY CURRENT AFFAIRS DIGEST</h2>
-                        <div style="background-color: #f1f5f9; display: inline-block; padding: 8px 20px; border-radius: 20px; margin-top: 15px; font-weight: bold; font-size: 14px; color: #334155;">
-                            ${targetDate} &bull; ${window.stagedNewsItems.length} Total Cards
-                        </div>
+            let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
+            
+            // CLEAN MINIMALIST COVER PAGE (No heavy flat background)
+            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
+            
+            htmlContent += `
+                <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
+                        <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</h2>
                     </div>
-                    <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px;">
-                        <h3 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">DOCUMENT INDEX</h3>
+                    ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
+                </div>
+                
+                <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                    📅 ${targetDate} &nbsp;&bull;&nbsp; ${window.stagedNewsItems.length} Total Cards
+                </div>
+                
+                <div style="margin-bottom: 40px;">
+                    <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
             `;
+            
             for (let cat in groupedData) {
-                htmlContent += `<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; font-weight: 700; color: #334155;"><span>📁 ${escapeHtml(cat)}</span><span>${groupedData[cat].length} Questions</span></div>`;
+                htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
+                    <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
+                </div>`;
             }
-            htmlContent += `</div></div>`;
+            
+            htmlContent += `</div>
+                <div style="text-align: center; margin-top: auto; padding-top: 20px;">
+                    <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
+                </div>
+            </div>`;
 
+            // CONTENT FEED WITH ATOMIC MICRO-PROTECTION & RESTORED COLORS
             for (let cat in groupedData) {
+                const catEmoji = groupedData[cat][0]?.emoji || '📌';
+                
+                // Restored rich category banner
                 htmlContent += `
-                <div style="padding: 40px; page-break-before: always;">
-                    <div style="background: #0f172a; color: white; padding: 12px 20px; border-radius: 8px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center;">
-                        <h2 style="margin: 0; font-size: 20px; font-weight: 900; text-transform: uppercase;">${escapeHtml(cat)}</h2>
-                        <span style="font-size: 14px; font-weight: bold; background: #e11d48; padding: 4px 10px; border-radius: 6px;">${groupedData[cat].length} CARDS</span>
-                    </div>`;
+                <div style="background-color: #4f46e5; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                    <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(cat)}</h2>
+                </div>`;
 
                 groupedData[cat].forEach((card, index) => {
-                    const bullets = (card.contextBullets || []).map(b => `<li style="margin: 6px 0; padding-left: 5px;">${formatHighlight(b)}</li>`).join('');
-                    const staticFacts = card.staticBox?.facts ? `<div style="background: #f8fafc; border-left: 4px solid #94a3b8; padding: 10px 14px; font-size: 12px; color: #475569; margin: 12px 0 16px 0; font-weight: 600;"><strong>Static Context:</strong> ${formatHighlight(card.staticBox.facts)}</div>` : '';
+                    // Bullets: Each individual <li> is protected
+                    const bullets = (card.contextBullets || []).map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
+                    
+                    const staticFacts = card.staticBox?.facts ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(card.staticBox.facts)}</div>` : '';
+
                     let mcqHtml = '';
                     if (card.mcq && card.mcq.question) {
-                        const ansChar = String.fromCharCode(65 + (card.mcq.correctIndex || 0));
-                        const ansText = card.mcq.options ? card.mcq.options[card.mcq.correctIndex || 0] : '';
+                        const ansIdx = card.mcq.correctIndex || 0;
+                        const ansChar = String.fromCharCode(65 + ansIdx);
+                        const ansText = card.mcq.options ? card.mcq.options[ansIdx] : '';
+
                         mcqHtml = `
-                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-top: 16px;">
-                            <div style="font-size: 13px; font-weight: 800; color: #1e3a8a; margin-bottom: 8px;">Exam Drill: ${formatHighlight(card.mcq.question)}</div>
-                            <div style="font-size: 12.5px; font-weight: 700; color: #047857; margin-bottom: 8px;">Ans: Option ${ansChar} (${formatHighlight(ansText)})</div>
-                            <div style="font-size: 12px; color: #334155; line-height: 1.5;"><strong>Core Concept:</strong> ${formatHighlight(card.mcq.explanation)}</div>
+                        <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                            <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">Q. ${formatHighlight(card.mcq.question)}</div>
+                            <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">Ans: ${ansChar}. ${formatHighlight(ansText)}</div>
+                            <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(card.mcq.explanation)}</em></div>
                         </div>`;
                     }
+                    
+                    // The core story (Heading + Paragraph) is glued together
                     htmlContent += `
-                        <div style="margin-bottom: 35px; page-break-inside: avoid;">
-                            <h3 style="font-size: 15px; font-weight: 900; color: #e11d48; margin: 0 0 10px 0; text-transform: uppercase;">#${index + 1} ${escapeHtml(cat)}</h3>
-                            <div style="font-size: 15px; font-weight: 800; color: #0f172a; margin-bottom: 12px; line-height: 1.5;">${formatHighlight(card.oneLiner)}</div>
-                            <ul style="font-size: 13.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 20px; list-style-type: disc;">${bullets}</ul>
+                        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
+                            <div style="page-break-inside: avoid; page-break-after: avoid;">
+                                <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(card.subCategory || 'NEWS')}</div>
+                                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(card.oneLiner)}</div>
+                            </div>
+                            <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
                             ${staticFacts}
                             ${mcqHtml}
                         </div>`;
                 });
-                htmlContent += `</div>`;
             }
+            
             htmlContent += `</div>`;
 
             const element = document.createElement('div');
             element.innerHTML = htmlContent;
             
             const opt = {
-                margin: [0, 0, 0.4, 0], 
+                margin: [0.5, 0.5, 0.8, 0.5], 
                 filename: `Stenogym_Daily_Digest_${targetDate}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
-                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-                html2canvas: { scale: 1, useCORS: true }, 
+                pagebreak: { mode: ['css', 'legacy'] },
+                enableLinks: true, 
+                html2canvas: { scale: 2, useCORS: true }, 
                 jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
             };
 
@@ -2041,26 +2066,38 @@
                 
                 for (let i = 1; i <= totalPages; i++) {
                     pdf.setPage(i);
-                    
+                    pdf.setDrawColor(15, 23, 42); 
+                    pdf.setLineWidth(0.02); 
+                    pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
+
                     if (logoDataUrl) {
                         try {
-                            pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+                            pdf.setGState(new pdf.GState({ opacity: 0.03 }));
                             pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
                             pdf.setGState(new pdf.GState({ opacity: 1.0 }));
                         } catch(e) {}
                     }
                     
+                    pdf.setDrawColor(226, 232, 240); 
+                    pdf.setLineWidth(0.01);
+                    pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
+
                     pdf.setFontSize(9);
-                    pdf.setTextColor(100);
-                    const footerText = 'STENOGYM.COM • Official Telegram: t.me/stenogym';
-                    const pageText = 'Page ' + i + ' of ' + totalPages;
-                    pdf.text(footerText, 0.5, pageHeight - 0.2);
-                    pdf.text(pageText, pageWidth - 0.5 - (pdf.getStringUnitWidth(pageText) * 9 / 72), pageHeight - 0.2);
+                    pdf.setFont("helvetica", "bold");
+                    pdf.setTextColor(15, 23, 42);
+                    pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
+
+                    pdf.setFont("helvetica", "normal");
+                    pdf.setTextColor(100, 116, 139);
+                    pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
+
+                    pdf.setFont("helvetica", "bold");
+                    pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
                 }
             }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
         };
 
-        // GENERATE CHEAT SHEET (Dynamic Date & Flexbox)
+        // GENERATE CHEAT SHEET PDF (CLEAN HEADER, PROTECTED ROWS & RESTORED COLORS)
         window.generateCheatSheetPDF = function() {
             if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
                 return alert("No cards in staging area. Please ingest JSON first.");
@@ -2071,18 +2108,27 @@
             if (catFilter !== 'all') {
                 dataToPrint = dataToPrint.filter(item => (item.category || "General") === catFilter);
             }
-
             if (dataToPrint.length === 0) return alert("No items match the selected category.");
 
             const btn = document.querySelector('button[onclick="generateCheatSheetPDF()"]');
             const origText = btn.innerHTML;
             btn.innerHTML = "Generating PDF (Please Wait)..."; 
             btn.disabled = true;
-
-            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
             
             const isDaily = currentCACadence === 'daily';
             const displayDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
+
+            let reportTitle = "CURRENT AFFAIRS REVISION SHEET";
+            let subTitle = "THE MASTER CHEAT SHEET";
+            if (!isDaily) {
+                const ctype = document.getElementById('drillCadenceType').value;
+                if (ctype === 'weekly') { reportTitle = "WEEKLY SPEED DRILL"; subTitle = "WEEKLY COMPILATION"; }
+                else if (ctype === 'monthly') { reportTitle = "MONTHLY MEGA DIGEST"; subTitle = "MONTHLY COMPILATION"; }
+                else if (ctype === 'special') { reportTitle = "SPECIAL TOPIC MOCK"; subTitle = "SPECIAL EDITION"; }
+            } else {
+                subTitle = "DAILY COMPILATION";
+            }
 
             try {
                 const formatHighlight = (text) => {
@@ -2095,11 +2141,7 @@
                         }
                         return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
                     });
-                    
-                    safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '');
-                    safeText = safeText.replace(/\$\$\/(B|R|G)\$\$/g, '');
-                    safeText = safeText.replace(/\$(B|R|G)\$/g, '');
-                    safeText = safeText.replace(/\$\/(B|R|G)\$/g, '');
+                    safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
                     return safeText;
                 };
 
@@ -2112,8 +2154,7 @@
                         const words1 = clean1.split(/\s+/).filter(w => w.length > 3);
                         const words2 = clean2.split(/\s+/).filter(w => w.length > 3);
                         const overlap = words1.filter(w => words2.includes(w)).length;
-                        const matchRatio = overlap / Math.min(words1.length || 1, words2.length || 1);
-                        return matchRatio > 0.6;
+                        return (overlap / Math.min(words1.length || 1, words2.length || 1)) > 0.6;
                     });
                     if (!isDuplicate) deduplicatedData.push(card);
                 });
@@ -2137,85 +2178,81 @@
                 });
 
                 const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
-                let htmlContent = `<div style="font-family: 'Segoe UI', Roboto, sans-serif; width: 100%; box-sizing: border-box; background-color: #ffffff;">`;
-
-                // DYNAMIC TOC PAGE
+                
+                let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
+                
+                // CLEAN MINIMALIST COVER PAGE (No heavy flat background)
+                htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
                 htmlContent += `
-                    <div style="padding: 40px; page-break-after: always;">
-                        <div style="text-align: center; margin-bottom: 35px;">
-                            <div style="background: linear-gradient(135deg, #000000 40%, #ca8a04 100%); padding: 25px; border-radius: 12px 12px 0 0; border-bottom: 5px solid #4f46e5; width: 100%;">
-                                <h1 style="color: #ffffff; font-size: 30px; font-weight: 900; margin: 0; letter-spacing: 1.5px;">🏆 STENOGYM</h1>
-                                <h2 style="color: #fef08a; font-size: 14px; font-weight: 900; margin: 6px 0 0 0; text-transform: uppercase;">THE MASTER CHEAT SHEET &bull; ${displayDate}</h2>
-                            </div>
-                            <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-top: none; padding: 6px 20px; border-radius: 0 0 12px 12px; display: inline-block; font-size: 12px; font-weight: 900; color: #334155;">
-                                Target: SSC & Banking | ${deduplicatedData.length} Verified Facts
-                            </div>
-                        </div>
-                        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px;">
-                            <h2 style="font-size: 18px; font-weight: 900; color: #0f172a; margin-top: 0; margin-bottom: 16px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">Index</h2>
+                    <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px;">
+                        <h2 style="margin: 0 0 6px 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${subTitle} &bull; ${displayDate}</h2>
+                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; line-height: 1.2;">${reportTitle.replace(' ', '<br>')}</h1>
+                    </div>
+                    
+                    <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        ${sortedCategories.length} Categories &nbsp;&bull;&nbsp; ${deduplicatedData.length} Verified Facts
+                    </div>
+                    
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Category Index</h3>
                 `;
-
+                
                 sortedCategories.forEach(cat => {
-                    htmlContent += `<div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; font-weight: 700; color: #334155;"><span>📁 ${escapeHtml(cat)}</span><span>${groupedData[cat].length} Cards</span></div>`;
+                    htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
+                        <span>📁 ${escapeHtml(cat)}</span> <span style="color: #e11d48;">${groupedData[cat].length} Facts</span>
+                    </div>`;
                 });
-                htmlContent += `</div></div>`;
+                
+                htmlContent += `</div>
+                    <div style="text-align: center; margin-top: auto; padding-top: 20px;">
+                        <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
+                    </div>
+                </div>`;
 
+                // CONTENT PAGES WITH ROW PROTECTION & RESTORED COLORS
                 let colorIndex = 0;
                 sortedCategories.forEach((category) => {
                     const items = groupedData[category];
                     const catColor = themeColors[colorIndex % themeColors.length];
-                    let catEmoji = "📌";
+                    const catEmoji = items[0]?.emoji || '📌';
                     
+                    // Restored rich category banner
                     htmlContent += `
-                    <div style="padding: 40px 40px 10px 40px; page-break-inside: auto;">
-                        <h3 style="font-size: 18px; font-weight: 900; color: #${catColor}; text-transform: uppercase; margin: 0 0 16px 0; border-bottom: 3px solid #${catColor}; padding-bottom: 8px;">
-                            <span style="font-size: 20px; margin-right: 8px;">${catEmoji}</span> ${escapeHtml(category)} (TIER 1)
-                        </h3>
-                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: white;">
+                        <div style="background-color: #${catColor}; color: #ffffff; padding: 8px 16px; margin: 16px 0 8px 0; border-radius: 4px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                            <h3 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;">${catEmoji} ${escapeHtml(category)}</h3>
+                        </div>
                     `;
 
                     items.forEach((item, index) => {
-                        const bgColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
-                        const borderBottom = index === items.length - 1 ? 'none' : '1px solid #cbd5e1';
+                        const bgRowColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
+                        const itemEmoji = item.emoji || '📌';
                         
+                        // Protect each individual one-liner row and restore alternating colors
                         htmlContent += `
-                            <div style="background-color: ${bgColor}; padding: 16px 20px; border-left: 5px solid #${catColor}; border-bottom: ${borderBottom}; page-break-inside: avoid; break-inside: avoid; display: flex; flex-direction: column; gap: 12px;">
-                                <div style="display: flex; justify-content: flex-end; width: 100%;">
-                                    <div style="background-color: #${catColor}; color: #ffffff; padding: 6px 14px; border-radius: 20px; display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;">
-                                        <span style="font-size: 14px;">${escapeHtml(item.emoji || '')}</span>
-                                        <span style="font-size: 11px; font-weight: 900; letter-spacing: 0.5px;">${escapeHtml(item.subCategory || 'NEWS').toUpperCase()}</span>
-                                    </div>
-                                </div>
-                                <div style="font-size: 14.5px; color: #1e293b; line-height: 1.6; text-align: left; font-weight: 500;">
+                            <div style="page-break-inside: avoid; background-color: ${bgRowColor}; padding: 10px; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid #f1f5f9; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                                <div style="font-size: 12px; flex-shrink: 0; width: 20px; text-align: center;">${itemEmoji}</div>
+                                <div style="font-size: 11.5px; color: #1e293b; line-height: 1.6; font-weight: 500;">
+                                    <strong style="color: #${catColor}; text-transform: uppercase; margin-right: 6px;">${escapeHtml(item.subCategory || 'NEWS')}</strong>
                                     ${formatHighlight(item.oneLiner || '')}
                                 </div>
                             </div>
                         `;
                     });
-                    
-                    htmlContent += `</div></div>`;
                     colorIndex++;
                 });
 
-                htmlContent += `
-                <div style="padding: 20px 40px 40px 40px; page-break-inside: avoid;">
-                    <div style="margin-top: 20px; padding: 24px; text-align: center; border: 1px solid #cbd5e1; background-color: #f8fafc; border-radius: 8px;">
-                        <div style="font-size: 16px; font-weight: 900; color: #0f172a; margin-bottom: 8px;">Memory Check: Are you ready for the exam?</div>
-                        <div style="display: inline-block; background-color: #facc15; color: #000000; padding: 12px 24px; font-weight: 900; border-radius: 24px; font-size: 14px; border: 1px solid #000000;">
-                            📝 TAKE THE 50-MCQ MEGA MOCK TEST
-                        </div>
-                    </div>
-                </div></div>`;
+                htmlContent += `</div>`;
 
                 const element = document.createElement('div');
                 element.innerHTML = htmlContent;
 
                 const opt = {
-                    margin: [0, 0, 0.4, 0], 
-                    filename: `Stenogym_Cheat_Sheet_${displayDate.replace(/\s+/g, '_')}.pdf`,
-                    image: { type: 'jpeg', quality: 0.95 }, 
-                    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-                    html2canvas: { scale: 1, useCORS: true }, 
+                    margin: [0.5, 0.5, 0.8, 0.5], 
+                    filename: `Stenogym_Master_Sheet_${displayDate.replace(/\s+/g, '_')}.pdf`,
+                    image: { type: 'jpeg', quality: 0.98 }, 
+                    pagebreak: { mode: ['css', 'legacy'] },
+                    enableLinks: true, 
+                    html2canvas: { scale: 2, useCORS: true }, 
                     jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
                 };
 
@@ -2227,41 +2264,42 @@
                     
                     for (let i = 1; i <= totalPages; i++) {
                         pdf.setPage(i);
-                        
+                        pdf.setDrawColor(15, 23, 42); 
+                        pdf.setLineWidth(0.02); 
+                        pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
+
                         if (logoDataUrl) {
                             try {
-                                pdf.setGState(new pdf.GState({ opacity: 0.05 }));
+                                pdf.setGState(new pdf.GState({ opacity: 0.03 }));
                                 pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
                                 pdf.setGState(new pdf.GState({ opacity: 1.0 }));
                             } catch(e) {}
                         }
                         
+                        pdf.setDrawColor(226, 232, 240); 
+                        pdf.setLineWidth(0.01);
+                        pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
+
                         pdf.setFontSize(9);
-                        pdf.setTextColor(100);
-                        const footerText = 'STENOGYM.COM • Official Telegram: t.me/stenogym';
-                        const pageText = 'Page ' + i + ' of ' + totalPages;
-                        
-                        pdf.setDrawColor(203, 213, 225); 
-                        pdf.line(0.5, pageHeight - 0.35, pageWidth - 0.5, pageHeight - 0.35);
-                        pdf.text(footerText, 0.5, pageHeight - 0.2);
-                        pdf.text(pageText, pageWidth - 0.5 - (pdf.getStringUnitWidth(pageText) * 9 / 72), pageHeight - 0.2);
+                        pdf.setFont("helvetica", "bold");
+                        pdf.setTextColor(15, 23, 42);
+                        pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
+
+                        pdf.setFont("helvetica", "normal");
+                        pdf.setTextColor(100, 116, 139);
+                        pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
+
+                        pdf.setFont("helvetica", "bold");
+                        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
                     }
-                }).save().then(() => {
-                    btn.innerHTML = origText; 
-                    btn.disabled = false;
-                }).catch(err => {
-                    alert("PDF Engine Error: " + err.message);
-                    btn.innerHTML = origText; 
-                    btn.disabled = false;
-                });
+                }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
 
             } catch(e) {
                 alert("Processing Error: " + e.message);
-                btn.innerHTML = origText; 
-                btn.disabled = false;
+                btn.innerHTML = origText; btn.disabled = false;
             }
         };
-
+        
         // =========================================================================
 
         window.autoTranslateCA = async function() {
