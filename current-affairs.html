@@ -545,6 +545,40 @@
         themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
         let currentLang = localStorage.getItem('preferredLang') || 'en';
+        // ==========================================
+        // 🚀 REST API CONFIGURATION & TRANSLATOR
+        // ==========================================
+        const FIREBASE_PROJECT_ID = "stenogym"; 
+        
+        // Translates Google's messy REST format into normal objects, including nested Maps and Arrays
+        function formatRestDocument(doc) {
+            function parseValue(val) {
+                if (val.stringValue !== undefined) return val.stringValue;
+                if (val.booleanValue !== undefined) return val.booleanValue;
+                if (val.integerValue !== undefined) return parseInt(val.integerValue);
+                if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
+                if (val.timestampValue !== undefined) return val.timestampValue;
+                if (val.arrayValue !== undefined) {
+                    return val.arrayValue.values ? val.arrayValue.values.map(parseValue) : [];
+                }
+                if (val.mapValue !== undefined && val.mapValue.fields) {
+                    const mapObj = {};
+                    for (const [k, v] of Object.entries(val.mapValue.fields)) {
+                        mapObj[k] = parseValue(v);
+                    }
+                    return mapObj;
+                }
+                return null;
+            }
+
+            const data = {};
+            if (doc.fields) {
+                for (const [key, val] of Object.entries(doc.fields)) {
+                    data[key] = parseValue(val);
+                }
+            }
+            return { id: doc.name.split('/').pop(), ...data };
+        }
         window.setLanguage = function(lang) {
             currentLang = lang;
             localStorage.setItem('preferredLang', lang);
@@ -761,148 +795,134 @@
             document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
         }
 
-        // ACCELERATED FETCHER (Removed the strict `{ source: 'server' }` limit to fix connection drops)
+                 
+        // ==========================================
+        // ⚡ HIGH-SPEED REST API FETCHER
+        // ==========================================
         async function fetchDailyNews(dateStr) {
             const cleanDate = (dateStr || '').trim();
+            const queryPayload = {
+                structuredQuery: {
+                    from: [{ collectionId: "daily_news" }],
+                    where: { fieldFilter: { field: { fieldPath: "date" }, op: "EQUAL", value: { stringValue: cleanDate } } }
+                }
+            };
+            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
             try {
-                // By omitting {source: 'server'}, Firebase will automatically fall back to its internal resilient cache if the network fluctuates, preventing the site from throwing a connection error.
-                return await db.collection("daily_news").where("date", "==", cleanDate).get();
-            } catch(e) {
-                console.error("Total fetch failure:", e);
-                return { empty: true, error: true, forEach: () => {} };
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queryPayload),
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error("REST API Network Error");
+                const json = await response.json();
+                
+                if (!json || json.length === 0 || (json.length === 1 && !json[0].document)) {
+                    return { empty: true, docs: [] }; 
+                }
+                const cleanDocs = json.filter(item => item.document).map(item => ({
+                    id: item.document.name.split('/').pop(),
+                    data: () => formatRestDocument(item.document)
+                }));
+                return { empty: cleanDocs.length === 0, docs: cleanDocs, error: false };
+            } catch (error) {
+                console.error("🔥 Network Drop Detected:", error);
+                return { empty: true, docs: [], error: true };
             }
         }
 
+        // ==========================================
+        // CORE LOAD ENGINE & SMART EMPTY STATE
+        // ==========================================
         async function loadNewsForDate(dateStr) {
-            document.getElementById('dailyFeedView').classList.add('hidden'); document.getElementById('emptyFeedState').classList.add('hidden'); document.getElementById('feedLoading').classList.remove('hidden');
+            document.getElementById('feedLoading').classList.remove('hidden');
+            document.getElementById('dailyFeedView').classList.add('hidden');
+            document.getElementById('emptyFeedState').classList.add('hidden');
             document.getElementById('displayDateBadge').innerText = formatISTDisplay(dateStr);
+            
             try {
-                const snapshot = await fetchDailyNews(dateStr); 
-                allArticlesCache = []; 
-                const nowMs = Date.now();
+                const snapshot = await fetchDailyNews(dateStr);
+                allArticlesCache = [];
                 
-                snapshot.forEach(doc => { 
-                    const data = doc.data(); 
-                    let publishMs = 0;
-                    
-                    if (data.publishAt) {
-                        if (typeof data.publishAt.toDate === 'function') {
-                            publishMs = data.publishAt.toDate().getTime();
-                        } else if (typeof data.publishAt.toMillis === 'function') {
-                            publishMs = data.publishAt.toMillis();
-                        } else {
-                            publishMs = new Date(data.publishAt).getTime();
-                        }
-                    }
-                    
-                    // Show if published, or if publishAt is not configured
-                    if (!data.publishAt || isNaN(publishMs) || publishMs <= nowMs) {
-                        allArticlesCache.push({ id: doc.id, ...data }); 
-                    }
-                });
+                if (!snapshot.empty && snapshot.docs) {
+                    // We instantly unpack every clean document straight into the cache array
+                    allArticlesCache = snapshot.docs.map(doc => doc.data());
+                }
 
-                document.getElementById('feedLoading').classList.add('hidden');
-                
                 // ==========================================
                 // 🧠 SMART EMPTY STATE (SELF-ANALYSIS ENGINE)
                 // ==========================================
-                if (allArticlesCache.length === 0) { 
-                    const resetBtn = document.getElementById('btnResetToday');
-                    const iconEl = document.getElementById('emptyIcon');
-                    const textEl = document.getElementById('emptyText');
-                    
-                    const todayStr = getISTDateString();
+                if (allArticlesCache.length === 0) {
+                    document.getElementById('feedLoading').classList.add('hidden');
+                    const emptyFeedState = document.getElementById('emptyFeedState');
+                    const todayStr = getISTDateObj().toLocaleDateString('en-CA');
                     const currentHour = getISTDateObj().getHours();
+                    const isHindi = (currentLang === 'hi');
 
-                    // Scenario 3: Network Glitch (Caught by our fetcher)
+                    emptyFeedState.classList.remove('hidden');
+
+                    // SCENARIO A: TRUE NETWORK TIMEOUT OR GLITCH
                     if (snapshot.error) {
-                        iconEl.textContent = "📡"; 
-                        textEl.innerHTML = currentLang === 'hi' ? "सर्वर से कनेक्ट करने में समस्या हुई।" : "We had a problem connecting to the server to load today's news.";
-                        resetBtn.innerHTML = currentLang === 'hi' ? "🔄 पुनः प्रयास करें" : "🔄 Try Again";
-                        resetBtn.onclick = () => { 
-                            resetBtn.innerHTML = "⏳ Loading...";
-                            loadNewsForDate(dateStr); 
-                        };
-                    } 
-                    // Scenarios 1 & 2: The user is checking Today's date
-                    else if (dateStr === todayStr) {
-                        if (currentHour < 6) {
-                            // Pre-Dawn (Before 6:00 AM)
-                            iconEl.textContent = "🌅"; 
-                            textEl.innerHTML = currentLang === 'hi' ? "आज का करंट अफेयर्स सुबह 6:00 बजे आएगा।" : "Today's Current Affairs digest drops sharp at 6:00 AM.";
-                            resetBtn.innerHTML = currentLang === 'hi' ? "📖 कल के समाचार पढ़ें" : "📖 Read Yesterday's Digest";
-                            resetBtn.onclick = () => { 
-                                const [y,m,d] = todayStr.split('-').map(Number);
-                                const prev = new Date(y, m-1, d-1);
-                                selectedDateStr = `${prev.getFullYear()}-${String(prev.getMonth()+1).padStart(2,'0')}-${String(prev.getDate()).padStart(2,'0')}`;
-                                dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
-                            };
-                        } else {
-                            // Admin Delay (After 6:00 AM, but no news found)
-                            iconEl.textContent = "⏳"; 
-                            textEl.innerHTML = currentLang === 'hi' ? "आज के समाचार अभी संकलित किए जा रहे हैं।" : "Today's news hasn't been uploaded yet. Our team is currently compiling it!";
-                            resetBtn.innerHTML = currentLang === 'hi' ? "🔄 फ़ीड रीफ्रेश करें" : "🔄 Refresh Feed";
-                            resetBtn.onclick = () => { 
-                                resetBtn.innerHTML = "⏳ Refreshing...";
-                                loadNewsForDate(dateStr); 
-                            };
-                        }
-                    } 
-                    // Scenario 4: Empty Archive (A past/future date)
-                    else {
-                        iconEl.textContent = "📭"; 
-                        textEl.innerHTML = currentLang === 'hi' ? "इस विशिष्ट तिथि के लिए कोई समाचार दर्ज नहीं किया गया था।" : "No news was filed for this specific date.";
-                        resetBtn.innerHTML = currentLang === 'hi' ? "📅 आज पर जाएं" : "📅 Jump to Today";
-                        resetBtn.onclick = () => { 
-                            selectedDateStr = todayStr; 
-                            dateInput.value = selectedDateStr; 
-                            updateUrlAndLoad(selectedDateStr); 
-                        };
+                        emptyFeedState.innerHTML = `
+                            <div class="text-4xl mb-4 animate-bounce">📡</div>
+                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'कनेक्शन त्रुटि' : 'Connection Error'}</h3>
+                            <p class="text-slate-500 mb-4">${isHindi ? 'दैनिक करेंट अफेयर्स लोड नहीं हो सका। कृपया पेज को रीफ्रेश करें।' : 'The Daily CA could not be loaded. Please do refresh the page to load the daily CA.'}</p>
+                            <button onclick="location.reload()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-indigo-700 transition">
+                                🔄 ${isHindi ? 'रीफ्रेश करें' : 'Refresh Page'}
+                            </button>`;
                     }
-                    
-                    document.getElementById('emptyFeedState').classList.remove('hidden'); 
-                } 
-                // ==========================================
-                // END SMART EMPTY STATE
-                // ==========================================
-                else { 
-                    const topNews = allArticlesCache[0].oneLiner || "Daily Exam Updates";
-                    document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
-                    document.querySelector('meta[name="description"]').setAttribute("content", `Daily Current Affairs for ${formatISTDisplay(dateStr)}. Top News: ${topNews}. Download free PDFs and take MCQs for SSC CGL, RRB NTPC, and IBPS PO.`);
-                    
-                    let schemaId = document.getElementById('dynamic-faq-schema');
-                    if(schemaId) schemaId.remove();
-                    
-                    const schemaData = {
-                        "@context": "https://schema.org",
-                        "@type": "FAQPage",
-                        "mainEntity": allArticlesCache.map(card => {
-                            const q = card.mcq?.question || card.oneLiner;
-                            const ansText = card.mcq?.options ? card.mcq.options[card.mcq.correctIndex || 0] : "";
-                            const exp = card.mcq?.explanation || "";
-                            return {
-                                "@type": "Question",
-                                "name": q,
-                                "acceptedAnswer": { "@type": "Answer", "text": `${ansText} - ${exp}` }
-                            };
-                        })
-                    };
-                    
-                    const script = document.createElement('script');
-                    script.id = 'dynamic-faq-schema';
-                    script.type = 'application/ld+json';
-                    script.text = JSON.stringify(schemaData);
-                    document.head.appendChild(script);
-
-                    readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); 
+                    // SCENARIO B: PRE-DAWN WAIT (Today, before 6 AM)
+                    else if (dateStr === todayStr && currentHour < 6) {
+                        emptyFeedState.innerHTML = `
+                            <div class="text-4xl mb-4">🌅</div>
+                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'जल्द आ रहा है' : 'Coming Soon'}</h3>
+                            <p class="text-slate-500 mb-4">${isHindi ? 'आज का करेंट अफेयर्स सुबह 6:00 बजे अपलोड किया जाएगा।' : 'Today\'s Current Affairs digest drops sharp at 6:00 AM.'}</p>
+                            <button onclick="document.getElementById('btnPrevDay').click()" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
+                                📖 ${isHindi ? 'कल का पढ़ें' : 'Read Yesterday\'s Digest'}
+                            </button>`;
+                    }
+                    // SCENARIO C: ADMIN DELAY (Today, after 6 AM, and we KNOW the network works)
+                    else if (dateStr === todayStr) {
+                        emptyFeedState.innerHTML = `
+                            <div class="text-4xl mb-4">⏳</div>
+                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'संकलन जारी है' : 'Compiling...'}</h3>
+                            <p class="text-slate-500 mb-4">${isHindi ? 'आज का करेंट अफेयर्स अभी अपलोड नहीं हुआ है। हमारी टीम इसे संकलित कर रही है!' : 'Today\'s news hasn\'t been uploaded yet. Our team is currently compiling it!'}</p>
+                            <button onclick="location.reload()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-indigo-700 transition">
+                                🔄 ${isHindi ? 'रीफ्रेश करें' : 'Refresh Feed'}
+                            </button>`;
+                    }
+                    // SCENARIO D: PAST DATE ARCHIVE EMPTY (Not today, no network error)
+                    else {
+                        emptyFeedState.innerHTML = `
+                            <div class="text-4xl mb-4">📭</div>
+                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'कोई खबर नहीं' : 'Archive Empty'}</h3>
+                            <p class="text-slate-500 mb-4">${isHindi ? 'इस विशिष्ट तिथि के लिए कोई खबर दर्ज नहीं की गई थी।' : 'No news was filed for this specific date.'}</p>
+                            <button onclick="document.getElementById('selectedDateInput').value='${todayStr}'; document.getElementById('selectedDateInput').dispatchEvent(new Event('change'))" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-slate-900 transition">
+                                📅 ${isHindi ? 'आज पर जाएं' : 'Jump to Today'}
+                            </button>`;
+                    }
+                    return;
                 }
+                
+                // If cards exist, render them normally
+                document.getElementById('feedLoading').classList.add('hidden');
+                const topNews = allArticlesCache[0].oneLiner || "Daily Exam Updates";
+                document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
+                document.querySelector('meta[name="description"]').setAttribute("content", `Daily Current Affairs for ${formatISTDisplay(dateStr)}. Top News: ${topNews}. Download free PDFs and take MCQs for SSC CGL, RRB NTPC, and IBPS PO.`);
+                
+                readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); 
+                
             } catch (err) { 
                 console.error("News load error:", err);
                 document.getElementById('feedLoading').classList.add('hidden'); 
-                document.getElementById('emptyFeedState').classList.remove('hidden'); 
+                const emptyFeedState = document.getElementById('emptyFeedState');
+                emptyFeedState.classList.remove('hidden'); 
+                emptyFeedState.innerHTML = `<div class="text-xl text-rose-500 font-bold py-10">Critical Load Error: Please refresh the page.</div>`;
             }
-            
-            return true;
         }
 
         // ==========================================

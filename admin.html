@@ -2470,14 +2470,61 @@
         window.fetchCAManage = async function() {
             const targetDate = document.getElementById('caManageDate').value;
             if(!targetDate) return;
-            caManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">Loading cards for date...</td></tr>';
+            caManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">Loading cards via Express REST API...</td></tr>';
 
             try {
-                const q = query(collection(db, "daily_news"), where("date", "==", targetDate));
-                const snap = await getDocs(q);
-                caInspectCache = [];
-                snap.forEach(d => caInspectCache.push({ id: d.id, ...d.data() }));
+                // 1. We construct the REST query to ask for cards where "date" == targetDate
+                const FIREBASE_PROJECT_ID = "stenogym"; 
+                const queryPayload = {
+                    structuredQuery: {
+                        from: [{ collectionId: "daily_news" }],
+                        where: { fieldFilter: { field: { fieldPath: "date" }, op: "EQUAL", value: { stringValue: targetDate } } }
+                    }
+                };
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
 
+                // 2. We use standard fetch to bypass WebSockets completely
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(queryPayload)
+                });
+
+                if (!response.ok) throw new Error("Network Error");
+                const json = await response.json();
+                
+                caInspectCache = [];
+
+                // 3. Built-in Smart Translator to clean up Google's REST format
+                function parseValue(val) {
+                    if (val.stringValue !== undefined) return val.stringValue;
+                    if (val.booleanValue !== undefined) return val.booleanValue;
+                    if (val.integerValue !== undefined) return parseInt(val.integerValue);
+                    if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
+                    if (val.timestampValue !== undefined) return val.timestampValue;
+                    if (val.arrayValue !== undefined) return val.arrayValue.values ? val.arrayValue.values.map(parseValue) : [];
+                    if (val.mapValue !== undefined && val.mapValue.fields) {
+                        const mapObj = {};
+                        for (const [k, v] of Object.entries(val.mapValue.fields)) { mapObj[k] = parseValue(v); }
+                        return mapObj;
+                    }
+                    return null;
+                }
+
+                // 4. Unpack and cache the clean data
+                if (json && json.length > 0 && json[0].document) {
+                    json.filter(item => item.document).forEach(item => {
+                        const data = {};
+                        if (item.document.fields) {
+                            for (const [key, val] of Object.entries(item.document.fields)) {
+                                data[key] = parseValue(val);
+                            }
+                        }
+                        caInspectCache.push({ id: item.document.name.split('/').pop(), ...data });
+                    });
+                }
+
+                // 5. Update UI Status Badges
                 const badge = document.getElementById('caDayStatusBadge');
                 if (caInspectCache.length === 0) {
                     badge.innerHTML = `<span class="text-slate-500 font-bold">No cards found for ${targetDate}</span>`;
@@ -2488,7 +2535,11 @@
                 }
 
                 renderCAManageTable();
-            } catch (err) { caManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+                
+            } catch (err) { 
+                console.error("Fetch Error:", err);
+                caManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Network Timeout. Please refresh.</td></tr>`; 
+            }
         };
 
         function renderCAManageTable() {
