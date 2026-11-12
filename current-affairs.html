@@ -139,26 +139,26 @@
             <div class="flex flex-col px-6 py-4 space-y-4 font-semibold text-sm">
                 <a href="index.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🏠 Home" data-hi="🏠 होम">🏠 Home</a>
                 <a href="current-affairs.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🗞️ Current Affairs" data-hi="🗞️ करंट अफेयर्स">🗞️ Current Affairs</a>
-                <a href="gk.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="📚 Static GK" data-hi="📚 स्टेटिक GK">📚 Static GK</a>
+                <a href="gk.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="📚 Static GK" data-hi="📚 स्टेटिक GK">📚 स्टेटिक GK</a>
                 
                 <div>
                     <button id="mobileStenoToggle" class="flex justify-between w-full text-slate-300 hover:text-white font-bold transition">
-                        <span class="translation-el" data-en="⌨️ Steno Room" data-hi="⌨️ स्टेनो रूम">⌨️ Steno Room</span>
+                        <span class="translation-el" data-en="⌨️ Steno Room" data-hi="⌨️ स्टेनो रूम">⌨️ स्टेनो रूम</span>
                         <span id="stenoChevron">▼</span>
                     </button>
                     <div id="mobileStenoMenu" class="hidden flex-col space-y-3 mt-3 pl-6 border-l-2 border-indigo-700">
-                        <a href="app.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🎧 Preset Practice Room" data-hi="🎧 प्रीसेट अभ्यास रूम">🎧 Preset Practice Room</a>
-                        <a href="generator.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🧠 AI Dictation Studio" data-hi="🧠 AI डिक्टेशन स्टूडियो">🧠 AI Dictation Studio</a>
-                        <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 Live Document Scanner</a>
+                        <a href="app.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🎧 Preset Practice Room" data-hi="🎧 प्रीसेट अभ्यास रूम">🎧 प्रीसेट अभ्यास रूम</a>
+                        <a href="generator.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🧠 AI Dictation Studio" data-hi="🧠 AI डिक्टेशन स्टूडियो">🧠 AI डिक्टेशन स्टूडियो</a>
+                        <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 लाइव डॉक्यूमेंट स्कैनर</a>
                     </div>
                 </div>
                 
-                <a href="blog.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="✍️ Blog & Guides" data-hi="✍️ ब्लॉग और गाइड">✍️ Blog & Guides</a>
+                <a href="blog.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="✍️ Blog & Guides" data-hi="✍️ ब्लॉग और गाइड">✍️ ब्लॉग और गाइड</a>
                 
                 <div class="pt-2 border-t border-indigo-800">
-                    <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300 font-bold mb-2 translation-el" data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</a>
-                    <a href="login.html" id="mobileLoginBtn" class="block text-white font-bold translation-el" data-en="Student Login &rarr;" data-hi="छात्र लॉगिन &rarr;">Student Login &rarr;</a>
-                    <button id="mobileLogoutBtn" class="hidden w-full text-left font-bold text-rose-400 mt-2 translation-el" data-en="Logout &rarr;" data-hi="लॉग आउट &rarr;">Logout &rarr;</button>
+                    <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300 font-bold mb-2 translation-el" data-en="Dashboard" data-hi="डैशबोर्ड">डैशबोर्ड</a>
+                    <a href="login.html" id="mobileLoginBtn" class="block text-white font-bold translation-el" data-en="Student Login &rarr;" data-hi="छात्र लॉगिन &rarr;">छात्र लॉगिन &rarr;</a>
+                    <button id="mobileLogoutBtn" class="hidden w-full text-left font-bold text-rose-400 mt-2 translation-el" data-en="Logout &rarr;" data-hi="लॉग आउट &rarr;">लॉग आउट &rarr;</button>
                 </div>
             </div>
         </div>
@@ -441,15 +441,18 @@
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         
-        // SAFE PERSISTENCE WITHOUT TAB SYNCHRONIZATION DEADLOCKS
         firebase.firestore().enablePersistence().catch(err => {
-            if (err.code !== 'failed-precondition' && err.code !== 'unimplemented') {
-                console.warn("Persistence note:", err);
-            }
+            if (err.code !== 'failed-precondition' && err.code !== 'unimplemented') console.warn("Persistence note:", err);
         });
         
         const db = firebase.firestore();
         let activeUser = null;
+        
+        // REFRESH BUG FIX: Remember active tab from URL or Session
+        const urlParams = new URLSearchParams(window.location.search);
+        let activeView = urlParams.get('tab') || sessionStorage.getItem('lastActiveTab') || 'daily';
+        
+        let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
 
         firebase.auth().onAuthStateChanged(user => {
             activeUser = user;
@@ -478,7 +481,12 @@
                     savedBookmarks = mergedBookmarks;
                     
                     if (activeView === 'daily') renderFeedCards();
-                    if (activeView === 'compilationActive') renderCompilationPage();
+                    if (activeView === 'compilationActive') {
+                        document.getElementById('compilationCardsContainer').innerHTML = "";
+                        const savedPage = currentCompilationPage;
+                        currentCompilationPage = 1;
+                        renderCompilationPage(savedPage); 
+                    }
                 });
             } else {
                 document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
@@ -510,30 +518,34 @@
         window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
 
         // ==========================================
-        // TELEGRAM SOFT GATE
+        // DUAL-DRIVE TELEGRAM SOFT GATE
         // ==========================================
-        window.triggerTelegramDownload = function(e, type = 'daily', url = null) { 
+        window.triggerTelegramDownload = function(e, type = 'daily', urlEn = null, urlHi = null) { 
             if(e) e.preventDefault();
             const hasJoined = localStorage.getItem('hasJoinedTelegram');
             
             if (!hasJoined) {
-                window.pendingDownload = { type, url };
+                window.pendingDownload = { type, urlEn, urlHi };
                 document.getElementById('telegramGrowthModal').classList.remove('hidden');
             } else { 
-                executeDownload(type, url); 
+                executeDownload(type, urlEn, urlHi); 
             }
         };
 
         window.acceptTelegramAndDownload = function() {
             localStorage.setItem('hasJoinedTelegram', 'true');
             closeTgModal();
-            setTimeout(() => { if(window.pendingDownload) executeDownload(window.pendingDownload.type, window.pendingDownload.url); }, 1000);
+            setTimeout(() => { if(window.pendingDownload) executeDownload(window.pendingDownload.type, window.pendingDownload.urlEn, window.pendingDownload.urlHi); }, 1000);
         };
 
-        function executeDownload(type, url) {
-            if(type === 'daily') generateDailyPDF();
-            else if(type === 'compilation' && url) window.open(url, '_blank');
-            else if(type === 'compilation' && !url) window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); 
+        function executeDownload(type, urlEn, urlHi) {
+            if(type === 'daily') {
+                generateDailyPDF();
+            } else if (type === 'compilation') {
+                let targetUrl = currentLang === 'hi' ? (urlHi || urlEn) : urlEn;
+                if(targetUrl) window.open(targetUrl, '_blank');
+                else window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); 
+            }
         }
 
         const htmlTag = document.documentElement; const themeBtn = document.getElementById('themeToggleBtn'); const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
@@ -545,12 +557,12 @@
         themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
 
         let currentLang = localStorage.getItem('preferredLang') || 'en';
+        
         // ==========================================
         // 🚀 REST API CONFIGURATION & TRANSLATOR
         // ==========================================
         const FIREBASE_PROJECT_ID = "stenogym"; 
         
-        // Translates Google's messy REST format into normal objects, including nested Maps and Arrays
         function formatRestDocument(doc) {
             function parseValue(val) {
                 if (val.stringValue !== undefined) return val.stringValue;
@@ -558,27 +570,20 @@
                 if (val.integerValue !== undefined) return parseInt(val.integerValue);
                 if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
                 if (val.timestampValue !== undefined) return val.timestampValue;
-                if (val.arrayValue !== undefined) {
-                    return val.arrayValue.values ? val.arrayValue.values.map(parseValue) : [];
-                }
+                if (val.arrayValue !== undefined) return val.arrayValue.values ? val.arrayValue.values.map(parseValue) : [];
                 if (val.mapValue !== undefined && val.mapValue.fields) {
                     const mapObj = {};
-                    for (const [k, v] of Object.entries(val.mapValue.fields)) {
-                        mapObj[k] = parseValue(v);
-                    }
+                    for (const [k, v] of Object.entries(val.mapValue.fields)) { mapObj[k] = parseValue(v); }
                     return mapObj;
                 }
                 return null;
             }
-
             const data = {};
-            if (doc.fields) {
-                for (const [key, val] of Object.entries(doc.fields)) {
-                    data[key] = parseValue(val);
-                }
-            }
+            if (doc.fields) { for (const [key, val] of Object.entries(doc.fields)) { data[key] = parseValue(val); } }
             return { id: doc.name.split('/').pop(), ...data };
         }
+        
+        // THE FIX: Smart Language Toggle (Clears compilation artifacts & redraws shelves)
         window.setLanguage = function(lang) {
             currentLang = lang;
             localStorage.setItem('preferredLang', lang);
@@ -595,8 +600,18 @@
                 if(lang === 'hi' && el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi'); 
                 else if(el.hasAttribute('data-en')) el.innerHTML = el.getAttribute('data-en');
             });
-            if (activeView === 'daily') renderFeedCards();
-            if (activeView === 'compilationActive') renderCompilationPage();
+            
+            // Instantly refresh whichever view the user is on
+            if (activeView === 'daily') {
+                renderFeedCards();
+            } else if (activeView === 'compilationActive') {
+                document.getElementById('compilationCardsContainer').innerHTML = "";
+                const savedPage = currentCompilationPage;
+                currentCompilationPage = 1;
+                renderCompilationPage(savedPage); 
+            } else if (['weekly', 'monthly', 'special'].includes(activeView)) {
+                loadCompilationShelf(activeView);
+            }
         };
 
         function getISTDateObj(dateObj = new Date()) { const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 5.5)); }
@@ -605,19 +620,15 @@
         
         function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
         
-        // Smart UI Text Formatter (Transforms AI Markdown into Yellow Highlight Boxes)
         function formatUIText(str) {
             if(!str) return "";
             return escapeHtml(str).replace(/\*\*(.*?)\*\*/g, '<span class="bg-yellow-200 dark:bg-yellow-900/40 px-1 rounded text-slate-900 dark:text-yellow-100 font-bold">$1</span>');
         }
 
-        const urlParams = new URLSearchParams(window.location.search);
         let selectedDateStr = urlParams.get('date') || getISTDateString();
         
         let allArticlesCache = []; let activeCategoryFilter = "all"; let globalFlipState = false; let readArticlesSet = new Set();
-        let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
-        let activeView = 'daily'; 
-
+        
         const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
         
         window.updateLocalStudyTracker = function(isDailyMcq = false) {
@@ -650,7 +661,7 @@
         };
 
         function updateUrlAndLoad(dateStr) {
-            window.history.pushState({ path: window.location.href }, '', `?date=${dateStr}`);
+            window.history.pushState({ path: window.location.href }, '', `?tab=daily&date=${dateStr}`);
             loadNewsForDate(dateStr);
         }
 
@@ -658,7 +669,13 @@
             const params = new URLSearchParams(window.location.search);
             selectedDateStr = params.get('date') || getISTDateString();
             dateInput.value = selectedDateStr;
-            loadNewsForDate(selectedDateStr);
+            const newTab = params.get('tab') || 'daily';
+            
+            if (newTab === 'daily') loadNewsForDate(selectedDateStr);
+            else if (['weekly', 'monthly'].includes(newTab)) {
+                if(newTab === 'weekly') document.getElementById('tabWeekly').click();
+                if(newTab === 'monthly') document.getElementById('tabMonthly').click();
+            }
         });
 
         dateInput.addEventListener('change', (e) => { selectedDateStr = e.target.value; updateUrlAndLoad(selectedDateStr); });
@@ -696,8 +713,8 @@
             
             let textToRead = currentLang === 'hi' ? "आज के करेंट अफेयर्स। " : "Here is your Stenogym Daily Brief. ";
             allArticlesCache.forEach((item, idx) => {
-                // Safely grab the correct language and strip the markdown asterisks before speaking!
-                const headline = currentLang === 'hi' ? (item.oneLiner_hi || '') : (item.oneLiner || '');
+                // FIXED: Fallback to English if Hindi translation is missing
+                const headline = currentLang === 'hi' ? (item.oneLiner_hi || item.oneLiner || '') : (item.oneLiner || '');
                 const cleanHeadline = headline.replace(/\*\*/g, '');
                 textToRead += `News item ${idx + 1}. ${cleanHeadline}. `;
             });
@@ -731,7 +748,14 @@
             viewElement.classList.remove('hidden'); dateControlBar.style.display = (activeTab === tabDaily) ? 'flex' : 'none';
             document.getElementById('progressWidget').style.display = (activeTab === tabDaily) ? 'flex' : 'none';
             
-            if (cadenceVal === 'weekly' || cadenceVal === 'monthly' || cadenceVal === 'special') loadCompilationShelf(cadenceVal);
+            if (cadenceVal === 'weekly' || cadenceVal === 'monthly' || cadenceVal === 'special') {
+                loadCompilationShelf(cadenceVal);
+                sessionStorage.setItem('lastActiveTab', cadenceVal);
+                window.history.replaceState({}, '', `?tab=${cadenceVal}&date=${selectedDateStr}`);
+            } else {
+                sessionStorage.setItem('lastActiveTab', 'daily');
+                window.history.replaceState({}, '', `?tab=daily&date=${selectedDateStr}`);
+            }
         }
         tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView, 'daily'));
         tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView, 'weekly'));
@@ -744,7 +768,11 @@
                 activeCategoryFilter = btn.getAttribute('data-cat');
                 
                 if (activeView === 'daily') renderFeedCards();
-                if (activeView === 'compilationActive') { currentCompilationPage = 1; renderCompilationPage(); }
+                if (activeView === 'compilationActive') { 
+                    document.getElementById('compilationCardsContainer').innerHTML = "";
+                    currentCompilationPage = 1; 
+                    renderCompilationPage(); 
+                }
             });
         });
 
@@ -795,7 +823,6 @@
             document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
         }
 
-                 
         // ==========================================
         // ⚡ HIGH-SPEED REST API FETCHER
         // ==========================================
@@ -835,9 +862,6 @@
             }
         }
 
-        // ==========================================
-        // CORE LOAD ENGINE & SMART EMPTY STATE
-        // ==========================================
         async function loadNewsForDate(dateStr) {
             document.getElementById('feedLoading').classList.remove('hidden');
             document.getElementById('dailyFeedView').classList.add('hidden');
@@ -849,13 +873,9 @@
                 allArticlesCache = [];
                 
                 if (!snapshot.empty && snapshot.docs) {
-                    // We instantly unpack every clean document straight into the cache array
                     allArticlesCache = snapshot.docs.map(doc => doc.data());
                 }
 
-                // ==========================================
-                // 🧠 SMART EMPTY STATE (SELF-ANALYSIS ENGINE)
-                // ==========================================
                 if (allArticlesCache.length === 0) {
                     document.getElementById('feedLoading').classList.add('hidden');
                     const emptyFeedState = document.getElementById('emptyFeedState');
@@ -865,7 +885,6 @@
 
                     emptyFeedState.classList.remove('hidden');
 
-                    // SCENARIO A: TRUE NETWORK TIMEOUT OR GLITCH
                     if (snapshot.error) {
                         emptyFeedState.innerHTML = `
                             <div class="text-4xl mb-4 animate-bounce">📡</div>
@@ -875,7 +894,6 @@
                                 🔄 ${isHindi ? 'रीफ्रेश करें' : 'Refresh Page'}
                             </button>`;
                     }
-                    // SCENARIO B: PRE-DAWN WAIT (Today, before 6 AM)
                     else if (dateStr === todayStr && currentHour < 6) {
                         emptyFeedState.innerHTML = `
                             <div class="text-4xl mb-4">🌅</div>
@@ -885,7 +903,6 @@
                                 📖 ${isHindi ? 'कल का पढ़ें' : 'Read Yesterday\'s Digest'}
                             </button>`;
                     }
-                    // SCENARIO C: ADMIN DELAY (Today, after 6 AM, and we KNOW the network works)
                     else if (dateStr === todayStr) {
                         emptyFeedState.innerHTML = `
                             <div class="text-4xl mb-4">⏳</div>
@@ -895,7 +912,6 @@
                                 🔄 ${isHindi ? 'रीफ्रेश करें' : 'Refresh Feed'}
                             </button>`;
                     }
-                    // SCENARIO D: PAST DATE ARCHIVE EMPTY (Not today, no network error)
                     else {
                         emptyFeedState.innerHTML = `
                             <div class="text-4xl mb-4">📭</div>
@@ -908,7 +924,6 @@
                     return;
                 }
                 
-                // If cards exist, render them normally
                 document.getElementById('feedLoading').classList.add('hidden');
                 const topNews = allArticlesCache[0].oneLiner || "Daily Exam Updates";
                 document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
@@ -925,9 +940,6 @@
             }
         }
 
-        // ==========================================
-        // TWO-ZONE FLIP CARDS WITH SMART BATCH RENDERING
-        // ==========================================
         function renderFeedCards() {
             const feedContainer = document.getElementById('dailyFeedView'); feedContainer.innerHTML = "";
             const filtered = (activeCategoryFilter === "all") ? allArticlesCache : allArticlesCache.filter(item => item.category === activeCategoryFilter);
@@ -947,14 +959,13 @@
             filtered.forEach((card, idx) => {
                 const docId = card.id ? `daily_news_${card.id}` : `daily_news_temp-${idx}`;
                 
-                // STRICT LANGUAGE ISOLATION (No English Fallbacks)
-                const displayCat = currentLang === 'hi' ? (card.category_hi || '') : (card.category || '');
-                const displaySub = currentLang === 'hi' ? (card.subCategory_hi || '') : (card.subCategory || '');
-                const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || '') : (card.oneLiner || '');
-                const displayImpact = currentLang === 'hi' ? (card.impact_hi || '') : (card.impact || '');
-                const displayBullets = (currentLang === 'hi' ? (card.contextBullets_hi || []) : (card.contextBullets || [])).filter(b => b.trim() !== "");
-                const mcqData = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
-                const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || '') : (card.staticBox?.facts || '');
+                const displayCat = currentLang === 'hi' ? (card.category_hi || card.category || '') : (card.category || '');
+                const displaySub = currentLang === 'hi' ? (card.subCategory_hi || card.subCategory || '') : (card.subCategory || '');
+                const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || card.oneLiner || '') : (card.oneLiner || '');
+                const displayImpact = currentLang === 'hi' ? (card.impact_hi || card.impact || '') : (card.impact || '');
+                const displayBullets = (currentLang === 'hi' ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || [])).filter(b => b.trim() !== "");
+                const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
+                const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || card.staticBox?.facts || '') : (card.staticBox?.facts || '');
                 
                 const safeEmoji = card.emoji || '📰';
                 const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
@@ -993,7 +1004,6 @@
                     <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}" data-docid="${docId}">
                         <div class="flip-card-inner relative w-full transform-style-3d bg-transparent rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
                             
-                            <!-- FRONT SIDE (TWO ZONES) -->
                             <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl flex flex-col justify-between min-h-[420px] max-h-[540px] shadow-sm hover:shadow-md transition">
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
                                     <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700/80 pb-2.5">
@@ -1023,7 +1033,6 @@
                                 </div>
                             </div>
                             
-                            <!-- BACK SIDE (TWO ZONES) -->
                             <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col justify-between min-h-[420px] max-h-[540px] hover:shadow-md transition">
                                 <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
                                     <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
@@ -1048,7 +1057,6 @@
                     </div>`;
             });
             
-            // CHUNKED DOM INSERTION (Prevents browser lock-ups on mobile devices)
             feedContainer.innerHTML = "";
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
@@ -1079,7 +1087,6 @@
             const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
             if(buttons[0].disabled) return; 
             
-            // Apply a fade to ALL buttons first, then we will 'unfade' the correct/selected ones below
             buttons.forEach(b => {
                 b.disabled = true;
                 b.classList.add('opacity-50'); 
@@ -1091,7 +1098,7 @@
             const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
 
             if (selIdx === corIdx) {
-                buttons[selIdx].classList.remove('opacity-50'); // Keep chosen correct answer bright
+                buttons[selIdx].classList.remove('opacity-50'); 
                 buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
                 buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
                 buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
@@ -1099,13 +1106,13 @@
                 feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
                 feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
             } else {
-                buttons[selIdx].classList.remove('opacity-50'); // Keep chosen wrong answer bright
+                buttons[selIdx].classList.remove('opacity-50');
                 buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); 
                 buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); 
                 buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); 
                 buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
                 
-                buttons[corIdx].classList.remove('opacity-50'); // Highlight the actual correct answer
+                buttons[corIdx].classList.remove('opacity-50');
                 buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
                 buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
                 buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
@@ -1138,7 +1145,7 @@
         };
 
         // ==========================================
-        // DYNAMIC COMPILATION SHELF (LAZY-LOADING IMPLEMENTED)
+        // DYNAMIC COMPILATION SHELF & ENGINE
         // ==========================================
         let compilationsData = {}; 
         let workingCompilationCards = [];
@@ -1164,28 +1171,19 @@
 
             let shelfGridId = cadence === 'monthly' ? 'monthlyShelfGrid' : 'weeklyShelfGrid';
             const shelfGrid = document.getElementById(shelfGridId);
-            shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8">Loading Archive...</div>`;
+            shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8 animate-pulse">Loading Archive...</div>`;
             
             try {
-                // FIXED THE TIMEBOMB: We only query a lightweight metadata collection instead of downloading 50,000 cards.
-                // NOTE TO DEV: You will need to maintain a 'ca_drill_metadata' collection to power this menu instantly.
-                // For now, if the metadata doesn't exist, it falls back safely.
-                let snap = await db.collection("ca_drill_metadata").where("cadence", "==", cadence).get();
+                // FIXED MISSING DATA: Read from the allowed collection using the secret summary tag
+                let snap = await db.collection("ca_drills").where("docType", "==", "summary").get();
                 
                 let editions = [];
                 if (!snap.empty) {
-                    snap.forEach(doc => { editions.push({ id: doc.data().date, ...doc.data() }); });
-                } else {
-                    // Fallback to old heavy query if metadata collection isn't built yet, but grouped to prevent total crash.
-                    console.warn("Using heavy query fallback. Please create a 'ca_drill_metadata' collection.");
-                    const heavySnap = await db.collection("ca_drills").where("cadence", "==", cadence).get();
-                    let groups = {};
-                    heavySnap.forEach(doc => {
-                        const d = doc.data();
-                        if (!groups[d.date]) groups[d.date] = { id: d.date, count: 0, pdfUrl: d.pdfEmbedUrl };
-                        groups[d.date].count++;
+                    snap.forEach(doc => { 
+                        if(doc.data().cadence === cadence) {
+                            editions.push({ id: doc.data().date, ...doc.data() }); 
+                        }
                     });
-                    editions = Object.values(groups);
                 }
                 
                 editions.sort((a,b) => b.id.localeCompare(a.id));
@@ -1203,6 +1201,9 @@
                     
                     const topicNameClean = ed.id.replace(/-/g, ' ');
                     const countDisplay = ed.count ? `${ed.count} MCQs` : `50+ MCQs`;
+                    
+                    const pdfEn = escapeHtml(ed.pdfEmbedUrl_en || ed.pdfEmbedUrl || '');
+                    const pdfHi = escapeHtml(ed.pdfEmbedUrl_hi || '');
 
                     html += `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
@@ -1215,22 +1216,26 @@
                             <a href="?topic=${escapeHtml(ed.id)}" onclick="event.preventDefault(); window.history.pushState({}, '', '?topic=${escapeHtml(ed.id)}'); openCompilation('${escapeHtml(ed.id)}');" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition text-center inline-block w-full">
                                 📖 Open Compilation Deck
                             </a>
-                            <button onclick="triggerTelegramDownload(event, 'compilation', '${ed.pdfUrl || ''}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition w-full">
+                            <button onclick="triggerTelegramDownload(event, 'compilation', '${pdfEn}', '${pdfHi}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition w-full translation-el" data-en="📥 Download Offline PDF" data-hi="📥 PDF डाउनलोड">
                                 📥 Download Offline PDF
                             </button>
                         </div>
                     </div>`;
                 });
                 shelfGrid.innerHTML = html;
+                
+                if(currentLang === 'hi') {
+                    document.querySelectorAll('.translation-el').forEach(el => {
+                        if(el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi');
+                    });
+                }
             } catch (err) { 
-                shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
+                shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">Error loading data. Please refresh.</h3></div>`; 
             }
         }
 
         window.openCompilation = async function(compId) {
             currentCompId = compId;
-            
-            // We now load the heavy data ONLY when the user clicks 'Open Deck'
             document.getElementById('compilationCardsContainer').innerHTML = `<div class="p-8 text-center text-indigo-500 font-bold bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 animate-pulse">Loading Heavy Drill Data...</div>`;
             
             activeView = 'compilationActive';
@@ -1244,21 +1249,21 @@
                 const snap = await db.collection("ca_drills").where("date", "==", compId).get();
                 workingCompilationCards = [];
                 let cadence = 'weekly';
-                let pdfUrl = '';
+                let pdfUrlEn = ''; let pdfUrlHi = '';
                 
                 snap.forEach(doc => {
                     const d = doc.data();
                     cadence = d.cadence;
-                    pdfUrl = d.pdfEmbedUrl;
+                    pdfUrlEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
+                    pdfUrlHi = d.pdfEmbedUrl_hi || '';
                     workingCompilationCards.push({ id: doc.id, ...d });
                 });
 
-                compilationsData[compId] = { id: compId, cadence: cadence, pdfUrl: pdfUrl, cards: workingCompilationCards };
+                compilationsData[compId] = { id: compId, cadence: cadence, pdfUrl_en: pdfUrlEn, pdfUrl_hi: pdfUrlHi, cards: workingCompilationCards };
 
                 currentCompilationPage = 1;
                 compilationMode = 'flip';
                 
-                // STRICT FILTER RESET (Prevents vanished cards)
                 activeCategoryFilter = "all";
                 document.querySelectorAll('.cat-pill').forEach(btn => {
                     btn.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el";
@@ -1284,7 +1289,7 @@
             document.getElementById('compilationWorkspace').classList.add('hidden');
             const targetCadence = compilationsData[currentCompId]?.cadence || 'weekly';
             
-            window.history.pushState({}, '', window.location.pathname);
+            window.history.pushState({}, '', `?tab=${targetCadence}&date=${selectedDateStr}`);
             
             if(targetCadence === 'monthly') {
                 document.getElementById('tabMonthly').click();
@@ -1300,7 +1305,7 @@
             document.getElementById('compilationScoreBadge').textContent = `Score: 0/0`;
             currentCompilationPage = 1;
             document.getElementById('compilationCardsContainer').innerHTML = "";
-            renderCompilationPage();
+            renderCompilationPage(1);
         };
 
         window.setCompilationMode = function(mode) {
@@ -1310,7 +1315,7 @@
             
             document.getElementById('compilationScoreBadge').style.display = mode === 'quiz' ? 'inline-block' : 'none';
             document.getElementById('btnRetakeCompQuiz').style.display = mode === 'quiz' ? 'inline-flex' : 'none';
-            document.getElementById('btnDownloadCompilation').onclick = (e) => triggerTelegramDownload(e, 'compilation', compilationsData[currentCompId]?.pdfUrl);
+            document.getElementById('btnDownloadCompilation').onclick = (e) => triggerTelegramDownload(e, 'compilation', compilationsData[currentCompId]?.pdfUrl_en, compilationsData[currentCompId]?.pdfUrl_hi);
             
             if(mode === 'quiz') {
                 const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
@@ -1319,16 +1324,20 @@
             
             currentCompilationPage = 1;
             document.getElementById('compilationCardsContainer').innerHTML = "";
-            renderCompilationPage();
+            renderCompilationPage(1);
         };
 
-        window.loadMoreCompilationCards = function() { currentCompilationPage++; renderCompilationPage(); };
+        window.loadMoreCompilationCards = function() { 
+            currentCompilationPage++; 
+            renderCompilationPage(currentCompilationPage); 
+        };
 
         window.toggleCompCard = function(idx) {
             document.getElementById(`compCardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180');
         };
 
-        function renderCompilationPage() {
+        // FIXED ENGINE: Now uses chunked insertion to stop rendering glitches and lockups!
+        function renderCompilationPage(targetPage = currentCompilationPage) {
             const container = document.getElementById('compilationCardsContainer');
             const pagContainer = document.getElementById('compilationPagination');
             
@@ -1340,9 +1349,9 @@
                 pagContainer.classList.add('hidden'); return;
             }
 
-            const startIndex = (currentCompilationPage - 1) * COMPILATION_PER_PAGE;
-            const endIndex = currentCompilationPage * COMPILATION_PER_PAGE;
-            const batch = filtered.slice(startIndex, endIndex);
+            // We calculate all cards from the very start up to the requested target page
+            const endIndex = targetPage * COMPILATION_PER_PAGE;
+            const batch = filtered.slice(0, endIndex);
 
             const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
             const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
@@ -1353,17 +1362,16 @@
 
             let html = "";
             if (compilationMode === 'flip') {
-                batch.forEach((card, bIdx) => {
-                    const idx = startIndex + bIdx;
+                batch.forEach((card, idx) => {
                     const docId = card.id ? `comp_${card.id}` : `comp_temp-${idx}`;
                     
-                    const displayCat = currentLang === 'hi' ? (card.category_hi || '') : (card.category || '');
-                    const displaySub = currentLang === 'hi' ? (card.subCategory_hi || '') : (card.subCategory || '');
-                    const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || '') : (card.oneLiner || '');
-                    const displayImpact = currentLang === 'hi' ? (card.impact_hi || '') : (card.impact || '');
-                    const displayBullets = (currentLang === 'hi' ? (card.contextBullets_hi || []) : (card.contextBullets || [])).filter(b => b.trim() !== "");
-                    const mcqData = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
-                    const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || '') : (card.staticBox?.facts || '');
+                    const displayCat = currentLang === 'hi' ? (card.category_hi || card.category || '') : (card.category || '');
+                    const displaySub = currentLang === 'hi' ? (card.subCategory_hi || card.subCategory || '') : (card.subCategory || '');
+                    const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || card.oneLiner || '') : (card.oneLiner || '');
+                    const displayImpact = currentLang === 'hi' ? (card.impact_hi || card.impact || '') : (card.impact || '');
+                    const displayBullets = (currentLang === 'hi' ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || [])).filter(b => b.trim() !== "");
+                    const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
+                    const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || card.staticBox?.facts || '') : (card.staticBox?.facts || '');
                     
                     const safeEmoji = card.emoji || '📰';
                     const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
@@ -1457,10 +1465,9 @@
                 });
             } else {
                 const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
-                batch.forEach((card, bIdx) => {
-                    const idx = startIndex + bIdx;
+                batch.forEach((card, idx) => {
                     const docId = card.id ? `comp_${card.id}` : `comp_temp-${idx}`;
-                    const mcqData = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
+                    const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
                     const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
                     const correctIdx = Number(mcqData?.correctIndex) || 0;
                     
@@ -1482,20 +1489,39 @@
                 });
             }
             
-            container.insertAdjacentHTML('beforeend', html);
+            // CHUNKED RENDER FOR THE COMPILATION
+            container.innerHTML = "";
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+            const allNewCards = Array.from(tempDiv.children);
 
-            if (compilationMode === 'quiz') {
-                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
-                batch.forEach((card, bIdx) => {
-                    const idx = startIndex + bIdx;
-                    const pastAnswer = saved.answers[`${currentCompId}_${card.id}`];
-                    if (pastAnswer !== undefined) {
-                        const mcqData = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
-                        const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
-                        restoreCompQuizAnswerUI(idx, pastAnswer, Number(mcqData?.correctIndex) || 0, safeExp);
+            let chunkIndex = 0;
+            const chunkSize = 5; 
+            
+            function renderChunk() {
+                const end = Math.min(chunkIndex + chunkSize, allNewCards.length);
+                for (let i = chunkIndex; i < end; i++) {
+                    container.appendChild(allNewCards[i]);
+                }
+                
+                // If in quiz mode, immediately restore previously saved answers for this chunk
+                if (compilationMode === 'quiz') {
+                    const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
+                    for (let i = chunkIndex; i < end; i++) {
+                        const card = batch[i];
+                        const pastAnswer = saved.answers[`${currentCompId}_${card.id}`];
+                        if (pastAnswer !== undefined) {
+                            const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
+                            const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
+                            restoreCompQuizAnswerUI(i, pastAnswer, Number(mcqData?.correctIndex) || 0, safeExp);
+                        }
                     }
-                });
+                }
+                
+                chunkIndex += chunkSize;
+                if (chunkIndex < allNewCards.length) requestAnimationFrame(renderChunk);
             }
+            requestAnimationFrame(renderChunk);
 
             const showingCount = Math.min(endIndex, filtered.length);
             document.getElementById('compilationPaginationText').textContent = `Showing ${showingCount} of ${filtered.length} Cards`;
@@ -1608,191 +1634,6 @@
             expContainer.innerHTML = formatUIText(decodeURIComponent(encodedExp));
         }
 
-        // PDF SMART HIGHLIGHTING UTILITY
-        function formatPDFText(str) {
-            if(!str) return "";
-            let clean = escapeHtml(str); 
-            clean = clean.replace(/\*\*(.*?)\*\*/g, '$$B$$$1$$/B$$');
-            clean = clean.replace(/\b(First|Highest|Gold|Silver|Bronze|Winner|Champion|Top|Largest|Maiden)\b/gi, '$$G$$$1$$/G$$');
-            clean = clean.replace(/\b(\d+(?:-\d+)?(?:st|nd|rd|th)?)\b/g, '$$R$$$1$$/R$$');
-            clean = clean.replace(/\$\$B\$\$(.*?)\$\$\/B\$\$/g, '<span style="background-color: #fef08a; padding: 1px 4px; border-radius: 4px; font-weight: 900; color: #0f172a;">$1</span>');
-            clean = clean.replace(/\$\$G\$\$(.*?)\$\$\/G\$\$/g, '<span style="color: #059669; font-weight: 900;">$1</span>');
-            clean = clean.replace(/\$\$R\$\$(.*?)\$\$\/R\$\$/g, '<span style="color: #e11d48; font-weight: 900;">$1</span>');
-            return clean;
-        }
-
-        // DAILY PDF GENERATOR (UPGRADED TO MATCH PREMIUM ADMIN LAYOUT)
-        window.generateDailyPDF = function() {
-            if (allArticlesCache.length === 0) { alert("No news to generate PDF for this date."); return; }
-            
-            const btn = document.querySelector('button[onclick="triggerTelegramDownload(event, \'daily\')"]');
-            const origHtml = btn.innerHTML;
-            btn.innerHTML = "<span>⏳</span> Generating..."; btn.disabled = true;
-
-            const targetDate = formatISTDisplay(selectedDateStr);
-            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
-            
-            const formatHighlight = (text) => {
-                if(!text) return "";
-                let safeText = escapeHtml(text);
-                safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
-                safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
-                return safeText;
-            };
-
-            // Group the data by category just like the Admin panel does
-            const groupedData = allArticlesCache.reduce((acc, item) => {
-                const c = (currentLang === 'hi' ? item.category_hi : item.category) || "General";
-                if(!acc[c]) acc[c] = [];
-                acc[c].push(item);
-                return acc;
-            }, {});
-
-            let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
-            
-            // CLEAN MINIMALIST COVER PAGE (Matching Admin)
-            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
-            
-            htmlContent += `
-                <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
-                        <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${currentLang === 'hi' ? 'दैनिक करेंट अफेयर्स' : 'Daily Current Affairs Digest'}</h2>
-                    </div>
-                    ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
-                </div>
-                
-                <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                    📅 ${targetDate} &nbsp;&bull;&nbsp; ${allArticlesCache.length} Total Cards
-                </div>
-                
-                <div style="margin-bottom: 40px;">
-                    <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
-            `;
-            
-            for (let cat in groupedData) {
-                htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
-                    <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
-                </div>`;
-            }
-            
-            htmlContent += `</div>
-                <div style="text-align: center; margin-top: auto; padding-top: 20px;">
-                    <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
-                </div>
-            </div>`;
-
-            // CONTENT FEED WITH ATOMIC MICRO-PROTECTION & RESTORED COLORS
-            for (let cat in groupedData) {
-                const catEmoji = groupedData[cat][0]?.emoji || '📌';
-                
-                htmlContent += `
-                <div style="background-color: #4f46e5; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                    <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(cat)}</h2>
-                </div>`;
-
-                groupedData[cat].forEach((card, index) => {
-                    const hLine = currentLang === 'hi' ? (card.oneLiner_hi || '') : (card.oneLiner || '');
-                    const cBullets = currentLang === 'hi' ? (card.contextBullets_hi || []) : (card.contextBullets || []);
-                    const subCat = currentLang === 'hi' ? (card.subCategory_hi || '') : (card.subCategory || '');
-                    const statBox = currentLang === 'hi' ? (card.staticBox_hi?.facts || '') : (card.staticBox?.facts || '');
-                    const mcq = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
-
-                    const bullets = cBullets.filter(b => b.trim() !== "").map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
-                    
-                    const staticFacts = statBox ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(statBox)}</div>` : '';
-
-                    let mcqHtml = '';
-                    if (mcq && mcq.question) {
-                        const ansIdx = mcq.correctIndex || 0;
-                        const ansChar = String.fromCharCode(65 + ansIdx);
-                        const ansText = mcq.options ? mcq.options[ansIdx] : '';
-
-                        mcqHtml = `
-                        <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                            <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">Q. ${formatHighlight(mcq.question)}</div>
-                            <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">Ans: ${ansChar}. ${formatHighlight(ansText)}</div>
-                            <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(mcq.explanation)}</em></div>
-                        </div>`;
-                    }
-                    
-                    htmlContent += `
-                        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
-                            <div style="page-break-inside: avoid; page-break-after: avoid;">
-                                <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(subCat || 'NEWS')}</div>
-                                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(hLine)}</div>
-                            </div>
-                            <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
-                            ${staticFacts}
-                            ${mcqHtml}
-                        </div>`;
-                });
-            }
-            
-            htmlContent += `</div>`;
-
-            const element = document.createElement('div');
-            element.innerHTML = htmlContent;
-            
-            const finalFilename = `Stenogym_Daily_CA_${selectedDateStr}.pdf`;
-            
-            const opt = {
-                margin: [0.5, 0.5, 0.8, 0.5], 
-                filename: finalFilename,
-                image: { type: 'jpeg', quality: 0.98 },
-                pagebreak: { mode: ['css', 'legacy'] },
-                enableLinks: true, 
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                pdf.setProperties({
-                    title: finalFilename,
-                    subject: 'Verified Exam Digest',
-                    author: 'Stenogym Content Bureau',
-                    keywords: 'SG-AUTH-DIGEST-VERIFIED, Current Affairs, SSC, Banking',
-                    creator: 'Stenogym Forensic Engine v2.0'
-                });
-                
-                const totalPages = pdf.internal.getNumberOfPages();
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const imgSize = 4;
-                
-                for (let i = 1; i <= totalPages; i++) {
-                    pdf.setPage(i);
-                    pdf.setDrawColor(15, 23, 42); 
-                    pdf.setLineWidth(0.02); 
-                    pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
-
-                    if (logoDataUrl) {
-                        try {
-                            pdf.setGState(new pdf.GState({ opacity: 0.03 }));
-                            pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
-                            pdf.setGState(new pdf.GState({ opacity: 1.0 }));
-                        } catch(e) {}
-                    }
-                    
-                    pdf.setDrawColor(226, 232, 240); 
-                    pdf.setLineWidth(0.01);
-                    pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
-
-                    pdf.setFontSize(9);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setTextColor(15, 23, 42);
-                    pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
-
-                    pdf.setFont("helvetica", "normal");
-                    pdf.setTextColor(100, 116, 139);
-                    pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
-
-                    pdf.setFont("helvetica", "bold");
-                    pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
-                }
-            }).save().then(() => { btn.innerHTML = origHtml; btn.disabled = false; });
-        };
-
         // ==========================================
         // SMART INITIALIZATION & SEO ROUTER
         // ==========================================
@@ -1800,6 +1641,7 @@
             setLanguage(currentLang);
             const bkmkParam = urlParams.get('bookmark');
             const topicParam = urlParams.get('topic');
+            const tabParam = urlParams.get('tab') || sessionStorage.getItem('lastActiveTab') || 'daily';
 
             if (bkmkParam) {
                 if (bkmkParam.startsWith('daily_news_')) {
@@ -1809,7 +1651,7 @@
                         if (doc.exists && doc.data().date) {
                             selectedDateStr = doc.data().date;
                             dateInput.value = selectedDateStr;
-                            window.history.replaceState({}, '', `?date=${selectedDateStr}&bookmark=${bkmkParam}`);
+                            window.history.replaceState({}, '', `?tab=daily&date=${selectedDateStr}&bookmark=${bkmkParam}`);
                         }
                     } catch(e) {}
                     await loadNewsForDate(selectedDateStr);
@@ -1830,32 +1672,39 @@
                 }
             } else if (topicParam) {
                 triggerTopicRouter(topicParam);
+            } else if (tabParam && ['weekly', 'monthly', 'special'].includes(tabParam)) {
+                if (tabParam === 'weekly') document.getElementById('tabWeekly').click();
+                else if (tabParam === 'monthly') document.getElementById('tabMonthly').click();
+                else if (tabParam === 'special') document.getElementById('tabWeekly').click();
             } else {
                 await loadNewsForDate(selectedDateStr);
             }
         });
 
-        // Dedicated Topic Router for Deep Links & Master Blog
         async function triggerTopicRouter(topicParam, bkmkParam = null) {
             try {
-                // By omitting {source: 'server'}, Firebase will automatically fall back to its internal resilient cache if the network fluctuates.
                 const snap = await db.collection("ca_drills").where("date", "==", topicParam).get();
                 if (!snap.empty) {
                     workingCompilationCards = [];
                     let cadence = 'special';
-                    let pdfUrl = '';
+                    let pdfUrlEn = ''; let pdfUrlHi = '';
                     
                     snap.forEach(doc => {
                         const d = doc.data();
-                        cadence = d.cadence;
-                        pdfUrl = d.pdfEmbedUrl;
-                        workingCompilationCards.push({ id: doc.id, ...d });
+                        if (d.docType === "summary") {
+                            // Grab the PDF links from the summary file, but DO NOT draw it as a card
+                            cadence = d.cadence || cadence;
+                            pdfUrlEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || pdfUrlEn;
+                            pdfUrlHi = d.pdfEmbedUrl_hi || pdfUrlHi;
+                        } else {
+                            // It is a real question, add it to the deck
+                            workingCompilationCards.push({ id: doc.id, ...d });
+                        }
                     });
                     
                     currentCompId = topicParam;
-                    compilationsData[topicParam] = { id: topicParam, cadence: cadence, pdfUrl: pdfUrl, cards: workingCompilationCards };
+                    compilationsData[topicParam] = { id: topicParam, cadence: cadence, pdfUrl_en: pdfUrlEn, pdfUrl_hi: pdfUrlHi, cards: workingCompilationCards };
                     
-                    // STRICT FILTER RESET (Prevents vanished cards on refresh)
                     activeCategoryFilter = "all";
                     document.querySelectorAll('.cat-pill').forEach(btn => {
                         btn.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el";
@@ -1896,7 +1745,7 @@
                         "@context": "https://schema.org",
                         "@type": "FAQPage",
                         "mainEntity": workingCompilationCards.map(card => {
-                            const mcq = currentLang === 'hi' ? (card.mcq_hi || {}) : (card.mcq || {});
+                            const mcq = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
                             const q = mcq?.question || card.oneLiner;
                             const ansText = mcq?.options ? mcq.options[mcq.correctIndex || 0] : "";
                             const exp = mcq?.explanation || "";
@@ -1915,15 +1764,11 @@
 
                     setCompilationMode('flip');
                     
-                    if(bkmkParam) {
-                        setTimeout(() => scrollToAndHighlight(bkmkParam, true), 800);
-                    }
+                    if(bkmkParam) setTimeout(() => scrollToAndHighlight(bkmkParam, true), 800);
                 } else {
                     await loadNewsForDate(selectedDateStr);
                 }
-            } catch(e) {
-                await loadNewsForDate(selectedDateStr);
-            }
+            } catch(e) { await loadNewsForDate(selectedDateStr); }
         }
     </script>
 

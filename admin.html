@@ -283,7 +283,7 @@
                             </label>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             <div>
                                 <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Drill Cadence</label>
                                 <select id="drillCadenceType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
@@ -292,13 +292,22 @@
                                     <option value="special">🎯 Special Topic (Nobel, Games)</option>
                                 </select>
                             </div>
-                            <div>
-                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Identifier / Tag (e.g., 2026-W40)</label>
-                                <input type="text" id="drillIdentifier" placeholder="2026-W40" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                           <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <label class="block text-[11px] font-black uppercase text-slate-400">Identifier / Tag</label>
+                                    <button onclick="openBrowseDrillsModal()" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition flex items-center gap-1 shadow-sm">
+                                        🔍 Browse Drills
+                                    </button>
+                                </div>
+                                <input type="text" id="drillIdentifier" placeholder="e.g., 2026-W40" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Watermarked PDF Embed URL</label>
-                                <input type="url" id="drillPdfEmbedUrl" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                <label class="block text-[11px] font-black uppercase text-indigo-600 mb-1">PDF Drive Link (English)</label>
+                                <input type="url" id="drillPdfEmbedUrl_en" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-black uppercase text-emerald-600 mb-1">PDF Drive Link (Hindi)</label>
+                                <input type="url" id="drillPdfEmbedUrl_hi" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-emerald-500">
                             </div>
                         </div>
                         
@@ -332,57 +341,75 @@
                             <p class="text-xs text-slate-400 mt-1" id="stagedScheduleBadge">Configured for 06:00 AM</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-3">
-                            <button onclick="clearStagingArea()" class="bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 font-bold py-2.5 px-4 rounded-xl border border-slate-700 transition text-xs flex items-center gap-1.5 shadow-sm">
+                            <button onclick="clearStagingArea()" class="bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 font-bold py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center gap-1.5 shadow-sm">
                                 <span>🧹</span> Clear Staging
                             </button>
-                            <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
+                            <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 px-3 rounded-xl shadow transition text-xs flex items-center gap-1.5">
                                 <span>⚡</span> Re-Translate
                             </button>
-                            <!-- RESTORED DAILY PDF BUTTON -->
-                            <button onclick="generateStagedPDF()" class="bg-rose-600 hover:bg-rose-500 text-white font-bold py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
-                                <span>📄</span> Generate Watermarked PDF
-                            </button>
-                            <button onclick="publishStagedNews()" id="btnPublishCA" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 px-6 rounded-xl shadow transition text-xs flex items-center gap-2">
-                                <span>🚀</span> Commit & Schedule Drop
+                            
+                            <!-- NEW UNIFIED STAGING PDF DROPDOWN -->
+                            <div class="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
+                                <select id="stagingPdfType" class="bg-transparent text-slate-200 text-xs font-bold outline-none px-2 py-1.5 cursor-pointer">
+                                    <option value="daily_en" class="text-slate-900">📄 Daily/Weekly PDF (EN)</option>
+                                    <option value="daily_hi" class="text-slate-900">📄 Daily/Weekly PDF (HI)</option>
+                                    <option value="cheat_en" class="text-slate-900">📑 Cheat Sheet (EN)</option>
+                                    <option value="cheat_hi" class="text-slate-900">📑 Cheat Sheet (HI)</option>
+                                </select>
+                                <button onclick="triggerUniversalPDF('staging')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition text-xs ml-1">
+                                    Generate
+                                </button>
+                            </div>
+
+                            <button onclick="publishStagedNews()" id="btnPublishCA" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-2">
+                                <span>🚀</span> Commit Drop
                             </button>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap items-center gap-2" id="stagingCategoryPills"></div>
-                    <div class="mt-4 p-4 border border-slate-200 rounded-xl bg-slate-50 flex flex-wrap items-end gap-4 shadow-sm">
-                        <div>
-                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Cheat Sheet Category</label>
-                            <select id="pdfCategoryFilter" class="bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold outline-none focus:border-indigo-500">
-                                <!-- Will be dynamically populated by JS below -->
-                            </select>
-                        </div>
-                        <button onclick="generateCheatSheetPDF()" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-lg shadow-md transition flex items-center gap-2">
-                            📑 Generate Telegram Cheat Sheet
-                        </button>
-                    </div>
-                    <div id="caCardsContainer" class="space-y-6"></div>
+                    <div class="flex flex-wrap items-center gap-2 mt-4" id="stagingCategoryPills"></div>
+                    <div id="caCardsContainer" class="space-y-6 mt-6"></div>
                 </div>
             </div>
 
-            <!-- 4. TAB: MANAGE CURRENT AFFAIRS -->
+           <!-- 4. TAB: MANAGE CURRENT AFFAIRS (UPGRADED VISUAL EDITOR) -->
             <div id="tab-ca-manage" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-6 gap-4 border-b border-slate-100 pb-6">
+                    
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-4 gap-4">
                         <div>
                             <h2 class="text-2xl font-black text-slate-900">Manage Published Current Affairs</h2>
-                            <p class="text-slate-500 text-sm mt-1">Audit, edit MCQs/headlines, or clean up live digests by release date.</p>
+                            <p class="text-slate-500 text-sm mt-1">Audit, edit instantly, and regenerate PDFs for any past date.</p>
                         </div>
                         <div class="flex items-center gap-3">
                             <button onclick="purgeSelectedDay()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-4 py-2 rounded-xl text-xs transition">
-                                🗑️ Purge Selected Day
+                                🗑️ Purge Entire Day
                             </button>
                             <button id="btnRefreshCAManage" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh</button>
                         </div>
                     </div>
 
+                    <!-- UNIFIED TIME MACHINE PDF DROPDOWN -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Regenerate Selected Date:</span>
+                            <div class="flex items-center bg-white rounded-lg p-1 border border-slate-300">
+                                <select id="managePdfType" class="bg-transparent text-slate-700 text-xs font-bold outline-none px-2 py-1 cursor-pointer">
+                                    <option value="daily_en">📄 Daily PDF (EN)</option>
+                                    <option value="daily_hi">📄 Daily PDF (HI)</option>
+                                    <option value="cheat_en">📑 Cheat Sheet (EN)</option>
+                                    <option value="cheat_hi">📑 Cheat Sheet (HI)</option>
+                                </select>
+                                <button onclick="triggerUniversalPDF('manage')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-4 rounded shadow-sm transition text-xs ml-2">
+                                    Generate PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                         <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Inspect Date</label>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Inspect Date (Calendar)</label>
                             <input type="date" id="caManageDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
                         </div>
                         <div>
@@ -399,26 +426,18 @@
                         </div>
                         <div class="flex items-end">
                             <div id="caDayStatusBadge" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 text-center">
-                                Status: Ready to inspect
+                                Status: Select date to load
                             </div>
                         </div>
                     </div>
 
-                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
-                                <tr>
-                                    <th class="px-6 py-4 font-bold">Headline (EN) & Category</th>
-                                    <th class="px-6 py-4 font-bold">MCQ Linked</th>
-                                    <th class="px-6 py-4 font-bold">Answer</th>
-                                    <th class="px-6 py-4 font-bold text-right">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="caManageTableBody" class="divide-y divide-slate-100">
-                                <tr><td colspan="4" class="text-center py-8 text-slate-400">Select a date to inspect cards...</td></tr>
-                            </tbody>
-                        </table>
+                    <!-- REPLACED TABLE WITH OPEN CARDS CONTAINER -->
+                    <div id="caManageCardsContainer" class="space-y-6 mt-6">
+                        <div class="text-center py-12 text-slate-400 font-bold border border-dashed border-slate-200 rounded-2xl">
+                            Select a date from the calendar to load editable cards...
+                        </div>
                     </div>
+
                 </div>
             </div>
 
@@ -724,47 +743,34 @@
         </div>
     </div>
 
-    <!-- MODAL: EDIT CA CARD -->
-    <div id="editCAModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 modal-bg" onclick="closeCAModal()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl relative z-10 flex flex-col max-h-[90vh]">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="text-xl font-black text-slate-800">Edit Current Affairs Card</h3>
-                <button onclick="closeCAModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+    <!-- MODAL: BROWSE LIVE DRILLS -->
+    <div id="browseDrillsModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" onclick="closeBrowseDrillsModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative z-10 flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
+                <div>
+                    <h3 class="text-xl font-black text-slate-800">Browse Live Drills</h3>
+                    <p class="text-xs text-slate-500 font-bold mt-1">Select a past compilation to fetch and edit.</p>
+                </div>
+                <button onclick="closeBrowseDrillsModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
             </div>
-            <div class="p-6 overflow-y-auto flex-grow space-y-4">
-                <input type="hidden" id="editCADocId">
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Headline (EN)</label>
-                    <input type="text" id="editCAHeadline" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Headline (HI)</label>
-                    <input type="text" id="editCAHeadline_hi" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-bold outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Bullets (One per line)</label>
-                    <textarea id="editCABullets" rows="4" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs outline-none focus:border-indigo-500"></textarea>
-                </div>
-                <div class="bg-indigo-50 p-4 rounded-xl space-y-3">
-                    <span class="text-xs font-black uppercase tracking-wider text-indigo-700">MCQ Verification</span>
-                    <input type="text" id="editCAMcqQ" placeholder="Question" class="w-full bg-white border border-indigo-200 rounded-lg p-2 text-xs font-bold">
-                    <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="editCAMcqO0" placeholder="Opt A" class="bg-white border rounded p-1.5 text-xs">
-                        <input type="text" id="editCAMcqO1" placeholder="Opt B" class="bg-white border rounded p-1.5 text-xs">
-                        <input type="text" id="editCAMcqO2" placeholder="Opt C" class="bg-white border rounded p-1.5 text-xs">
-                        <input type="text" id="editCAMcqO3" placeholder="Opt D" class="bg-white border rounded p-1.5 text-xs">
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <label class="text-xs font-bold text-slate-700">Correct Index (0-3):</label>
-                        <input type="number" id="editCAMcqAns" min="0" max="3" class="w-16 border rounded p-1 text-center font-bold text-xs bg-white">
-                    </div>
-                    <input type="text" id="editCAMcqExp" placeholder="Explanation" class="w-full bg-white border border-indigo-200 rounded-lg p-2 text-xs">
-                </div>
+            <div class="p-0 overflow-y-auto flex-grow bg-white">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] sticky top-0 shadow-sm">
+                        <tr>
+                            <th class="px-6 py-4 font-black">Cadence / Type</th>
+                            <th class="px-6 py-4 font-black">Identifier (Date/Tag)</th>
+                            <th class="px-6 py-4 font-black">Card Count</th>
+                            <th class="px-6 py-4 font-black text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="browseDrillsTableBody" class="divide-y divide-slate-100">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
             </div>
-            <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button onclick="closeCAModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
-                <button id="btnSaveCAChanges" onclick="saveCAChanges()" class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Save Changes</button>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end">
+                <button onclick="closeBrowseDrillsModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
             </div>
         </div>
     </div>
@@ -1723,7 +1729,11 @@
                     return;
                 }
                 const fetchedCards = [];
-                snap.forEach(doc => fetchedCards.push({ id: doc.id, ...doc.data() }));
+                snap.forEach(doc => {
+                    if (doc.data().docType !== "summary") {
+                        fetchedCards.push({ id: doc.id, ...doc.data() });
+                    }
+                });
                 
                 window.stagedNewsItems = fetchedCards;
                 renderStagingCards();
@@ -1756,6 +1766,72 @@
                 alert("Error deleting drill: " + err.message);
             }
         };
+
+        // --- NEW: BROWSE LIVE DRILLS LOGIC ---
+        window.openBrowseDrillsModal = async function() {
+            const modal = document.getElementById('browseDrillsModal');
+            const tbody = document.getElementById('browseDrillsTableBody');
+            modal.classList.remove('hidden');
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold animate-pulse">Fetching drills using secret tag...</td></tr>';
+            
+            try {
+                // Bypass Firebase restrictions by querying the trusted collection using the secret tag
+                const q = query(collection(db, "ca_drills"), where("docType", "==", "summary"));
+                const snap = await getDocs(q);
+                
+                if (snap.empty) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-500 font-bold">No drills found. Publish one first!</td></tr>';
+                    return;
+                }
+                
+                let html = "";
+                const docs = [];
+                snap.forEach(d => docs.push(d.data()));
+                // Sort locally since index is missing
+                docs.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                docs.forEach(data => {
+                    const tag = escapeHtml(data.date || 'Unknown');
+                    const cadence = escapeHtml(data.cadence || 'weekly');
+                    const count = data.count || '--';
+                    const pdfUrl_en = escapeHtml(data.pdfEmbedUrl_en || data.pdfEmbedUrl || '');
+                    const pdfUrl_hi = escapeHtml(data.pdfEmbedUrl_hi || '');
+                    
+                    let cadenceStyle = "bg-slate-100 text-slate-600";
+                    if(cadence === 'weekly') cadenceStyle = "bg-indigo-100 text-indigo-700";
+                    if(cadence === 'monthly') cadenceStyle = "bg-purple-100 text-purple-700";
+                    if(cadence === 'special') cadenceStyle = "bg-emerald-100 text-emerald-700";
+                    
+                    html += `
+                        <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="selectDrillFromBrowse('${tag}', '${cadence}', '${pdfUrl_en}', '${pdfUrl_hi}')">
+                            <td class="px-6 py-4"><span class="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${cadenceStyle}">${cadence}</span></td>
+                            <td class="px-6 py-4 font-bold text-slate-800">${tag}</td>
+                            <td class="px-6 py-4 font-bold text-slate-500">${count} items</td>
+                            <td class="px-6 py-4 text-right"><button class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-bold text-xs px-4 py-1.5 rounded transition shadow-sm">Select</button></td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-rose-500 font-bold">Error: ${err.message}</td></tr>`;
+            }
+        };
+
+        window.closeBrowseDrillsModal = () => document.getElementById('browseDrillsModal').classList.add('hidden');
+
+        window.selectDrillFromBrowse = function(tag, cadence, pdfUrl_en, pdfUrl_hi) {
+            document.getElementById('drillIdentifier').value = tag;
+            document.getElementById('drillCadenceType').value = cadence;
+            document.getElementById('drillPdfEmbedUrl_en').value = pdfUrl_en || '';
+            document.getElementById('drillPdfEmbedUrl_hi').value = pdfUrl_hi || '';
+            
+            // Switch to edit mode automatically
+            document.querySelector('input[name="drillMode"][value="edit"]').checked = true;
+            toggleDrillMode('edit');
+            
+            closeBrowseDrillsModal();
+        };
+        // --- END BROWSE LOGIC ---
 
         window.openPasteModal = () => document.getElementById('jsonPasteModal').classList.remove('hidden');
         window.closePasteModal = () => document.getElementById('jsonPasteModal').classList.add('hidden');
@@ -1826,14 +1902,6 @@
                 const count = window.stagedNewsItems.filter(i => (i.category || 'General') === cat).length;
                 pillsContainer.innerHTML += `<button onclick="setStagingFilter('${cat}')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === cat ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">${cat} (${count})</button>`;
             });
-
-            const pdfDropdown = document.getElementById('pdfCategoryFilter');
-            if (pdfDropdown) {
-                pdfDropdown.innerHTML = `<option value="all">All Categories (Multi-Part Recommended)</option>`;
-                categories.forEach(cat => {
-                    pdfDropdown.innerHTML += `<option value="${cat}">${cat}</option>`;
-                });
-            }
 
             const list = document.getElementById('caCardsContainer');
             const visible = window.activeStagingFilter === 'all' ? window.stagedNewsItems : window.stagedNewsItems.filter(i => (i.category || 'General') === window.activeStagingFilter);
@@ -1937,121 +2005,194 @@
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
-        // GENERATE DAILY DIGEST PDF (ATOMIC PROTECTION & RESTORED COLORS)
-        window.generateStagedPDF = function() {
-            if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
-                return alert("No cards in staging area. Please ingest data first.");
-            }
-            const btn = document.querySelector('button[onclick="generateStagedPDF()"]');
-            const origText = btn.innerHTML;
-            btn.innerHTML = "Generating PDF..."; btn.disabled = true;
+        // --- MASTER UNIVERSAL PDF ENGINE (REPLACES ALL 4 OLD SCRIPTS) ---
+        window.triggerUniversalPDF = function(sourceContext) {
+            const dropdown = document.getElementById(sourceContext === 'staging' ? 'stagingPdfType' : 'managePdfType');
+            const [pdfFormat, langCode] = dropdown.value.split('_'); // e.g. ["daily", "en"]
             
+            const rawData = sourceContext === 'staging' ? window.stagedNewsItems : caInspectCache;
+            if (!rawData || rawData.length === 0) return alert(`No cards loaded in ${sourceContext} area.`);
+
             const isDaily = currentCACadence === 'daily';
-            const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+            let targetDate = "Unknown Date";
+            let reportTitle = "DAILY CURRENT AFFAIRS DIGEST";
+            let cheatSubTitle = "DAILY COMPILATION";
+
+            if (sourceContext === 'staging') {
+                targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
+                const ctype = document.getElementById('drillCadenceType').value;
+                if (!isDaily) {
+                    if (ctype === 'weekly') { reportTitle = "WEEKLY SPEED DRILL"; cheatSubTitle = "WEEKLY COMPILATION"; }
+                    else if (ctype === 'monthly') { reportTitle = "MONTHLY MEGA DIGEST"; cheatSubTitle = "MONTHLY COMPILATION"; }
+                    else if (ctype === 'special') { reportTitle = "SPECIAL TOPIC MOCK"; cheatSubTitle = "SPECIAL EDITION"; }
+                }
+            } else {
+                targetDate = document.getElementById('caManageDate').value;
+            }
+
+            const btn = sourceContext === 'staging' ? document.querySelector(`button[onclick="triggerUniversalPDF('staging')"]`) : document.querySelector(`button[onclick="triggerUniversalPDF('manage')"]`);
+            const origText = btn.innerHTML;
+            btn.innerHTML = "Generating..."; btn.disabled = true;
+
+            const isHi = langCode === 'hi';
             const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
             
             const formatHighlight = (text) => {
                 if(!text) return "";
-                let safeText = escapeHtml(text);
-                safeText = safeText.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #2563eb; font-weight: 900;">$1</strong>');
-                safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
-                return safeText;
+                let safeText = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, (match, p1) => {
+                    const cleanStr = p1.trim();
+                    if (/^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr) || !isNaN(parseFloat(cleanStr))) {
+                        return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`; 
+                    }
+                    return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
+                });
+                return safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
             };
 
-            const groupedData = window.stagedNewsItems.reduce((acc, item) => {
-                const c = item.category || "General";
+            const deduplicatedData = [];
+            rawData.forEach(card => {
+                if (pdfFormat === 'cheat') {
+                    const isDup = deduplicatedData.some(existing => {
+                        if (existing.category !== card.category || existing.subCategory !== card.subCategory) return false;
+                        const clean1 = (existing.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
+                        const clean2 = (card.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
+                        const overlap = clean1.split(/\s+/).filter(w => w.length > 3).filter(w => clean2.split(/\s+/).includes(w)).length;
+                        return (overlap / Math.min(clean1.split(/\s+/).length || 1, clean2.split(/\s+/).length || 1)) > 0.6;
+                    });
+                    if (!isDup) deduplicatedData.push(card);
+                } else {
+                    deduplicatedData.push(card); 
+                }
+            });
+
+            const groupedData = deduplicatedData.reduce((acc, item) => {
+                const c = (isHi ? item.category_hi : item.category) || (item.category || "General");
                 if(!acc[c]) acc[c] = [];
                 acc[c].push(item);
                 return acc;
             }, {});
 
+            const sortedCategories = Object.keys(groupedData).sort();
+            const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
+            
             let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
+            htmlContent += `<div style="page-break-after: always; padding: 20px 40px; display: flex; flex-direction: column; min-height: 95vh;">`;
             
-            // CLEAN MINIMALIST COVER PAGE (No heavy flat background)
-            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
-            
-            htmlContent += `
-                <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
-                        <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">Daily Current Affairs Digest</h2>
+            if (pdfFormat === 'daily') {
+                htmlContent += `
+                    <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
+                            <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${isHi ? (reportTitle === 'DAILY CURRENT AFFAIRS DIGEST' ? 'दैनिक करेंट अफेयर्स' : reportTitle) : reportTitle}</h2>
+                        </div>
+                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
                     </div>
-                    ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
-                </div>
-                
-                <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                    📅 ${targetDate} &nbsp;&bull;&nbsp; ${window.stagedNewsItems.length} Total Cards
-                </div>
-                
-                <div style="margin-bottom: 40px;">
-                    <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
-            `;
-            
-            for (let cat in groupedData) {
-                htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
-                    <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
-                </div>`;
+                    <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        📅 ${targetDate} &nbsp;&bull;&nbsp; ${deduplicatedData.length} Total Cards
+                    </div>
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
+                `;
+                sortedCategories.forEach(cat => {
+                    htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
+                        <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
+                    </div>`;
+                });
+            } else {
+                htmlContent += `
+                    <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px;">
+                        <h2 style="margin: 0 0 6px 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${isHi ? 'दैनिक संकलन' : cheatSubTitle} &bull; ${targetDate}</h2>
+                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; line-height: 1.2;">${isHi ? 'करेंट अफेयर्स<br>रिवीजन शीट' : 'CURRENT AFFAIRS<br>REVISION SHEET'}</h1>
+                    </div>
+                    <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+                        ${sortedCategories.length} Categories &nbsp;&bull;&nbsp; ${deduplicatedData.length} Verified Facts
+                    </div>
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Category Index</h3>
+                `;
+                sortedCategories.forEach(cat => {
+                    htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
+                        <span>📁 ${escapeHtml(cat)}</span> <span style="color: #e11d48;">${groupedData[cat].length} Facts</span>
+                    </div>`;
+                });
             }
-            
+
             htmlContent += `</div>
                 <div style="text-align: center; margin-top: auto; padding-top: 20px;">
                     <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
                 </div>
             </div>`;
 
-            // CONTENT FEED WITH ATOMIC MICRO-PROTECTION & RESTORED COLORS
-            for (let cat in groupedData) {
-                const catEmoji = groupedData[cat][0]?.emoji || '📌';
+            let colorIndex = 0;
+            sortedCategories.forEach((category) => {
+                const items = groupedData[category];
+                const catEmoji = items[0]?.emoji || '📌';
+                const catColor = pdfFormat === 'cheat' ? themeColors[colorIndex % themeColors.length] : '4f46e5';
                 
-                // Restored rich category banner
                 htmlContent += `
-                <div style="background-color: #4f46e5; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                    <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(cat)}</h2>
-                </div>`;
+                    <div style="background-color: #${catColor}; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                        <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(category)}</h2>
+                    </div>
+                `;
 
-                groupedData[cat].forEach((card, index) => {
-                    // Bullets: Each individual <li> is protected
-                    const bullets = (card.contextBullets || []).map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
-                    
-                    const staticFacts = card.staticBox?.facts ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(card.staticBox.facts)}</div>` : '';
+                items.forEach((card, index) => {
+                    const hLine = isHi ? (card.oneLiner_hi || card.oneLiner) : card.oneLiner;
+                    const cBullets = isHi ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || []);
+                    const subCat = isHi ? (card.subCategory_hi || card.subCategory) : card.subCategory;
+                    const statBox = isHi ? (card.staticBox_hi?.facts || card.staticBox?.facts) : card.staticBox?.facts;
+                    const mcq = isHi ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
+                    const bgRowColor = (pdfFormat === 'cheat' && index % 2 !== 0) ? '#f8fafc' : '#ffffff';
 
-                    let mcqHtml = '';
-                    if (card.mcq && card.mcq.question) {
-                        const ansIdx = card.mcq.correctIndex || 0;
-                        const ansChar = String.fromCharCode(65 + ansIdx);
-                        const ansText = card.mcq.options ? card.mcq.options[ansIdx] : '';
-
-                        mcqHtml = `
-                        <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                            <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">Q. ${formatHighlight(card.mcq.question)}</div>
-                            <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">Ans: ${ansChar}. ${formatHighlight(ansText)}</div>
-                            <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(card.mcq.explanation)}</em></div>
-                        </div>`;
-                    }
-                    
-                    // The core story (Heading + Paragraph) is glued together
-                    htmlContent += `
-                        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
-                            <div style="page-break-inside: avoid; page-break-after: avoid;">
-                                <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(card.subCategory || 'NEWS')}</div>
-                                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(card.oneLiner)}</div>
+                    if (pdfFormat === 'cheat') {
+                        htmlContent += `
+                            <div style="page-break-inside: avoid; background-color: ${bgRowColor}; padding: 10px; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid #f1f5f9; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                                <div style="font-size: 12px; flex-shrink: 0; width: 20px; text-align: center;">${card.emoji || '📌'}</div>
+                                <div style="font-size: 11.5px; color: #1e293b; line-height: 1.6; font-weight: 500;">
+                                    <strong style="color: #${catColor}; text-transform: uppercase; margin-right: 6px;">${escapeHtml(subCat || 'NEWS')}</strong>
+                                    ${formatHighlight(hLine || '')}
+                                </div>
                             </div>
-                            <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
-                            ${staticFacts}
-                            ${mcqHtml}
-                        </div>`;
+                        `;
+                    } else {
+                        const bullets = cBullets.filter(b => b.trim() !== "").map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
+                        const staticFacts = statBox ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(statBox)}</div>` : '';
+
+                        let mcqHtml = '';
+                        if (mcq && mcq.question) {
+                            const ansIdx = mcq.correctIndex || 0;
+                            const ansChar = String.fromCharCode(65 + ansIdx);
+                            const ansText = mcq.options ? mcq.options[ansIdx] : '';
+                            mcqHtml = `
+                            <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
+                                <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">Q. ${formatHighlight(mcq.question)}</div>
+                                <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">Ans: ${ansChar}. ${formatHighlight(ansText)}</div>
+                                <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(mcq.explanation)}</em></div>
+                            </div>`;
+                        }
+                        
+                        htmlContent += `
+                            <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
+                                <div style="page-break-inside: avoid; page-break-after: avoid;">
+                                    <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(subCat || 'NEWS')}</div>
+                                    <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(hLine)}</div>
+                                </div>
+                                <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
+                                ${staticFacts}
+                                ${mcqHtml}
+                            </div>`;
+                    }
                 });
-            }
-            
+                colorIndex++;
+            });
             htmlContent += `</div>`;
 
             const element = document.createElement('div');
             element.innerHTML = htmlContent;
-            
+
             const opt = {
                 margin: [0.5, 0.5, 0.8, 0.5], 
-                filename: `Stenogym_Daily_Digest_${targetDate}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
+                filename: `Stenogym_${pdfFormat.charAt(0).toUpperCase() + pdfFormat.slice(1)}_${langCode.toUpperCase()}_${targetDate.replace(/\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 }, 
                 pagebreak: { mode: ['css', 'legacy'] },
                 enableLinks: true, 
                 html2canvas: { scale: 2, useCORS: true }, 
@@ -2096,211 +2237,7 @@
                 }
             }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
         };
-
-        // GENERATE CHEAT SHEET PDF (CLEAN HEADER, PROTECTED ROWS & RESTORED COLORS)
-        window.generateCheatSheetPDF = function() {
-            if (!window.stagedNewsItems || window.stagedNewsItems.length === 0) {
-                return alert("No cards in staging area. Please ingest JSON first.");
-            }
-
-            const catFilter = document.getElementById('pdfCategoryFilter').value;
-            let dataToPrint = window.stagedNewsItems;
-            if (catFilter !== 'all') {
-                dataToPrint = dataToPrint.filter(item => (item.category || "General") === catFilter);
-            }
-            if (dataToPrint.length === 0) return alert("No items match the selected category.");
-
-            const btn = document.querySelector('button[onclick="generateCheatSheetPDF()"]');
-            const origText = btn.innerHTML;
-            btn.innerHTML = "Generating PDF (Please Wait)..."; 
-            btn.disabled = true;
-            
-            const isDaily = currentCACadence === 'daily';
-            const displayDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
-            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
-
-            let reportTitle = "CURRENT AFFAIRS REVISION SHEET";
-            let subTitle = "THE MASTER CHEAT SHEET";
-            if (!isDaily) {
-                const ctype = document.getElementById('drillCadenceType').value;
-                if (ctype === 'weekly') { reportTitle = "WEEKLY SPEED DRILL"; subTitle = "WEEKLY COMPILATION"; }
-                else if (ctype === 'monthly') { reportTitle = "MONTHLY MEGA DIGEST"; subTitle = "MONTHLY COMPILATION"; }
-                else if (ctype === 'special') { reportTitle = "SPECIAL TOPIC MOCK"; subTitle = "SPECIAL EDITION"; }
-            } else {
-                subTitle = "DAILY COMPILATION";
-            }
-
-            try {
-                const formatHighlight = (text) => {
-                    if(!text) return "";
-                    let safeText = escapeHtml(text);
-                    safeText = safeText.replace(/\*\*(.*?)\*\*/g, (match, p1) => {
-                        const cleanStr = p1.trim();
-                        if (/^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr) || !isNaN(parseFloat(cleanStr))) {
-                            return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`; 
-                        }
-                        return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
-                    });
-                    safeText = safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
-                    return safeText;
-                };
-
-                const deduplicatedData = [];
-                dataToPrint.forEach(card => {
-                    const isDuplicate = deduplicatedData.some(existing => {
-                        if (existing.category !== card.category || existing.subCategory !== card.subCategory) return false;
-                        const clean1 = (existing.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
-                        const clean2 = (card.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
-                        const words1 = clean1.split(/\s+/).filter(w => w.length > 3);
-                        const words2 = clean2.split(/\s+/).filter(w => w.length > 3);
-                        const overlap = words1.filter(w => words2.includes(w)).length;
-                        return (overlap / Math.min(words1.length || 1, words2.length || 1)) > 0.6;
-                    });
-                    if (!isDuplicate) deduplicatedData.push(card);
-                });
-
-                const groupedData = deduplicatedData.reduce((acc, item) => {
-                    const c = item.category || "General";
-                    if(!acc[c]) acc[c] = [];
-                    acc[c].push(item);
-                    return acc;
-                }, {});
-
-                const sortedCategories = Object.keys(groupedData).sort();
-                sortedCategories.forEach(category => {
-                    groupedData[category].sort((a, b) => {
-                        const subA = (a.subCategory || "").toLowerCase();
-                        const subB = (b.subCategory || "").toLowerCase();
-                        if (subA < subB) return -1;
-                        if (subA > subB) return 1;
-                        return 0;
-                    });
-                });
-
-                const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
-                
-                let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
-                
-                // CLEAN MINIMALIST COVER PAGE (No heavy flat background)
-                htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
-                htmlContent += `
-                    <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px;">
-                        <h2 style="margin: 0 0 6px 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${subTitle} &bull; ${displayDate}</h2>
-                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; line-height: 1.2;">${reportTitle.replace(' ', '<br>')}</h1>
-                    </div>
-                    
-                    <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                        ${sortedCategories.length} Categories &nbsp;&bull;&nbsp; ${deduplicatedData.length} Verified Facts
-                    </div>
-                    
-                    <div style="margin-bottom: 40px;">
-                        <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Category Index</h3>
-                `;
-                
-                sortedCategories.forEach(cat => {
-                    htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
-                        <span>📁 ${escapeHtml(cat)}</span> <span style="color: #e11d48;">${groupedData[cat].length} Facts</span>
-                    </div>`;
-                });
-                
-                htmlContent += `</div>
-                    <div style="text-align: center; margin-top: auto; padding-top: 20px;">
-                        <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
-                    </div>
-                </div>`;
-
-                // CONTENT PAGES WITH ROW PROTECTION & RESTORED COLORS
-                let colorIndex = 0;
-                sortedCategories.forEach((category) => {
-                    const items = groupedData[category];
-                    const catColor = themeColors[colorIndex % themeColors.length];
-                    const catEmoji = items[0]?.emoji || '📌';
-                    
-                    // Restored rich category banner
-                    htmlContent += `
-                        <div style="background-color: #${catColor}; color: #ffffff; padding: 8px 16px; margin: 16px 0 8px 0; border-radius: 4px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                            <h3 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; margin: 0;">${catEmoji} ${escapeHtml(category)}</h3>
-                        </div>
-                    `;
-
-                    items.forEach((item, index) => {
-                        const bgRowColor = index % 2 === 0 ? '#ffffff' : '#f8fafc';
-                        const itemEmoji = item.emoji || '📌';
-                        
-                        // Protect each individual one-liner row and restore alternating colors
-                        htmlContent += `
-                            <div style="page-break-inside: avoid; background-color: ${bgRowColor}; padding: 10px; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid #f1f5f9; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                                <div style="font-size: 12px; flex-shrink: 0; width: 20px; text-align: center;">${itemEmoji}</div>
-                                <div style="font-size: 11.5px; color: #1e293b; line-height: 1.6; font-weight: 500;">
-                                    <strong style="color: #${catColor}; text-transform: uppercase; margin-right: 6px;">${escapeHtml(item.subCategory || 'NEWS')}</strong>
-                                    ${formatHighlight(item.oneLiner || '')}
-                                </div>
-                            </div>
-                        `;
-                    });
-                    colorIndex++;
-                });
-
-                htmlContent += `</div>`;
-
-                const element = document.createElement('div');
-                element.innerHTML = htmlContent;
-
-                const opt = {
-                    margin: [0.5, 0.5, 0.8, 0.5], 
-                    filename: `Stenogym_Master_Sheet_${displayDate.replace(/\s+/g, '_')}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 }, 
-                    pagebreak: { mode: ['css', 'legacy'] },
-                    enableLinks: true, 
-                    html2canvas: { scale: 2, useCORS: true }, 
-                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-                };
-
-                html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                    const totalPages = pdf.internal.getNumberOfPages();
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    const imgSize = 4;
-                    
-                    for (let i = 1; i <= totalPages; i++) {
-                        pdf.setPage(i);
-                        pdf.setDrawColor(15, 23, 42); 
-                        pdf.setLineWidth(0.02); 
-                        pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
-
-                        if (logoDataUrl) {
-                            try {
-                                pdf.setGState(new pdf.GState({ opacity: 0.03 }));
-                                pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
-                                pdf.setGState(new pdf.GState({ opacity: 1.0 }));
-                            } catch(e) {}
-                        }
-                        
-                        pdf.setDrawColor(226, 232, 240); 
-                        pdf.setLineWidth(0.01);
-                        pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
-
-                        pdf.setFontSize(9);
-                        pdf.setFont("helvetica", "bold");
-                        pdf.setTextColor(15, 23, 42);
-                        pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
-
-                        pdf.setFont("helvetica", "normal");
-                        pdf.setTextColor(100, 116, 139);
-                        pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
-
-                        pdf.setFont("helvetica", "bold");
-                        pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
-                    }
-                }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
-
-            } catch(e) {
-                alert("Processing Error: " + e.message);
-                btn.innerHTML = origText; btn.disabled = false;
-            }
-        };
-        
-        // =========================================================================
+        // --- END MASTER UNIVERSAL PDF ENGINE ---
 
         window.autoTranslateCA = async function() {
             const btn = document.getElementById('btnAutoTranslateCA'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
@@ -2355,32 +2292,31 @@
             const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
             const collectionName = isDaily ? "daily_news" : "ca_drills";
 
+            if(!targetDate) return alert("Error: Please provide a Date or Identifier Tag.");
+
             if (isDaily || !window.isEditingDrill) {
                 try {
                     const checkQuery = query(collection(db, collectionName), where("date", "==", targetDate));
                     const existingSnap = await getDocs(checkQuery);
                     
                     if (!existingSnap.empty) {
-                        const confirmAppend = confirm(
-                            `⚠️ EXISTING NEWS DETECTED!\n\nThere are already ${existingSnap.size} cards published for "${targetDate}" in the database.\n\nAre you sure you want to ADD these ${cardElements.length} staged cards to the existing ones?`
-                        );
+                        const confirmAppend = confirm(`⚠️ EXISTING NEWS DETECTED!\n\nThere are already ${existingSnap.size} cards published for "${targetDate}".\n\nAre you sure you want to ADD these ${cardElements.length} staged cards to the existing ones?`);
                         if (!confirmAppend) return;
                     }
-                } catch (checkErr) {
-                    console.warn("Pre-check warning:", checkErr);
-                }
+                } catch (checkErr) { console.warn("Pre-check warning:", checkErr); }
             }
 
             const btn = document.getElementById('btnPublishCA');
             btn.innerHTML = "Scheduling Drop..."; btn.disabled = true;
 
             const scheduleMode = isDaily ? document.getElementById('caReleaseSchedule').value : 'instant';
-            const pdfEmbedLink = !isDaily ? document.getElementById('drillPdfEmbedUrl').value.trim() : "";
+            const pdfEmbedLink_en = !isDaily ? document.getElementById('drillPdfEmbedUrl_en').value.trim() : "";
+            const pdfEmbedLink_hi = !isDaily ? document.getElementById('drillPdfEmbedUrl_hi').value.trim() : "";
 
             let publishTimestamp = new Date();
             if (isDaily && scheduleMode === '6am') {
                 const [y, m, d] = targetDate.split('-').map(Number);
-                publishTimestamp = new Date(Date.UTC(y, m - 1, d, 0, 30, 0)); // 06:00 IST
+                publishTimestamp = new Date(Date.UTC(y, m - 1, d, 0, 30, 0));
             }
 
             try {
@@ -2403,10 +2339,11 @@
                     const dtParsed = dtVal ? JSON.parse(dtVal) : null;
 
                     const docRef = doc(collection(db, collectionName));
-                    const docPayload = {
+                    batch.set(docRef, {
                         date: targetDate,
                         cadence: isDaily ? 'daily' : document.getElementById('drillCadenceType').value,
-                        pdfEmbedUrl: pdfEmbedLink || null,
+                        pdfEmbedUrl_en: pdfEmbedLink_en || null,
+                        pdfEmbedUrl_hi: pdfEmbedLink_hi || null,
                         emoji: el.querySelector('.ca-emj').value,
                         category: el.querySelector('.ca-cat').value,
                         category_hi: el.querySelector('.ca-hi-cat').value || el.querySelector('.ca-cat').value,
@@ -2424,31 +2361,33 @@
                         staticBox_hi: { facts: el.querySelector('.ca-hi-st').value },
                         mcq: {
                             question: el.querySelector('.ca-mcq-en-q').value,
-                            options: [
-                                el.querySelector('.ca-mcq-en-o0').value,
-                                el.querySelector('.ca-mcq-en-o1').value,
-                                el.querySelector('.ca-mcq-en-o2').value,
-                                el.querySelector('.ca-mcq-en-o3').value
-                            ],
+                            options: [el.querySelector('.ca-mcq-en-o0').value, el.querySelector('.ca-mcq-en-o1').value, el.querySelector('.ca-mcq-en-o2').value, el.querySelector('.ca-mcq-en-o3').value],
                             correctIndex: ansIdx,
                             explanation: el.querySelector('.ca-mcq-en-exp').value
                         },
                         mcq_hi: {
                             question: el.querySelector('.ca-mcq-hi-q').value,
-                            options: [
-                                el.querySelector('.ca-mcq-hi-o0').value,
-                                el.querySelector('.ca-mcq-hi-o1').value,
-                                el.querySelector('.ca-mcq-hi-o2').value,
-                                el.querySelector('.ca-mcq-hi-o3').value
-                            ],
+                            options: [el.querySelector('.ca-mcq-hi-o0').value, el.querySelector('.ca-mcq-hi-o1').value, el.querySelector('.ca-mcq-hi-o2').value, el.querySelector('.ca-mcq-hi-o3').value],
                             correctIndex: ansIdx,
                             explanation: el.querySelector('.ca-mcq-hi-exp').value
                         },
                         publishAt: publishTimestamp.toISOString(),
                         timestamp: serverTimestamp()
-                    };
-                    batch.set(docRef, docPayload);
+                    });
                 });
+
+                if (!isDaily) {
+                    const metadataRef = doc(db, "ca_drills", `SUMMARY_${targetDate}`);
+                    batch.set(metadataRef, {
+                        docType: "summary",
+                        date: targetDate,
+                        cadence: document.getElementById('drillCadenceType').value,
+                        pdfEmbedUrl_en: pdfEmbedLink_en || null,
+                        pdfEmbedUrl_hi: pdfEmbedLink_hi || null,
+                        count: cardElements.length,
+                        timestamp: serverTimestamp()
+                    }, { merge: true });
+                }
 
                 await batch.commit();
                 alert(`✅ Successfully published & scheduled ${cardElements.length} items!`);
@@ -2465,15 +2404,13 @@
         /* 5. MANAGE CURRENT AFFAIRS (DATE & CATEGORY INSPECTOR)     */
         /* ========================================================= */
         let caInspectCache = [];
-        const caManageTableBody = document.getElementById('caManageTableBody');
 
         window.fetchCAManage = async function() {
             const targetDate = document.getElementById('caManageDate').value;
             if(!targetDate) return;
-            caManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400 animate-pulse">Loading cards via Express REST API...</td></tr>';
+            document.getElementById('caManageCardsContainer').innerHTML = '<div class="text-center py-8 text-slate-400 font-bold animate-pulse">Loading cards via Express REST API...</div>';
 
             try {
-                // 1. We construct the REST query to ask for cards where "date" == targetDate
                 const FIREBASE_PROJECT_ID = "stenogym"; 
                 const queryPayload = {
                     structuredQuery: {
@@ -2483,7 +2420,6 @@
                 };
                 const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
 
-                // 2. We use standard fetch to bypass WebSockets completely
                 const response = await fetch(url, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -2495,7 +2431,6 @@
                 
                 caInspectCache = [];
 
-                // 3. Built-in Smart Translator to clean up Google's REST format
                 function parseValue(val) {
                     if (val.stringValue !== undefined) return val.stringValue;
                     if (val.booleanValue !== undefined) return val.booleanValue;
@@ -2511,7 +2446,6 @@
                     return null;
                 }
 
-                // 4. Unpack and cache the clean data
                 if (json && json.length > 0 && json[0].document) {
                     json.filter(item => item.document).forEach(item => {
                         const data = {};
@@ -2524,7 +2458,6 @@
                     });
                 }
 
-                // 5. Update UI Status Badges
                 const badge = document.getElementById('caDayStatusBadge');
                 if (caInspectCache.length === 0) {
                     badge.innerHTML = `<span class="text-slate-500 font-bold">No cards found for ${targetDate}</span>`;
@@ -2534,89 +2467,206 @@
                     badge.innerHTML = isLocked ? `<span class="text-amber-600 font-bold">⏰ Scheduled (Releasing at 6:00 AM)</span>` : `<span class="text-emerald-600 font-bold">🟢 Live to Students (${caInspectCache.length} Cards)</span>`;
                 }
 
-                renderCAManageTable();
+                renderCAManageCards();
                 
             } catch (err) { 
                 console.error("Fetch Error:", err);
-                caManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Network Timeout. Please refresh.</td></tr>`; 
+                document.getElementById('caManageCardsContainer').innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">Network Timeout. Please refresh.</div>`; 
             }
         };
 
-        function renderCAManageTable() {
+        function renderCAManageCards() {
+            const container = document.getElementById('caManageCardsContainer');
             const filterCat = document.getElementById('caManageCategory').value;
             const filtered = filterCat === 'all' ? caInspectCache : caInspectCache.filter(c => c.category === filterCat);
 
             if(filtered.length === 0) {
-                caManageTableBody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-slate-400">No cards matching filter.</td></tr>';
+                container.innerHTML = '<div class="text-center py-12 text-slate-400 font-bold border border-dashed border-slate-200 rounded-2xl">No cards matching filter.</div>';
                 return;
             }
 
-            let html = "";
-            filtered.forEach(card => {
-                const q = card.mcq?.question || "No MCQ";
-                const ans = card.mcq?.options?.[card.mcq?.correctIndex] || "N/A";
-                html += `
-                    <tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
-                        <td class="px-6 py-4">
-                            <div class="font-bold text-slate-900 line-clamp-1">${escapeHtml(card.oneLiner)}</div>
-                            <div class="text-xs font-semibold text-indigo-600 uppercase mt-0.5">${escapeHtml(card.category)} &bull; ${escapeHtml(card.subCategory || '')}</div>
-                        </td>
-                        <td class="px-6 py-4 text-xs font-medium text-slate-700 max-w-xs line-clamp-2">${escapeHtml(q)}</td>
-                        <td class="px-6 py-4 text-xs font-black text-emerald-600">${escapeHtml(ans)}</td>
-                        <td class="px-6 py-4 text-right whitespace-nowrap">
-                            <button onclick="openEditCAModal('${card.id}')" class="text-amber-600 hover:text-amber-800 font-bold text-xs mr-3">Edit</button>
-                            <button onclick="deleteCACard('${card.id}')" class="text-rose-500 hover:text-rose-700 font-bold text-xs">Delete</button>
-                        </td>
-                    </tr>`;
+            let cardsHtml = "";
+            filtered.forEach((card, i) => {
+                const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
+                const mcqHi = card.mcq_hi || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
+
+                cardsHtml += `
+                <div class="bg-slate-50 border border-slate-300 p-6 rounded-2xl manage-staged-card space-y-4 shadow-sm" data-docid="${card.id}">
+                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm font-black text-indigo-700 uppercase">Card #${i + 1} &bull; ${escapeHtml(card.emoji || '📰')} ${escapeHtml(card.category || '')}</span>
+                            <button onclick="autoTranslateManageCard(this)" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-1 px-3 rounded-lg shadow-sm transition flex items-center gap-1 text-[10px]">
+                                <span>⚡</span> Auto-Translate
+                            </button>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="saveManageCard(this)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+                                <span>💾</span> Update Live Database
+                            </button>
+                            <button onclick="deleteCACard('${card.id}')" class="text-rose-500 font-bold text-xs px-2">🗑️ Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-2">
+                            <div class="font-black text-xs text-indigo-600 uppercase">English Content</div>
+                            <input type="hidden" class="m-cat" value="${escapeHtml(card.category || 'National & Global')}">
+                            <input type="hidden" class="m-sub" value="${escapeHtml(card.subCategory || 'General')}">
+                            
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Headline</label>
+                            <input type="text" class="m-en-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bullets</label>
+                            <textarea class="m-en-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets||[]).join('\n')}</textarea></div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Exam Impact</label>
+                                <input type="text" class="m-en-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact || '')}"></div>
+                                
+                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Static Facts</label>
+                                <input type="text" class="m-en-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox?.facts || '')}"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
+                            <div class="font-black text-xs text-emerald-700 uppercase">Hindi Content (हिंदी)</div>
+                            <input type="hidden" class="m-hi-cat" value="${escapeHtml(card.category_hi || card.category || '')}">
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Headline (HI)</label>
+                            <input type="text" class="m-hi-h w-full border border-emerald-200 rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner_hi || '')}"></div>
+                            
+                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Bullets (HI)</label>
+                            <textarea class="m-hi-c w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets_hi||[]).join('\n')}</textarea></div>
+                            
+                            <div class="grid grid-cols-2 gap-2">
+                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Exam Impact (HI)</label>
+                                <input type="text" class="m-hi-imp w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact_hi || '')}"></div>
+                                
+                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Static Facts (HI)</label>
+                                <input type="text" class="m-hi-st w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox_hi?.facts || '')}"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-200">
+                        <div class="font-bold text-xs text-purple-700 uppercase mb-2">⚡ Linked Verification Quiz (MCQ)</div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="space-y-2 bg-purple-50/50 p-3 rounded-xl border border-purple-100">
+                                <input type="text" class="m-mcq-en-q w-full border rounded p-1.5 text-xs font-bold bg-white" value="${escapeHtml(mcqEn.question || '')}">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" class="m-mcq-en-o0 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[0] || '')}">
+                                    <input type="text" class="m-mcq-en-o1 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[1] || '')}">
+                                    <input type="text" class="m-mcq-en-o2 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[2] || '')}">
+                                    <input type="text" class="m-mcq-en-o3 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[3] || '')}">
+                                </div>
+                                <input type="text" class="m-mcq-en-exp w-full border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.explanation || '')}">
+                            </div>
+
+                            <div class="space-y-2 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
+                                <input type="text" class="m-mcq-hi-q w-full border border-emerald-200 rounded p-1.5 text-xs font-bold bg-white" value="${escapeHtml(mcqHi.question || '')}">
+                                <div class="grid grid-cols-2 gap-2">
+                                    <input type="text" class="m-mcq-hi-o0 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[0] || '')}">
+                                    <input type="text" class="m-mcq-hi-o1 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[1] || '')}">
+                                    <input type="text" class="m-mcq-hi-o2 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[2] || '')}">
+                                    <input type="text" class="m-mcq-hi-o3 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[3] || '')}">
+                                </div>
+                                <input type="text" class="m-mcq-hi-exp w-full border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.explanation || '')}">
+                            </div>
+                        </div>
+                        <div class="mt-2 text-xs font-bold flex items-center gap-2 text-slate-700">
+                            Correct Option Index (0-3):
+                            <input type="number" class="m-mcq-ans w-14 border rounded p-1 text-center font-mono font-black" min="0" max="3" value="${mcqEn.correctIndex ?? 0}">
+                        </div>
+                    </div>
+                </div>`;
             });
-            caManageTableBody.innerHTML = html;
+            container.innerHTML = cardsHtml;
         }
 
-        window.openEditCAModal = function(id) {
-            const card = caInspectCache.find(c => c.id === id);
-            if (!card) return;
-            document.getElementById('editCADocId').value = id;
-            document.getElementById('editCAHeadline').value = card.oneLiner || "";
-            document.getElementById('editCAHeadline_hi').value = card.oneLiner_hi || "";
-            document.getElementById('editCABullets').value = (card.contextBullets || []).join('\n');
-            document.getElementById('editCAMcqQ').value = card.mcq?.question || "";
-            document.getElementById('editCAMcqO0').value = card.mcq?.options?.[0] || "";
-            document.getElementById('editCAMcqO1').value = card.mcq?.options?.[1] || "";
-            document.getElementById('editCAMcqO2').value = card.mcq?.options?.[2] || "";
-            document.getElementById('editCAMcqO3').value = card.mcq?.options?.[3] || "";
-            document.getElementById('editCAMcqAns').value = card.mcq?.correctIndex ?? 0;
-            document.getElementById('editCAMcqExp').value = card.mcq?.explanation || "";
-            document.getElementById('editCAModal').classList.remove('hidden');
+        window.autoTranslateManageCard = async function(btnEl) {
+            const btnOrig = btnEl.innerHTML;
+            btnEl.innerHTML = "⚡ Translating..."; btnEl.disabled = true;
+            const card = btnEl.closest('.manage-staged-card');
+            try {
+                const cat = card.querySelector('.m-cat').value;
+                const hLine = card.querySelector('.m-en-h').value;
+                const bulletsStr = card.querySelector('.m-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b).join(' | ');
+                const imp = card.querySelector('.m-en-imp').value;
+                const st = card.querySelector('.m-en-st').value;
+                
+                const mq = card.querySelector('.m-mcq-en-q').value;
+                const mo0 = card.querySelector('.m-mcq-en-o0').value;
+                const mo1 = card.querySelector('.m-mcq-en-o1').value;
+                const mo2 = card.querySelector('.m-mcq-en-o2').value;
+                const mo3 = card.querySelector('.m-mcq-en-o3').value;
+                const mexp = card.querySelector('.m-mcq-en-exp').value;
+
+                const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
+
+                if (payload.trim() !== "") {
+                    const translatedStr = await translateEnToHi(payload);
+                    const parts = translatedStr.split(' ||| ');
+
+                    card.querySelector('.m-hi-cat').value = parts[0] ? parts[0].trim() : '';
+                    card.querySelector('.m-hi-h').value = parts[1] ? parts[1].trim() : '';
+                    
+                    let rawBullets = parts[2] ? parts[2].trim() : '';
+                    const translatedBullets = rawBullets.split(/\s*\|\s*/).map(b => b.trim()).filter(b=>b);
+                    card.querySelector('.m-hi-c').value = translatedBullets.join('\n');
+                    
+                    card.querySelector('.m-hi-imp').value = parts[3] ? parts[3].trim() : '';
+                    card.querySelector('.m-hi-st').value = parts[4] ? parts[4].trim() : '';
+                    card.querySelector('.m-mcq-hi-q').value = parts[5] ? parts[5].trim() : '';
+                    card.querySelector('.m-mcq-hi-o0').value = parts[6] ? parts[6].trim() : '';
+                    card.querySelector('.m-mcq-hi-o1').value = parts[7] ? parts[7].trim() : '';
+                    card.querySelector('.m-mcq-hi-o2').value = parts[8] ? parts[8].trim() : '';
+                    card.querySelector('.m-mcq-hi-o3').value = parts[9] ? parts[9].trim() : '';
+                    card.querySelector('.m-mcq-hi-exp').value = parts[10] ? parts[10].trim() : '';
+                }
+            } catch(e) { alert("Translation error: " + e.message); } finally { btnEl.innerHTML = btnOrig; btnEl.disabled = false; }
         };
 
-        window.closeCAModal = () => document.getElementById('editCAModal').classList.add('hidden');
+        window.saveManageCard = async function(btnEl) {
+            const btnOrig = btnEl.innerHTML;
+            btnEl.innerHTML = "💾 Saving..."; btnEl.disabled = true;
+            
+            const card = btnEl.closest('.manage-staged-card');
+            const docId = card.getAttribute('data-docid');
+            const ansIdx = parseInt(card.querySelector('.m-mcq-ans').value) || 0;
 
-        window.saveCAChanges = async function() {
-            const id = document.getElementById('editCADocId').value;
-            const btn = document.getElementById('btnSaveCAChanges');
-            btn.innerHTML = "Saving..."; btn.disabled = true;
-
-            const bullets = document.getElementById('editCABullets').value.split('\n').map(b=>b.trim()).filter(b=>b);
-            const ansIdx = parseInt(document.getElementById('editCAMcqAns').value) || 0;
+            const payloadToSave = {
+                oneLiner: card.querySelector('.m-en-h').value.trim(),
+                oneLiner_hi: card.querySelector('.m-hi-h').value.trim(),
+                contextBullets: card.querySelector('.m-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b),
+                contextBullets_hi: card.querySelector('.m-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b),
+                impact: card.querySelector('.m-en-imp').value.trim(),
+                impact_hi: card.querySelector('.m-hi-imp').value.trim(),
+                "staticBox.facts": card.querySelector('.m-en-st').value.trim(),
+                "staticBox_hi.facts": card.querySelector('.m-hi-st').value.trim(),
+                "mcq.question": card.querySelector('.m-mcq-en-q').value.trim(),
+                "mcq.options": [card.querySelector('.m-mcq-en-o0').value.trim(), card.querySelector('.m-mcq-en-o1').value.trim(), card.querySelector('.m-mcq-en-o2').value.trim(), card.querySelector('.m-mcq-en-o3').value.trim()],
+                "mcq.correctIndex": ansIdx,
+                "mcq.explanation": card.querySelector('.m-mcq-en-exp').value.trim(),
+                "mcq_hi.question": card.querySelector('.m-mcq-hi-q').value.trim(),
+                "mcq_hi.options": [card.querySelector('.m-mcq-hi-o0').value.trim(), card.querySelector('.m-mcq-hi-o1').value.trim(), card.querySelector('.m-mcq-hi-o2').value.trim(), card.querySelector('.m-mcq-hi-o3').value.trim()],
+                "mcq_hi.correctIndex": ansIdx,
+                "mcq_hi.explanation": card.querySelector('.m-mcq-hi-exp').value.trim()
+            };
 
             try {
-                await updateDoc(doc(db, "daily_news", id), {
-                    oneLiner: document.getElementById('editCAHeadline').value.trim(),
-                    oneLiner_hi: document.getElementById('editCAHeadline_hi').value.trim(),
-                    contextBullets: bullets,
-                    "mcq.question": document.getElementById('editCAMcqQ').value.trim(),
-                    "mcq.options": [
-                        document.getElementById('editCAMcqO0').value.trim(),
-                        document.getElementById('editCAMcqO1').value.trim(),
-                        document.getElementById('editCAMcqO2').value.trim(),
-                        document.getElementById('editCAMcqO3').value.trim()
-                    ],
-                    "mcq.correctIndex": ansIdx,
-                    "mcq.explanation": document.getElementById('editCAMcqExp').value.trim()
-                });
-                closeCAModal();
-                fetchCAManage();
-            } catch(e) { alert("Save error: " + e.message); } finally { btn.innerHTML = "Save Changes"; btn.disabled = false; }
+                await updateDoc(doc(db, "daily_news", docId), payloadToSave);
+                
+                const cachedCardIndex = caInspectCache.findIndex(c => c.id === docId);
+                if (cachedCardIndex > -1) {
+                    caInspectCache[cachedCardIndex] = { ...caInspectCache[cachedCardIndex], ...payloadToSave };
+                }
+
+                btnEl.innerHTML = "✅ Saved!"; 
+                setTimeout(() => { btnEl.innerHTML = btnOrig; btnEl.disabled = false; }, 2000);
+            } catch(e) { 
+                alert("Save error: " + e.message); 
+                btnEl.innerHTML = btnOrig; btnEl.disabled = false; 
+            }
         };
 
         window.deleteCACard = async function(id) {
@@ -2624,7 +2674,7 @@
             try {
                 await deleteDoc(doc(db, "daily_news", id));
                 caInspectCache = caInspectCache.filter(c => c.id !== id);
-                renderCAManageTable();
+                renderCAManageCards();
             } catch(e) { alert("Delete error: " + e.message); }
         };
 
@@ -2642,7 +2692,7 @@
         };
 
         document.getElementById('caManageDate').addEventListener('change', fetchCAManage);
-        document.getElementById('caManageCategory').addEventListener('change', renderCAManageTable);
+        document.getElementById('caManageCategory').addEventListener('change', renderCAManageCards);
         document.getElementById('btnRefreshCAManage').addEventListener('click', fetchCAManage);
 
         /* ========================================================= */
@@ -2866,3 +2916,4 @@
     </script>
 </body>
 </html>
+```eof
