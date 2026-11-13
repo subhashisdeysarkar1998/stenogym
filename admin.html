@@ -2010,7 +2010,24 @@
             const dropdown = document.getElementById(sourceContext === 'staging' ? 'stagingPdfType' : 'managePdfType');
             const [pdfFormat, langCode] = dropdown.value.split('_'); // e.g. ["daily", "en"]
             
-            const rawData = sourceContext === 'staging' ? window.stagedNewsItems : caInspectCache;
+            let rawData = [];
+            if (sourceContext === 'staging') {
+                document.querySelectorAll('.ca-staged-card').forEach((el, index) => {
+                    let item = { ...window.stagedNewsItems[index] };
+                    item.oneLiner = el.querySelector('.ca-en-h').value;
+                    item.oneLiner_hi = el.querySelector('.ca-hi-h').value;
+                    item.contextBullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
+                    item.contextBullets_hi = el.querySelector('.ca-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
+                    item.staticBox = { facts: el.querySelector('.ca-en-st').value };
+                    item.staticBox_hi = { facts: el.querySelector('.ca-hi-st').value };
+                    item.mcq = { question: el.querySelector('.ca-mcq-en-q').value, options: [el.querySelector('.ca-mcq-en-o0').value, el.querySelector('.ca-mcq-en-o1').value, el.querySelector('.ca-mcq-en-o2').value, el.querySelector('.ca-mcq-en-o3').value], correctIndex: parseInt(el.querySelector('.ca-mcq-ans').value) || 0, explanation: el.querySelector('.ca-mcq-en-exp').value };
+                    item.mcq_hi = { question: el.querySelector('.ca-mcq-hi-q').value, options: [el.querySelector('.ca-mcq-hi-o0').value, el.querySelector('.ca-mcq-hi-o1').value, el.querySelector('.ca-mcq-hi-o2').value, el.querySelector('.ca-mcq-hi-o3').value], correctIndex: parseInt(el.querySelector('.ca-mcq-ans').value) || 0, explanation: el.querySelector('.ca-mcq-hi-exp').value };
+                    rawData.push(item);
+                });
+            } else {
+                rawData = caInspectCache;
+            }
+
             if (!rawData || rawData.length === 0) return alert(`No cards loaded in ${sourceContext} area.`);
 
             const isDaily = currentCACadence === 'daily';
@@ -2076,7 +2093,7 @@
             const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
             
             let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
-            htmlContent += `<div style="page-break-after: always; padding: 20px 40px; display: flex; flex-direction: column; min-height: 95vh;">`;
+            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
             
             if (pdfFormat === 'daily') {
                 htmlContent += `
@@ -2162,10 +2179,12 @@
                             const ansIdx = mcq.correctIndex || 0;
                             const ansChar = String.fromCharCode(65 + ansIdx);
                             const ansText = mcq.options ? mcq.options[ansIdx] : '';
+                            const qPrefix = isHi ? 'प्रश्न:' : 'Q.';
+                            const ansPrefix = isHi ? 'उत्तर:' : 'Ans:';
                             mcqHtml = `
                             <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                                <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">Q. ${formatHighlight(mcq.question)}</div>
-                                <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">Ans: ${ansChar}. ${formatHighlight(ansText)}</div>
+                                <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">${qPrefix} ${formatHighlight(mcq.question)}</div>
+                                <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">${ansPrefix} ${ansChar}. ${formatHighlight(ansText)}</div>
                                 <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(mcq.explanation)}</em></div>
                             </div>`;
                         }
