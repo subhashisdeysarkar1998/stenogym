@@ -8,11 +8,12 @@
     <link rel="canonical" href="https://stenogym.com/admin.html">
     <meta name="robots" content="noindex, nofollow">
     
+    <!-- Added version query to css/js to bust cache -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
-    <script src="logo.js"></script>
+    <script src="logo.js?v=2.1"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
     <style>
@@ -348,7 +349,6 @@
                                 <span>⚡</span> Re-Translate
                             </button>
                             
-                            <!-- NEW UNIFIED STAGING PDF DROPDOWN -->
                             <div class="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
                                 <select id="stagingPdfType" class="bg-transparent text-slate-200 text-xs font-bold outline-none px-2 py-1.5 cursor-pointer">
                                     <option value="daily_en" class="text-slate-900">📄 Daily/Weekly PDF (EN)</option>
@@ -372,7 +372,7 @@
                 </div>
             </div>
 
-           <!-- 4. TAB: MANAGE CURRENT AFFAIRS (UPGRADED VISUAL EDITOR) -->
+            <!-- 4. TAB: MANAGE CURRENT AFFAIRS (UPGRADED VISUAL EDITOR) -->
             <div id="tab-ca-manage" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     
@@ -389,7 +389,6 @@
                         </div>
                     </div>
 
-                    <!-- UNIFIED TIME MACHINE PDF DROPDOWN -->
                     <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between shadow-sm">
                         <div class="flex items-center gap-3">
                             <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Regenerate Selected Date:</span>
@@ -431,7 +430,6 @@
                         </div>
                     </div>
 
-                    <!-- REPLACED TABLE WITH OPEN CARDS CONTAINER -->
                     <div id="caManageCardsContainer" class="space-y-6 mt-6">
                         <div class="text-center py-12 text-slate-400 font-bold border border-dashed border-slate-200 rounded-2xl">
                             Select a date from the calendar to load editable cards...
@@ -869,7 +867,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, deleteDoc, updateDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        // IMPORT getDoc to read Master Bundles perfectly
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, getDoc, doc, deleteDoc, updateDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
         const app = initializeApp(firebaseConfig); 
@@ -1712,9 +1711,9 @@
             btnPublish.classList.toggle('hover:bg-emerald-400', mode === 'new');
         };
 
+        // NEW: 1-Read Master Bundle Fetcher (Sniper Mode)
         window.fetchExistingDrill = async function() {
             const tag = document.getElementById('drillIdentifier').value.trim();
-            const cadence = document.getElementById('drillCadenceType').value;
             if(!tag) return alert("Please enter an Identifier / Tag to fetch.");
             
             const btn = document.querySelector('#drillActionBtnsEdit button');
@@ -1722,22 +1721,27 @@
             btn.innerHTML = "Fetching..."; btn.disabled = true;
             
             try {
-                const q = query(collection(db, "ca_drills"), where("date", "==", tag), where("cadence", "==", cadence));
-                const snap = await getDocs(q);
-                if(snap.empty) {
-                    alert(`No cards found for Tag: ${tag} and Cadence: ${cadence}`);
+                const docRef = doc(db, "ca_drills", tag);
+                const snap = await getDoc(docRef);
+                
+                if (!snap.exists()) {
+                    alert(`No Master Bundle found for Tag: ${tag}. Make sure you typed the exact tag.`);
                     return;
                 }
-                const fetchedCards = [];
-                snap.forEach(doc => {
-                    if (doc.data().docType !== "summary") {
-                        fetchedCards.push({ id: doc.id, ...doc.data() });
-                    }
-                });
-                
-                window.stagedNewsItems = fetchedCards;
+
+                const d = snap.data();
+                if (!d.cards || !Array.isArray(d.cards)) {
+                    alert("This document exists but is not formatted as a Master Bundle array. Wipe database and re-upload.");
+                    return;
+                }
+
+                document.getElementById('drillCadenceType').value = d.cadence || 'weekly';
+                document.getElementById('drillPdfEmbedUrl_en').value = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
+                document.getElementById('drillPdfEmbedUrl_hi').value = d.pdfEmbedUrl_hi || '';
+
+                window.stagedNewsItems = d.cards;
                 renderStagingCards();
-                alert(`✅ Fetched ${fetchedCards.length} cards into the visual editor!`);
+                alert(`✅ Instant Sniper Fetch complete! Loaded ${d.cards.length} cards into the visual editor.`);
             } catch(e) {
                 alert("Error fetching drill: " + e.message);
             } finally {
@@ -1745,21 +1749,15 @@
             }
         };
 
+        // NEW: Instant Direct Deletion (1 Document)
         window.deleteEntireDrill = async function() {
             const tag = document.getElementById('drillIdentifier').value.trim();
-            const cadence = document.getElementById('drillCadenceType').value;
             if(!tag) return alert("Please enter the Identifier / Tag to delete.");
-            if(!confirm(`DANGER: Are you sure you want to completely delete the drill "${tag}"? This cannot be undone.`)) return;
+            if(!confirm(`DANGER: Are you sure you want to completely wipe the Master Bundle "${tag}"? This cannot be undone.`)) return;
             
             try {
-                const qDel = query(collection(db, "ca_drills"), where("date", "==", tag), where("cadence", "==", cadence));
-                const snapDel = await getDocs(qDel);
-                if(snapDel.empty) return alert("No drill found with that tag.");
-                
-                const batch = writeBatch(db);
-                snapDel.forEach(d => batch.delete(d.ref));
-                await batch.commit();
-                alert(`✅ Entire drill "${tag}" deleted successfully from the database.`);
+                await deleteDoc(doc(db, "ca_drills", tag));
+                alert(`✅ Master Bundle "${tag}" completely wiped in 1 millisecond.`);
                 document.getElementById('caStagingArea').classList.add('hidden');
                 window.stagedNewsItems = [];
             } catch (err) {
@@ -1767,7 +1765,6 @@
             }
         };
 
-        // --- NEW: BROWSE LIVE DRILLS LOGIC ---
         window.openBrowseDrillsModal = async function() {
             const modal = document.getElementById('browseDrillsModal');
             const tbody = document.getElementById('browseDrillsTableBody');
@@ -1775,7 +1772,6 @@
             tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold animate-pulse">Fetching drills using secret tag...</td></tr>';
             
             try {
-                // Bypass Firebase restrictions by querying the trusted collection using the secret tag
                 const q = query(collection(db, "ca_drills"), where("docType", "==", "summary"));
                 const snap = await getDocs(q);
                 
@@ -1787,7 +1783,6 @@
                 let html = "";
                 const docs = [];
                 snap.forEach(d => docs.push(d.data()));
-                // Sort locally since index is missing
                 docs.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
                 docs.forEach(data => {
@@ -1825,13 +1820,11 @@
             document.getElementById('drillPdfEmbedUrl_en').value = pdfUrl_en || '';
             document.getElementById('drillPdfEmbedUrl_hi').value = pdfUrl_hi || '';
             
-            // Switch to edit mode automatically
             document.querySelector('input[name="drillMode"][value="edit"]').checked = true;
             toggleDrillMode('edit');
             
             closeBrowseDrillsModal();
         };
-        // --- END BROWSE LOGIC ---
 
         window.openPasteModal = () => document.getElementById('jsonPasteModal').classList.remove('hidden');
         window.closePasteModal = () => document.getElementById('jsonPasteModal').classList.add('hidden');
@@ -1864,7 +1857,7 @@
             closePasteModal();
         };
 
-        // FIXED 1: UNIVERSAL TAG ERASER (Instantly destroys all [cite], $R$, $$R$$, $G$, $$G$$, and $$B$$ tags upon paste)
+        // UNIVERSAL TAG ERASER
         function parseAndStagePayload(rawText) {
             try {
                 rawText = rawText.replace(/\[cite:[^\]]*\]/g, "").replace(/\[\d+\]/g, "");
@@ -1880,8 +1873,6 @@
                 const cards = Array.isArray(parsed) ? parsed : (parsed.news || parsed.data || Object.values(parsed)[0]);
                 if (!Array.isArray(cards) || cards.length === 0) throw new Error("Invalid format: expected array of cards.");
 
-                // Removed the strict Date Mismatch Blocker to ensure cards always load smoothly
-
                 window.stagedNewsItems = [...window.stagedNewsItems, ...cards];
                 renderStagingCards();
             } catch (err) { 
@@ -1889,7 +1880,7 @@
             }
         }
 
-        // FIXED 2: BROWSER FREEZE PREVENTION (String Builder instead of looping innerHTML)
+        // ANTI-FREEZE RENDERING CHUNKING
         function renderStagingCards() {
             document.getElementById('caStagingArea').classList.remove('hidden');
             document.getElementById('stagedCount').textContent = window.stagedNewsItems.length;
@@ -1906,9 +1897,7 @@
             const list = document.getElementById('caCardsContainer');
             const visible = window.activeStagingFilter === 'all' ? window.stagedNewsItems : window.stagedNewsItems.filter(i => (i.category || 'General') === window.activeStagingFilter);
 
-            // Using string builder to instantly load cards without browser freezing
             let cardsHtmlBuilder = "";
-
             visible.forEach((card, i) => {
                 const exams = (card.targetExams || ["SSC CGL", "IBPS PO"]).join(", ");
                 const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
@@ -1999,16 +1988,95 @@
                 </div>`;
             });
             
-            // Single DOM insertion! Instant load!
-            list.innerHTML = cardsHtmlBuilder;
+            list.innerHTML = "";
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = cardsHtmlBuilder;
+            const allNewCards = Array.from(tempDiv.children);
+
+            let chunkIndex = 0;
+            const chunkSize = 10; 
+
+            function renderChunk() {
+                const end = Math.min(chunkIndex + chunkSize, allNewCards.length);
+                for (let i = chunkIndex; i < end; i++) {
+                    list.appendChild(allNewCards[i]);
+                }
+                chunkIndex += chunkSize;
+                if (chunkIndex < allNewCards.length) {
+                    requestAnimationFrame(renderChunk);
+                }
+            }
+            requestAnimationFrame(renderChunk);
         }
 
         window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
 
-        // --- MASTER UNIVERSAL PDF ENGINE (REPLACES ALL 4 OLD SCRIPTS) ---
+        window.autoTranslateCA = async function() {
+            const cards = document.querySelectorAll('.ca-staged-card');
+            if(cards.length === 0) return alert("No cards in staging to translate.");
+            
+            const btn = document.getElementById('btnAutoTranslateCA');
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = "<span>⏳</span> Translating..."; 
+            btn.disabled = true;
+
+            try {
+                for (let i = 0; i < cards.length; i++) {
+                    const card = cards[i];
+                    
+                    btn.innerHTML = `<span>⏳</span> Translating ${i+1}/${cards.length}...`;
+                    
+                    const cat = card.querySelector('.ca-cat').value;
+                    const hLine = card.querySelector('.ca-en-h').value;
+                    const bulletsStr = card.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b).join(' | ');
+                    const imp = card.querySelector('.ca-en-imp').value;
+                    const st = card.querySelector('.ca-en-st').value;
+                    
+                    const mq = card.querySelector('.ca-mcq-en-q').value;
+                    const mo0 = card.querySelector('.ca-mcq-en-o0').value;
+                    const mo1 = card.querySelector('.ca-mcq-en-o1').value;
+                    const mo2 = card.querySelector('.ca-mcq-en-o2').value;
+                    const mo3 = card.querySelector('.ca-mcq-en-o3').value;
+                    const mexp = card.querySelector('.ca-mcq-en-exp').value;
+
+                    const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
+
+                    if (payload.trim() !== "") {
+                        const translatedStr = await translateEnToHi(payload);
+                        const parts = translatedStr.split(' ||| ');
+
+                        card.querySelector('.ca-hi-cat').value = parts[0] ? parts[0].trim() : '';
+                        card.querySelector('.ca-hi-h').value = parts[1] ? parts[1].trim() : '';
+                        
+                        let rawBullets = parts[2] ? parts[2].trim() : '';
+                        const translatedBullets = rawBullets.split(/\s*\|\s*/).map(b => b.trim()).filter(b=>b);
+                        card.querySelector('.ca-hi-c').value = translatedBullets.join('\n');
+                        
+                        card.querySelector('.ca-hi-imp').value = parts[3] ? parts[3].trim() : '';
+                        card.querySelector('.ca-hi-st').value = parts[4] ? parts[4].trim() : '';
+                        card.querySelector('.ca-mcq-hi-q').value = parts[5] ? parts[5].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o0').value = parts[6] ? parts[6].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o1').value = parts[7] ? parts[7].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o2').value = parts[8] ? parts[8].trim() : '';
+                        card.querySelector('.ca-mcq-hi-o3').value = parts[9] ? parts[9].trim() : '';
+                        card.querySelector('.ca-mcq-hi-exp').value = parts[10] ? parts[10].trim() : '';
+                    }
+                    
+                    // Small delay to prevent API rate limiting on large batches
+                    await new Promise(r => setTimeout(r, 400));
+                }
+                alert("Translation Complete! All cards successfully converted to Hindi.");
+            } catch(e) { 
+                alert("Translation error: " + e.message); 
+            } finally { 
+                btn.innerHTML = origHtml; 
+                btn.disabled = false; 
+            }
+        };
+
         window.triggerUniversalPDF = function(sourceContext) {
             const dropdown = document.getElementById(sourceContext === 'staging' ? 'stagingPdfType' : 'managePdfType');
-            const [pdfFormat, langCode] = dropdown.value.split('_'); // e.g. ["daily", "en"]
+            const [pdfFormat, langCode] = dropdown.value.split('_');
             
             let rawData = [];
             if (sourceContext === 'staging') {
@@ -2210,7 +2278,7 @@
 
             const opt = {
                 margin: [0.5, 0.5, 0.8, 0.5], 
-                filename: `Stenogym_${pdfFormat.charAt(0).toUpperCase() + pdfFormat.slice(1)}_${langCode.toUpperCase()}_${targetDate.replace(/\s+/g, '_')}.pdf`,
+                filename: `Stenogym_${pdfFormat.charAt(0).toUpperCase() + pdfFormat.slice(1)}_${langCode.toUpperCase()}_${targetDate.replace(/\\s+/g, '_')}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 }, 
                 pagebreak: { mode: ['css', 'legacy'] },
                 enableLinks: true, 
@@ -2258,51 +2326,6 @@
         };
         // --- END MASTER UNIVERSAL PDF ENGINE ---
 
-        window.autoTranslateCA = async function() {
-            const btn = document.getElementById('btnAutoTranslateCA'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
-            try {
-                const cards = document.querySelectorAll('.ca-staged-card');
-                for(let card of cards) {
-                    const cat = card.querySelector('.ca-cat').value;
-                    const hLine = card.querySelector('.ca-en-h').value;
-                    const bulletsStr = card.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b).join(' | ');
-                    const imp = card.querySelector('.ca-en-imp').value;
-                    const st = card.querySelector('.ca-en-st').value;
-                    
-                    const mq = card.querySelector('.ca-mcq-en-q').value;
-                    const mo0 = card.querySelector('.ca-mcq-en-o0').value;
-                    const mo1 = card.querySelector('.ca-mcq-en-o1').value;
-                    const mo2 = card.querySelector('.ca-mcq-en-o2').value;
-                    const mo3 = card.querySelector('.ca-mcq-en-o3').value;
-                    const mexp = card.querySelector('.ca-mcq-en-exp').value;
-
-                    const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
-
-                    if (payload.trim() !== "") {
-                        const translatedStr = await translateEnToHi(payload);
-                        const parts = translatedStr.split(' ||| ');
-
-                        card.querySelector('.ca-hi-cat').value = parts[0] ? parts[0].trim() : '';
-                        card.querySelector('.ca-hi-h').value = parts[1] ? parts[1].trim() : '';
-                        
-                        let rawBullets = parts[2] ? parts[2].trim() : '';
-                        const translatedBullets = rawBullets.split(/\s*\|\s*/).map(b => b.trim()).filter(b=>b);
-                        card.querySelector('.ca-hi-c').value = translatedBullets.join('\n');
-                        
-                        card.querySelector('.ca-hi-imp').value = parts[3] ? parts[3].trim() : '';
-                        card.querySelector('.ca-hi-st').value = parts[4] ? parts[4].trim() : '';
-                        card.querySelector('.ca-mcq-hi-q').value = parts[5] ? parts[5].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o0').value = parts[6] ? parts[6].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o1').value = parts[7] ? parts[7].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o2').value = parts[8] ? parts[8].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o3').value = parts[9] ? parts[9].trim() : '';
-                        card.querySelector('.ca-mcq-hi-exp').value = parts[10] ? parts[10].trim() : '';
-                    }
-                }
-                alert("Translation Complete! Master fields populated via Smart Batching Engine without API drops.");
-            } catch(e) { alert("Translation failed: " + e.message); } finally { btn.innerHTML = "<span>⚡</span> Re-Translate"; btn.disabled = false; }
-        };
-
         window.publishStagedNews = async function() {
             const cardElements = document.querySelectorAll('.ca-staged-card');
             if (cardElements.length === 0) return alert("No cards in staging.");
@@ -2319,7 +2342,7 @@
                     const existingSnap = await getDocs(checkQuery);
                     
                     if (!existingSnap.empty) {
-                        const confirmAppend = confirm(`⚠️ EXISTING NEWS DETECTED!\n\nThere are already ${existingSnap.size} cards published for "${targetDate}".\n\nAre you sure you want to ADD these ${cardElements.length} staged cards to the existing ones?`);
+                        const confirmAppend = confirm(`⚠️ EXISTING NEWS DETECTED!\\n\\nThere are already ${existingSnap.size} cards published for "${targetDate}".\\n\\nAre you sure you want to ADD these ${cardElements.length} staged cards to the existing ones?`);
                         if (!confirmAppend) return;
                     }
                 } catch (checkErr) { console.warn("Pre-check warning:", checkErr); }
@@ -2339,15 +2362,7 @@
             }
 
             try {
-                const batch = writeBatch(db);
-
-                if (!isDaily && window.isEditingDrill) {
-                    const cadenceSelect = document.getElementById('drillCadenceType').value;
-                    const qDel = query(collection(db, collectionName), where("date", "==", targetDate), where("cadence", "==", cadenceSelect));
-                    const snapDel = await getDocs(qDel);
-                    snapDel.forEach(d => batch.delete(d.ref));
-                }
-
+                const bundledCards = [];
                 cardElements.forEach(el => {
                     const enBullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
                     const hiBullets = el.querySelector('.ca-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
@@ -2357,12 +2372,7 @@
                     const dtVal = el.querySelector('.ca-dataTable')?.value;
                     const dtParsed = dtVal ? JSON.parse(dtVal) : null;
 
-                    const docRef = doc(collection(db, collectionName));
-                    batch.set(docRef, {
-                        date: targetDate,
-                        cadence: isDaily ? 'daily' : document.getElementById('drillCadenceType').value,
-                        pdfEmbedUrl_en: pdfEmbedLink_en || null,
-                        pdfEmbedUrl_hi: pdfEmbedLink_hi || null,
+                    bundledCards.push({
                         emoji: el.querySelector('.ca-emj').value,
                         category: el.querySelector('.ca-cat').value,
                         category_hi: el.querySelector('.ca-hi-cat').value || el.querySelector('.ca-cat').value,
@@ -2389,26 +2399,32 @@
                             options: [el.querySelector('.ca-mcq-hi-o0').value, el.querySelector('.ca-mcq-hi-o1').value, el.querySelector('.ca-mcq-hi-o2').value, el.querySelector('.ca-mcq-hi-o3').value],
                             correctIndex: ansIdx,
                             explanation: el.querySelector('.ca-mcq-hi-exp').value
-                        },
-                        publishAt: publishTimestamp.toISOString(),
-                        timestamp: serverTimestamp()
+                        }
                     });
                 });
 
-                if (!isDaily) {
-                    const metadataRef = doc(db, "ca_drills", `SUMMARY_${targetDate}`);
-                    batch.set(metadataRef, {
-                        docType: "summary",
+                if (isDaily) {
+                    const batch = writeBatch(db);
+                    bundledCards.forEach(cardData => {
+                        const docRef = doc(collection(db, collectionName));
+                        batch.set(docRef, { date: targetDate, cadence: 'daily', publishAt: publishTimestamp.toISOString(), timestamp: serverTimestamp(), ...cardData });
+                    });
+                    await batch.commit();
+                } else {
+                    // ONE DOCUMENT PER DRILL (THE BILLING FIX)
+                    const docRef = doc(db, collectionName, targetDate); 
+                    await docRef.set({
+                        docType: "summary", // Required for shelf query
                         date: targetDate,
                         cadence: document.getElementById('drillCadenceType').value,
                         pdfEmbedUrl_en: pdfEmbedLink_en || null,
                         pdfEmbedUrl_hi: pdfEmbedLink_hi || null,
-                        count: cardElements.length,
+                        count: bundledCards.length,
+                        cards: bundledCards, // The entire 150-card drill is bundled in this array
                         timestamp: serverTimestamp()
-                    }, { merge: true });
+                    });
                 }
 
-                await batch.commit();
                 alert(`✅ Successfully published & scheduled ${cardElements.length} items!`);
                 document.getElementById('caStagingArea').classList.add('hidden');
                 document.getElementById('caCardsContainer').innerHTML = "";
@@ -2630,7 +2646,7 @@
                     card.querySelector('.m-hi-h').value = parts[1] ? parts[1].trim() : '';
                     
                     let rawBullets = parts[2] ? parts[2].trim() : '';
-                    const translatedBullets = rawBullets.split(/\s*\|\s*/).map(b => b.trim()).filter(b=>b);
+                    const translatedBullets = rawBullets.split(/\\s*\\|\\s*/).map(b => b.trim()).filter(b=>b);
                     card.querySelector('.m-hi-c').value = translatedBullets.join('\n');
                     
                     card.querySelector('.m-hi-imp').value = parts[3] ? parts[3].trim() : '';
@@ -2864,7 +2880,7 @@
                     subCategory: document.getElementById('subCategory').value, 
                     title: document.getElementById('dictationTitle').value, 
                     text: document.getElementById('dictationText').value, 
-                    wordCount: document.getElementById('dictationText').value.trim().split(/\s+/).length, 
+                    wordCount: document.getElementById('dictationText').value.trim().split(/\\s+/).length, 
                     timestamp: serverTimestamp() 
                 }); 
                 alert("Dictation Live!"); e.target.reset(); document.getElementById('wordCountDisplay').textContent = "0 Words";
@@ -2872,7 +2888,7 @@
         });
 
         document.getElementById('dictationText').addEventListener('input', (e) => {
-            const count = e.target.value.trim() ? e.target.value.trim().split(/\s+/).length : 0;
+            const count = e.target.value.trim() ? e.target.value.trim().split(/\\s+/).length : 0;
             document.getElementById('wordCountDisplay').textContent = `${count} Words`;
         });
 
@@ -2896,7 +2912,7 @@
         document.getElementById('btnDictModalSave').addEventListener('click', async () => {
             const id = document.getElementById('editDocId').value; const newText = document.getElementById('editText').value.trim();
             const btn = document.getElementById('btnDictModalSave'); btn.textContent = "Saving..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "lessons", id), { title: document.getElementById('editTitle').value.trim(), text: newText, wordCount: newText.split(/\s+/).length, mainCategory: document.getElementById('editMainCategory').value, subCategory: document.getElementById('editSubCategory').value.trim() }); closeDictModal(); fetchLibrary(); } 
+            try { await updateDoc(doc(db, "lessons", id), { title: document.getElementById('editTitle').value.trim(), text: newText, wordCount: newText.split(/\\s+/).length, mainCategory: document.getElementById('editMainCategory').value, subCategory: document.getElementById('editSubCategory').value.trim() }); closeDictModal(); fetchLibrary(); } 
             catch (err) { alert("Error saving: " + err.message); } finally { btn.textContent = "Save Changes"; btn.disabled = false; }
         });
         document.getElementById('btnRefreshLibrary').addEventListener('click', fetchLibrary);
@@ -2928,11 +2944,10 @@
         document.getElementById('btnRefreshAnalytics').addEventListener('click', fetchAnalytics);
 
         document.getElementById('settingsForm').addEventListener('submit', async (e) => {
-            e.preventDefault(); const btnSave = document.getElementById('btnSaveSettings'); btnSave.innerHTML = `Updating...`; btnSave.disabled = true;
+            e.preventDefault(); const btnSave = document.getElementById('btnSaveSettings'); btnSave.innerHTML = "Updating..."; btnSave.disabled = true;
             try { await addDoc(collection(db, "settings"), { bannerText: document.getElementById('bannerText').value.trim(), isActive: document.getElementById('bannerActive').checked, timestamp: serverTimestamp() }); alert("✅ Site Settings Updated Successfully!"); } 
-            catch (err) { alert("Error updating settings: " + err.message); } finally { btnSave.innerHTML = `Update Settings`; btnSave.disabled = false; }
+            catch (err) { alert("Error updating settings: " + err.message); } finally { btnSave.innerHTML = "Update Settings"; btnSave.disabled = false; }
         });
     </script>
 </body>
 </html>
-```eof
