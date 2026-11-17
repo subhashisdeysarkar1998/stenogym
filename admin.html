@@ -868,7 +868,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
         // IMPORT getDoc to read Master Bundles perfectly
-        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, getDoc, doc, deleteDoc, updateDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, getDoc, doc, deleteDoc, updateDoc, setDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
         const app = initializeApp(firebaseConfig); 
@@ -1721,15 +1721,35 @@
             btn.innerHTML = "Fetching..."; btn.disabled = true;
             
             try {
-                const docRef = doc(db, "ca_drills", tag);
-                const snap = await getDoc(docRef);
+                const FIREBASE_PROJECT_ID = "stenogym";
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(tag)}`;
+                const res = await fetch(url);
                 
-                if (!snap.exists()) {
+                if (!res.ok) {
                     alert(`No Master Bundle found for Tag: ${tag}. Make sure you typed the exact tag.`);
                     return;
                 }
+                const json = await res.json();
+                
+                function parseRestValue(val) {
+                    if (val.stringValue !== undefined) return val.stringValue;
+                    if (val.booleanValue !== undefined) return val.booleanValue;
+                    if (val.integerValue !== undefined) return parseInt(val.integerValue);
+                    if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
+                    if (val.arrayValue !== undefined) return val.arrayValue.values ? val.arrayValue.values.map(parseRestValue) : [];
+                    if (val.mapValue !== undefined && val.mapValue.fields) {
+                        const mapObj = {};
+                        for (const [k, v] of Object.entries(val.mapValue.fields)) { mapObj[k] = parseRestValue(v); }
+                        return mapObj;
+                    }
+                    return null;
+                }
+                
+                const d = {};
+                for (const [key, val] of Object.entries(json.fields || {})) {
+                    d[key] = parseRestValue(val);
+                }
 
-                const d = snap.data();
                 if (!d.cards || !Array.isArray(d.cards)) {
                     alert("This document exists but is not formatted as a Master Bundle array. Wipe database and re-upload.");
                     return;
@@ -1756,10 +1776,19 @@
             if(!confirm(`DANGER: Are you sure you want to completely wipe the Master Bundle "${tag}"? This cannot be undone.`)) return;
             
             try {
-                await deleteDoc(doc(db, "ca_drills", tag));
-                alert(`✅ Master Bundle "${tag}" completely wiped in 1 millisecond.`);
-                document.getElementById('caStagingArea').classList.add('hidden');
-                window.stagedNewsItems = [];
+                const FIREBASE_PROJECT_ID = "stenogym";
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(tag)}`;
+                
+                const res = await fetch(url, { method: 'DELETE' });
+                
+                if (res.ok) {
+                    alert(`✅ Master Bundle "${tag}" completely wiped in 1 millisecond using REST API.`);
+                    document.getElementById('caStagingArea').classList.add('hidden');
+                    window.stagedNewsItems = [];
+                    document.getElementById('drillIdentifier').value = "";
+                } else {
+                    throw new Error("Failed to delete. Drill may not exist.");
+                }
             } catch (err) {
                 alert("Error deleting drill: " + err.message);
             }
@@ -1772,17 +1801,38 @@
             tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold animate-pulse">Fetching drills using secret tag...</td></tr>';
             
             try {
-                const q = query(collection(db, "ca_drills"), where("docType", "==", "summary"));
-                const snap = await getDocs(q);
+                const FIREBASE_PROJECT_ID = "stenogym"; 
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
+                const payload = {
+                    structuredQuery: {
+                        from: [{ collectionId: "ca_drills" }],
+                        where: { fieldFilter: { field: { fieldPath: "docType" }, op: "EQUAL", value: { stringValue: "summary" } } }
+                    }
+                };
+                const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
+                const json = await res.json();
                 
-                if (snap.empty) {
+                const docs = [];
+                if (json && json.length > 0 && json[0].document) {
+                    json.filter(item => item.document).forEach(item => {
+                        const fields = item.document.fields;
+                        docs.push({
+                            date: fields.date?.stringValue,
+                            cadence: fields.cadence?.stringValue,
+                            count: fields.count?.integerValue,
+                            pdfEmbedUrl_en: fields.pdfEmbedUrl_en?.stringValue || fields.pdfEmbedUrl?.stringValue,
+                            pdfEmbedUrl_hi: fields.pdfEmbedUrl_hi?.stringValue,
+                            timestamp: { seconds: fields.timestamp?.timestampValue ? new Date(fields.timestamp.timestampValue).getTime()/1000 : 0 }
+                        });
+                    });
+                }
+                
+                if (docs.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-500 font-bold">No drills found. Publish one first!</td></tr>';
                     return;
                 }
                 
                 let html = "";
-                const docs = [];
-                snap.forEach(d => docs.push(d.data()));
                 docs.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
 
                 docs.forEach(data => {
@@ -2278,12 +2328,12 @@
 
             const opt = {
                 margin: [0.5, 0.5, 0.8, 0.5], 
-                filename: `Stenogym_${pdfFormat.charAt(0).toUpperCase() + pdfFormat.slice(1)}_${langCode.toUpperCase()}_${targetDate.replace(/\\s+/g, '_')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 }, 
+                filename: `Stenogym_${pdfFormat.charAt(0).toUpperCase() + pdfFormat.slice(1)}_${langCode.toUpperCase()}_${targetDate.replace(/\s+/g, '_')}.pdf`,
+                image: { type: 'jpeg', quality: 0.95 }, // Bumped quality for crisp printing
                 pagebreak: { mode: ['css', 'legacy'] },
                 enableLinks: true, 
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                html2canvas: { scale: 1.5, useCORS: true, logging: false }, // The Goldilocks zone: High quality, no RAM crash
+                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compress: true }
             };
 
             html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
@@ -2413,7 +2463,7 @@
                 } else {
                     // ONE DOCUMENT PER DRILL (THE BILLING FIX)
                     const docRef = doc(db, collectionName, targetDate); 
-                    await docRef.set({
+                    await setDoc(docRef, {
                         docType: "summary", // Required for shelf query
                         date: targetDate,
                         cadence: document.getElementById('drillCadenceType').value,

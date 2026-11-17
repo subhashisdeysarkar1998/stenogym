@@ -752,8 +752,10 @@
             } else {
                 sessionStorage.setItem('lastActiveTab', 'daily');
                 window.history.replaceState({}, '', `?tab=daily&date=${selectedDateStr}`);
+                loadNewsForDate(selectedDateStr); // NEW FIX: Force Daily feed to load!
             }
         }
+        
         tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView, 'daily'));
         tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView, 'weekly'));
         tabMonthly.addEventListener('click', () => setCadence(tabMonthly, monthlyPdfView, 'monthly'));
@@ -1343,13 +1345,23 @@
             shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8 animate-pulse">Loading Archive...</div>`;
             
             try {
-                let snap = await db.collection("ca_drills").where("docType", "==", "summary").get();
+                const FIREBASE_PROJECT_ID = "stenogym"; 
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
+                const payload = {
+                    structuredQuery: {
+                        from: [{ collectionId: "ca_drills" }],
+                        where: { fieldFilter: { field: { fieldPath: "docType" }, op: "EQUAL", value: { stringValue: "summary" } } }
+                    }
+                };
+                const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
+                const json = await res.json();
                 
                 let editions = [];
-                if (!snap.empty) {
-                    snap.forEach(doc => { 
-                        if(doc.data().cadence === cadence) {
-                            editions.push({ id: doc.data().date, ...doc.data() }); 
+                if (json && json.length > 0 && json[0].document) {
+                    json.filter(item => item.document).forEach(item => {
+                        const data = formatRestDocument(item.document);
+                        if(data.cadence === cadence) {
+                            editions.push({ id: data.date, ...data });
                         }
                     });
                 }
@@ -1373,6 +1385,9 @@
                     const pdfEn = escapeHtml(ed.pdfEmbedUrl_en || ed.pdfEmbedUrl || '');
                     const pdfHi = escapeHtml(ed.pdfEmbedUrl_hi || '');
 
+                    const safeUrlId = encodeURIComponent(ed.id);
+                    const safeJsId = ed.id.replace(/'/g, "\\'");
+
                     html += `
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
                         <div class="flex justify-between items-center mb-3">
@@ -1381,7 +1396,7 @@
                         </div>
                         <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${escapeHtml(topicNameClean)}</h3>
                         <div class="flex flex-col gap-2">
-                            <a href="?topic=${escapeHtml(ed.id)}" onclick="event.preventDefault(); window.history.pushState({}, '', '?topic=${escapeHtml(ed.id)}'); openCompilation('${escapeHtml(ed.id)}');" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition text-center inline-block w-full">
+                            <a href="?topic=${safeUrlId}" onclick="event.preventDefault(); window.history.pushState({}, '', '?topic=${safeUrlId}'); openCompilation('${safeJsId}');" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition text-center inline-block w-full">
                                 📖 Open Compilation Deck
                             </a>
                             <button onclick="triggerTelegramDownload(event, 'compilation', '${pdfEn}', '${pdfHi}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition w-full translation-el" data-en="📥 Download Offline PDF" data-hi="📥 PDF डाउनलोड">
@@ -1420,29 +1435,21 @@
                 let drillCadence = 'weekly';
                 let pdfEn = ''; let pdfHi = '';
 
-                // Try fetching New Bundle (1-Read)
-                const bundleRef = await db.collection("ca_drills").doc(compId).get();
-                if (bundleRef.exists && bundleRef.data().cards) {
-                    const d = bundleRef.data();
-                    drillCadence = d.cadence || 'weekly';
-                    pdfEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
-                    pdfHi = d.pdfEmbedUrl_hi || '';
-                    workingCompilationCards = d.cards;
+                const FIREBASE_PROJECT_ID = "stenogym";
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(compId)}`;
+                const res = await fetch(url);
+                
+                if (res.ok) {
+                    const json = await res.json();
+                    const d = formatRestDocument(json);
+                    if (d.cards) {
+                        drillCadence = d.cadence || 'weekly';
+                        pdfEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
+                        pdfHi = d.pdfEmbedUrl_hi || '';
+                        workingCompilationCards = d.cards;
+                    } else { throw new Error("Legacy format not supported."); }
                 } else {
-                    // Fallback to Old Multi-Document format (if they exist)
-                    const oldSnap = await db.collection("ca_drills").where("date", "==", compId).get();
-                    if (oldSnap.empty) throw new Error("Drill not found.");
-                    
-                    oldSnap.forEach(doc => {
-                        const d = doc.data();
-                        if (d.docType === "summary") {
-                            drillCadence = d.cadence || drillCadence;
-                            pdfEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || pdfEn;
-                            pdfHi = d.pdfEmbedUrl_hi || pdfHi;
-                        } else {
-                            workingCompilationCards.push(d);
-                        }
-                    });
+                    throw new Error("Drill not found.");
                 }
                 
                 workingCompilationCards = workingCompilationCards.map((c, i) => ({ id: `${compId}_${i}`, ...c }));
@@ -1494,6 +1501,8 @@
 
         window.setCompilationMode = function(mode) {
             compilationMode = mode;
+            globalFlipState = false; // <--- THE BUG FIX: Forces memory reset so cards always show Notes first!
+            
             document.getElementById('btnModeFlip').className = mode === 'flip' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
             document.getElementById('btnModeQuiz').className = mode === 'quiz' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
             
@@ -1550,36 +1559,54 @@
             let html = "";
             if (compilationMode === 'flip') {
                 batch.forEach((card, idx) => {
-                    const globalIndex = startIndex + idx + 1; // PERFECT SERIAL NUMBERS
+                    const globalIndex = startIndex + idx + 1;
                     const docId = card.id;
                     const displayCat = currentLang === 'hi' ? (card.category_hi || card.category) : card.category;
                     const displaySub = currentLang === 'hi' ? (card.subCategory_hi || card.subCategory) : card.subCategory;
                     const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || card.oneLiner) : card.oneLiner;
+                    const displayImpact = currentLang === 'hi' ? (card.impact_hi || card.impact || '') : (card.impact || '');
+                    const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || card.staticBox?.facts || '') : (card.staticBox?.facts || '');
                     const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
                     const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
                     const correctIdx = Number(mcqData?.correctIndex) || 0;
                     const isBkmrk = savedBookmarks.includes(docId);
-                    const bkmrkClass = isBkmrk ? 'bg-indigo-100 text-indigo-700' : 'text-slate-600';
+                    const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
                     const bkmrkText = isBkmrk ? '🔖 Saved' : '🔖 Save';
                     const safeEmoji = card.emoji || '📰';
+                    const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
+                    const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
+                    const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
 
-                    const bulletsHtml = (currentLang === 'hi' ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || [])).map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${formatUIText(b)}</span></li>`).join('');
+                    const bulletsHtml = (currentLang === 'hi' ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || [])).filter(b => b.trim() !== "").map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${formatUIText(b)}</span></li>`).join('');
+
+                    let staticBoxHtml = "";
+                    if (staticBoxText) {
+                        staticBoxHtml = `<div class="mt-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${formatUIText(staticBoxText)}</p></div></div>`;
+                    }
 
                     html += `
                     <div class="perspective-1000 w-full" id="compCardContainer-${idx}" data-docid="${docId}">
                         <div class="flip-card-inner relative w-full transform-style-3d rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
                             <div class="flip-card-front flex flex-col justify-between min-h-[420px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm">
                                 <div class="p-6 md:p-8">
-                                    <div class="flex justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-700">
+                                    <div class="flex flex-wrap justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-700 gap-2">
                                         <div class="flex items-center gap-2">
                                             <span class="bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-md">CARD #${globalIndex}</span>
                                             <span class="text-xl hidden md:inline">${safeEmoji}</span>
-                                            <span class="text-slate-900 dark:text-white font-black text-xs uppercase">${escapeHtml(displayCat)}</span>
+                                            <div class="flex flex-col">
+                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase">${escapeHtml(displayCat)}</span>
+                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
+                                            </div>
                                         </div>
-                                        <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded ${bkmrkClass}">${bkmrkText}</button>
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
+                                            <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded transition ${bkmrkClass}">${bkmrkText}</button>
+                                        </div>
                                     </div>
+                                    ${displayImpact ? `<div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>` : ''}
                                     <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${formatUIText(displayHeadline)}</h3>
                                     <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
+                                    ${staticBoxHtml}
                                 </div>
                                 <div class="border-t border-slate-200 dark:border-slate-700 text-center w-full p-4 cursor-pointer bg-slate-50 dark:bg-slate-900 rounded-b-3xl" onclick="toggleCompCard(${idx})">
                                     <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition"><span>🔄</span> Test Fact</button>
@@ -1794,7 +1821,10 @@
             } else if (tabParam && ['weekly', 'monthly', 'special'].includes(tabParam)) {
                 if (tabParam === 'weekly') document.getElementById('tabWeekly').click();
                 else if (tabParam === 'monthly') document.getElementById('tabMonthly').click();
-                else if (tabParam === 'special') document.getElementById('tabWeekly').click();
+                else if (tabParam === 'special') {
+                    document.getElementById('tabWeekly').click();
+                    setTimeout(() => document.getElementById('btnShelfSpecial').click(), 100); // NEW FIX: Force Special Topic shelf open!
+                }
             } else {
                 await loadNewsForDate(selectedDateStr);
             }
@@ -1808,30 +1838,21 @@
                 let cadence = 'special';
                 let pdfUrlEn = ''; let pdfUrlHi = '';
 
-                // Try new bundled architecture (1 Read)
-                const bundleRef = await db.collection("ca_drills").doc(topicParam).get();
+                const FIREBASE_PROJECT_ID = "stenogym";
+                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(topicParam)}`;
+                const res = await fetch(url);
                 
-                if (bundleRef.exists && bundleRef.data().cards) {
-                    const d = bundleRef.data();
-                    cadence = d.cadence || 'special';
-                    pdfUrlEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
-                    pdfUrlHi = d.pdfEmbedUrl_hi || '';
-                    workingCompilationCards = d.cards;
+                if (res.ok) {
+                    const json = await res.json();
+                    const d = formatRestDocument(json);
+                    if (d.cards) {
+                        cadence = d.cadence || 'special';
+                        pdfUrlEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
+                        pdfUrlHi = d.pdfEmbedUrl_hi || '';
+                        workingCompilationCards = d.cards;
+                    } else { throw new Error("Legacy format not supported."); }
                 } else {
-                    // Fallback to legacy Multi-Doc architecture
-                    const snap = await db.collection("ca_drills").where("date", "==", topicParam).get();
-                    if (snap.empty) throw new Error("Drill not found.");
-                    
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        if (d.docType === "summary") {
-                            cadence = d.cadence || cadence;
-                            pdfUrlEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || pdfUrlEn;
-                            pdfUrlHi = d.pdfEmbedUrl_hi || pdfUrlHi;
-                        } else {
-                            workingCompilationCards.push(d);
-                        }
-                    });
+                    throw new Error("Drill not found.");
                 }
                 
                 workingCompilationCards = workingCompilationCards.map((c, i) => ({ id: `${topicParam}_${i}`, ...c }));
