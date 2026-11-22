@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stenogym | Current Affairs Command Center</title>
+    <meta name="description" content="Dedicated 5-tab Stenogym Current Affairs Studio: Daily Upload, Manage Daily, Weekly Builder, Monthly & Special Decks, and Library & Vector Mega PDF.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="logo.js?v=2.1"></script>
+
+    <style>
+        .tab-content { display: none; animation: fadeIn 0.2s ease-in-out; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-bg { background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(4px); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH10S2KS46"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HH10S2KS46');
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex overflow-hidden">
+
+    <!-- SECURITY OVERLAY -->
+    <div id="securityOverlay" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center transition-opacity duration-500 px-6 text-center">
+        <div class="text-6xl mb-6 animate-pulse">🔒</div>
+        <h2 class="text-2xl font-black text-white tracking-wider">Authenticating CA Admin...</h2>
+        <p id="authOverlaySub" class="text-slate-400 mt-2 text-sm">Verifying master credentials.</p>
+    </div>
+
+    <!-- MOBILE HEADER -->
+    <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-slate-950 flex items-center justify-between px-4 z-40 shadow-md">
+        <span class="font-black tracking-wider text-lg text-indigo-400">🗞️ CA STUDIO</span>
+        <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none">☰</button>
+    </div>
+
+    <!-- 5-TAB SIDEBAR -->
+    <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden backdrop-blur-sm"></div>
+    <aside id="megaSidebar" class="fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 transition-transform duration-300 h-full flex-shrink-0">
+        <div class="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950">
+            <span class="font-black tracking-wider text-lg text-white">🗞️ CA STUDIO</span>
+            <button id="closeSidebarBtn" class="md:hidden text-white text-2xl">&times;</button>
+        </div>
+
+        <div class="flex-grow p-4 overflow-y-auto hide-scrollbar space-y-1.5">
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-1 px-2">Daily Desk</p>
+            <button class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold bg-indigo-600 text-white shadow-sm transition" data-target="tab-daily">
+                <span>📅</span> Daily Upload
+            </button>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-manage">
+                <span>📰</span> Manage Daily
+            </button>
+
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-5 px-2">Drills &amp; Compilations</p>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-weekly">
+                <span>⚡</span> Weekly Builder
+            </button>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-monthly-special">
+                <span>🎯</span> Monthly &amp; Special
+            </button>
+
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-5 px-2">Archive &amp; Export</p>
+            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-library">
+                <span>📁</span> Library &amp; Mega PDF
+            </button>
+        </div>
+
+        <div class="p-4 border-t border-slate-800 space-y-2">
+            <a href="admin.html" class="block text-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs transition font-bold">
+                &larr; Main Admin (GK, Blogs, Steno)
+            </a>
+            <a href="current-affairs.html" target="_blank" class="block text-center px-4 py-2 bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 rounded-lg text-xs transition font-bold">
+                🌐 Open Live CA Desk &nearr;
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="flex-grow flex flex-col h-screen overflow-y-auto relative pt-16 md:pt-0">
+        <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 sticky top-0 z-20 hidden md:flex border-b border-slate-100">
+            <h1 id="headerTitle" class="text-xl font-black text-slate-800 uppercase tracking-tight">Daily Upload</h1>
+            <div class="flex items-center gap-4 text-xs font-bold text-slate-500">
+                <a href="admin.html" class="text-slate-500 hover:text-indigo-600 transition">&larr; Main Admin</a>
+                <span id="dbStatus" class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> Connecting...</span>
+            </div>
+        </header>
+
+        <div class="p-4 md:p-8 w-full max-w-7xl mx-auto pb-28 space-y-6">
+
+            <!-- SHARED FOLDER DATALIST -->
+            <datalist id="folderSuggestions">
+                <option value="May–June 2026">
+                <option value="July 2026">
+                <option value="August 2026">
+                <option value="September 2026">
+                <option value="October 2026">
+                <option value="November 2026">
+                <option value="Major Annual Events">
+                <option value="6-Month Master Lists">
+                <option value="Exam Boosters">
+            </datalist>
+
+            <!-- =================================================== -->
+            <!-- TAB 1: DAILY UPLOAD (CLEAN, ZERO DRILL CLUTTER)     -->
+            <!-- =================================================== -->
+            <section id="tab-daily" class="tab-content active space-y-6">
+                <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+                    <div class="border-b border-slate-100 pb-5">
+                        <h2 class="text-2xl font-black text-slate-900">📅 Daily Current Affairs Upload</h2>
+                        <p class="text-sm text-slate-500 mt-1">Paste your verified Daily JSON, auto-translate missing Hindi, export Daily/Cheat PDF, and publish sharp at 6:00 AM IST.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-end gap-4">
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Target Date</label>
+                            <input type="date" id="dailyTargetDate" onchange="updateStagingContextBanner()" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Release Schedule</label>
+                            <select id="dailyReleaseSchedule" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                <option value="6am">⏰ Sharp 06:00 AM IST Drop</option>
+                                <option value="instant">⚡ Immediate Live Release</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="ingestFromClipboard('daily')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-5 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
+                                <span>📥</span> Ingest Clipboard
+                            </button>
+                            <button onclick="openPasteModal('daily')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 transition">
+                                📋 Paste JSON Box
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================== -->
+            <!-- TAB 2: MANAGE DAILY CURRENT AFFAIRS                 -->
+            <!-- =================================================== -->
+            <section id="tab-manage" class="tab-content space-y-6">
+                <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-4 gap-4">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">📰 Manage Daily Current Affairs</h2>
+                            <p class="text-slate-500 text-sm mt-1">Inspect, live-edit, update ⭐ High Priority tags, re-translate single cards, or regenerate Daily PDFs.</p>
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <button onclick="purgeSelectedDay()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-4 py-2 rounded-xl text-xs transition">
+                                🗑️ Purge Entire Day
+                            </button>
+                            <button id="btnRefreshCAManage" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Regenerate Selected Date:</span>
+                            <div class="flex items-center bg-white rounded-xl p-1 border border-slate-300">
+                                <select id="managePdfType" class="bg-transparent text-slate-700 text-xs font-bold outline-none px-2 py-1 cursor-pointer">
+                                    <option value="daily_en">📄 Daily Digest (EN)</option>
+                                    <option value="daily_hi">📄 Daily Digest (HI)</option>
+                                    <option value="quiz_en">⚡ Compact Quiz Sheet (EN)</option>
+                                    <option value="quiz_hi">⚡ Compact Quiz Sheet (HI)</option>
+                                    <option value="cheat_en">📑 Cheat Sheet (EN)</option>
+                                    <option value="cheat_hi">📑 Cheat Sheet (HI)</option>
+                                </select>
+                                <button onclick="triggerUniversalPDF('manage')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition text-xs ml-2">
+                                    Generate PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Inspect Date</label>
+                            <input type="date" id="caManageDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5">Filter Category</label>
+                            <select id="caManageCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                <option value="all">All Categories</option>
+                                <option value="Banking & Economy">Banking &amp; Economy</option>
+                                <option value="National & Global">National &amp; Global</option>
+                                <option value="Science & Defence">Science &amp; Defence</option>
+                                <option value="Persons in News">Persons in News</option>
+                                <option value="Sports">Sports</option>
+                                <option value="Awards & Honours">Awards &amp; Honours</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <div id="caDayStatusBadge" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 text-center">
+                                Status: Select date to load
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="caManageCardsContainer" class="space-y-6">
+                        <div class="text-center py-12 text-slate-400 font-bold border border-dashed border-slate-200 rounded-2xl">
+                            Select a date from the calendar to load editable Daily cards...
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================== -->
+            <!-- TAB 3: WEEKLY BUILDER (ON-PAGE DATE PICKER + EDIT)  -->
+            <!-- =================================================== -->
+            <section id="tab-weekly" class="tab-content space-y-6">
+                <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">⚡ Weekly Speed Drill Builder</h2>
+                            <p class="text-sm text-slate-500 mt-1">Build or edit Sunday Weekly Speed Drills straight from your already-translated Daily CA — zero pop-ups.</p>
+                        </div>
+                        <div class="flex gap-5 bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-200">
+                            <label class="flex items-center gap-2 font-black text-xs cursor-pointer text-indigo-700" id="lblWeeklyNew">
+                                <input type="radio" name="weeklyMode" value="new" checked onchange="toggleWeeklyMode(this.value)" class="accent-indigo-600"> ➕ Create New Weekly
+                            </label>
+                            <label class="flex items-center gap-2 font-bold text-xs cursor-pointer text-slate-500 hover:text-indigo-600" id="lblWeeklyEdit">
+                                <input type="radio" name="weeklyMode" value="edit" onchange="toggleWeeklyMode(this.value)" class="accent-indigo-600"> ✏️ Edit Existing Weekly
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- EDIT EXISTING WEEKLY BAR -->
+                    <div id="weeklyEditBar" class="hidden bg-amber-50/70 border border-amber-200 rounded-2xl p-4 flex flex-wrap items-end gap-3">
+                        <div class="flex-grow min-w-[220px]">
+                            <label class="block text-[10px] font-black uppercase text-amber-800 mb-1">Select Existing Weekly Drill</label>
+                            <select id="weeklyExistingSelect" onchange="onSelectExistingDropdown('weekly')" class="w-full bg-white border border-amber-300 rounded-xl px-3.5 py-2 text-xs font-bold outline-none"></select>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="fetchDrillForContext('weekly')" id="btnFetchWeekly" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-xs transition">📥 Fetch Cards</button>
+                            <button onclick="saveDrillInfoOnly('weekly')" id="btnSaveWeeklyInfo" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-xs transition">💾 Save Info Only</button>
+                            <button onclick="deleteDrillByContext('weekly')" id="btnDeleteWeekly" class="bg-rose-100 hover:bg-rose-200 text-rose-700 border border-rose-300 font-black text-xs px-3.5 py-2.5 rounded-xl transition">🗑️ Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- WEEKLY IDENTITY FIELDS -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="md:col-span-2">
+                            <label class="block text-[11px] font-black uppercase text-indigo-600 mb-1">Weekly Display Title (Shown to Students)</label>
+                            <input type="text" id="weeklyDisplayTitle" oninput="onTitleAutoSlug('weekly')" placeholder="e.g., Nov Week 3 Speed Drill (16–22 Nov 2026)" class="w-full bg-slate-50 border border-indigo-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                            <div class="flex flex-wrap items-center gap-2 mt-1.5 text-[11px] text-slate-500">
+                                <span class="font-bold">URL Slug:</span>
+                                <code id="weeklySlugPreview" class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-bold">auto-generated</code>
+                                <button type="button" onclick="toggleSlugInput('weekly')" class="text-indigo-600 hover:underline font-bold text-[10px]">✏️ Edit Slug</button>
+                            </div>
+                            <input type="text" id="weeklyIdentifier" oninput="syncSlugPreview('weekly')" placeholder="e.g., nov-2026-week-3" class="hidden mt-2 w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs font-mono font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-amber-600 mb-1">Deck Mode</label>
+                            <select id="weeklyDeckMode" class="w-full bg-amber-50/50 border border-amber-300 rounded-xl px-3.5 py-2.5 text-sm font-bold outline-none focus:border-amber-500">
+                                <option value="quiz_only" selected>⚡ Quiz Only (Rapid Mock)</option>
+                                <option value="study_quiz">📚 Study + Quiz (Notes &amp; MCQ)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- OPTIONAL WEEKLY PDF LINKS -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Optional PDF / Telegram Link (EN)</label>
+                            <input type="url" id="weeklyPdfUrl_en" placeholder="Leave blank to hide PDF button on site" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Optional PDF / Telegram Link (HI)</label>
+                            <input type="url" id="weeklyPdfUrl_hi" placeholder="Optional Hindi PDF / Telegram link" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Optional Custom Button Label</label>
+                            <input type="text" id="weeklyPdfLabel" placeholder="Default: 📥 Download PDF" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- ON-PAGE WEEKLY DATE-RANGE PICKER -->
+                    <div class="bg-amber-50/50 border border-amber-200 rounded-2xl p-4 md:p-5 space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-2">
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900">📅 Pull Daily CA by Date Range (Auto-Selects ⭐ HIGH Priority)</h3>
+                                <p class="text-xs text-slate-500">Loads via fast REST API — preserves all existing Hindi translations with zero re-translation.</p>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button onclick="ingestFromClipboard('weekly')" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs px-3 py-1.5 rounded-lg transition">📥 Append Clipboard</button>
+                                <button onclick="openPasteModal('weekly')" class="bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold text-xs px-3 py-1.5 rounded-lg transition">📋 Paste JSON</button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Start Date</label>
+                                <input type="date" id="wpStartDate" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">End Date</label>
+                                <input type="date" id="wpEndDate" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Category Filter</label>
+                                <select id="wpCategoryFilter" onchange="renderWeeklyPickerList()" class="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold">
+                                    <option value="all">All Categories</option>
+                                    <option value="Banking & Economy">Banking &amp; Economy</option>
+                                    <option value="National & Global">National &amp; Global</option>
+                                    <option value="Science & Defence">Science &amp; Defence</option>
+                                    <option value="Persons in News">Persons in News</option>
+                                    <option value="Sports">Sports</option>
+                                    <option value="Awards & Honours">Awards &amp; Honours</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button onclick="fetchDailyRangeForPicker()" id="btnFetchDateRange" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition">
+                                    🔍 Fetch Daily CA
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-amber-200/70 text-xs">
+                            <span class="font-black text-indigo-700" id="wpSelectedSummary">0 Selected</span>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <button onclick="wpQuickSelect('high')" class="px-2.5 py-1 bg-amber-200/80 hover:bg-amber-300 text-amber-950 rounded-lg font-black text-[11px]">⭐ High Only</button>
+                                <button onclick="wpQuickSelect('all')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg font-bold text-[11px]">Select Visible</button>
+                                <button onclick="wpQuickSelect('none')" class="px-2.5 py-1 bg-white border border-slate-300 hover:bg-slate-100 text-slate-700 rounded-lg font-bold text-[11px]">Clear Visible</button>
+                                <button onclick="loadWeeklyPickerToStaging()" class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg font-black text-xs shadow-sm transition">✅ Load into Staging</button>
+                            </div>
+                        </div>
+
+                        <div id="wpListContainer" class="max-h-72 overflow-y-auto space-y-2 pr-1">
+                            <div class="text-center py-8 text-slate-400 text-xs font-bold bg-white/80 rounded-xl border border-dashed border-amber-300">
+                                Pick a week (e.g., Monday to Sunday) and click <strong>Fetch Daily CA</strong>.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================== -->
+            <!-- TAB 4: MONTHLY & SPECIAL DECK STUDIO                -->
+            <!-- =================================================== -->
+            <section id="tab-monthly-special" class="tab-content space-y-6">
+                <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm space-y-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-5">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">🎯 Monthly &amp; Special Deck Studio</h2>
+                            <p class="text-sm text-slate-500 mt-1">Create or expand Monthly category decks &amp; Special Topic boosters. Attach Full-Month Mega PDFs in Tab 5 (Library).</p>
+                        </div>
+                        <div class="flex gap-5 bg-slate-100 px-4 py-2.5 rounded-xl border border-slate-200">
+                            <label class="flex items-center gap-2 font-black text-xs cursor-pointer text-indigo-700" id="lblMsNew">
+                                <input type="radio" name="msMode" value="new" checked onchange="toggleMsMode(this.value)" class="accent-indigo-600"> ➕ Create New Deck
+                            </label>
+                            <label class="flex items-center gap-2 font-bold text-xs cursor-pointer text-slate-500 hover:text-indigo-600" id="lblMsEdit">
+                                <input type="radio" name="msMode" value="edit" onchange="toggleMsMode(this.value)" class="accent-indigo-600"> ✏️ Edit / Expand Existing
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- EDIT EXISTING MONTHLY / SPECIAL BAR -->
+                    <div id="msEditBar" class="hidden bg-indigo-50/70 border border-indigo-200 rounded-2xl p-4 flex flex-wrap items-end gap-3">
+                        <div class="flex-grow min-w-[240px]">
+                            <label class="block text-[10px] font-black uppercase text-indigo-800 mb-1">Select Existing Monthly / Special Deck</label>
+                            <select id="msExistingSelect" onchange="onSelectExistingDropdown('ms')" class="w-full bg-white border border-indigo-300 rounded-xl px-3.5 py-2 text-xs font-bold outline-none"></select>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="fetchDrillForContext('ms')" id="btnFetchMs" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-xs transition">📥 Fetch Cards</button>
+                            <button onclick="saveDrillInfoOnly('ms')" id="btnSaveMsInfo" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-xs transition">💾 Save Info Only</button>
+                            <button onclick="deleteDrillByContext('ms')" id="btnDeleteMs" class="bg-rose-100 hover:bg-rose-200 text-rose-700 border border-rose-300 font-black text-xs px-3.5 py-2.5 rounded-xl transition">🗑️ Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- CORE DECK IDENTITY (NO DUPLICATE FOLDER MEGA PDF BOXES) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Deck Section</label>
+                            <select id="msCadenceType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                                <option value="monthly">📥 Monthly Category Deck</option>
+                                <option value="special">🎯 Special Topic Booster</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-indigo-600 mb-1">Display Title (Shown to Students)</label>
+                            <input type="text" id="msDisplayTitle" oninput="onTitleAutoSlug('ms')" placeholder="e.g., Banking & Economy" class="w-full bg-slate-50 border border-indigo-200 rounded-xl px-3.5 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-emerald-600 mb-1">Folder Name (Groups Decks)</label>
+                            <input type="text" id="msFolderName" list="folderSuggestions" oninput="onTitleAutoSlug('ms')" placeholder="e.g., November 2026" class="w-full bg-slate-50 border border-emerald-200 rounded-xl px-3.5 py-2.5 text-sm font-bold outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-black uppercase text-amber-600 mb-1">Deck Mode</label>
+                            <select id="msDeckMode" class="w-full bg-amber-50/50 border border-amber-300 rounded-xl px-3.5 py-2.5 text-sm font-bold outline-none focus:border-amber-500">
+                                <option value="study_quiz">📚 Study + Quiz (Notes &amp; MCQ)</option>
+                                <option value="quiz_only">⚡ Quiz Only (Rapid Mock)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- QUIET AUTO-SLUG ROW -->
+                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+                        <span class="font-bold">URL Slug (Doc ID):</span>
+                        <code id="msSlugPreview" class="bg-white border border-slate-200 text-slate-800 px-2.5 py-0.5 rounded font-mono font-bold">auto-generated</code>
+                        <button type="button" onclick="toggleSlugInput('ms')" class="text-indigo-600 hover:underline font-bold text-[11px]">✏️ Edit Slug</button>
+                        <input type="text" id="msIdentifier" oninput="syncSlugPreview('ms')" placeholder="e.g., nov-2026-banking" class="hidden flex-grow min-w-[200px] bg-white border border-indigo-300 rounded-lg px-3 py-1 text-xs font-mono font-bold outline-none">
+                    </div>
+
+                    <!-- OPTIONAL DECK PDF LINKS (SINGLE DECK ONLY) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Optional Deck PDF / Telegram Link (EN)</label>
+                            <input type="url" id="msPdfUrl_en" placeholder="Leave blank to keep clean (auto-hidden)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Optional Deck PDF / Telegram Link (HI)</label>
+                            <input type="url" id="msPdfUrl_hi" placeholder="Optional Hindi deck PDF link" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-black uppercase text-slate-400 mb-1">Optional Custom Button Label</label>
+                            <input type="text" id="msPdfLabel" placeholder="Default: 📥 Download PDF" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- DATA LOAD ACTIONS -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
+                        <div class="flex flex-wrap gap-2">
+                            <button onclick="ingestFromClipboard('ms')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
+                                <span>📥</span> Append Clipboard JSON
+                            </button>
+                            <button onclick="openPasteModal('ms')" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 transition">
+                                📋 Paste JSON Box
+                            </button>
+                            <button onclick="openMergeDrillsModal()" class="bg-violet-100 hover:bg-violet-200 text-violet-900 border border-violet-300 font-black text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                                <span>🔗</span> Merge From Existing Drills
+                            </button>
+                        </div>
+                        <button onclick="toggleAutoSplitPanel()" class="bg-amber-100 hover:bg-amber-200 text-amber-950 border border-amber-300 font-black text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-1.5">
+                            <span>⚡</span> 1-Click Auto-Split Month From Daily CA
+                        </button>
+                    </div>
+
+                    <!-- 1-CLICK AUTO-SPLIT MONTH PANEL -->
+                    <div id="autoSplitMonthPanel" class="hidden bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 space-y-4">
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <h3 class="text-sm font-black text-emerald-950">⚡ 1-Click Auto-Split Month Into Category Decks</h3>
+                                <p class="text-xs text-emerald-800 mt-0.5">Pulls a full month of your already-translated Daily CA, groups by category, and creates/safely merges every Monthly category deck in one click.</p>
+                            </div>
+                            <button onclick="toggleAutoSplitPanel()" class="text-slate-400 hover:text-rose-500 text-xl leading-none">&times;</button>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-end">
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-emerald-800 mb-1">Month Start</label>
+                                <input type="date" id="asStartDate" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-emerald-800 mb-1">Month End</label>
+                                <input type="date" id="asEndDate" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-emerald-800 mb-1">Target Month Folder</label>
+                                <input type="text" id="asFolderName" list="folderSuggestions" placeholder="e.g., November 2026" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-black uppercase text-emerald-800 mb-1">Priority Filter</label>
+                                <select id="asPriorityFilter" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-bold">
+                                    <option value="all">All Daily Cards</option>
+                                    <option value="high">⭐ High Priority Only</option>
+                                </select>
+                            </div>
+                            <div>
+                                <button onclick="previewAutoSplitMonth()" id="btnPreviewAutoSplit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition">
+                                    🔍 Preview Split
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="autoSplitPreviewBox" class="hidden bg-white border border-emerald-200 rounded-xl p-4 space-y-3">
+                            <div id="autoSplitSummaryList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs"></div>
+                            <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                                <span class="text-[11px] font-bold text-slate-500">Existing decks with the same slug are safely merged &amp; deduplicated.</span>
+                                <button onclick="commitAutoSplitMonth()" id="btnCommitAutoSplit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition">
+                                    🚀 Commit All Split Decks
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================== -->
+            <!-- TAB 5: FULL-PAGE LIBRARY, BULK MOVE & MEGA PDF      -->
+            <!-- =================================================== -->
+            <section id="tab-library" class="tab-content space-y-6">
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 flex flex-wrap justify-between items-center gap-4 bg-slate-50">
+                        <div>
+                            <h2 class="text-2xl font-black text-slate-900">📁 Library, Bulk Folder Organizer &amp; Mega PDF Studio</h2>
+                            <p class="text-xs text-slate-500 font-semibold mt-1">Manage all live drills, move decks into folders without re-uploading, build Vector Mega PDFs, and attach Folder PDF links.</p>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <div class="flex items-center bg-slate-200 p-1 rounded-xl text-xs font-black">
+                                <button id="btnLibViewDrills" onclick="switchLibrarySubTab('drills')" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg shadow-xs transition">📋 All Drills &amp; Bulk Move</button>
+                                <button id="btnLibViewFolders" onclick="switchLibrarySubTab('folders')" class="px-3.5 py-1.5 text-slate-600 hover:text-slate-900 rounded-lg transition">📁 Folders &amp; Mega PDF</button>
+                            </div>
+                            <button onclick="refreshLibraryDrills()" class="bg-white border border-slate-300 hover:bg-slate-100 text-indigo-700 font-black text-xs px-3.5 py-2 rounded-xl transition">🔄 Reload</button>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB A: ALL DRILLS & BULK MOVE -->
+                    <div id="libDrillsView">
+                        <div class="p-5 bg-indigo-50/70 border-b border-indigo-100 space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black text-indigo-900 uppercase">Bulk Folder Organizer:</span>
+                                    <span id="bulkSelectedCountBadge" class="bg-indigo-600 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full">0 Selected</span>
+                                </div>
+                                <div class="flex flex-wrap items-center gap-1.5 text-xs font-bold">
+                                    <span class="text-slate-500">Filter:</span>
+                                    <button onclick="filterBrowseCadence('all')" class="browse-cad-pill px-2.5 py-1 rounded-lg bg-slate-900 text-white" data-cad="all">All</button>
+                                    <button onclick="filterBrowseCadence('weekly')" class="browse-cad-pill px-2.5 py-1 rounded-lg bg-white text-slate-600 border" data-cad="weekly">Weekly</button>
+                                    <button onclick="filterBrowseCadence('monthly')" class="browse-cad-pill px-2.5 py-1 rounded-lg bg-white text-slate-600 border" data-cad="monthly">Monthly</button>
+                                    <button onclick="filterBrowseCadence('special')" class="browse-cad-pill px-2.5 py-1 rounded-lg bg-white text-slate-600 border" data-cad="special">Special</button>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-5 gap-2.5 items-end">
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase text-indigo-700 mb-1">Target Section</label>
+                                    <select id="bulkTargetCadence" class="w-full bg-white border border-indigo-200 rounded-lg px-2.5 py-2 text-xs font-bold outline-none">
+                                        <option value="__keep__">— Keep Current —</option>
+                                        <option value="monthly">📥 Monthly</option>
+                                        <option value="special">🎯 Special</option>
+                                        <option value="weekly">⚡ Weekly</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase text-indigo-700 mb-1">Assign Folder Name</label>
+                                    <input type="text" id="bulkFolderName" list="folderSuggestions" placeholder="e.g., May–June 2026" class="w-full bg-white border border-indigo-200 rounded-lg px-2.5 py-2 text-xs font-bold outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Deck Mode</label>
+                                    <select id="bulkDeckMode" class="w-full bg-white border border-indigo-200 rounded-lg px-2.5 py-2 text-xs font-bold outline-none">
+                                        <option value="__keep__">— Keep Current —</option>
+                                        <option value="study_quiz">📚 Study + Quiz</option>
+                                        <option value="quiz_only">⚡ Quiz Only</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-black uppercase text-slate-500 mb-1">Un-Folder</label>
+                                    <label class="flex items-center gap-2 bg-white border border-indigo-200 rounded-lg px-2.5 py-2 text-xs font-bold text-slate-600 cursor-pointer">
+                                        <input type="checkbox" id="bulkClearFolder" class="accent-rose-600"> Remove Folder
+                                    </label>
+                                </div>
+                                <div>
+                                    <button onclick="applyBulkFolderMove()" id="btnApplyBulkMove" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-2 rounded-lg shadow-sm transition">
+                                        📁 Apply to Selected
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs md:text-sm">
+                                <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] border-b border-slate-200">
+                                    <tr>
+                                        <th class="px-4 py-3.5 w-10"><input type="checkbox" id="chkSelectAllDrills" onchange="toggleSelectAllBrowseDrills(this.checked)" class="accent-indigo-600 w-4 h-4"></th>
+                                        <th class="px-4 py-3.5 font-black">Section &amp; Mode</th>
+                                        <th class="px-4 py-3.5 font-black">Display Title / Doc ID</th>
+                                        <th class="px-4 py-3.5 font-black">Folder Name</th>
+                                        <th class="px-4 py-3.5 font-black">Cards</th>
+                                        <th class="px-4 py-3.5 font-black text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="browseDrillsTableBody" class="divide-y divide-slate-100"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SUB-TAB B: FOLDERS & CRASH-PROOF VECTOR MEGA PDF BUILDER -->
+                    <div id="libFoldersView" class="hidden p-5 md:p-6 bg-slate-50 space-y-4">
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 text-xs text-emerald-900 font-semibold">
+                            <strong>⚡ Crash-Proof Vector Mega PDF Studio (REST Powered):</strong> Build a Full Magazine Digest, Compact Layout A Quiz Sheet, or 1-Line Cheat Sheet for any entire folder—zero browser RAM crash even at 500+ cards. Attach the single Full-Folder Telegram/Drive link below to display it at the top of the Month Folder.
+                        </div>
+                        <div id="foldersBuilderList" class="grid grid-cols-1 lg:grid-cols-2 gap-5"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- =================================================== -->
+            <!-- SHARED STAGING WORKSPACE (VISIBLE ON TABS 1, 3, 4)  -->
+            <!-- =================================================== -->
+            <section id="caStagingArea" class="hidden space-y-5">
+                <div class="bg-slate-900 text-white p-5 md:p-6 rounded-3xl shadow-md flex flex-col xl:flex-row items-start xl:items-center justify-between gap-4">
+                    <div class="space-y-1.5">
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <span class="text-emerald-400 text-2xl font-black" id="stagedCount">0</span>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-300">Cards Staged</span>
+                            <span id="stagedContextBadge" class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-indigo-600/80 text-white">Target: Daily</span>
+                            <span id="stagedSizeBadge" class="text-[11px] font-mono font-black px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-emerald-300">📦 0 KB / 900 KB Safe</span>
+                            <span id="stagedTranslatedBadge" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-sky-300">HI: 0/0</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Edits &amp; translations auto-sync before filtering, exporting, or saving. Quiz Sheet uses Compact Layout A Vector Print.</p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button onclick="clearStagingArea()" class="bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 font-bold py-2 px-3 rounded-xl border border-slate-700 transition text-xs">🧹 Clear</button>
+                        <div class="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
+                            <button onclick="autoTranslateCA(false)" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black py-1.5 px-3 rounded-lg shadow transition text-xs flex items-center gap-1">
+                                <span>⚡</span> Translate Missing
+                            </button>
+                            <button onclick="autoTranslateCA(true)" id="btnForceTranslateCA" title="Force re-translate all cards" class="text-slate-300 hover:text-white font-bold py-1.5 px-2.5 rounded-lg transition text-[11px] ml-1">
+                                🔁 All
+                            </button>
+                        </div>
+
+                        <div class="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
+                            <select id="stagingPdfType" class="bg-transparent text-slate-200 text-xs font-bold outline-none px-2 py-1.5 cursor-pointer">
+                                <option value="daily_en" class="text-slate-900">📄 Full PDF (EN)</option>
+                                <option value="daily_hi" class="text-slate-900">📄 Full PDF (HI)</option>
+                                <option value="quiz_en" class="text-slate-900">⚡ Compact Quiz Sheet (EN)</option>
+                                <option value="quiz_hi" class="text-slate-900">⚡ Compact Quiz Sheet (HI)</option>
+                                <option value="cheat_en" class="text-slate-900">📑 Cheat Sheet (EN)</option>
+                                <option value="cheat_hi" class="text-slate-900">📑 Cheat Sheet (HI)</option>
+                            </select>
+                            <button onclick="triggerUniversalPDF('staging')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-1.5 px-3.5 rounded-lg shadow-sm transition text-xs ml-1">
+                                PDF
+                            </button>
+                        </div>
+
+                        <button onclick="publishStagedNews()" id="btnPublishCA" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2 px-4 rounded-xl shadow transition text-xs flex items-center gap-1.5">
+                            <span>🚀</span> Commit Drop
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CATEGORY FILTER PILLS -->
+                <div class="flex flex-wrap items-center gap-2" id="stagingCategoryPills"></div>
+
+                <!-- STAGED CARDS -->
+                <div id="caCardsContainer" class="space-y-5"></div>
+
+                <!-- BOTTOM COMMIT / SAVE BAR (NO SCROLLING BACK UP!) -->
+                <div class="sticky bottom-3 z-30 bg-slate-900/95 backdrop-blur text-white px-5 py-3.5 rounded-2xl shadow-xl border border-slate-700 flex flex-wrap items-center justify-between gap-3">
+                    <div class="text-xs font-bold text-slate-300 flex items-center gap-3">
+                        <span id="bottomStagedSummary">0 Cards Ready</span>
+                        <button onclick="document.querySelector('main').scrollTo({top:0, behavior:'smooth'})" class="text-indigo-300 hover:text-white underline">↑ Back to Top</button>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="autoTranslateCA(false)" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-black py-2 px-3.5 rounded-xl text-xs transition">⚡ Translate Missing</button>
+                        <button onclick="publishStagedNews()" id="btnPublishCABottom" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2 px-5 rounded-xl shadow transition text-xs flex items-center gap-1.5">
+                            <span>🚀</span> Commit Drop
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- =================================================== -->
+    <!-- MODAL 1: MANUAL PASTE JSON BOX                      -->
+    <!-- =================================================== -->
+    <div id="jsonPasteModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" onclick="closePasteModal()"></div>
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 flex flex-col">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800">Append Current Affairs JSON</h3>
+                    <p class="text-xs text-slate-500">Supports full Daily/Monthly cards and lightweight Quiz-Only MCQ arrays.</p>
+                </div>
+                <button onclick="closePasteModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-5">
+                <textarea id="rawJsonInput" rows="12" placeholder="Paste Current Affairs JSON array here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
+            </div>
+            <div class="p-5 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
+                <button onclick="closePasteModal()" class="px-5 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
+                <button onclick="processPastedJson()" class="px-5 py-2 rounded-xl text-xs font-black bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Append to Staging</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- =================================================== -->
+    <!-- MODAL 2: MERGE FROM EXISTING DRILLS (3->5->6 MONTH) -->
+    <!-- =================================================== -->
+    <div id="mergeDrillsModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 modal-bg" onclick="closeMergeDrillsModal()"></div>
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-3xl relative z-10 flex flex-col max-h-[88vh]">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center bg-violet-50 rounded-t-3xl">
+                <div>
+                    <h3 class="text-lg font-black text-slate-900">🔗 Merge Cards From Existing Drills</h3>
+                    <p class="text-xs text-slate-500 font-semibold">Expand a 3-month Special deck into 5–6 months by pulling finished Monthly decks (REST powered).</p>
+                </div>
+                <button onclick="closeMergeDrillsModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
+            </div>
+            <div class="p-3 border-b border-slate-100 bg-slate-50">
+                <input type="text" id="mergeSearchInput" oninput="renderMergeDrillsList()" placeholder="Search by title, folder, or slug (e.g., Sports, July)..." class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2 text-xs font-bold outline-none focus:border-violet-500">
+            </div>
+            <div id="mergeDrillsList" class="p-4 overflow-y-auto flex-grow space-y-2"></div>
+            <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-3xl flex justify-between items-center">
+                <span class="text-[11px] font-bold text-slate-500">Auto-deduplicates headlines &amp; preserves Hindi translations.</span>
+                <div class="flex gap-2">
+                    <button onclick="closeMergeDrillsModal()" class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-200">Cancel</button>
+                    <button onclick="executeMergeSelectedDrills()" id="btnExecuteMerge" class="px-5 py-2 rounded-xl text-xs font-black bg-violet-600 hover:bg-violet-700 text-white shadow-md transition">
+                        ➕ Merge Selected Decks
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DEDICATED MODULE ENGINE (SEPARATE FILE = ZERO LIVE SERVER CORRUPTION) -->
+    <script type="module" src="admin-ca.js?v=4.3"></script>
+</body>
+</html>

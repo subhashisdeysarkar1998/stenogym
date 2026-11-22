@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Current Affairs 2026-2027 | SSC, RRB & Banking GK | Stenogym</title>
-    <meta name="title" content="Daily Current Affairs 2026-2027 | SSC, RRB & Banking GK | Stenogym">
-    <meta name="description" content="Exam-focused daily current affairs for SSC CGL, RRB NTPC, and IBPS PO. 3-minute high-yield news bites, auto-linked static GK, and instant flip MCQs.">
-   
-    <!-- DARK MODE PATCH -->
+    <title>Daily Current Affairs 2026-2027 | SSC, RRB &amp; Banking GK | Stenogym</title>
+    <meta name="title" content="Daily Current Affairs 2026-2027 | SSC, RRB &amp; Banking GK | Stenogym">
+    <meta name="description" content="Exam-focused daily current affairs for SSC CGL, RRB NTPC, and IBPS PO. High-yield news bites, auto-linked static GK, and rapid MCQs.">
+
+    <!-- ANTI-FLASH DARK MODE PATCH -->
     <script>
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
@@ -17,42 +17,40 @@
     </script>
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>tailwind.config = { darkMode: 'class' }</script>
-    
-    <!-- Firebase SDKs -->
+    <script>tailwind.config = { darkMode: 'class' };</script>
+
+    <!-- Firebase Compat SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-auth-compat.js"></script>
-    
+
     <!-- HEAVY ASSETS DEFERRED FOR MOBILE PERFORMANCE -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script defer src="logo.js?v=2.1"></script>
 
     <style>
-        .perspective-1000 { perspective: 1000px; } 
+        .perspective-1000 { perspective: 1000px; }
         .transform-style-3d { transform-style: preserve-3d; }
         .backface-hidden { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
-        .rotate-y-180 { transform: rotateY(180deg); } 
-        
-        /* Auto-Fitting 3D Flip Card Fix */
-        .flip-card-inner { transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1); display: grid; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        /* Auto-Fitting 3D Flip Card */
+        .flip-card-inner { transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1); display: grid; }
         .flip-card-front, .flip-card-back { grid-area: 1 / 1; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
         .flip-card-back { transform: rotateY(180deg); }
-        
-        /* Completely Hidden Scrollbars for Zen Reading */
-        .hide-scrollbar::-webkit-scrollbar { display: none !important; } 
+
+        /* Hidden Scrollbars */
+        .hide-scrollbar::-webkit-scrollbar { display: none !important; }
         .hide-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
 
-        /* Normal cursor on hover, grabbing ONLY on active click */
+        /* PC Drag-Scroll & Mobile Native Touch */
         .drag-scroll-zone { cursor: default; }
         .drag-scroll-zone.is-dragging { cursor: grabbing !important; user-select: none; }
-
-        /* Smart Overflow: Prevents wheel trap on PC, keeps native touch on Mobile */
         @media (hover: hover) and (pointer: fine) {
-            .drag-scroll-zone, .custom-card-scroll { overflow: hidden !important; }
+            .drag-scroll-zone { overflow: hidden !important; }
         }
         @media (hover: none) and (pointer: coarse) {
-            .drag-scroll-zone, .custom-card-scroll { overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
+            .drag-scroll-zone { overflow-y: auto !important; -webkit-overflow-scrolling: touch; }
         }
 
         .progress-glow { box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
@@ -60,15 +58,40 @@
         .dark .card-completed .flip-card-front { border-left: 4px solid #34d399 !important; }
         .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
 
-        /* Premium Glassmorphism */
-        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 40px -10px rgba(30, 41, 59, 0.1); }
-        .dark .glass-card { background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5); }
+        /* Glassmorphism */
+        .glass-card { background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.4); box-shadow: 0 10px 40px -10px rgba(30, 41, 59, 0.1); }
+        .dark .glass-card { background: rgba(15, 23, 42, 0.82); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5); }
+
+        /* Bookmark Highlight Pulse */
+        @keyframes bookmarkPulse {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.7); }
+            50% { box-shadow: 0 0 0 8px rgba(79, 70, 229, 0.25); }
+        }
+        .bookmark-highlight-ring { animation: bookmarkPulse 0.9s ease-in-out 3; border-radius: 1.5rem; }
 
         /* Anti-Theft Utilities */
         .no-select { user-select: none; -webkit-user-select: none; -ms-user-select: none; }
         #forensicWatermark { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; opacity: 0.03; font-size: 20px; font-weight: 900; color: #000; transform: rotate(-30deg) scale(1.5); display: flex; flex-wrap: wrap; justify-content: center; align-content: center; gap: 60px; letter-spacing: 2px; }
         .dark #forensicWatermark { color: #fff; opacity: 0.02; }
+
+        /* Floating Assistive FAB */
+        #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
+        #stenoFabMain { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 22px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
+        #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
+        #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
+        @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
+        .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
+        @keyframes writeWiggle { 0%, 85%, 100% { transform: rotate(0deg); } 88% { transform: rotate(-25deg); } 91% { transform: rotate(15deg); } 94% { transform: rotate(-10deg); } 97% { transform: rotate(5deg); } }
+        #stenoFabMenu { position: absolute; bottom: 62px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); border: 1px solid #f1f5f9; }
+        #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
+        .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none; }
+        .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
+        .fab-tg { background-color: #0088cc; }
+        .fab-yt { background-color: #FF0000; }
+        .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .fab-share { background-color: #25D366; }
     </style>
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH10S2KS46"></script>
     <script>
@@ -78,33 +101,33 @@
       gtag('config', 'G-HH10S2KS46');
     </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col pt-20 transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 font-sans min-h-screen flex flex-col pt-16 lg:pt-20 transition-colors duration-300">
 
     <!-- FLOATING FORENSIC WATERMARK -->
     <div id="forensicWatermark" aria-hidden="true"></div>
 
     <!-- MASTER NAVIGATION BAR -->
-    <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 dark:bg-slate-950 border-b border-white/10 dark:border-slate-800 shadow-sm transition-all duration-300 h-20">
+    <nav class="fixed top-0 left-0 right-0 z-50 bg-indigo-950 dark:bg-slate-950 border-b border-white/10 dark:border-slate-800 shadow-sm transition-all duration-300 h-16 lg:h-20">
         <div class="max-w-7xl mx-auto px-4 md:px-6 h-full flex justify-between items-center text-white">
-            <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-xl md:text-2xl uppercase shadow-sm">
+            <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-lg md:text-2xl uppercase shadow-sm">
                 <span class="text-yellow-400">✏️</span> STENOGYM
             </a>
-            
+
             <div class="hidden lg:flex items-center gap-6 font-semibold text-sm">
                 <div class="flex items-center gap-2">
                     <button id="themeToggleBtn" class="p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-400 hover:text-white transition shadow-inner focus:outline-none">
                         <span id="themeIcon">🌙</span>
                     </button>
                     <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
-                        <button id="btnLangEn" onclick="setLanguage('en')" class="px-2 md:px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition shadow-sm">EN</button>
-                        <button id="btnLangHi" onclick="setLanguage('hi')" class="px-2 md:px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">हिन्दी</button>
+                        <button id="btnLangEn" onclick="setLanguage('en')" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white transition shadow-sm">EN</button>
+                        <button id="btnLangHi" onclick="setLanguage('hi')" class="px-3 py-1.5 rounded-lg text-slate-400 hover:text-white transition">हिन्दी</button>
                     </div>
                 </div>
 
                 <a href="index.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Home" data-hi="होम">Home</a>
                 <a href="current-affairs.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Current Affairs" data-hi="करंट अफेयर्स">Current Affairs</a>
                 <a href="gk.html" class="text-slate-300 hover:text-white transition font-bold translation-el" data-en="Static GK" data-hi="स्टेटिक GK">Static GK</a>
-                
+
                 <div class="relative group h-full flex items-center">
                     <button class="flex items-center gap-1 text-slate-300 hover:text-white transition py-2 font-bold">
                         <span class="translation-el" data-en="Steno Room" data-hi="स्टेनो रूम">Steno Room</span>
@@ -124,78 +147,112 @@
                 <a href="login.html" id="desktopLoginBtn" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-white transition font-bold translation-el" data-en="Login" data-hi="लॉगिन">Login</a>
                 <button id="btnLogout" class="hidden text-rose-400 hover:text-rose-300 border border-slate-700 px-3 py-1.5 rounded-lg transition font-bold translation-el" data-en="Logout" data-hi="लॉग आउट">Logout</button>
             </div>
-            
-            <div class="flex items-center gap-3 lg:hidden">
+
+            <div class="flex items-center gap-2.5 lg:hidden">
                 <div class="flex items-center bg-slate-900 border border-slate-700 rounded-xl p-1 shadow-inner text-xs font-bold">
                     <button id="btnLangEnMob" onclick="setLanguage('en')" class="px-2 py-1 rounded-md bg-indigo-600 text-white transition shadow-sm">EN</button>
                     <button id="btnLangHiMob" onclick="setLanguage('hi')" class="px-2 py-1 rounded-md text-slate-400 hover:text-white transition">HI</button>
                 </div>
-                <button id="mobileThemeToggleBtn" class="text-xl text-white opacity-80 focus:outline-none">🌙</button>
-                <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none p-2">☰</button>
+                <button id="mobileThemeToggleBtn" class="text-lg text-white opacity-85 focus:outline-none p-1">🌙</button>
+                <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none p-1.5">☰</button>
             </div>
         </div>
-        
-        <div id="mobileMenu" class="hidden lg:hidden bg-indigo-900 dark:bg-slate-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-20">
+
+        <div id="mobileMenu" class="hidden lg:hidden bg-indigo-900 dark:bg-slate-900 border-b border-indigo-800 shadow-lg absolute w-full left-0 top-16">
             <div class="flex flex-col px-6 py-4 space-y-4 font-semibold text-sm">
                 <a href="index.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🏠 Home" data-hi="🏠 होम">🏠 Home</a>
                 <a href="current-affairs.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="🗞️ Current Affairs" data-hi="🗞️ करंट अफेयर्स">🗞️ Current Affairs</a>
-                <a href="gk.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="📚 Static GK" data-hi="📚 स्टेटिक GK">📚 स्टेटिक GK</a>
-                
+                <a href="gk.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="📚 Static GK" data-hi="📚 स्टेटिक GK">📚 Static GK</a>
+
                 <div>
                     <button id="mobileStenoToggle" class="flex justify-between w-full text-slate-300 hover:text-white font-bold transition">
-                        <span class="translation-el" data-en="⌨️ Steno Room" data-hi="⌨️ स्टेनो रूम">⌨️ स्टेनो रूम</span>
+                        <span class="translation-el" data-en="⌨️ Steno Room" data-hi="⌨️ स्टेनो रूम">⌨️ Steno Room</span>
                         <span id="stenoChevron">▼</span>
                     </button>
                     <div id="mobileStenoMenu" class="hidden flex-col space-y-3 mt-3 pl-6 border-l-2 border-indigo-700">
-                        <a href="app.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🎧 Preset Practice Room" data-hi="🎧 प्रीसेट अभ्यास रूम">🎧 प्रीसेट अभ्यास रूम</a>
+                        <a href="app.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🎧 Preset Practice Room" data-hi="🎧 प्रीसेट अभ्यास रूम">🎧 Preset Practice Room</a>
                         <a href="generator.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="🧠 AI Dictation Studio" data-hi="🧠 AI डिक्टेशन स्टूडियो">🧠 AI Dictation Studio</a>
-                        <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 लाइव डॉक्यूमेंट स्कैनर</a>
+                        <a href="scanner.html" class="block text-xs text-slate-300 hover:text-white translation-el" data-en="📄 Live Document Scanner" data-hi="📄 लाइव डॉक्यूमेंट स्कैनर">📄 Live Document Scanner</a>
                     </div>
                 </div>
-                
-                <a href="blog.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="✍️ Blog & Guides" data-hi="✍️ ब्लॉग और गाइड">✍️ ब्लॉग और गाइड</a>
-                
+
+                <a href="blog.html" class="block text-slate-300 hover:text-white font-bold translation-el" data-en="✍️ Blog &amp; Guides" data-hi="✍️ ब्लॉग और गाइड">✍️ Blog &amp; Guides</a>
+
                 <div class="pt-2 border-t border-indigo-800">
-                    <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300 font-bold mb-2 translation-el" data-en="Dashboard" data-hi="डैशबोर्ड">डैशबोर्ड</a>
-                    <a href="login.html" id="mobileLoginBtn" class="block text-white font-bold translation-el" data-en="Student Login &rarr;" data-hi="छात्र लॉगिन &rarr;">छात्र लॉगिन &rarr;</a>
-                    <button id="mobileLogoutBtn" class="hidden w-full text-left font-bold text-rose-400 mt-2 translation-el" data-en="Logout &rarr;" data-hi="लॉग आउट &rarr;">लॉग आउट &rarr;</button>
+                    <a href="dashboard.html" id="navDashboardMob" class="hidden block text-indigo-300 font-bold mb-2 translation-el" data-en="Dashboard" data-hi="डैशबोर्ड">Dashboard</a>
+                    <a href="login.html" id="mobileLoginBtn" class="block text-white font-bold translation-el" data-en="Student Login &rarr;" data-hi="छात्र लॉगिन &rarr;">Student Login &rarr;</a>
+                    <button id="mobileLogoutBtn" class="hidden w-full text-left font-bold text-rose-400 mt-2 translation-el" data-en="Logout &rarr;" data-hi="लॉग आउट &rarr;">Logout &rarr;</button>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- HEADER & WRAPPING CATEGORY PILLS -->
+    <!-- SLIM MOBILE HEADER + RESPONSIVE CATEGORY FILTER (DROPDOWN ON MOBILE, PILLS ON DESKTOP) -->
     <header class="bg-slate-900 dark:bg-slate-950 text-white border-b border-slate-800 shadow-md">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-6 md:py-8">
-            <div class="text-center max-w-3xl mx-auto mb-4 md:mb-6">
-                <h1 class="text-2xl md:text-4xl font-black text-white tracking-tight translation-el" data-en="The Daily News Desk" data-hi="दैनिक समाचार डेस्क">The Daily News Desk</h1>
-                <p class="text-slate-400 text-xs md:text-sm mt-1 md:mt-2 translation-el" data-en="High-Yield Current Affairs curated for the 2026-2027 SSC, RRB & Banking cycle." data-hi="2026-2027 SSC, RRB और बैंकिंग चक्र के लिए तैयार किए गए उच्च उपज वाले करेंट अफेयर्स।">High-Yield Current Affairs curated for the 2026-2027 SSC, RRB & Banking cycle.</p>
+        <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 md:py-6">
+            <div class="text-center max-w-3xl mx-auto">
+                <h1 class="text-xl md:text-3xl font-black text-white tracking-tight translation-el" data-en="The Daily News Desk" data-hi="दैनिक समाचार डेस्क">The Daily News Desk</h1>
+                <p class="hidden md:block text-slate-400 text-xs md:text-sm mt-1.5 translation-el" data-en="High-Yield Current Affairs curated for the 2026-2027 SSC, RRB &amp; Banking cycle." data-hi="2026-2027 SSC, RRB और बैंकिंग चक्र के लिए तैयार किए गए उच्च उपज वाले करेंट अफेयर्स।">High-Yield Current Affairs curated for the 2026-2027 SSC, RRB &amp; Banking cycle.</p>
             </div>
 
-            <div class="flex flex-wrap items-center justify-center gap-2 py-2 px-1 w-full" id="categoryPillContainer">
-                <button class="cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el" data-cat="all" data-en="🌟 All News" data-hi="🌟 सभी समाचार">🌟 All News</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Banking & Economy" data-en="🏦 Banking & Economy" data-hi="🏦 बैंकिंग और अर्थव्यवस्था">🏦 Banking & Economy</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-cyan-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="National & Global" data-en="🌍 National & Global" data-hi="🌍 राष्ट्रीय और वैश्विक">🌍 National & Global</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Science & Defence" data-en="🚀 Science & Defence" data-hi="🚀 विज्ञान और रक्षा">🚀 Science & Defence</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-fuchsia-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Persons in News" data-en="👤 Persons in News" data-hi="👤 चर्चा में रहे व्यक्ति">👤 Persons in News</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Sports" data-en="🏆 Sports" data-hi="🏆 खेल जगत">🏆 Sports</button>
-                <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-violet-600 hover:text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el" data-cat="Awards & Honours" data-en="🏅 Awards & Honours" data-hi="🏅 पुरस्कार और सम्मान">🏅 Awards & Honours</button>
+            <!-- Auto-hidden on Weekly / Monthly / Special shelf views where category filtering isn't needed -->
+            <div id="headerCategorySection" class="mt-2.5 md:mt-4">
+                <!-- MOBILE COMPACT DROPDOWN -->
+                <div class="md:hidden max-w-sm mx-auto">
+                    <div class="relative">
+                        <select id="mobileCategorySelect" aria-label="Filter News Category" class="w-full appearance-none bg-slate-800 border border-slate-700 text-white font-bold text-xs rounded-xl pl-3.5 pr-9 py-2.5 outline-none focus:border-indigo-500 shadow-sm">
+                            <option value="all">🌟 Filter: All News</option>
+                            <option value="Banking & Economy">🏦 Banking &amp; Economy</option>
+                            <option value="National & Global">🌍 National &amp; Global</option>
+                            <option value="Science & Defence">🚀 Science &amp; Defence</option>
+                            <option value="Persons in News">👤 Persons in News</option>
+                            <option value="Sports">🏆 Sports</option>
+                            <option value="Awards & Honours">🏅 Awards &amp; Honours</option>
+                        </select>
+                        <span class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">▼</span>
+                    </div>
+                </div>
+
+                <!-- DESKTOP PILLS BAR -->
+                <div class="hidden md:flex flex-wrap items-center justify-center gap-2 py-1 w-full" id="categoryPillContainer">
+                    <button class="cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap shadow-md transition translation-el" data-cat="all" data-en="🌟 All News" data-hi="🌟 सभी समाचार">🌟 All News</button>
+                    <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-emerald-600 hover:text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Banking & Economy" data-en="🏦 Banking &amp; Economy" data-hi="🏦 बैंकिंग और अर्थव्यवस्था">🏦 Banking &amp; Economy</button>
+                    <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-cyan-600 hover:text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="National & Global" data-en="🌍 National &amp; Global" data-hi="🌍 राष्ट्रीय और वैश्विक">🌍 National &amp; Global</button>
+                    <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-rose-600 hover:text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Science & Defence" data-en="🚀 Science &amp; Defence" data-hi="🚀 विज्ञान और रक्षा">🚀 Science &amp; Defence</button>
+                    <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-fuchsia-600 hover:text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Persons in News" data-en="👤 Persons in News" data-hi="👤 चर्चा में रहे व्यक्ति">👤 Persons in News</button>
+                    <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-amber-600 hover:text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Sports" data-en="🏆 Sports" data-hi="🏆 खेल जगत">🏆 Sports</button>
+                    <button class="cat-pill bg-slate-800 text-slate-300 hover:bg-violet-600 hover:text-white px-3 py-2 rounded-xl font-bold text-xs whitespace-nowrap transition translation-el" data-cat="Awards & Honours" data-en="🏅 Awards &amp; Honours" data-hi="🏅 पुरस्कार और सम्मान">🏅 Awards &amp; Honours</button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- ZEN-MODE SECONDARY NAVBAR -->
-    <div id="secondaryNavBar" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 sticky top-[80px] z-40 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-all duration-300 transform">
-        <div class="max-w-7xl mx-auto px-4 md:px-6 py-3 flex flex-wrap md:flex-nowrap items-center justify-between gap-4">
-            
-            <div class="flex items-center gap-4 w-full md:w-auto">
-                <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-black w-full md:w-auto overflow-x-auto hide-scrollbar">
-                    <button id="tabDaily" title="View Daily News Feed" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el whitespace-nowrap" data-en="📅 Daily" data-hi="📅 दैनिक">📅 Daily</button>
-                    <button id="tabWeekly" title="View Weekly Compilation" class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition translation-el whitespace-nowrap" data-en="⚡ Weekly" data-hi="⚡ साप्ताहिक">⚡ Weekly</button>
-                    <button id="tabMonthly" title="View Monthly Digest" class="px-4 py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition translation-el whitespace-nowrap" data-en="📥 Monthly" data-hi="📥 मासिक">📥 Monthly</button>
+    <!-- ZEN-MODE SECONDARY NAVBAR (4-COLUMN ALWAYS-VISIBLE MOBILE GRID) -->
+    <div id="secondaryNavBar" class="bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 sticky top-16 lg:top-20 z-40 shadow-sm border-b border-slate-200 dark:border-slate-700 transition-all duration-300 transform">
+        <div class="max-w-7xl mx-auto px-3 md:px-6 py-2.5 flex flex-col lg:flex-row lg:items-center justify-between gap-2.5 lg:gap-4">
+
+            <div class="flex items-center gap-4 w-full lg:w-auto">
+                <!-- ALWAYS-VISIBLE 4-COLUMN GRID ON MOBILE, INLINE ON DESKTOP -->
+                <div class="grid grid-cols-4 lg:flex items-center gap-1 bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 font-black w-full lg:w-auto">
+                    <button id="tabDaily" title="View Daily News Feed" class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition text-[10px] sm:text-xs">
+                        <span class="text-sm sm:text-xs leading-none">📅</span>
+                        <span class="translation-el leading-tight" data-en="Daily" data-hi="दैनिक">Daily</span>
+                    </button>
+                    <button id="tabWeekly" title="View Weekly Speed Drills" class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition text-[10px] sm:text-xs">
+                        <span class="text-sm sm:text-xs leading-none">⚡</span>
+                        <span class="translation-el leading-tight" data-en="Weekly" data-hi="साप्ताहिक">Weekly</span>
+                    </button>
+                    <button id="tabMonthly" title="View Monthly Folder Archive" class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition text-[10px] sm:text-xs">
+                        <span class="text-sm sm:text-xs leading-none">📥</span>
+                        <span class="translation-el leading-tight" data-en="Monthly" data-hi="मासिक">Monthly</span>
+                    </button>
+                    <button id="tabSpecial" title="View Special Topic Boosters" class="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-1.5 sm:px-3.5 py-1.5 sm:py-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white rounded-lg transition text-[10px] sm:text-xs">
+                        <span class="text-sm sm:text-xs leading-none">🎯</span>
+                        <span class="translation-el leading-tight" data-en="Special" data-hi="विशेष">Special</span>
+                    </button>
                 </div>
-                
-                <div class="hidden md:flex flex-col w-32 flex-shrink-0" id="progressWidget">
+
+                <div class="hidden xl:flex flex-col w-28 flex-shrink-0" id="progressWidget">
                     <div class="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
                         <span class="translation-el" data-en="Goal" data-hi="लक्ष्य">Goal</span>
                         <span id="progressText" class="text-indigo-600 dark:text-indigo-400">0/0 Read</span>
@@ -206,34 +263,41 @@
                 </div>
             </div>
 
-            <div id="dateControlBar" class="flex items-center justify-between md:justify-end gap-3 w-full md:w-auto pb-1 md:pb-0">
-                <button id="btnAudioBrief" onclick="toggleAudioBrief()" title="Listen to 2-Minute Audio Brief" class="flex items-center gap-1.5 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-800 dark:text-amber-400 border border-amber-300 dark:border-amber-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
-                    <span id="audioIcon">🎧</span> <span id="audioLabel" class="hidden sm:inline translation-el" data-en="2m Brief" data-hi="2 मिनट सारांश">2m Brief</span>
-                </button>
+            <!-- DAILY TOOLBAR: NOTES | RAPID QUIZ + DATE PICKER + AUDIO + DAILY PDF -->
+            <div id="dateControlBar" class="flex flex-wrap items-center justify-between lg:justify-end gap-2 w-full lg:w-auto">
+                <!-- DAILY NOTES / RAPID QUIZ SWITCHER (REPLACES CONFUSING FLIP ALL) -->
+                <div id="dailyModeToggleWrap" class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl border border-slate-200 dark:border-slate-700 text-[11px] font-black">
+                    <button id="btnDailyModeNotes" onclick="setDailyMode('notes')" class="px-2.5 sm:px-3 py-1.5 bg-indigo-600 text-white rounded-lg shadow-xs transition translation-el" data-en="📖 Notes" data-hi="📖 नोट्स">📖 Notes</button>
+                    <button id="btnDailyModeQuiz" onclick="setDailyMode('quiz')" class="px-2.5 sm:px-3 py-1.5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg transition translation-el" data-en="⚡ Rapid Quiz" data-hi="⚡ रैपिड क्विज़">⚡ Rapid Quiz</button>
+                </div>
 
+                <!-- DATE SELECTOR -->
                 <div class="flex flex-col items-center">
-                    <span id="displayDateBadge" class="text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-0.5"></span>
-                    <div class="flex items-center bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-indigo-900/50 rounded-xl px-2 py-1 shadow-sm flex-shrink-0" title="Select Date">
-                        <button id="btnPrevDay" class="px-2 py-1 text-indigo-600 dark:text-indigo-400 font-black text-sm">&larr;</button>
-                        <input type="date" id="selectedDateInput" class="bg-transparent text-slate-800 dark:text-white font-mono text-xs font-black px-2 py-1 outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]">
-                        <button id="btnNextDay" class="px-2 py-1 text-indigo-600 dark:text-indigo-400 font-black text-sm">&rarr;</button>
+                    <span id="displayDateBadge" class="hidden sm:block text-[9px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-0.5"></span>
+                    <div class="flex items-center bg-white dark:bg-slate-800 border border-indigo-200 dark:border-indigo-900/60 rounded-xl px-1.5 py-1 shadow-xs" title="Select Date">
+                        <button id="btnPrevDay" class="px-1.5 py-0.5 text-indigo-600 dark:text-indigo-400 font-black text-sm">&larr;</button>
+                        <input type="date" id="selectedDateInput" class="bg-transparent text-slate-800 dark:text-white font-mono text-[11px] sm:text-xs font-black px-1 py-0.5 outline-none cursor-pointer [color-scheme:light] dark:[color-scheme:dark]">
+                        <button id="btnNextDay" class="px-1.5 py-0.5 text-indigo-600 dark:text-indigo-400 font-black text-sm">&rarr;</button>
                     </div>
                 </div>
-                
-                <button id="btnFlipAll" onclick="toggleFlipAll()" title="Flip all cards to see MCQs" class="flex items-center gap-1.5 bg-indigo-100 dark:bg-indigo-900/50 hover:bg-indigo-200 text-indigo-700 dark:text-indigo-400 border border-indigo-300 dark:border-indigo-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
-                    <span>🔄</span> <span class="hidden sm:inline translation-el" data-en="Flip All" data-hi="सभी पलटें">Flip All</span>
-                </button>
 
-                <button onclick="triggerTelegramDownload(event, 'daily')" title="Download Daily PDF" class="flex items-center gap-1.5 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-700 dark:text-rose-400 border border-rose-300 dark:border-rose-700 text-xs font-black px-3 py-2 rounded-xl transition flex-shrink-0">
-                    <span>📄</span> <span class="hidden sm:inline translation-el" data-en="Daily PDF" data-hi="दैनिक PDF">Daily PDF</span>
-                </button>
+                <!-- AUDIO + DAILY PDF -->
+                <div class="flex items-center gap-1.5">
+                    <button id="btnAudioBrief" onclick="toggleAudioBrief()" title="Listen to 2-Minute Audio Brief" class="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/50 hover:bg-amber-200 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 text-[11px] font-black px-2.5 py-2 rounded-xl transition">
+                        <span id="audioIcon">🎧</span> <span id="audioLabel" class="hidden sm:inline translation-el" data-en="2m Brief" data-hi="2 मिनट">2m Brief</span>
+                    </button>
+                    <button id="btnDailyPdf" onclick="triggerTelegramDownload(event, 'daily')" title="Download Daily Descriptive PDF" class="flex items-center gap-1 bg-rose-100 dark:bg-rose-900/50 hover:bg-rose-200 text-rose-700 dark:text-rose-300 border border-rose-300 dark:border-rose-700 text-[11px] font-black px-2.5 py-2 rounded-xl transition">
+                        <span>📄</span> <span class="hidden sm:inline translation-el" data-en="Daily PDF" data-hi="दैनिक PDF">Daily PDF</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <main class="flex-grow max-w-4xl mx-auto w-full px-4 md:px-6 py-6 md:py-8 no-select">
-        
-        <div id="feedLoading" class="hidden space-y-6 w-full">
+    <main class="flex-grow max-w-4xl mx-auto w-full px-3.5 md:px-6 py-4 md:py-7 no-select">
+
+        <!-- SKELETON LOADER -->
+        <div id="feedLoading" class="hidden space-y-5 w-full">
             <div class="animate-pulse bg-white dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 p-5 md:p-6">
                 <div class="flex justify-between items-center mb-4"><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/4"></div><div class="h-5 bg-slate-200 dark:bg-slate-700 rounded w-1/6"></div></div>
                 <div class="h-7 bg-slate-200 dark:bg-slate-700 rounded w-3/4 mb-4"></div>
@@ -241,96 +305,164 @@
             </div>
         </div>
 
-        <div id="dailyFeedView" class="space-y-6 hidden"></div>
-
-        <div id="weeklyDrillView" class="hidden space-y-6">
-            <div class="bg-indigo-900 border border-indigo-800 rounded-3xl p-6 md:p-8 shadow-sm text-center text-white flex flex-col items-center">
-                <div class="text-4xl mb-3">⚡</div>
-                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Speed Drills & Special Topics" data-hi="स्पीड ड्रिल और विशेष विषय">Speed Drills & Special Topics</h2>
-                <p class="text-indigo-200 text-sm max-w-md mx-auto translation-el" data-en="Select a published week or special thematic booster to start your timed drill." data-hi="अपनी क्विज़ शुरू करने के लिए नीचे एक सप्ताह या विशेष विषय चुनें।">Select a published week or special thematic booster to start your timed drill.</p>
+        <!-- DAILY RAPID QUIZ STATUS BAR (VISIBLE ONLY WHEN DAILY MODE == QUIZ) -->
+        <div id="dailyQuizStatusBar" class="hidden mb-4 bg-white dark:bg-slate-800 border border-indigo-200 dark:border-slate-700 rounded-2xl px-4 py-3 shadow-xs flex flex-wrap items-center justify-between gap-2">
+            <div>
+                <span class="text-xs font-black text-indigo-700 dark:text-indigo-400 uppercase tracking-wider translation-el" data-en="⚡ Daily Rapid Quiz Mode" data-hi="⚡ दैनिक रैपिड क्विज़ मोड">⚡ Daily Rapid Quiz Mode</span>
+                <p id="dailyQuizSubtitle" class="text-[11px] font-semibold text-slate-500 dark:text-slate-400"></p>
             </div>
-            
-            <div class="flex items-center justify-center gap-2 mt-6">
-                <button id="btnShelfWeekly" onclick="loadCompilationShelf('weekly')" class="px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el" data-en="📅 By Calendar" data-hi="📅 कैलेंडर द्वारा">📅 By Calendar</button>
-                <button id="btnShelfSpecial" onclick="loadCompilationShelf('special')" class="px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el" data-en="🎯 By Topic (Special)" data-hi="🎯 विषय द्वारा (विशेष)">🎯 By Topic (Special)</button>
+            <div class="flex items-center gap-2">
+                <span id="dailyQuizScoreBadge" class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-black px-3 py-1.5 rounded-lg border border-emerald-200 dark:border-emerald-700">Score: 0/0</span>
+                <button id="btnRetakeDailyQuiz" onclick="retakeDailyQuiz()" class="bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 hover:bg-amber-200 text-xs font-black px-3 py-1.5 rounded-lg border border-amber-200 dark:border-amber-700 transition">🔄 Retake</button>
             </div>
-
-            <div id="weeklyShelfGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6"></div>
         </div>
 
-        <div id="monthlyPdfView" class="hidden space-y-6">
-            <div class="bg-emerald-900 border border-emerald-800 rounded-3xl p-6 md:p-8 shadow-sm text-center text-white flex flex-col items-center">
-                <div class="text-4xl mb-3">📥</div>
-                <h2 class="text-2xl font-black mb-2 translation-el" data-en="Monthly Mega Digests" data-hi="मासिक मेगा संकलन">Monthly Mega Digests</h2>
-                <p class="text-emerald-200 text-sm max-w-md mx-auto translation-el" data-en="Comprehensive 100+ question mock exams covering all primary sectors." data-hi="सभी प्रमुख क्षेत्रों को कवर करने वाले 100+ प्रश्नों वाले मॉक परीक्षा।">Comprehensive 100+ question mock exams covering all primary sectors.</p>
+        <!-- 1. DAILY FEED VIEW (SUPPORTS BOTH NOTES + RAPID QUIZ) -->
+        <div id="dailyFeedView" class="space-y-5 hidden"></div>
+
+        <!-- 2. WEEKLY SPEED DRILLS VIEW (SLIM MOBILE BANNER) -->
+        <div id="weeklyDrillView" class="hidden space-y-5">
+            <div class="bg-gradient-to-r from-indigo-900 to-slate-900 border border-indigo-800 rounded-2xl md:rounded-3xl p-3.5 md:p-6 shadow-sm text-white flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2">
+                <div class="text-2xl md:text-4xl flex-shrink-0">⚡</div>
+                <div>
+                    <h2 class="text-base md:text-2xl font-black leading-tight translation-el" data-en="Weekly Speed Drills" data-hi="साप्ताहिक स्पीड ड्रिल">Weekly Speed Drills</h2>
+                    <p class="text-indigo-200 text-[11px] md:text-sm mt-0.5 max-w-md md:mx-auto line-clamp-2 translation-el" data-en="High-yield mixed MCQ packs curated from the Daily News Desk for rapid Sunday revision." data-hi="तेज़ साप्ताहिक अभ्यास के लिए दैनिक समाचार डेस्क से चुने गए उच्च-उपज MCQ पैक।">High-yield mixed MCQ packs curated from the Daily News Desk for rapid Sunday revision.</p>
+                </div>
             </div>
-            <div id="monthlyShelfGrid" class="grid grid-cols-1 gap-6 mt-6"></div>
+            <div id="weeklyShelfGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5"></div>
         </div>
 
-        <div id="compilationWorkspace" class="hidden space-y-6">
-            <div id="compilationHeader" class="glass-card border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 sticky top-[80px] z-30 transition-all duration-300 transform">
-                <button onclick="closeCompilation()" class="text-slate-500 hover:text-slate-800 dark:hover:text-white font-bold text-sm flex items-center gap-1 transition translation-el" data-en="&larr; Back to Shelf" data-hi="&larr; वापस">
+        <!-- 3. MONTHLY ARCHIVE VIEW (SLIM MOBILE BANNER + 2-LEVEL FOLDERS) -->
+        <div id="monthlyPdfView" class="hidden space-y-5">
+            <div class="bg-gradient-to-r from-emerald-900 to-teal-950 border border-emerald-800 rounded-2xl md:rounded-3xl p-3.5 md:p-6 shadow-sm text-white flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2">
+                <div class="text-2xl md:text-4xl flex-shrink-0">📥</div>
+                <div>
+                    <h2 class="text-base md:text-2xl font-black leading-tight translation-el" data-en="Monthly Mega Archive" data-hi="मासिक मेगा संकलन">Monthly Mega Archive</h2>
+                    <p class="text-emerald-200 text-[11px] md:text-sm mt-0.5 max-w-lg md:mx-auto line-clamp-2 translation-el" data-en="Month-by-month category decks for rapid revision, quizzes, and full monthly digests." data-hi="तेज़ रिवीजन, रैपिड क्विज़ और संपूर्ण मासिक संकलन के लिए श्रेणी-वार डेक।">Month-by-month category decks for rapid revision, quizzes, and full monthly digests.</p>
+                </div>
+            </div>
+
+            <!-- LEVEL 1: MONTH FOLDERS -->
+            <div id="monthlyFoldersOverview" class="space-y-6">
+                <div id="monthlyShelfGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5"></div>
+            </div>
+
+            <!-- LEVEL 2: INSIDE AN OPEN MONTH FOLDER -->
+            <div id="monthlyFolderDetailView" class="hidden space-y-5">
+                <div class="glass-card border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 md:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <button onclick="closeMonthlyFolder()" class="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-black text-xs px-3 py-2 rounded-xl transition flex items-center gap-1 translation-el" data-en="&larr; All Months" data-hi="&larr; सभी महीने">
+                            &larr; All Months
+                        </button>
+                        <div>
+                            <h3 id="monthlyFolderHeading" class="text-base md:text-xl font-black text-slate-900 dark:text-white leading-tight">Folder</h3>
+                            <p id="monthlyFolderStats" class="text-[11px] font-bold text-slate-500 dark:text-slate-400">0 Categories • 0 MCQs</p>
+                        </div>
+                    </div>
+                    <!-- AUTO-HIDDEN UNLESS FOLDER PDF LINK IS ATTACHED -->
+                    <button id="btnDownloadFullMonthPdf" class="hidden bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-4 py-2.5 rounded-xl shadow-sm transition flex items-center justify-center gap-1.5 whitespace-nowrap">
+                        📥 Full Month Mega PDF
+                    </button>
+                </div>
+                <div id="monthlyFolderDecksGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5"></div>
+            </div>
+        </div>
+
+        <!-- 4. SPECIAL TOPICS VIEW (SLIM MOBILE BANNER + GROUPED SHELVES) -->
+        <div id="specialTopicView" class="hidden space-y-5">
+            <div class="bg-gradient-to-r from-violet-900 via-fuchsia-950 to-slate-900 border border-violet-800 rounded-2xl md:rounded-3xl p-3.5 md:p-6 shadow-sm text-white flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2">
+                <div class="text-2xl md:text-4xl flex-shrink-0">🎯</div>
+                <div>
+                    <h2 class="text-base md:text-2xl font-black leading-tight translation-el" data-en="Special Topic Boosters" data-hi="विशेष विषय बूस्टर">Special Topic Boosters</h2>
+                    <p class="text-violet-200 text-[11px] md:text-sm mt-0.5 max-w-lg md:mx-auto line-clamp-2 translation-el" data-en="Major annual events, 6-month master lists, and last-minute Top 100 MCQ boosters." data-hi="प्रमुख वार्षिक कार्यक्रम, 6-माह की मास्टर सूचियां और अंतिम-समय के टॉप 100 MCQ बूस्टर।">Major annual events, 6-month master lists, and last-minute Top 100 MCQ boosters.</p>
+                </div>
+            </div>
+
+            <div id="specialFolderPills" class="flex flex-wrap items-center justify-center gap-2"></div>
+            <div id="specialShelfGrid" class="space-y-7"></div>
+        </div>
+
+        <!-- 5. COMPILATION WORKSPACE (FLIP & LEARN / RAPID QUIZ / QUIZ-ONLY) -->
+        <div id="compilationWorkspace" class="hidden space-y-5">
+            <div id="compilationHeader" class="glass-card border border-slate-200 dark:border-slate-700 rounded-2xl p-3.5 md:p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3 sticky top-16 lg:top-20 z-30 transition-all duration-300 transform">
+                <button onclick="closeCompilation()" class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white font-bold text-xs md:text-sm flex items-center gap-1 transition translation-el self-start md:self-auto" data-en="&larr; Back to Shelf" data-hi="&larr; वापस">
                     &larr; Back to Shelf
                 </button>
-                <div class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl font-bold text-xs">
-                    <button id="btnModeFlip" onclick="setCompilationMode('flip')" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" data-en="📇 Flip & Learn" data-hi="📇 फ्लैशकार्ड">📇 Flip & Learn</button>
-                    <button id="btnModeQuiz" onclick="setCompilationMode('quiz')" class="px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el" data-en="⚡ Rapid Quiz" data-hi="⚡ रैपिड क्विज़">⚡ Rapid Quiz</button>
+
+                <div id="compModeToggleWrap" class="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-xl font-bold text-xs">
+                    <button id="btnModeFlip" onclick="setCompilationMode('flip')" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" data-en="📇 Flip &amp; Learn" data-hi="📇 फ्लैशकार्ड">📇 Flip &amp; Learn</button>
+                    <button id="btnModeQuiz" onclick="setCompilationMode('quiz')" class="px-3.5 py-1.5 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el" data-en="⚡ Rapid Quiz" data-hi="⚡ रैपिड क्विज़">⚡ Rapid Quiz</button>
                 </div>
-                <div class="flex items-center gap-3">
-                    <span id="compilationScoreBadge" class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1.5 rounded-lg hidden border border-emerald-200">Score: 0/0</span>
-                    <button id="btnRetakeCompQuiz" onclick="retakeCompilationQuiz()" class="hidden bg-amber-100 text-amber-800 hover:bg-amber-200 text-xs font-black px-3 py-1.5 rounded-lg transition border border-amber-200 flex items-center gap-1">
+
+                <div id="compQuizOnlyBadge" class="hidden items-center gap-1.5 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700 px-3 py-1.5 rounded-xl text-xs font-black">
+                    <span>⚡</span> <span class="translation-el" data-en="Quiz-Only Booster" data-hi="केवल क्विज़ बूस्टर">Quiz-Only Booster</span>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap justify-center">
+                    <span id="compilationScoreBadge" class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-black px-3 py-1.5 rounded-lg hidden border border-emerald-200 dark:border-emerald-700">Score: 0/0</span>
+                    <button id="btnRetakeCompQuiz" onclick="retakeCompilationQuiz()" class="hidden bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-300 hover:bg-amber-200 text-xs font-black px-3 py-1.5 rounded-lg transition border border-amber-200 dark:border-amber-700 items-center gap-1">
                         🔄 Retake
                     </button>
-                    <button id="btnDownloadCompilation" class="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 text-xs font-black px-4 py-2 rounded-xl transition flex items-center gap-1.5 translation-el" data-en="📥 Download PDF" data-hi="📥 PDF डाउनलोड">
+                    <!-- AUTO-HIDDEN WHENEVER NO PDF LINK IS ATTACHED -->
+                    <button id="btnDownloadCompilation" class="hidden bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 text-xs font-black px-3.5 py-2 rounded-xl transition items-center gap-1.5">
                         📥 Download PDF
                     </button>
                 </div>
             </div>
-            
-            <div id="compilationCardsContainer" class="space-y-6"></div>
-            
-            <!-- NEW TRUE PAGINATION -->
-            <div id="compilationPagination" class="flex justify-between items-center mt-8 pt-6 border-t border-slate-200 dark:border-slate-700 hidden">
-                <button onclick="changeCompPage(-1)" id="btnCompPrev" class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-black text-sm px-6 py-2.5 rounded-xl shadow-sm transition">&larr; Prev</button>
-                <span id="compilationPaginationText" class="text-sm font-black text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/40 px-4 py-2 rounded-lg">Page 1 of X</span>
-                <button onclick="changeCompPage(1)" id="btnCompNext" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition">Next &rarr;</button>
+
+            <div id="compilationDeckBanner" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-4 py-3 flex flex-wrap items-center justify-between gap-2 shadow-xs">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="compDeckFolderPill" class="hidden text-[10px] font-black uppercase tracking-wider bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-2.5 py-1 rounded-md"></span>
+                    <h2 id="compDeckTitleText" class="text-sm md:text-lg font-black text-slate-900 dark:text-white"></h2>
+                </div>
+                <span id="compDeckCountPill" class="text-xs font-bold text-slate-500 dark:text-slate-400"></span>
+            </div>
+
+            <div id="compilationCardsContainer" class="space-y-5"></div>
+
+            <!-- DIRECT PAGE-NUMBER PAGINATION -->
+            <div id="compilationPagination" class="hidden mt-6 pt-5 border-t border-slate-200 dark:border-slate-700 flex flex-col items-center gap-2.5">
+                <div class="flex flex-wrap items-center justify-center gap-1.5 w-full">
+                    <button onclick="changeCompPage(-1)" id="btnCompPrev" class="bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 font-black text-xs px-3.5 py-2 rounded-xl shadow-xs transition disabled:cursor-not-allowed">&larr; Prev</button>
+                    <div id="compilationPageNumbers" class="flex flex-wrap items-center justify-center gap-1.5"></div>
+                    <button onclick="changeCompPage(1)" id="btnCompNext" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-3.5 py-2 rounded-xl shadow-sm transition disabled:cursor-not-allowed">Next &rarr;</button>
+                </div>
+                <span id="compilationRangeText" class="text-[11px] font-bold text-slate-400 dark:text-slate-500"></span>
             </div>
         </div>
 
-        <div id="emptyFeedState" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-10 md:p-12 text-center max-w-md mx-auto shadow-sm transition-all duration-300 mt-6">
-            <div class="text-4xl mb-3" id="emptyIcon">☕</div>
-            <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1 translation-el" id="emptyText" data-en="No News Filed For This Date" data-hi="इस तिथि के लिए कोई समाचार नहीं है">No News Filed For This Date</h3>
-            <p id="emptySubText" class="text-sm font-medium text-slate-500 mb-4 hidden"></p>
-            <button id="btnResetToday" class="mt-4 bg-indigo-600 text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm hover:bg-indigo-50 transition translation-el" data-en="Jump to Today" data-hi="आज पर जाएं">Jump to Today</button>
-        </div>
+        <!-- DYNAMIC EMPTY / SCHEDULED / ERROR STATE -->
+        <div id="emptyFeedState" class="hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-8 md:p-12 text-center max-w-md mx-auto shadow-sm transition-all duration-300 mt-6"></div>
     </main>
 
-    <button id="scrollToTopBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="fixed bottom-24 right-5 z-40 bg-indigo-600 hover:bg-indigo-500 text-white w-12 h-12 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 translate-y-5 pointer-events-none" title="Back to Top">
+    <!-- BACK TO TOP BUTTON -->
+    <button id="scrollToTopBtn" onclick="window.scrollTo({top:0, behavior:'smooth'})" class="fixed bottom-24 right-5 z-40 bg-indigo-600 hover:bg-indigo-500 text-white w-11 h-11 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 opacity-0 translate-y-5 pointer-events-none" title="Back to Top">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 15l7-7 7 7"></path></svg>
     </button>
 
+    <!-- TELEGRAM SOFT GATE MODAL -->
     <div id="telegramGrowthModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/70 backdrop-blur-sm px-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transition-all transform scale-100">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-7 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700">
             <div class="w-16 h-16 bg-[#0088cc]/10 text-[#0088cc] rounded-full flex items-center justify-center text-3xl mx-auto mb-4">✈</div>
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2">Join Official Telegram for PDFs</h3>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2">Join Official Telegram for PDFs</h3>
             <p class="text-sm text-slate-500 dark:text-slate-400 mb-6 leading-relaxed">
-                Printable offline PDFs with detailed solution keys and watermarks are distributed exclusively inside our verified Telegram channel.
+                Printable offline PDFs with detailed solution keys and watermarks are distributed through our verified Telegram channel.
             </p>
             <div class="flex flex-col gap-3">
                 <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" onclick="gtag('event', 'telegram_join_click'); acceptTelegramAndDownload()" class="bg-[#0088cc] hover:bg-[#0077b5] text-white font-black py-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
-                    <span>🚀</span> Join Telegram & Download
+                    <span>🚀</span> Join Telegram &amp; Download
                 </a>
                 <button onclick="closeTgModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold py-2 text-xs transition">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Value-First Premium Modal for Saving/Progress Tracking -->
+    <!-- SAVE PROGRESS / BOOKMARK LOGIN MODAL -->
     <div id="premiumModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
-        <div class="bg-white dark:bg-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700 transform scale-100 transition-all">
+        <div class="bg-white dark:bg-slate-800 rounded-3xl p-7 max-w-md w-full shadow-2xl text-center border border-slate-200 dark:border-slate-700">
             <div class="w-16 h-16 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">🔖</div>
-            <h3 class="text-2xl font-black text-slate-900 dark:text-white mb-2 translation-el" data-en="Save Your Progress" data-hi="अपनी प्रगति सहेजें">Save Your Progress</h3>
-            <p class="text-sm text-slate-500 dark:text-slate-400 mb-8 translation-el" data-en="Create a 100% free account to save bookmarks and track your reading streak on the Dashboard." data-hi="बुकमार्क सहेजने और डैशबोर्ड पर अपनी पढ़ने की स्ट्रीक को ट्रैक करने के लिए एक निःशुल्क खाता बनाएँ।">Create a 100% free account to save bookmarks and track your reading streak on the Dashboard.</p>
+            <h3 class="text-xl font-black text-slate-900 dark:text-white mb-2 translation-el" data-en="Save Your Progress" data-hi="अपनी प्रगति सहेजें">Save Your Progress</h3>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mb-7 translation-el" data-en="Create a 100% free account to save bookmarks and track your reading streak on the Dashboard." data-hi="बुकमार्क सहेजने और डैशबोर्ड पर अपनी पढ़ने की स्ट्रीक को ट्रैक करने के लिए एक निःशुल्क खाता बनाएँ।">Create a 100% free account to save bookmarks and track your reading streak on the Dashboard.</p>
             <div class="flex flex-col gap-3">
                 <a href="login.html" class="bg-indigo-600 hover:bg-indigo-500 text-white font-black py-3 rounded-xl shadow-md transition translation-el" data-en="Create Free Account / Login" data-hi="मुफ़्त खाता बनाएँ / लॉगिन करें">Create Free Account / Login</a>
                 <button onclick="closePremiumModal()" class="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold py-2 text-sm transition translation-el" data-en="Maybe Later" data-hi="शायद बाद में">Maybe Later</button>
@@ -338,13 +470,14 @@
         </div>
     </div>
 
-    <footer class="bg-slate-900 text-slate-300 pt-16 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
-        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+    <!-- FOOTER -->
+    <footer class="bg-slate-900 text-slate-300 pt-14 pb-8 border-t-4 border-indigo-600 font-sans mt-auto relative z-10">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             <div class="space-y-4">
                 <a href="index.html" class="flex items-center gap-2 font-black tracking-wider text-2xl text-white"><span class="text-yellow-400">✏️</span> STENOGYM</a>
-                <p class="text-sm text-slate-400 leading-relaxed">India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK & Daily Current Affairs, and secure your final selection.</p>
+                <p class="text-sm text-slate-400 leading-relaxed">India's premier AI-powered exam ecosystem. Master shorthand, conquer Static GK &amp; Daily Current Affairs, and secure your final selection.</p>
                 <div class="flex gap-4 pt-2">
-                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a> 
+                    <a href="https://www.instagram.com/stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full flex items-center justify-center text-white transition shadow-sm hover:scale-110" style="background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
                     <a href="https://youtube.com/@stenogym" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#FF0000] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
                     <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0088cc] flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
                     <a href="contact.html" class="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center text-white transition shadow-sm hover:scale-110"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M1.5 8.67v8.58a3 3 0 003 3h15a3 3 0 003-3V8.67l-8.928 5.493a3 3 0 01-3.144 0L1.5 8.67z" /><path d="M22.5 6.908V6.75a3 3 0 00-3-3h-15a3 3 0 00-3 3v.158l9.714 5.978a1.5 1.5 0 001.572 0L22.5 6.908z" /></svg></a>
@@ -352,9 +485,9 @@
             </div>
             <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">The Platform</h4><ul class="space-y-3 text-sm font-medium"><li><a href="app.html" class="hover:text-cyan-400 transition">Steno Room</a></li><li><a href="generator.html" class="hover:text-cyan-400 transition">AI Dictation Studio</a></li><li><a href="scanner.html" class="hover:text-cyan-400 transition">Live Document Scanner</a></li><li><a href="login.html" class="hover:text-cyan-400 transition">Student Login</a></li></ul></div>
             <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Resources</h4><ul class="space-y-3 text-sm font-medium"><li><a href="blog.html" class="hover:text-cyan-400 transition">The Stenogym Blog</a></li><li><a href="current-affairs.html" class="hover:text-cyan-400 transition">Current Affairs</a></li><li><a href="gk.html" class="hover:text-cyan-400 transition">Static GK</a></li><li><a href="gear.html" class="hover:text-cyan-400 transition flex items-center gap-2"><span>Recommended Gear</span> <span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-sm font-bold tracking-wide">NEW</span></a></li></ul></div>
-            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company & Legal</h4><ul class="space-y-3 text-sm font-medium"><li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li><li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li><li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li><li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li></ul></div>
+            <div><h4 class="text-white font-bold tracking-wider uppercase text-sm mb-5">Company &amp; Legal</h4><ul class="space-y-3 text-sm font-medium"><li><a href="about.html" class="hover:text-cyan-400 transition">About Us</a></li><li><a href="contact.html" class="hover:text-cyan-400 transition">Contact Support</a></li><li><a href="privacy.html" class="hover:text-cyan-400 transition">Privacy Policy</a></li><li><a href="terms.html" class="hover:text-cyan-400 transition">Terms of Service</a></li></ul></div>
         </div>
-        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
+        <div class="max-w-7xl mx-auto px-6 mt-12 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-semibold text-slate-500">
             <div>&copy; 2026 Stenogym. All rights reserved.</div>
             <div class="text-center md:text-right max-w-xl leading-relaxed">
                 <span class="text-slate-400">Disclaimer:</span> We are reader-supported. Affiliate links incur zero extra cost to you.
@@ -362,1590 +495,8 @@
         </div>
     </footer>
 
-    <!-- INTERACTIVE JAVASCRIPT & DATABASE ENGINE -->
-    <script>
-        // ==========================================
-        // ZEN-MODE SCROLL LOGIC
-        // ==========================================
-        const secondaryNav = document.getElementById('secondaryNavBar');
-        const compHeader = document.getElementById('compilationHeader');
-        
-        window.addEventListener('scroll', () => {
-            const currentScrollY = window.scrollY;
-            const btnTop = document.getElementById('scrollToTopBtn');
-            
-            if (currentScrollY > 350) {
-                btnTop.classList.remove('opacity-0', 'translate-y-5', 'pointer-events-none');
-                btnTop.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-            } else {
-                btnTop.classList.add('opacity-0', 'translate-y-5', 'pointer-events-none');
-                btnTop.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
-            }
-
-            if (currentScrollY > 150) {
-                secondaryNav.classList.add('-translate-y-[150%]', 'opacity-0');
-                if(compHeader) compHeader.classList.add('-translate-y-[150%]', 'opacity-0');
-            } else {
-                secondaryNav.classList.remove('-translate-y-[150%]', 'opacity-0');
-                if(compHeader) compHeader.classList.remove('-translate-y-[150%]', 'opacity-0');
-            }
-        }, { passive: true });
-
-        // ==========================================
-        // ZERO-LAG DRAG-TO-SCROLL (PC ONLY)
-        // ==========================================
-        const isMobileDevice = window.innerWidth < 768 || ('ontouchstart' in window);
-        
-        if (!isMobileDevice) {
-            let activeScrollZone = null;
-            let isDragging = false;
-            let startY, scrollTopTarget;
-
-            document.addEventListener('mousedown', (e) => {
-                const scrollZone = e.target.closest('.drag-scroll-zone');
-                if (!scrollZone) return;
-                
-                isDragging = true;
-                activeScrollZone = scrollZone;
-                startY = e.pageY - activeScrollZone.offsetTop;
-                scrollTopTarget = activeScrollZone.scrollTop;
-                activeScrollZone.classList.add('is-dragging');
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging || !activeScrollZone) return;
-                e.preventDefault(); 
-                
-                const y = e.pageY - activeScrollZone.offsetTop;
-                const walk = (y - startY) * 1.5; 
-                
-                window.requestAnimationFrame(() => {
-                    if(activeScrollZone) {
-                        activeScrollZone.scrollTop = scrollTopTarget - walk;
-                    }
-                });
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (activeScrollZone) {
-                    activeScrollZone.classList.remove('is-dragging');
-                    activeScrollZone = null;
-                }
-                isDragging = false;
-            });
-        }
-
-        // ==========================================
-        // FIREBASE, AUTH & PERSISTENCE INITIALIZATION
-        // ==========================================
-        const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
-        
-        firebase.firestore().enablePersistence().catch(err => {
-            if (err.code !== 'failed-precondition' && err.code !== 'unimplemented') console.warn("Persistence note:", err);
-        });
-        
-        const db = firebase.firestore();
-        let activeUser = null;
-        
-        // REFRESH BUG FIX: Remember active tab from URL or Session
-        const urlParams = new URLSearchParams(window.location.search);
-        let activeView = urlParams.get('tab') || sessionStorage.getItem('lastActiveTab') || 'daily';
-        
-        let savedBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
-
-        firebase.auth().onAuthStateChanged(user => {
-            activeUser = user;
-            if (user) {
-                document.getElementById('desktopLoginBtn')?.classList.add('hidden'); document.getElementById('mobileLoginBtn')?.classList.add('hidden');
-                document.getElementById('navDashboard')?.classList.remove('hidden'); document.getElementById('navDashboardMob')?.classList.remove('hidden');
-                document.getElementById('btnLogout')?.classList.remove('hidden'); document.getElementById('mobileLogoutBtn')?.classList.remove('hidden');
-                document.getElementById('btnLogout').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
-                document.getElementById('mobileLogoutBtn').onclick = () => firebase.auth().signOut().then(() => window.location.reload());
-                const wm = document.getElementById('forensicWatermark');
-                wm.innerHTML = Array(30).fill(`<span>${user.email}</span>`).join('');
-                
-                // MULTI-DEVICE BOOKMARK CLOUD SYNC
-                const localBookmarks = JSON.parse(localStorage.getItem('stenoBookmarks') || '[]');
-                const userRef = db.collection('users').doc(user.uid);
-                
-                userRef.get().then(doc => {
-                    let cloudBookmarks = [];
-                    if (doc.exists && doc.data().bookmarks) {
-                        cloudBookmarks = doc.data().bookmarks;
-                    }
-                    const mergedBookmarks = [...new Set([...localBookmarks, ...cloudBookmarks])];
-                    
-                    userRef.set({ bookmarks: mergedBookmarks }, { merge: true });
-                    localStorage.setItem('stenoBookmarks', JSON.stringify(mergedBookmarks));
-                    savedBookmarks = mergedBookmarks;
-                    
-                    if (activeView === 'daily') renderFeedCards();
-                    if (activeView === 'compilationActive') {
-                        document.getElementById('compilationCardsContainer').innerHTML = "";
-                        const savedPage = currentCompilationPage;
-                        currentCompilationPage = 1;
-                        renderCompilationPage(savedPage); 
-                    }
-                });
-            } else {
-                document.getElementById('desktopLoginBtn')?.classList.remove('hidden'); document.getElementById('mobileLoginBtn')?.classList.remove('hidden');
-                document.getElementById('navDashboard')?.classList.add('hidden'); document.getElementById('navDashboardMob')?.classList.add('hidden');
-                document.getElementById('forensicWatermark').innerHTML = '';
-            }
-        });
-
-        document.addEventListener('contextmenu', e => e.preventDefault());
-        document.addEventListener('keydown', e => { 
-            if ((e.ctrlKey || e.metaKey) && ['c', 'p', 's', 'u'].includes(e.key.toLowerCase())) e.preventDefault(); 
-        });
-
-        window.addEventListener('keydown', e => {
-            if (['input', 'textarea'].includes(document.activeElement?.tagName?.toLowerCase())) return;
-            if (activeView === 'daily') {
-                if (e.key === 'ArrowLeft') { document.getElementById('btnPrevDay')?.click(); }
-                else if (e.key === 'ArrowRight') { document.getElementById('btnNextDay')?.click(); }
-                else if (e.key.toLowerCase() === 'f') { toggleFlipAll(); }
-            }
-        });
-
-        function requireLogin(e) {
-            if (!activeUser) { if(e) e.preventDefault(); document.getElementById('premiumModal').classList.remove('hidden'); return false; }
-            return true;
-        }
-
-        window.closePremiumModal = () => document.getElementById('premiumModal').classList.add('hidden');
-        window.closeTgModal = () => document.getElementById('telegramGrowthModal').classList.add('hidden');
-
-        // ==========================================
-        // DUAL-DRIVE TELEGRAM SOFT GATE
-        // ==========================================
-        window.triggerTelegramDownload = function(e, type = 'daily', urlEn = null, urlHi = null) { 
-            if(e) e.preventDefault();
-            const hasJoined = localStorage.getItem('hasJoinedTelegram');
-            
-            if (!hasJoined) {
-                window.pendingDownload = { type, urlEn, urlHi };
-                document.getElementById('telegramGrowthModal').classList.remove('hidden');
-            } else { 
-                executeDownload(type, urlEn, urlHi); 
-            }
-        };
-
-        window.acceptTelegramAndDownload = function() {
-            localStorage.setItem('hasJoinedTelegram', 'true');
-            closeTgModal();
-            setTimeout(() => { if(window.pendingDownload) executeDownload(window.pendingDownload.type, window.pendingDownload.urlEn, window.pendingDownload.urlHi); }, 1000);
-        };
-
-        function executeDownload(type, urlEn, urlHi) {
-            if(type === 'daily') {
-                generateDailyPDF();
-            } else if (type === 'compilation') {
-                let targetUrl = currentLang === 'hi' ? (urlHi || urlEn) : urlEn;
-                if(targetUrl) window.open(targetUrl, '_blank');
-                else window.open('https://t.me/+3EJOKkceGBA4YWE1', '_blank'); 
-            }
-        }
-
-        const htmlTag = document.documentElement; const themeBtn = document.getElementById('themeToggleBtn'); const mobileThemeBtn = document.getElementById('mobileThemeToggleBtn');
-        if (localStorage.getItem('theme') === 'dark') { htmlTag.classList.add('dark'); themeBtn.textContent = '☀️'; mobileThemeBtn.textContent = '☀'; }
-        function toggleTheme() {
-            if (htmlTag.classList.contains('dark')) { htmlTag.classList.remove('dark'); localStorage.setItem('theme', 'light'); themeBtn.textContent = '🌙'; mobileThemeBtn.textContent = '🌙'; }
-            else { htmlTag.classList.add('dark'); localStorage.setItem('theme', 'dark'); themeBtn.textContent = '☀'; mobileThemeBtn.textContent = '☀'; }
-        }
-        themeBtn.addEventListener('click', toggleTheme); mobileThemeBtn.addEventListener('click', toggleTheme);
-
-        let currentLang = localStorage.getItem('preferredLang') || 'en';
-        
-        // ==========================================
-        // 🚀 REST API CONFIGURATION & TRANSLATOR
-        // ==========================================
-        const FIREBASE_PROJECT_ID = "stenogym"; 
-        
-        function formatRestDocument(doc) {
-            function parseValue(val) {
-                if (val.stringValue !== undefined) return val.stringValue;
-                if (val.booleanValue !== undefined) return val.booleanValue;
-                if (val.integerValue !== undefined) return parseInt(val.integerValue);
-                if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
-                if (val.timestampValue !== undefined) return val.timestampValue;
-                if (val.arrayValue !== undefined) return val.arrayValue.values ? val.arrayValue.values.map(parseValue) : [];
-                if (val.mapValue !== undefined && val.mapValue.fields) {
-                    const mapObj = {};
-                    for (const [k, v] of Object.entries(val.mapValue.fields)) { mapObj[k] = parseValue(v); }
-                    return mapObj;
-                }
-                return null;
-            }
-            const data = {};
-            if (doc.fields) { for (const [key, val] of Object.entries(doc.fields)) { data[key] = parseValue(val); } }
-            return { id: doc.name.split('/').pop(), ...data };
-        }
-        
-        window.setLanguage = function(lang) {
-            currentLang = lang;
-            localStorage.setItem('preferredLang', lang);
-            
-            const btnsEn = [document.getElementById('btnLangEn'), document.getElementById('btnLangEnMob')]; const btnsHi = [document.getElementById('btnLangHi'), document.getElementById('btnLangHiMob')];
-            if (lang === 'en') {
-                btnsEn.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
-                btnsHi.forEach(b => { if(b) { b.classList.remove('bg-indigo-600', 'text-white'); b.classList.add('text-slate-400'); }});
-            } else {
-                btnsHi.forEach(b => { if(b) { b.classList.add('bg-indigo-600', 'text-white'); b.classList.remove('text-slate-400'); }});
-                btnsEn.forEach(b => { if(b) { b.classList.remove('bg-indigo-600', 'text-white'); b.classList.add('text-slate-400'); }});
-            }
-            document.querySelectorAll('.translation-el').forEach(el => {
-                if(lang === 'hi' && el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi'); 
-                else if(el.hasAttribute('data-en')) el.innerHTML = el.getAttribute('data-en');
-            });
-            
-            if (activeView === 'daily') {
-                renderFeedCards();
-            } else if (activeView === 'compilationActive') {
-                document.getElementById('compilationCardsContainer').innerHTML = "";
-                const savedPage = currentCompilationPage;
-                currentCompilationPage = 1;
-                renderCompilationPage(savedPage); 
-            } else if (['weekly', 'monthly', 'special'].includes(activeView)) {
-                loadCompilationShelf(activeView);
-            }
-        };
-
-        function getISTDateObj(dateObj = new Date()) { const utc = dateObj.getTime() + (dateObj.getTimezoneOffset() * 60000); return new Date(utc + (3600000 * 5.5)); }
-        function getISTDateString(dateObj = new Date()) { const istDate = getISTDateObj(dateObj); const yyyy = istDate.getFullYear(); const mm = String(istDate.getMonth() + 1).padStart(2, '0'); const dd = String(istDate.getDate()).padStart(2, '0'); return `${yyyy}-${mm}-${dd}`; }
-        function formatISTDisplay(dateStr) { const d = new Date(dateStr); return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }); }
-        
-        function escapeHtml(v) { const d = document.createElement('div'); d.textContent = v ?? ''; return d.innerHTML; }
-        
-        function formatUIText(str) {
-            if(!str) return "";
-            return escapeHtml(str).replace(/\*\*(.*?)\*\*/g, '<span class="bg-yellow-200 dark:bg-yellow-900/40 px-1 rounded text-slate-900 dark:text-yellow-100 font-bold">$1</span>');
-        }
-
-        let selectedDateStr = urlParams.get('date') || getISTDateString();
-        
-        let allArticlesCache = []; let activeCategoryFilter = "all"; let globalFlipState = false; let readArticlesSet = new Set();
-        
-        const dateInput = document.getElementById('selectedDateInput'); dateInput.value = selectedDateStr;
-        
-        window.updateLocalStudyTracker = function(isDailyMcq = false) {
-            const todayIST = getISTDateObj();
-            const todayStr = getISTDateString(todayIST);
-            
-            let lastStudyDate = localStorage.getItem('lastStudyDate');
-            let currentStreak = parseInt(localStorage.getItem('studyStreak') || '0');
-
-            if (lastStudyDate !== todayStr) {
-                if (lastStudyDate) {
-                    const yesterdayIST = new Date(todayIST.getTime() - 86400000); 
-                    const yesterdayStr = getISTDateString(yesterdayIST);
-                    
-                    if (lastStudyDate === yesterdayStr) currentStreak++;
-                    else currentStreak = 1; 
-                } else {
-                    currentStreak = 1;
-                }
-                localStorage.setItem('studyStreak', currentStreak.toString());
-                localStorage.setItem('lastStudyDate', todayStr);
-            }
-
-            if (isDailyMcq) {
-                let dailyProg = JSON.parse(localStorage.getItem('quiz_prog_daily') || '{"correct":0,"attempted":0,"answers":{},"lastUpdated":0}');
-                dailyProg.attempted++;
-                dailyProg.lastUpdated = Date.now();
-                localStorage.setItem('quiz_prog_daily', JSON.stringify(dailyProg));
-            }
-        };
-
-        function updateUrlAndLoad(dateStr) {
-            window.history.pushState({ path: window.location.href }, '', `?tab=daily&date=${dateStr}`);
-            loadNewsForDate(dateStr);
-        }
-
-        window.addEventListener('popstate', () => {
-            const params = new URLSearchParams(window.location.search);
-            selectedDateStr = params.get('date') || getISTDateString();
-            dateInput.value = selectedDateStr;
-            const newTab = params.get('tab') || 'daily';
-            
-            if (newTab === 'daily') loadNewsForDate(selectedDateStr);
-            else if (['weekly', 'monthly'].includes(newTab)) {
-                if(newTab === 'weekly') document.getElementById('tabWeekly').click();
-                if(newTab === 'monthly') document.getElementById('tabMonthly').click();
-            }
-        });
-
-        dateInput.addEventListener('change', (e) => { selectedDateStr = e.target.value; updateUrlAndLoad(selectedDateStr); });
-        
-        document.getElementById('btnPrevDay').addEventListener('click', () => { 
-            const [y,m,d] = selectedDateStr.split('-').map(Number);
-            const dt = new Date(y, m-1, d-1);
-            selectedDateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
-        });
-        
-        document.getElementById('btnNextDay').addEventListener('click', () => { 
-            const [y,m,d] = selectedDateStr.split('-').map(Number);
-            const dt = new Date(y, m-1, d+1);
-            selectedDateStr = `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
-            dateInput.value = selectedDateStr; updateUrlAndLoad(selectedDateStr); 
-        });
-
-        let audioSynth = window.speechSynthesis;
-        let isAudioPlaying = false;
-        
-        window.toggleAudioBrief = function() {
-            const btnIcon = document.getElementById('audioIcon');
-            const btnLabel = document.getElementById('audioLabel');
-            
-            if (isAudioPlaying) {
-                audioSynth.cancel();
-                isAudioPlaying = false;
-                btnIcon.textContent = '🎧';
-                btnLabel.textContent = currentLang === 'hi' ? '2 मिनट सारांश' : '2m Brief';
-                return;
-            }
-            
-            if (allArticlesCache.length === 0) return alert("No news available for audio brief.");
-            
-            let textToRead = currentLang === 'hi' ? "आज के करेंट अफेयर्स। " : "Here is your Stenogym Daily Brief. ";
-            allArticlesCache.forEach((item, idx) => {
-                const headline = currentLang === 'hi' ? (item.oneLiner_hi || item.oneLiner || '') : (item.oneLiner || '');
-                const cleanHeadline = headline.replace(/\*\*/g, '');
-                textToRead += `News item ${idx + 1}. ${cleanHeadline}. `;
-            });
-            
-            const utterance = new SpeechSynthesisUtterance(textToRead);
-            utterance.lang = currentLang === 'hi' ? 'hi-IN' : 'en-US';
-            utterance.rate = 1.0;
-            
-            utterance.onend = function() {
-                isAudioPlaying = false;
-                btnIcon.textContent = '🎧';
-                btnLabel.textContent = currentLang === 'hi' ? '2 मिनट सारांश' : '2m Brief';
-            };
-            
-            audioSynth.speak(utterance);
-            isAudioPlaying = true;
-            btnIcon.textContent = '⏹️';
-            btnLabel.textContent = currentLang === 'hi' ? 'रोकें' : 'Stop';
-        };
-
-        const tabDaily = document.getElementById('tabDaily'); const tabWeekly = document.getElementById('tabWeekly'); const tabMonthly = document.getElementById('tabMonthly');
-        const dailyFeedView = document.getElementById('dailyFeedView'); const weeklyDrillView = document.getElementById('weeklyDrillView'); const monthlyPdfView = document.getElementById('monthlyPdfView');
-        const compilationWorkspace = document.getElementById('compilationWorkspace'); const dateControlBar = document.getElementById('dateControlBar');
-
-        function setCadence(activeTab, viewElement, cadenceVal) {
-            activeView = cadenceVal;
-            [tabDaily, tabWeekly, tabMonthly].forEach(t => { t.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); t.classList.add('text-slate-500', 'dark:text-slate-400'); });
-            activeTab.classList.remove('text-slate-500', 'dark:text-slate-400'); activeTab.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-            
-            [dailyFeedView, weeklyDrillView, monthlyPdfView, compilationWorkspace, document.getElementById('emptyFeedState')].forEach(v => v.classList.add('hidden'));
-            viewElement.classList.remove('hidden'); dateControlBar.style.display = (activeTab === tabDaily) ? 'flex' : 'none';
-            document.getElementById('progressWidget').style.display = (activeTab === tabDaily) ? 'flex' : 'none';
-            
-            if (cadenceVal === 'weekly' || cadenceVal === 'monthly' || cadenceVal === 'special') {
-                loadCompilationShelf(cadenceVal);
-                sessionStorage.setItem('lastActiveTab', cadenceVal);
-                window.history.replaceState({}, '', `?tab=${cadenceVal}&date=${selectedDateStr}`);
-            } else {
-                sessionStorage.setItem('lastActiveTab', 'daily');
-                window.history.replaceState({}, '', `?tab=daily&date=${selectedDateStr}`);
-                loadNewsForDate(selectedDateStr); // NEW FIX: Force Daily feed to load!
-            }
-        }
-        
-        tabDaily.addEventListener('click', () => setCadence(tabDaily, dailyFeedView, 'daily'));
-        tabWeekly.addEventListener('click', () => setCadence(tabWeekly, weeklyDrillView, 'weekly'));
-        tabMonthly.addEventListener('click', () => setCadence(tabMonthly, monthlyPdfView, 'monthly'));
-
-        document.querySelectorAll('.cat-pill').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.cat-pill').forEach(p => p.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el");
-                btn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
-                activeCategoryFilter = btn.getAttribute('data-cat');
-                
-                if (activeView === 'daily') renderFeedCards();
-                if (activeView === 'compilationActive') { 
-                    document.getElementById('compilationCardsContainer').innerHTML = "";
-                    currentCompilationPage = 1; 
-                    renderCompilationPage(); 
-                }
-            });
-        });
-
-        window.toggleFlipAll = function() {
-            globalFlipState = !globalFlipState;
-            document.querySelectorAll('#dailyFeedView .flip-card-inner, #compilationCardsContainer .flip-card-inner').forEach(el => globalFlipState ? el.classList.add('rotate-y-180') : el.classList.remove('rotate-y-180'));
-        };
-
-        window.toggleBookmark = function(e, docId, btnId) { 
-            if(!requireLogin(e)) return; 
-            const btn = document.getElementById(btnId);
-            const idx = savedBookmarks.indexOf(docId);
-            
-            if(idx > -1) {
-                savedBookmarks.splice(idx, 1);
-                btn.classList.remove('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save';
-            } else {
-                savedBookmarks.push(docId);
-                btn.classList.add('bg-indigo-100', 'dark:bg-indigo-900/50', 'text-indigo-700', 'dark:text-indigo-400');
-                btn.innerHTML = currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved';
-            }
-            localStorage.setItem('stenoBookmarks', JSON.stringify(savedBookmarks));
-            
-            if (activeUser) {
-                db.collection('users').doc(activeUser.uid).set({ bookmarks: savedBookmarks }, { merge: true });
-            }
-        };
-
-        window.markAsRead = function(cardId, uiIndex) {
-            const cardFront = document.getElementById(`cardContainer-${uiIndex}`);
-            const btn = document.getElementById(`btnRead-${uiIndex}`);
-            if (readArticlesSet.has(cardId)) {
-                readArticlesSet.delete(cardId); cardFront.classList.remove('card-completed');
-                btn.innerHTML = currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read';
-                btn.className = "flex-1 justify-center items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
-            } else {
-                readArticlesSet.add(cardId); cardFront.classList.add('card-completed');
-                btn.innerHTML = currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed';
-                btn.className = "flex-1 justify-center items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700";
-            }
-            updateProgress();
-        };
-
-        function updateProgress() {
-            const total = allArticlesCache.length; const readCount = readArticlesSet.size;
-            document.getElementById('progressBarFiller').style.width = `${total === 0 ? 0 : (readCount / total) * 100}%`;
-            document.getElementById('progressText').innerText = currentLang === 'hi' ? `${readCount}/${total} पढ़े गए` : `${readCount}/${total} Read`;
-        }
-
-        // ==========================================
-        // ⚡ HIGH-SPEED REST API FETCHER
-        // ==========================================
-        async function fetchDailyNews(dateStr) {
-            const cleanDate = (dateStr || '').trim();
-            const queryPayload = {
-                structuredQuery: {
-                    from: [{ collectionId: "daily_news" }],
-                    where: { fieldFilter: { field: { fieldPath: "date" }, op: "EQUAL", value: { stringValue: cleanDate } } }
-                }
-            };
-            const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 5000);
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(queryPayload),
-                    signal: controller.signal
-                });
-                clearTimeout(timeoutId);
-                if (!response.ok) throw new Error("REST API Network Error");
-                const json = await response.json();
-                
-                if (!json || json.length === 0 || (json.length === 1 && !json[0].document)) {
-                    return { empty: true, docs: [] }; 
-                }
-                const cleanDocs = json.filter(item => item.document).map(item => ({
-                    id: item.document.name.split('/').pop(),
-                    data: () => formatRestDocument(item.document)
-                }));
-                return { empty: cleanDocs.length === 0, docs: cleanDocs, error: false };
-            } catch (error) {
-                console.error("🔥 Network Drop Detected:", error);
-                return { empty: true, docs: [], error: true };
-            }
-        }
-
-        async function loadNewsForDate(dateStr) {
-            document.getElementById('feedLoading').classList.remove('hidden');
-            document.getElementById('dailyFeedView').classList.add('hidden');
-            document.getElementById('emptyFeedState').classList.add('hidden');
-            document.getElementById('displayDateBadge').innerText = formatISTDisplay(dateStr);
-            
-            try {
-                const snapshot = await fetchDailyNews(dateStr);
-                allArticlesCache = [];
-                
-                if (!snapshot.empty && snapshot.docs) {
-                    allArticlesCache = snapshot.docs.map(doc => doc.data());
-                }
-
-                if (allArticlesCache.length === 0) {
-                    document.getElementById('feedLoading').classList.add('hidden');
-                    const emptyFeedState = document.getElementById('emptyFeedState');
-                    const todayStr = getISTDateObj().toLocaleDateString('en-CA');
-                    const currentHour = getISTDateObj().getHours();
-                    const isHindi = (currentLang === 'hi');
-
-                    emptyFeedState.classList.remove('hidden');
-
-                    if (snapshot.error) {
-                        emptyFeedState.innerHTML = `
-                            <div class="text-4xl mb-4 animate-bounce">📡</div>
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'कनेक्शन त्रुटि' : 'Connection Error'}</h3>
-                            <p class="text-slate-500 mb-4">${isHindi ? 'दैनिक करेंट अफेयर्स लोड नहीं हो सका। कृपया पेज को रीफ्रेश करें।' : 'The Daily CA could not be loaded. Please do refresh the page to load the daily CA.'}</p>
-                            <button onclick="location.reload()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-indigo-700 transition">
-                                🔄 ${isHindi ? 'रीफ्रेश करें' : 'Refresh Page'}
-                            </button>`;
-                    }
-                    else if (dateStr === todayStr && currentHour < 6) {
-                        emptyFeedState.innerHTML = `
-                            <div class="text-4xl mb-4">🌅</div>
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'जल्द आ रहा है' : 'Coming Soon'}</h3>
-                            <p class="text-slate-500 mb-4">${isHindi ? 'आज का करेंट अफेयर्स सुबह 6:00 बजे अपलोड किया जाएगा।' : 'Today\'s Current Affairs digest drops sharp at 6:00 AM.'}</p>
-                            <button onclick="document.getElementById('btnPrevDay').click()" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
-                                📖 ${isHindi ? 'कल का पढ़ें' : 'Read Yesterday\'s Digest'}
-                            </button>`;
-                    }
-                    else if (dateStr === todayStr) {
-                        emptyFeedState.innerHTML = `
-                            <div class="text-4xl mb-4">⏳</div>
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'संकलन जारी है' : 'Compiling...'}</h3>
-                            <p class="text-slate-500 mb-4">${isHindi ? 'आज का करेंट अफेयर्स अभी अपलोड नहीं हुआ है। हमारी टीम इसे संकलित कर रही है!' : 'Today\'s news hasn\'t been uploaded yet. Our team is currently compiling it!'}</p>
-                            <button onclick="location.reload()" class="bg-indigo-600 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-indigo-700 transition">
-                                🔄 ${isHindi ? 'रीफ्रेश करें' : 'Refresh Feed'}
-                            </button>`;
-                    }
-                    else {
-                        emptyFeedState.innerHTML = `
-                            <div class="text-4xl mb-4">📭</div>
-                            <h3 class="text-xl font-bold text-slate-800 dark:text-white mb-2">${isHindi ? 'कोई खबर नहीं' : 'Archive Empty'}</h3>
-                            <p class="text-slate-500 mb-4">${isHindi ? 'इस विशिष्ट तिथि के लिए कोई खबर दर्ज नहीं की गई थी।' : 'No news was filed for this specific date.'}</p>
-                            <button onclick="document.getElementById('selectedDateInput').value='${todayStr}'; document.getElementById('selectedDateInput').dispatchEvent(new Event('change'))" class="bg-slate-800 text-white px-6 py-2 rounded-xl font-semibold shadow hover:bg-slate-900 transition">
-                                📅 ${isHindi ? 'आज पर जाएं' : 'Jump to Today'}
-                            </button>`;
-                    }
-                    return;
-                }
-                
-                document.getElementById('feedLoading').classList.add('hidden');
-                const topNews = allArticlesCache[0].oneLiner || "Daily Exam Updates";
-                document.title = `${formatISTDisplay(dateStr)} Current Affairs PDF & Quiz: ${topNews.substring(0, 60)}... | Stenogym`;
-                document.querySelector('meta[name="description"]').setAttribute("content", `Daily Current Affairs for ${formatISTDisplay(dateStr)}. Top News: ${topNews}. Download free PDFs and take MCQs for SSC CGL, RRB NTPC, and IBPS PO.`);
-                
-                readArticlesSet.clear(); globalFlipState = false; updateProgress(); renderFeedCards(); document.getElementById('dailyFeedView').classList.remove('hidden'); 
-                
-            } catch (err) { 
-                console.error("News load error:", err);
-                document.getElementById('feedLoading').classList.add('hidden'); 
-                const emptyFeedState = document.getElementById('emptyFeedState');
-                emptyFeedState.classList.remove('hidden'); 
-                emptyFeedState.innerHTML = `<div class="text-xl text-rose-500 font-bold py-10">Critical Load Error: Please refresh the page.</div>`;
-            }
-        }
-
-        // ==========================================
-        // NEW NATIVE DAILY PDF GENERATOR (PREMIUM)
-        // ==========================================
-        window.generateDailyPDF = function() {
-            if (allArticlesCache.length === 0) return alert("No news available to generate PDF.");
-            
-            const btn = document.querySelector(`button[onclick="triggerTelegramDownload(event, 'daily')"]`);
-            const origHTML = btn.innerHTML;
-            btn.innerHTML = "<span>⏳</span> Generating...";
-            btn.disabled = true;
-
-            const isHi = currentLang === 'hi';
-            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
-            
-            const formatHighlight = (text) => {
-                if(!text) return "";
-                let safeText = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, (match, p1) => {
-                    const cleanStr = p1.trim();
-                    if (/^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr) || !isNaN(parseFloat(cleanStr))) {
-                        return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`; 
-                    }
-                    return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
-                });
-                return safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
-            };
-
-            const groupedData = allArticlesCache.reduce((acc, item) => {
-                const c = (isHi ? item.category_hi : item.category) || (item.category || "General");
-                if(!acc[c]) acc[c] = [];
-                acc[c].push(item);
-                return acc;
-            }, {});
-
-            const sortedCategories = Object.keys(groupedData).sort();
-            
-            let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
-            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
-            
-            htmlContent += `
-                <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
-                        <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${isHi ? 'दैनिक करेंट अफेयर्स' : 'DAILY CURRENT AFFAIRS DIGEST'}</h2>
-                    </div>
-                    ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
-                </div>
-                <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                    📅 ${selectedDateStr} &nbsp;&bull;&nbsp; ${allArticlesCache.length} Total Cards
-                </div>
-                <div style="margin-bottom: 40px;">
-                    <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
-            `;
-            
-            sortedCategories.forEach(cat => {
-                htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
-                    <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
-                </div>`;
-            });
-
-            htmlContent += `</div>
-                <div style="text-align: center; margin-top: auto; padding-top: 20px;">
-                    <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
-                </div>
-            </div>`;
-
-            sortedCategories.forEach((category) => {
-                const items = groupedData[category];
-                const catEmoji = items[0]?.emoji || '📌';
-                
-                htmlContent += `
-                    <div style="background-color: #4f46e5; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                        <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(category)}</h2>
-                    </div>
-                `;
-
-                items.forEach((card, index) => {
-                    const hLine = isHi ? (card.oneLiner_hi || card.oneLiner) : card.oneLiner;
-                    const cBullets = isHi ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || []);
-                    const subCat = isHi ? (card.subCategory_hi || card.subCategory) : card.subCategory;
-                    const statBox = isHi ? (card.staticBox_hi?.facts || card.staticBox?.facts) : card.staticBox?.facts;
-                    const mcq = isHi ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                    
-                    const bullets = cBullets.filter(b => b.trim() !== "").map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
-                    const staticFacts = statBox ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(statBox)}</div>` : '';
-
-                    let mcqHtml = '';
-                    if (mcq && mcq.question) {
-                        const ansIdx = mcq.correctIndex || 0;
-                        const ansChar = String.fromCharCode(65 + ansIdx);
-                        const ansText = mcq.options ? mcq.options[ansIdx] : '';
-                        const qPrefix = isHi ? 'प्रश्न:' : 'Q.';
-                        const ansPrefix = isHi ? 'उत्तर:' : 'Ans:';
-                        mcqHtml = `
-                        <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                            <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">${qPrefix} ${formatHighlight(mcq.question)}</div>
-                            <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">${ansPrefix} ${ansChar}. ${formatHighlight(ansText)}</div>
-                            <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(mcq.explanation)}</em></div>
-                        </div>`;
-                    }
-                    
-                    htmlContent += `
-                        <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
-                            <div style="page-break-inside: avoid; page-break-after: avoid;">
-                                <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(subCat || 'NEWS')}</div>
-                                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(hLine)}</div>
-                            </div>
-                            <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
-                            ${staticFacts}
-                            ${mcqHtml}
-                        </div>`;
-                });
-            });
-            
-            htmlContent += `</div>`;
-            const element = document.createElement('div');
-            element.innerHTML = htmlContent;
-
-            const opt = {
-                margin: [0.5, 0.5, 0.8, 0.5], 
-                filename: `Stenogym_Daily_CA_${selectedDateStr.replace(/\s+/g, '_')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 }, 
-                pagebreak: { mode: ['css', 'legacy'] },
-                enableLinks: true, 
-                html2canvas: { scale: 2, useCORS: true }, 
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                const totalPages = pdf.internal.getNumberOfPages();
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const imgSize = 4;
-                
-                for (let i = 1; i <= totalPages; i++) {
-                    pdf.setPage(i);
-                    pdf.setDrawColor(15, 23, 42); 
-                    pdf.setLineWidth(0.02); 
-                    pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
-
-                    if (logoDataUrl) {
-                        try {
-                            pdf.setGState(new pdf.GState({ opacity: 0.03 }));
-                            pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
-                            pdf.setGState(new pdf.GState({ opacity: 1.0 }));
-                        } catch(e) {}
-                    }
-                    
-                    pdf.setDrawColor(226, 232, 240); 
-                    pdf.setLineWidth(0.01);
-                    pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
-
-                    pdf.setFontSize(9);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setTextColor(15, 23, 42);
-                    pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
-
-                    pdf.setFont("helvetica", "normal");
-                    pdf.setTextColor(100, 116, 139);
-                    pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
-
-                    pdf.setFont("helvetica", "bold");
-                    pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
-                }
-            }).save().then(() => { 
-                btn.innerHTML = origHTML; 
-                btn.disabled = false; 
-            });
-        };
-
-        // DAILY FEED CARD RENDERER (NOW WITH SERIAL NUMBERS)
-        function renderFeedCards() {
-            const feedContainer = document.getElementById('dailyFeedView'); feedContainer.innerHTML = "";
-            const filtered = (activeCategoryFilter === "all") ? allArticlesCache : allArticlesCache.filter(item => item.category === activeCategoryFilter);
-            
-            if (filtered.length === 0 && allArticlesCache.length > 0) {
-                feedContainer.innerHTML = `<div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl p-10 md:p-12 text-center max-w-md mx-auto shadow-sm my-8"><div class="text-4xl mb-3">📂</div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">No questions available for this section.</h3></div>`; return;
-            }
-
-            const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
-            const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
-            const testFactLabel = currentLang === 'hi' ? 'तथ्य का परीक्षण करें' : 'Test Fact';
-            const liveVerifLabel = currentLang === 'hi' ? 'लाइव सत्यापन क्विज़' : 'Live Verification Quiz';
-            const backToNotesLabel = currentLang === 'hi' ? 'नोट्स पर वापस जाएं' : 'Read Notes';
-            const tryAgainLabel = currentLang === 'hi' ? 'पुनः प्रयास करें' : 'Try Again';
-
-            let html = "";
-            filtered.forEach((card, idx) => {
-                const docId = card.id ? `daily_news_${card.id}` : `daily_news_temp-${idx}`;
-                const dailyIndex = idx + 1; // Serial Number for Daily Feed
-                
-                const displayCat = currentLang === 'hi' ? (card.category_hi || card.category || '') : (card.category || '');
-                const displaySub = currentLang === 'hi' ? (card.subCategory_hi || card.subCategory || '') : (card.subCategory || '');
-                const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || card.oneLiner || '') : (card.oneLiner || '');
-                const displayImpact = currentLang === 'hi' ? (card.impact_hi || card.impact || '') : (card.impact || '');
-                const displayBullets = (currentLang === 'hi' ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || [])).filter(b => b.trim() !== "");
-                const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || card.staticBox?.facts || '') : (card.staticBox?.facts || '');
-                
-                const safeEmoji = card.emoji || '📰';
-                const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
-                const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
-                const correctIdx = Number(mcqData?.correctIndex) || 0;
-
-                const isRead = readArticlesSet.has(docId);
-                const btnClass = isRead ? "bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-700";
-                const readBtnText = isRead ? (currentLang === 'hi' ? '✅ पूर्ण' : '✅ Completed') : (currentLang === 'hi' ? 'पढ़ा हुआ चिह्नित करें' : 'Mark as Read');
-                
-                const isBkmrk = savedBookmarks.includes(docId);
-                const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
-                const bkmrkText = isBkmrk ? (currentLang === 'hi' ? '🔖 सहेजा गया' : '🔖 Saved') : (currentLang === 'hi' ? '🔖 सहेजें' : '🔖 Save');
-
-                const bulletsHtml = displayBullets.map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm leading-relaxed font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${formatUIText(b)}</span></li>`).join('');
-
-                let dataTableHtml = "";
-                if (card.dataTable && Array.isArray(card.dataTable) && card.dataTable.length > 0) {
-                    dataTableHtml = `<div class="mt-3 overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg"><table class="w-full text-left text-xs bg-white dark:bg-slate-800">`;
-                    card.dataTable.forEach((row, rIdx) => {
-                        const bg = rIdx === 0 ? 'bg-indigo-600 text-white font-black' : (rIdx % 2 === 0 ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-transparent');
-                        const textC = rIdx === 0 ? 'text-white' : 'text-slate-700 dark:text-slate-300';
-                        dataTableHtml += `<tr class="${bg} ${textC} border-b border-slate-200 dark:border-slate-700 last:border-0">`;
-                        Object.values(row).forEach(val => { dataTableHtml += `<td class="p-2 whitespace-nowrap">${formatUIText(val)}</td>`; });
-                        dataTableHtml += `</tr>`;
-                    });
-                    dataTableHtml += `</table></div>`;
-                }
-
-                let staticBoxHtml = "";
-                if (staticBoxText) {
-                    staticBoxHtml = `<div class="mt-3.5 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${formatUIText(staticBoxText)}</p></div></div>`;
-                }
-
-                html += `
-                    <div class="perspective-1000 w-full transition-all duration-300 ${isRead ? 'card-completed' : ''}" id="cardContainer-${idx}" data-docid="${docId}">
-                        <div class="flip-card-inner relative w-full transform-style-3d bg-transparent rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
-                            
-                            <div class="flip-card-front bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl flex flex-col justify-between min-h-[420px] max-h-[540px] shadow-sm hover:shadow-md transition">
-                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
-                                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3 border-b border-slate-100 dark:border-slate-700/80 pb-2.5">
-                                        <div class="flex items-center gap-2">
-                                            <span class="bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-md">CARD #${dailyIndex}</span>
-                                            <span class="text-xl hidden md:inline">${safeEmoji}</span>
-                                            <div class="flex flex-col">
-                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase tracking-tight">${escapeHtml(displayCat)}</span>
-                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
-                                            <button id="btnBookmark-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmark-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass} cursor-pointer">${bkmrkText}</button>
-                                        </div>
-                                    </div>
-                                    ${displayImpact ? `<div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>` : ''}
-                                    <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${formatUIText(displayHeadline)}</h3>
-                                    <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
-                                    ${dataTableHtml}
-                                    ${staticBoxHtml}
-                                </div>
-                                <div class="flex-shrink-0 border-t border-slate-100 dark:border-slate-700/80 p-4 md:p-5 flex items-center justify-between gap-2 cursor-pointer bg-slate-50/50 dark:bg-slate-800 rounded-b-3xl" onclick="flipCard(${idx})">
-                                    <div class="flex gap-2 w-full">
-                                        <button class="flex-1 justify-center flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
-                                        <button id="btnRead-${idx}" onclick="event.stopPropagation(); markAsRead('${docId}', ${idx});" class="flex-1 justify-center flex items-center gap-1.5 border font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition ${btnClass}">${readBtnText}</button>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flip-card-back bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl shadow-sm flex flex-col justify-between min-h-[420px] max-h-[540px] hover:shadow-md transition">
-                                <div class="flex-grow drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
-                                    <div class="flex justify-between items-center mb-3 border-b border-indigo-100 dark:border-indigo-800 pb-2">
-                                        <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md">${liveVerifLabel} #${dailyIndex}</span>
-                                    </div>
-                                    <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${formatUIText(mcqData?.question)}</h4>
-                                    <div id="mcqOptions-${idx}" class="space-y-2">
-                                        ${(mcqData?.options||[]).map((opt, oIdx) => `<button onclick="handleOptionSelect(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:cursor-not-allowed"><span>${String.fromCharCode(65+oIdx)}. ${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span></button>`).join('')}
-                                    </div>
-                                    <div id="mcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-1.5 items-start"><div id="mcqFeedbackText-${idx}"></div></div>
-                                </div>
-                                <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-5 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900 rounded-b-3xl" onclick="flipCard(${idx})">
-                                    <button id="btnTryAgain-${idx}" onclick="event.stopPropagation(); resetQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer">
-                                        <span>🔄</span> ${tryAgainLabel}
-                                    </button>
-                                    <button class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-xs px-4 py-2.5 rounded-xl transition">
-                                        &larr; ${backToNotesLabel}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-            });
-            
-            feedContainer.innerHTML = "";
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
-            const allNewCards = Array.from(tempDiv.children);
-
-            let chunkIndex = 0;
-            const chunkSize = 5; 
-
-            function renderChunk() {
-                const end = Math.min(chunkIndex + chunkSize, allNewCards.length);
-                for (let i = chunkIndex; i < end; i++) {
-                    feedContainer.appendChild(allNewCards[i]);
-                }
-                chunkIndex += chunkSize;
-                if (chunkIndex < allNewCards.length) {
-                    requestAnimationFrame(renderChunk);
-                }
-            }
-            requestAnimationFrame(renderChunk);
-        }
-
-        window.flipCard = function(idx) { document.getElementById(`cardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180'); };
-        
-        window.handleOptionSelect = function(e, docId, uiIdx, selIdx, corIdx, encodedExp) {
-            const container = document.getElementById(`mcqOptions-${uiIdx}`); 
-            const buttons = container.querySelectorAll(`button`); 
-            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`); 
-            const feedbackText = document.getElementById(`mcqFeedbackText-${uiIdx}`);
-            if(buttons[0].disabled) return; 
-            
-            buttons.forEach(b => {
-                b.disabled = true;
-                b.classList.add('opacity-50'); 
-            });
-            
-            const correctText = currentLang === 'hi' ? '✅ सही' : '✅ Correct';
-            const incorrectText = currentLang === 'hi' ? '❌ गलत' : '❌ Incorrect';
-            const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
-            const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
-
-            if (selIdx === corIdx) {
-                buttons[selIdx].classList.remove('opacity-50'); 
-                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
-                buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
-                buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
-                buttons[selIdx].querySelector('.status-marker').textContent = correctText;
-                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner";
-                feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
-            } else {
-                buttons[selIdx].classList.remove('opacity-50');
-                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); 
-                buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); 
-                buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); 
-                buttons[selIdx].querySelector('.status-marker').textContent = incorrectText;
-                
-                buttons[corIdx].classList.remove('opacity-50');
-                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); 
-                buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); 
-                buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); 
-                buttons[corIdx].querySelector('.status-marker').textContent = correctText;
-                
-                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold flex flex-col gap-1.5 items-start bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner";
-                feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
-            }
-            
-            updateLocalStudyTracker(true);
-            const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
-            btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
-            
-            if(!readArticlesSet.has(docId)) markAsRead(docId, uiIdx);
-        };
-
-        window.resetQuiz = function(uiIdx) {
-            const container = document.getElementById(`mcqOptions-${uiIdx}`); 
-            const buttons = container.querySelectorAll(`button`); 
-            const feedback = document.getElementById(`mcqFeedback-${uiIdx}`);
-            buttons.forEach(b => { 
-                b.disabled = false; 
-                b.classList.remove('opacity-50', 'bg-emerald-50', 'bg-rose-50', 'dark:bg-emerald-900/30', 'dark:bg-rose-900/30', 'text-emerald-900', 'text-rose-900', 'dark:text-emerald-400', 'dark:text-rose-400', 'border-emerald-500', 'dark:border-emerald-500', 'border-rose-500', 'dark:border-rose-500');
-                b.classList.add('bg-white', 'dark:bg-slate-800', 'border-slate-100', 'dark:border-slate-600', 'text-slate-700', 'dark:text-slate-300');
-                b.querySelector('.status-marker').textContent = ""; 
-            });
-            feedback.classList.add('hidden'); feedback.classList.remove('flex');
-            const btnTryAgain = document.getElementById(`btnTryAgain-${uiIdx}`);
-            btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
-        };
-
-        // ==========================================
-        // DYNAMIC COMPILATION SHELF & ENGINE
-        // ==========================================
-        let compilationsData = {}; 
-        let workingCompilationCards = [];
-        let currentCompilationPage = 1;
-        const COMPILATION_PER_PAGE = 20;
-        let compilationMode = 'flip'; 
-        let currentCompId = null;
-
-        async function loadCompilationShelf(cadence) {
-            if (cadence === 'weekly' || cadence === 'special') {
-                const btnW = document.getElementById('btnShelfWeekly');
-                const btnS = document.getElementById('btnShelfSpecial');
-                if (btnW && btnS) {
-                    if (cadence === 'weekly') {
-                        btnW.className = "px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el";
-                        btnS.className = "px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el";
-                    } else {
-                        btnS.className = "px-5 py-2 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-sm transition translation-el";
-                        btnW.className = "px-5 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl text-xs font-black transition translation-el";
-                    }
-                }
-            }
-
-            let shelfGridId = cadence === 'monthly' ? 'monthlyShelfGrid' : 'weeklyShelfGrid';
-            const shelfGrid = document.getElementById(shelfGridId);
-            shelfGrid.innerHTML = `<div class="col-span-full text-center text-slate-400 font-bold py-8 animate-pulse">Loading Archive...</div>`;
-            
-            try {
-                const FIREBASE_PROJECT_ID = "stenogym"; 
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
-                const payload = {
-                    structuredQuery: {
-                        from: [{ collectionId: "ca_drills" }],
-                        where: { fieldFilter: { field: { fieldPath: "docType" }, op: "EQUAL", value: { stringValue: "summary" } } }
-                    }
-                };
-                const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
-                const json = await res.json();
-                
-                let editions = [];
-                if (json && json.length > 0 && json[0].document) {
-                    json.filter(item => item.document).forEach(item => {
-                        const data = formatRestDocument(item.document);
-                        if(data.cadence === cadence) {
-                            editions.push({ id: data.date, ...data });
-                        }
-                    });
-                }
-                
-                editions.sort((a,b) => b.id.localeCompare(a.id));
-                
-                if (editions.length === 0) { 
-                    shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">No official editions published yet.</h3><p class="text-slate-500 text-sm">Check back soon for the next digest!</p></div>`; 
-                    return; 
-                }
-                
-                let html = "";
-                editions.forEach(ed => {
-                    let displayTitle = 'Weekly Speed Drill';
-                    if (cadence === 'monthly') displayTitle = 'Monthly Mega Digest';
-                    if (cadence === 'special') displayTitle = 'Special Topic Mock';
-                    
-                    const topicNameClean = ed.id.replace(/-/g, ' ');
-                    const countDisplay = ed.count ? `${ed.count} MCQs` : `50+ MCQs`;
-                    
-                    const pdfEn = escapeHtml(ed.pdfEmbedUrl_en || ed.pdfEmbedUrl || '');
-                    const pdfHi = escapeHtml(ed.pdfEmbedUrl_hi || '');
-
-                    const safeUrlId = encodeURIComponent(ed.id);
-                    const safeJsId = ed.id.replace(/'/g, "\\'");
-
-                    html += `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-400 text-[10px] font-black uppercase px-2 py-1 rounded">${escapeHtml(displayTitle)}</span>
-                            <span class="text-xs font-bold text-slate-400">${countDisplay}</span>
-                        </div>
-                        <h3 class="font-black text-lg text-slate-900 dark:text-white mb-4">${escapeHtml(topicNameClean)}</h3>
-                        <div class="flex flex-col gap-2">
-                            <a href="?topic=${safeUrlId}" onclick="event.preventDefault(); window.history.pushState({}, '', '?topic=${safeUrlId}'); openCompilation('${safeJsId}');" class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition text-center inline-block w-full">
-                                📖 Open Compilation Deck
-                            </a>
-                            <button onclick="triggerTelegramDownload(event, 'compilation', '${pdfEn}', '${pdfHi}')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 transition w-full translation-el" data-en="📥 Download Offline PDF" data-hi="📥 PDF डाउनलोड">
-                                📥 Download Offline PDF
-                            </button>
-                        </div>
-                    </div>`;
-                });
-                shelfGrid.innerHTML = html;
-                
-                if(currentLang === 'hi') {
-                    document.querySelectorAll('.translation-el').forEach(el => {
-                        if(el.hasAttribute('data-hi')) el.innerHTML = el.getAttribute('data-hi');
-                    });
-                }
-            } catch (err) { 
-                shelfGrid.innerHTML = `<div class="col-span-full text-center p-8 bg-white dark:bg-slate-800 rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700"><div class="text-3xl mb-2">📦</div><h3 class="text-lg font-black text-slate-800 dark:text-white">Error loading data. Please refresh.</h3></div>`; 
-            }
-        }
-
-        // NEW: MASTER BUNDLE ROUTER & IN-PAGE ERROR TRAPPING
-        window.openCompilation = async function(compId) {
-            currentCompId = compId;
-            document.getElementById('compilationCardsContainer').innerHTML = `<div class="p-8 text-center text-indigo-500 font-bold bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 animate-pulse">Loading Heavy Drill Data...</div>`;
-            
-            activeView = 'compilationActive';
-            document.getElementById('weeklyDrillView').classList.add('hidden'); 
-            document.getElementById('monthlyPdfView').classList.add('hidden');
-            document.getElementById('compilationWorkspace').classList.remove('hidden');
-            document.getElementById('dateControlBar').style.display = 'none';
-            document.getElementById('progressWidget').style.display = 'none';
-
-            try {
-                // strict memory wipe to prevent categories from mixing
-                workingCompilationCards = [];
-                let drillCadence = 'weekly';
-                let pdfEn = ''; let pdfHi = '';
-
-                const FIREBASE_PROJECT_ID = "stenogym";
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(compId)}`;
-                const res = await fetch(url);
-                
-                if (res.ok) {
-                    const json = await res.json();
-                    const d = formatRestDocument(json);
-                    if (d.cards) {
-                        drillCadence = d.cadence || 'weekly';
-                        pdfEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
-                        pdfHi = d.pdfEmbedUrl_hi || '';
-                        workingCompilationCards = d.cards;
-                    } else { throw new Error("Legacy format not supported."); }
-                } else {
-                    throw new Error("Drill not found.");
-                }
-                
-                workingCompilationCards = workingCompilationCards.map((c, i) => ({ id: `${compId}_${i}`, ...c }));
-                
-                compilationsData[compId] = { 
-                    id: compId, 
-                    cadence: drillCadence, 
-                    pdfUrl_en: pdfEn, 
-                    pdfUrl_hi: pdfHi, 
-                    cards: workingCompilationCards 
-                };
-
-                currentCompilationPage = 1;
-                compilationMode = 'flip';
-                
-                activeCategoryFilter = "all";
-                document.querySelectorAll('.cat-pill').forEach(btn => btn.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el");
-                const allBtn = document.querySelector('.cat-pill[data-cat="all"]');
-                if(allBtn) allBtn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
-                
-                let displayTitle = compId.replace(/-/g, ' ');
-                document.title = `Special Topic: ${displayTitle} Current Affairs MCQs | Stenogym`;
-                
-                setCompilationMode('flip');
-                window.scrollTo({top:0, behavior:'smooth'});
-            } catch(e) { 
-                console.error("Drill Load Error:", e);
-                document.getElementById('compilationCardsContainer').innerHTML = `<div class="p-8 text-center text-rose-500 font-bold bg-rose-50 border border-rose-200 dark:bg-rose-900/20 dark:border-rose-800 rounded-2xl">Error: Drill Data Not Found in Database. The drill may have been deleted.</div>`;
-            }
-        };
-
-        window.closeCompilation = function() {
-            document.getElementById('compilationWorkspace').classList.add('hidden');
-            const targetCadence = compilationsData[currentCompId]?.cadence || 'weekly';
-            window.history.pushState({}, '', `?tab=${targetCadence}&date=${selectedDateStr}`);
-            if(targetCadence === 'monthly') { document.getElementById('tabMonthly').click(); } 
-            else { document.getElementById('tabWeekly').click(); }
-            window.scrollTo({top:0, behavior:'smooth'});
-        };
-
-        window.retakeCompilationQuiz = function() {
-            if(!confirm("Reset your score and restart this drill?")) return;
-            localStorage.removeItem(`quiz_prog_${currentCompId}`);
-            document.getElementById('compilationScoreBadge').textContent = `Score: 0/0`;
-            currentCompilationPage = 1;
-            document.getElementById('compilationCardsContainer').innerHTML = "";
-            renderCompilationPage(1);
-        };
-
-        window.setCompilationMode = function(mode) {
-            compilationMode = mode;
-            globalFlipState = false; // <--- THE BUG FIX: Forces memory reset so cards always show Notes first!
-            
-            document.getElementById('btnModeFlip').className = mode === 'flip' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
-            document.getElementById('btnModeQuiz').className = mode === 'quiz' ? "px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition translation-el" : "px-4 py-2 text-slate-500 hover:text-slate-800 dark:hover:text-white transition translation-el";
-            
-            document.getElementById('compilationScoreBadge').style.display = mode === 'quiz' ? 'inline-block' : 'none';
-            document.getElementById('btnRetakeCompQuiz').style.display = mode === 'quiz' ? 'inline-flex' : 'none';
-            document.getElementById('btnDownloadCompilation').onclick = (e) => triggerTelegramDownload(e, 'compilation', compilationsData[currentCompId]?.pdfUrl_en, compilationsData[currentCompId]?.pdfUrl_hi);
-            
-            if(mode === 'quiz') {
-                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
-                document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
-            }
-            
-            currentCompilationPage = 1;
-            document.getElementById('compilationCardsContainer').innerHTML = "";
-            renderCompilationPage(1);
-        };
-
-        // NEW TRUE PAGINATION UI HANDLER
-        window.changeCompPage = function(direction) {
-            currentCompilationPage += direction;
-            renderCompilationPage(currentCompilationPage);
-            window.scrollTo({top:0, behavior:'smooth'});
-        };
-
-        window.toggleCompCard = function(idx) {
-            document.getElementById(`compCardContainer-${idx}`).querySelector('.flip-card-inner').classList.toggle('rotate-y-180');
-        };
-
-        // NEW: TRUE PAGINATION RENDERER (NO SCROLL JUMPING)
-        function renderCompilationPage(targetPage = currentCompilationPage) {
-            const container = document.getElementById('compilationCardsContainer');
-            const pagContainer = document.getElementById('compilationPagination');
-            
-            let filtered = workingCompilationCards;
-            if (activeCategoryFilter !== 'all') filtered = filtered.filter(c => c.category === activeCategoryFilter);
-            
-            if (filtered.length === 0) {
-                container.innerHTML = `<div class="p-8 text-center text-slate-400 font-bold bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">No questions in this category.</div>`;
-                pagContainer.classList.add('hidden'); return;
-            }
-
-            const totalPages = Math.ceil(filtered.length / COMPILATION_PER_PAGE);
-            document.getElementById('btnCompPrev').disabled = (targetPage === 1);
-            document.getElementById('btnCompPrev').style.opacity = (targetPage === 1) ? '0.5' : '1';
-            document.getElementById('btnCompNext').disabled = (targetPage === totalPages);
-            document.getElementById('btnCompNext').style.opacity = (targetPage === totalPages) ? '0.5' : '1';
-            document.getElementById('compilationPaginationText').textContent = `Page ${targetPage} of ${totalPages}`;
-            pagContainer.classList.remove('hidden');
-
-            const startIndex = (targetPage - 1) * COMPILATION_PER_PAGE;
-            const endIndex = Math.min(startIndex + COMPILATION_PER_PAGE, filtered.length);
-            const batch = filtered.slice(startIndex, endIndex);
-
-            let html = "";
-            if (compilationMode === 'flip') {
-                batch.forEach((card, idx) => {
-                    const globalIndex = startIndex + idx + 1;
-                    const docId = card.id;
-                    const displayCat = currentLang === 'hi' ? (card.category_hi || card.category) : card.category;
-                    const displaySub = currentLang === 'hi' ? (card.subCategory_hi || card.subCategory) : card.subCategory;
-                    const displayHeadline = currentLang === 'hi' ? (card.oneLiner_hi || card.oneLiner) : card.oneLiner;
-                    const displayImpact = currentLang === 'hi' ? (card.impact_hi || card.impact || '') : (card.impact || '');
-                    const staticBoxText = currentLang === 'hi' ? (card.staticBox_hi?.facts || card.staticBox?.facts || '') : (card.staticBox?.facts || '');
-                    const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                    const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
-                    const correctIdx = Number(mcqData?.correctIndex) || 0;
-                    const isBkmrk = savedBookmarks.includes(docId);
-                    const bkmrkClass = isBkmrk ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-400' : 'text-slate-600 dark:text-slate-400';
-                    const bkmrkText = isBkmrk ? '🔖 Saved' : '🔖 Save';
-                    const safeEmoji = card.emoji || '📰';
-                    const exams = card.targetExams ? card.targetExams.join(" • ") : "SSC • Banking • Railways";
-                    const impactLabel = currentLang === 'hi' ? '💡 प्रभाव:' : '💡 Impact:';
-                    const staticContextLabel = currentLang === 'hi' ? 'स्थैतिक संदर्भ (Static Context)' : 'Static Context Box';
-
-                    const bulletsHtml = (currentLang === 'hi' ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || [])).filter(b => b.trim() !== "").map(b => `<li class="flex items-start gap-2 text-slate-700 dark:text-slate-300 text-xs md:text-sm font-medium"><span class="text-indigo-500 font-black mt-0.5">📌</span><span>${formatUIText(b)}</span></li>`).join('');
-
-                    let staticBoxHtml = "";
-                    if (staticBoxText) {
-                        staticBoxHtml = `<div class="mt-4 bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-800/60 rounded-xl p-3 flex items-start gap-2.5 shadow-xs"><span class="text-indigo-600 dark:text-indigo-400 text-base mt-0.5 flex-shrink-0">🧠</span><div class="flex-grow"><span class="text-[9px] font-black uppercase tracking-wider text-indigo-700 dark:text-indigo-300 block mb-0.5">${staticContextLabel}</span><p class="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-snug">${formatUIText(staticBoxText)}</p></div></div>`;
-                    }
-
-                    html += `
-                    <div class="perspective-1000 w-full" id="compCardContainer-${idx}" data-docid="${docId}">
-                        <div class="flip-card-inner relative w-full transform-style-3d rounded-3xl transition-all duration-500 ${globalFlipState ? 'rotate-y-180' : ''}">
-                            <div class="flip-card-front flex flex-col justify-between min-h-[420px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm">
-                                <div class="p-6 md:p-8">
-                                    <div class="flex flex-wrap justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-700 gap-2">
-                                        <div class="flex items-center gap-2">
-                                            <span class="bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-md">CARD #${globalIndex}</span>
-                                            <span class="text-xl hidden md:inline">${safeEmoji}</span>
-                                            <div class="flex flex-col">
-                                                <span class="text-slate-900 dark:text-white font-black text-xs uppercase">${escapeHtml(displayCat)}</span>
-                                                <span class="text-indigo-600 dark:text-indigo-400 text-[10px] font-bold uppercase tracking-wider">${escapeHtml(displaySub)}</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
-                                            <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${docId}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded transition ${bkmrkClass}">${bkmrkText}</button>
-                                        </div>
-                                    </div>
-                                    ${displayImpact ? `<div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>` : ''}
-                                    <h3 class="text-base md:text-lg font-black text-slate-900 dark:text-white leading-snug mb-3">${formatUIText(displayHeadline)}</h3>
-                                    <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
-                                    ${staticBoxHtml}
-                                </div>
-                                <div class="border-t border-slate-200 dark:border-slate-700 text-center w-full p-4 cursor-pointer bg-slate-50 dark:bg-slate-900 rounded-b-3xl" onclick="toggleCompCard(${idx})">
-                                    <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition"><span>🔄</span> Test Fact</button>
-                                </div>
-                            </div>
-                            
-                            <div class="flip-card-back flex flex-col justify-between min-h-[420px] bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl">
-                                <div class="p-6 md:p-8">
-                                    <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md mb-3 block w-max">Verification Quiz #${globalIndex}</span>
-                                    <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3">${formatUIText(mcqData?.question)}</h4>
-                                    <div id="compMcqOptions-${idx}" class="space-y-2">
-                                        ${(mcqData?.options||[]).map((opt, oIdx) => `
-                                            <button onclick="handleCompFlipAnswer(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 font-bold text-xs md:text-sm p-3 rounded-xl transition flex justify-between">
-                                                <span>${String.fromCharCode(65+oIdx)}. ${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span>
-                                            </button>
-                                        `).join('')}
-                                    </div>
-                                    <div id="compMcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs font-semibold shadow-inner flex-col gap-1.5 bg-indigo-50 border border-indigo-100 dark:border-indigo-800"><div id="compMcqFeedbackText-${idx}"></div></div>
-                                </div>
-                                <div class="border-t border-indigo-100 dark:border-indigo-800 p-4 flex gap-2 cursor-pointer bg-white dark:bg-slate-800 rounded-b-3xl" onclick="toggleCompCard(${idx})">
-                                    <button class="flex-1 justify-center bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600">&larr; Read Notes</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-            } else {
-                batch.forEach((card, idx) => {
-                    const globalIndex = startIndex + idx + 1; // PERFECT SERIAL NUMBERS
-                    const docId = card.id;
-                    const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                    const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
-                    const correctIdx = Number(mcqData?.correctIndex) || 0;
-                    
-                    html += `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-6 rounded-2xl shadow-sm" id="quizCard-${idx}" data-docid="${docId}">
-                        <div class="mb-3">
-                            <span class="text-[10px] font-black uppercase text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-0.5 rounded">Question ${globalIndex} of ${filtered.length}</span>
-                        </div>
-                        <h4 class="font-black text-slate-900 dark:text-white text-base mb-4 leading-snug">${formatUIText(mcqData.question)}</h4>
-                        <div class="space-y-2.5" id="quizOptions-${idx}">
-                            ${(mcqData.options||[]).map((opt, oIdx) => `
-                                <button onclick="handleCompQuizAnswer(event, '${docId}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-600 hover:border-indigo-400 text-slate-700 dark:text-slate-300 font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm comp-opt-${idx} disabled:cursor-not-allowed">
-                                    <span>${String.fromCharCode(65 + oIdx)}.${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span>
-                                </button>
-                            `).join('')}
-                        </div>
-                        <div id="quizExp-${idx}" class="hidden mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold"></div>
-                    </div>`;
-                });
-            }
-            
-            // True slice insertion, completely avoids memory bloat
-            container.innerHTML = html;
-            
-            if (compilationMode === 'quiz') {
-                const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
-                batch.forEach((card, idx) => {
-                    const pastAnswer = saved.answers[`${currentCompId}_${card.id}`];
-                    if (pastAnswer !== undefined) {
-                        const mcqData = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                        const safeExp = encodeURIComponent(mcqData?.explanation || '').replace(/'/g, "%27");
-                        restoreCompQuizAnswerUI(idx, pastAnswer, Number(mcqData?.correctIndex) || 0, safeExp);
-                    }
-                });
-            }
-        }
-
-        window.handleCompFlipAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
-            const container = document.getElementById(`compMcqOptions-${uiIdx}`); 
-            const buttons = container.querySelectorAll(`button`); 
-            const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`); 
-            const feedbackText = document.getElementById(`compMcqFeedbackText-${uiIdx}`);
-            if(buttons[0].disabled) return; 
-            
-            buttons.forEach(b => {
-                b.disabled = true;
-                b.classList.add('opacity-50'); 
-            });
-            
-            const expCorrectPrefix = currentLang === 'hi' ? 'शानदार!' : 'Excellent!';
-            const expIncorrectPrefix = currentLang === 'hi' ? 'गलत।' : 'Incorrect.';
-
-            if (selIdx === corIdx) {
-                buttons[selIdx].classList.remove('opacity-50');
-                buttons[selIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[selIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
-                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-emerald-100 dark:bg-emerald-900/50 text-emerald-900 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-700 shadow-inner flex flex-col gap-1.5 items-start block";
-                feedbackText.innerHTML = `<strong class="text-emerald-700 dark:text-emerald-400 block mb-1">${expCorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
-            } else {
-                buttons[selIdx].classList.remove('opacity-50');
-                buttons[selIdx].classList.replace('border-slate-100', 'border-rose-500'); buttons[selIdx].classList.replace('dark:border-slate-600', 'dark:border-rose-500'); buttons[selIdx].classList.add('bg-rose-50', 'dark:bg-rose-900/30', 'text-rose-900', 'dark:text-rose-400'); buttons[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
-                
-                buttons[corIdx].classList.remove('opacity-50');
-                buttons[corIdx].classList.replace('border-slate-100', 'border-emerald-500'); buttons[corIdx].classList.replace('dark:border-slate-600', 'dark:border-emerald-500'); buttons[corIdx].classList.add('bg-emerald-50', 'dark:bg-emerald-900/30', 'text-emerald-900', 'dark:text-emerald-400'); buttons[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
-                
-                feedback.className = "mt-3 p-3 rounded-xl text-xs md:text-sm font-semibold bg-rose-100 dark:bg-rose-900/50 text-rose-900 dark:text-rose-400 border border-rose-300 dark:border-rose-700 shadow-inner flex flex-col gap-1.5 items-start block";
-                feedbackText.innerHTML = `<strong class="text-rose-700 dark:text-rose-400 block mb-1">${expIncorrectPrefix}</strong> ${formatUIText(decodeURIComponent(encodedExp))}`;
-            }
-            
-            updateLocalStudyTracker(false);
-            const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
-            btnTryAgain.classList.remove('hidden'); btnTryAgain.classList.add('flex');
-        };
-
-        window.resetCompFlipQuiz = function(uiIdx) {
-            const container = document.getElementById(`compMcqOptions-${uiIdx}`);
-            const buttons = container.querySelectorAll(`button`);
-            const feedback = document.getElementById(`compMcqFeedback-${uiIdx}`);
-            
-            buttons.forEach(b => {
-                b.disabled = false;
-                b.classList.remove('opacity-50', 'bg-emerald-50', 'bg-rose-50', 'dark:bg-emerald-900/30', 'dark:bg-rose-900/30', 'text-emerald-900', 'text-rose-900', 'dark:text-emerald-400', 'dark:text-rose-400', 'border-emerald-500', 'dark:border-emerald-500', 'border-rose-500', 'dark:border-rose-500');
-                b.classList.add('bg-white', 'dark:bg-slate-800', 'border-slate-100', 'dark:border-slate-600', 'text-slate-700', 'dark:text-slate-300');
-                b.querySelector('.status-marker').textContent = "";
-            });
-            
-            feedback.classList.add('hidden');
-            feedback.classList.remove('flex');
-            
-            const btnTryAgain = document.getElementById(`btnTryAgainComp-${uiIdx}`);
-            btnTryAgain.classList.remove('flex'); btnTryAgain.classList.add('hidden');
-        };
-
-        window.handleCompQuizAnswer = function(e, cardId, uiIdx, selIdx, corIdx, encodedExp) {
-            const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
-            if(btns[0].disabled) return;
-            
-            btns.forEach(b => {
-                b.disabled = true;
-                b.classList.add('opacity-50'); 
-            });
-            
-            const saved = JSON.parse(localStorage.getItem(`quiz_prog_${currentCompId}`) || '{"correct":0,"attempted":0,"answers":{}}');
-            saved.attempted++;
-            if (selIdx === corIdx) saved.correct++;
-            saved.answers[`${currentCompId}_${cardId}`] = selIdx;
-            saved.lastUpdated = Date.now();
-            localStorage.setItem(`quiz_prog_${currentCompId}`, JSON.stringify(saved));
-            
-            document.getElementById('compilationScoreBadge').textContent = `Score: ${saved.correct}/${saved.attempted}`;
-            updateLocalStudyTracker(false);
-            restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp);
-        };
-
-        function restoreCompQuizAnswerUI(uiIdx, selIdx, corIdx, encodedExp) {
-            const btns = document.querySelectorAll(`.comp-opt-${uiIdx}`);
-            const expContainer = document.getElementById(`quizExp-${uiIdx}`);
-            
-            btns.forEach(b => {
-                b.disabled = true;
-                if(!b.classList.contains('bg-emerald-50') && !b.classList.contains('bg-rose-50')) {
-                    b.classList.add('opacity-50');
-                }
-            });
-            
-            if (selIdx === corIdx) {
-                btns[selIdx].classList.remove('opacity-50');
-                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 disabled:cursor-not-allowed";
-                btns[selIdx].querySelector('.status-marker').textContent = '✅ Correct';
-                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 block";
-            } else {
-                btns[selIdx].classList.remove('opacity-50');
-                btns[selIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-rose-500 dark:border-rose-500 bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 disabled:cursor-not-allowed";
-                btns[selIdx].querySelector('.status-marker').textContent = '❌ Incorrect';
-                
-                btns[corIdx].classList.remove('opacity-50');
-                btns[corIdx].className = "w-full text-left font-bold text-xs md:text-sm p-3.5 rounded-xl transition flex items-center justify-between shadow-sm border border-emerald-500 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-900 dark:text-emerald-400 disabled:cursor-not-allowed";
-                btns[corIdx].querySelector('.status-marker').textContent = '✅ Correct';
-                expContainer.className = "mt-4 p-3.5 rounded-xl text-xs leading-relaxed font-semibold bg-rose-50 dark:bg-rose-900/30 text-rose-900 dark:text-rose-400 border border-rose-200 dark:border-rose-800 block";
-            }
-            expContainer.innerHTML = formatUIText(decodeURIComponent(encodedExp));
-        }
-
-        // ==========================================
-        // SMART INITIALIZATION & SEO ROUTER
-        // ==========================================
-        document.addEventListener('DOMContentLoaded', async () => {
-            setLanguage(currentLang);
-            const bkmkParam = urlParams.get('bookmark');
-            const topicParam = urlParams.get('topic');
-            const tabParam = urlParams.get('tab') || sessionStorage.getItem('lastActiveTab') || 'daily';
-
-            if (bkmkParam) {
-                if (bkmkParam.startsWith('daily_news_')) {
-                    const docIdRaw = bkmkParam.replace('daily_news_', '');
-                    try {
-                        const doc = await db.collection('daily_news').doc(docIdRaw).get();
-                        if (doc.exists && doc.data().date) {
-                            selectedDateStr = doc.data().date;
-                            dateInput.value = selectedDateStr;
-                            window.history.replaceState({}, '', `?tab=daily&date=${selectedDateStr}&bookmark=${bkmkParam}`);
-                        }
-                    } catch(e) {}
-                    await loadNewsForDate(selectedDateStr);
-                    setTimeout(() => scrollToAndHighlight(bkmkParam, false), 500);
-                } else if (bkmkParam.startsWith('comp_')) {
-                    const docIdRaw = bkmkParam.replace('comp_', '');
-                    try {
-                        const doc = await db.collection('ca_drills').doc(docIdRaw).get();
-                        if (doc.exists) {
-                            const data = doc.data();
-                            const compDate = data.date;
-                            window.history.replaceState({}, '', `?topic=${compDate}&bookmark=${bkmkParam}`);
-                            triggerTopicRouter(compDate, bkmkParam);
-                        } else { await loadNewsForDate(selectedDateStr); }
-                    } catch(e) { await loadNewsForDate(selectedDateStr); }
-                } else {
-                    await loadNewsForDate(selectedDateStr);
-                }
-            } else if (topicParam) {
-                triggerTopicRouter(topicParam);
-            } else if (tabParam && ['weekly', 'monthly', 'special'].includes(tabParam)) {
-                if (tabParam === 'weekly') document.getElementById('tabWeekly').click();
-                else if (tabParam === 'monthly') document.getElementById('tabMonthly').click();
-                else if (tabParam === 'special') {
-                    document.getElementById('tabWeekly').click();
-                    setTimeout(() => document.getElementById('btnShelfSpecial').click(), 100); // NEW FIX: Force Special Topic shelf open!
-                }
-            } else {
-                await loadNewsForDate(selectedDateStr);
-            }
-        });
-
-        // NEW: MASTER BUNDLE ROUTER (ROUTING FROM DIRECT LINK)
-        async function triggerTopicRouter(topicParam, bkmkParam = null) {
-            try {
-                // strict memory wipe to prevent categories from mixing
-                workingCompilationCards = [];
-                let cadence = 'special';
-                let pdfUrlEn = ''; let pdfUrlHi = '';
-
-                const FIREBASE_PROJECT_ID = "stenogym";
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(topicParam)}`;
-                const res = await fetch(url);
-                
-                if (res.ok) {
-                    const json = await res.json();
-                    const d = formatRestDocument(json);
-                    if (d.cards) {
-                        cadence = d.cadence || 'special';
-                        pdfUrlEn = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
-                        pdfUrlHi = d.pdfEmbedUrl_hi || '';
-                        workingCompilationCards = d.cards;
-                    } else { throw new Error("Legacy format not supported."); }
-                } else {
-                    throw new Error("Drill not found.");
-                }
-                
-                workingCompilationCards = workingCompilationCards.map((c, i) => ({ id: `${topicParam}_${i}`, ...c }));
-                currentCompId = topicParam;
-                compilationsData[topicParam] = { id: topicParam, cadence: cadence, pdfUrl_en: pdfUrlEn, pdfUrl_hi: pdfUrlHi, cards: workingCompilationCards };
-                
-                activeCategoryFilter = "all";
-                document.querySelectorAll('.cat-pill').forEach(btn => {
-                    btn.className = "cat-pill bg-slate-800 text-slate-300 hover:bg-slate-700 px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap transition translation-el";
-                });
-                const allBtn = document.querySelector('.cat-pill[data-cat="all"]');
-                if(allBtn) allBtn.className = "cat-pill active bg-indigo-600 text-white px-3 py-2 rounded-xl font-bold text-[11px] md:text-xs whitespace-nowrap shadow-md transition translation-el";
-
-                activeView = 'compilationActive';
-                document.getElementById('dailyFeedView').classList.add('hidden');
-                document.getElementById('emptyFeedState').classList.add('hidden');
-                document.getElementById('weeklyDrillView').classList.add('hidden');
-                document.getElementById('monthlyPdfView').classList.add('hidden');
-                document.getElementById('compilationWorkspace').classList.remove('hidden');
-                document.getElementById('dateControlBar').style.display = 'none';
-                document.getElementById('progressWidget').style.display = 'none';
-                
-                const tabW = document.getElementById('tabWeekly');
-                const tabM = document.getElementById('tabMonthly');
-                const tabD = document.getElementById('tabDaily');
-                [tabD, tabW, tabM].forEach(t => { 
-                    t.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm'); 
-                    t.classList.add('text-slate-500', 'dark:text-slate-400'); 
-                });
-                if(cadence === 'monthly') tabM.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-                else tabW.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
-                
-                let cadencePrefix = "Special Topic";
-                if (cadence === 'monthly') cadencePrefix = "Monthly Mega Digest";
-                if (cadence === 'weekly') cadencePrefix = "Weekly Speed Drill";
-                
-                let displayTitle = topicParam.replace(/-/g, ' ');
-                document.title = `${cadencePrefix}: ${displayTitle} Current Affairs MCQs | Stenogym`;
-                document.querySelector('meta[name="description"]').setAttribute("content", `Interactive practice deck and PDF for ${cadencePrefix} - ${displayTitle}. Master these MCQs for SSC and Banking exams.`);
-                
-                let schemaId = document.getElementById('dynamic-faq-schema');
-                if(schemaId) schemaId.remove();
-                const schemaData = {
-                    "@context": "https://schema.org",
-                    "@type": "FAQPage",
-                    "mainEntity": workingCompilationCards.map(card => {
-                        const mcq = currentLang === 'hi' ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                        const q = mcq?.question || card.oneLiner;
-                        const ansText = mcq?.options ? mcq.options[mcq.correctIndex || 0] : "";
-                        const exp = mcq?.explanation || "";
-                        return {
-                            "@type": "Question",
-                            "name": q,
-                            "acceptedAnswer": { "@type": "Answer", "text": `${ansText} - ${exp}` }
-                        };
-                    })
-                };
-                const script = document.createElement('script');
-                script.id = 'dynamic-faq-schema';
-                script.type = 'application/ld+json';
-                script.text = JSON.stringify(schemaData);
-                document.head.appendChild(script);
-
-                setCompilationMode('flip');
-                
-                if(bkmkParam) setTimeout(() => scrollToAndHighlight(bkmkParam, true), 800);
-            } catch(e) { 
-                console.error("Drill Load Error:", e);
-                document.getElementById('compilationCardsContainer').innerHTML = `<div class="p-8 text-center text-rose-500 font-bold bg-rose-50 border border-rose-200 dark:bg-rose-900/20 dark:border-rose-800 rounded-2xl">Error: Drill Data Not Found in Database. The drill may have been deleted.</div>`;
-            }
-        }
-    </script>
-
     <!-- STENOGYM FLOATING ASSISTIVE WIDGET -->
-    <style>
-        #stenoFabContainer { position: fixed; z-index: 9999; touch-action: none; user-select: none; }
-        #stenoFabMain { width: 56px; height: 56px; border-radius: 50%; background: linear-gradient(135deg, #4f46e5, #3730a3); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4); cursor: grab; position: relative; z-index: 2; transition: transform 0.2s ease; }
-        #stenoFabMain:active { cursor: grabbing; transform: scale(0.95); }
-        #stenoFabMain::before { content: ''; position: absolute; inset: -4px; border-radius: 50%; background: rgba(79, 70, 229, 0.3); z-index: -1; animation: fabPulse 2s infinite ease-in-out; }
-        @keyframes fabPulse { 0% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.2); opacity: 0; } 100% { transform: scale(1); opacity: 0; } }
-        .wiggle-pencil { display: inline-block; animation: writeWiggle 4s infinite ease-in-out; transform-origin: bottom left; }
-        @keyframes writeWiggle { 0%, 85%, 100% { transform: rotate(0deg); } 88% { transform: rotate(-25deg); } 91% { transform: rotate(15deg); } 94% { transform: rotate(-10deg); } 97% { transform: rotate(5deg); } }
-        #stenoFabMenu { position: absolute; bottom: 65px; left: 50%; transform: translateX(-50%) scale(0.5); opacity: 0; pointer-events: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; gap: 10px; background: white; padding: 10px; border-radius: 30px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 1px solid #f1f5f9; }
-        #stenoFabMenu.active { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
-        .fab-item { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; transition: transform 0.2s, filter 0.2s; text-decoration: none;}
-        .fab-item:hover { transform: scale(1.1); filter: brightness(1.1); }
-        .fab-tg { background-color: #0088cc; }
-        .fab-yt { background-color: #FF0000; }
-        .fab-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
-        .fab-share { background-color: #25D366; }
-    </style>
-
-    <div id="stenoFabContainer" style="bottom: 30px; right: 20px;">
+    <div id="stenoFabContainer" style="bottom: 24px; right: 18px;">
         <div id="stenoFabMenu">
             <a href="https://t.me/+3EJOKkceGBA4YWE1" target="_blank" class="fab-item fab-tg" title="Join Telegram"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.18-.357.295-.6.295-.002 0-.003 0-.005 0l.213-3.054 5.56-5.022c.24-.213-.054-.334-.373-.121l-6.869 4.326-2.96-.924c-.64-.203-.658-.64.135-.954l11.566-4.458c.538-.196 1.006.128.832.941z"/></svg></a>
             <a href="https://youtube.com/@stenogym" target="_blank" class="fab-item fab-yt" title="YouTube"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M19.812 5.418c.861.23 1.538.907 1.768 1.768C21.998 8.746 22 12 22 12s0 3.255-.418 4.814a2.504 2.504 0 0 1-1.768 1.768c-1.56.419-7.814.419-7.814.419s-6.255 0-7.814-.419a2.505 2.505 0 0 1-1.768-1.768C2 15.255 2 12 2 12s0-3.255.417-4.814a2.507 2.507 0 0 1 1.768-1.768C5.744 5 11.998 5 11.998 5s6.255 0 7.814.418ZM15.194 12 10 15V9l5.194 3Z" clip-rule="evenodd" /></svg></a>
@@ -1954,108 +505,8 @@
         </div>
         <div id="stenoFabMain"><span class="wiggle-pencil">✏️</span></div>
     </div>
-    
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const fabContainer = document.getElementById('stenoFabContainer');
-        const fabMain = document.getElementById('stenoFabMain');
-        const fabMenu = document.getElementById('stenoFabMenu');
-        const shareBtn = document.getElementById('fabShareBtn');
-    
-        let isDragging = false, hasDragged = false;
-        let startX, startY, initialX, initialY;
-        const fabSize = 56;
-        const isMobile = window.innerWidth < 768 || ('ontouchstart' in window);
-    
-        if (isMobile) {
-            fabContainer.style.left = 'auto'; fabContainer.style.top = 'auto';
-            fabContainer.style.right = '20px'; fabContainer.style.bottom = '24px';
-            fabMain.addEventListener('click', (e) => { e.stopPropagation(); fabMenu.classList.toggle('active'); });
-        } else {
-            const savedX = localStorage.getItem('stenoFabX'); const savedY = localStorage.getItem('stenoFabY');
-            if (savedX !== null && savedY !== null) {
-                const x = parseInt(savedX, 10); const y = parseInt(savedY, 10);
-                if (x >= 0 && x <= window.innerWidth - fabSize && y >= 0 && y <= window.innerHeight - fabSize) {
-                    fabContainer.style.left = x + 'px'; fabContainer.style.top = y + 'px';
-                    fabContainer.style.right = 'auto'; fabContainer.style.bottom = 'auto';
-                }
-            }
-    
-            fabMain.addEventListener('mousedown', (e) => {
-                if (e.target.closest('#stenoFabMenu')) return;
-                isDragging = true; hasDragged = false;
-                startX = e.clientX; startY = e.clientY;
-                initialX = fabContainer.offsetLeft; initialY = fabContainer.offsetTop;
-                document.body.style.userSelect = "none";
-            });
-    
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const dx = e.clientX - startX; const dy = e.clientY - startY;
-                if (Math.abs(dx) > 12 || Math.abs(dy) > 12) hasDragged = true;
-                if (!hasDragged) return;
-                fabMenu.classList.remove('active');
-                let newX = Math.max(0, Math.min(initialX + dx, window.innerWidth - fabSize));
-                let newY = Math.max(0, Math.min(initialY + dy, window.innerHeight - fabSize));
-                fabContainer.style.left = newX + 'px'; fabContainer.style.top = newY + 'px';
-                fabContainer.style.right = 'auto'; fabContainer.style.bottom = 'auto';
-            });
-    
-            document.addEventListener('mouseup', () => {
-                if (!isDragging) return;
-                isDragging = false; document.body.style.userSelect = "auto";
-                if (hasDragged) {
-                    const currentX = fabContainer.offsetLeft;
-                    const targetX = (currentX < window.innerWidth / 2) ? 10 : window.innerWidth - (fabSize + 10);
-                    fabContainer.style.transition = "left 0.3s ease-out";
-                    fabContainer.style.left = targetX + 'px';
-                    localStorage.setItem('stenoFabX', targetX); localStorage.setItem('stenoFabY', fabContainer.offsetTop);
-                    setTimeout(() => { fabContainer.style.transition = ""; }, 300);
-                } else { fabMenu.classList.toggle('active'); }
-            });
-        }
-        document.addEventListener('click', (e) => { if (!fabContainer.contains(e.target)) fabMenu.classList.remove('active'); });
-        shareBtn.addEventListener('click', async (e) => {
-            e.preventDefault(); const shareData = { title: document.title, text: 'Check out this Stenogym resource!', url: window.location.href };
-            try { if (navigator.share) await navigator.share(shareData); else { navigator.clipboard.writeText(window.location.href); alert("Link copied to clipboard!"); } } catch (err) {}
-        });
-    });
-    </script>
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        let currentPath = window.location.pathname.split('?')[0].split('#')[0].replace(/\/$/, '').split('/').pop().replace('.html', '');
-        if (!currentPath || currentPath === "") currentPath = 'index';
 
-        document.querySelectorAll('nav a').forEach(link => {
-            const href = link.getAttribute('href');
-            if (href && !href.startsWith('http') && !href.startsWith('mailto')) {
-                const cleanHref = href.split('?')[0].split('#')[0].split('/').pop().replace('.html', '');
-                const targetFile = cleanHref || 'index';
-                
-                if (targetFile === currentPath) {
-                    link.classList.remove('text-slate-300', 'text-cyan-300', 'text-slate-400', 'text-slate-500', 'dark:text-slate-500');
-                    link.classList.add('active-nav');
-                    
-                    if (link.closest('.glass-nav')) {
-                        link.classList.add('text-indigo-600', 'dark:text-indigo-400');
-                    }
-                }
-            }
-        });
-    });
-    </script>
-    <!-- MOBILE MENU & ACCORDION FIX -->
-    <script>
-        document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
-            document.getElementById('mobileMenu')?.classList.toggle('hidden');
-        });
-        document.getElementById('mobileStenoToggle')?.addEventListener('click', () => {
-            const stenoMenu = document.getElementById('mobileStenoMenu');
-            stenoMenu?.classList.toggle('hidden');
-            stenoMenu?.classList.toggle('flex');
-            const chev = document.getElementById('stenoChevron');
-            if(chev) chev.textContent = stenoMenu.classList.contains('hidden') ? '▼' : '▲';
-        });
-    </script>
+    <!-- DEDICATED CURRENT AFFAIRS ENGINE -->
+    <script src="current-affairs.js?v=4.1"></script>
 </body>
 </html>

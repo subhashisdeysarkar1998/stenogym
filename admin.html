@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stenogym | Master Command Center</title>
-    <meta name="description" content="Stenogym unified admin dashboard.">
+    <meta name="description" content="Stenogym unified admin dashboard for Static GK, Steno Dictations, Blogs, Store, and Platform Controls.">
     <link rel="canonical" href="https://stenogym.com/admin.html">
     <meta name="robots" content="noindex, nofollow">
     
@@ -31,49 +31,63 @@
         .ql-editor { min-height: 250px; padding: 1.5rem; }
         .active-nav { color: #67e8f9 !important; font-weight: 900 !important; }
     </style>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-HH10S2KS46"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-HH10S2KS46');
-</script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-HH10S2KS46"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-HH10S2KS46');
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans min-h-screen flex overflow-hidden">
 
     <!-- Security Overlay -->
-    <div id="securityOverlay" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div id="securityOverlay" class="fixed inset-0 bg-slate-900 z-[9999] flex flex-col items-center justify-center transition-opacity duration-500 px-6 text-center">
         <div class="text-6xl mb-6 animate-pulse">🔒</div>
         <h2 class="text-2xl font-black text-white tracking-wider">Authenticating Admin...</h2>
-        <p class="text-slate-400 mt-2 text-sm">Verifying master credentials.</p>
+        <p id="authOverlaySub" class="text-slate-400 mt-2 text-sm">Verifying master credentials.</p>
     </div>
 
     <!-- Mobile Header & Hamburger -->
     <div class="md:hidden fixed top-0 left-0 right-0 h-16 bg-slate-950 flex items-center justify-between px-4 z-40 shadow-md">
         <span class="font-black tracking-wider text-lg text-indigo-400">⚙️ COMMAND CENTER</span>
-        <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none">☰</button>
+        <div class="flex items-center gap-2">
+            <a href="admin-ca.html" class="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[11px] font-black px-2.5 py-1.5 rounded-lg">🗞️ CA Studio &nearr;</a>
+            <button id="mobileMenuBtn" class="text-white text-2xl focus:outline-none">☰</button>
+        </div>
     </div>
 
     <!-- Mega Sidebar -->
     <div id="sidebarOverlay" class="fixed inset-0 bg-slate-900/50 z-40 hidden md:hidden backdrop-blur-sm"></div>
-    <aside id="megaSidebar" class="fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 transition-transform duration-300 h-full">
+    <aside id="megaSidebar" class="fixed md:static inset-y-0 left-0 transform -translate-x-full md:translate-x-0 w-64 bg-slate-900 text-slate-300 flex flex-col shadow-2xl z-50 transition-transform duration-300 h-full flex-shrink-0">
         <div class="h-16 flex items-center justify-between px-6 border-b border-slate-800 bg-slate-950">
             <span class="font-black tracking-wider text-xl text-white">⚙️ ADMIN</span>
             <button id="closeSidebarBtn" class="md:hidden text-white text-2xl">&times;</button>
         </div>
         
         <div class="flex-grow p-4 overflow-y-auto hide-scrollbar space-y-1">
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-2 px-2">Learning Hub</p>
+            <!-- DIFFERENTIATED CURRENT AFFAIRS STUDIO LAUNCHER -->
+            <div class="mb-4 p-3 rounded-2xl bg-gradient-to-br from-emerald-950/90 to-slate-950 border border-emerald-500/30 shadow-inner space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Current Affairs</span>
+                    <span class="text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded uppercase">Dedicated</span>
+                </div>
+                <a href="admin-ca.html" class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition">
+                    <span class="flex items-center gap-2"><span>🗞️</span> CA Command Studio</span>
+                    <span>&nearr;</span>
+                </a>
+                <p class="text-[10px] text-slate-400 leading-snug px-0.5">Daily Feed, Weekly Picker, Monthly Folders, Special Boosters &amp; Mega PDFs.</p>
+            </div>
+
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-2 px-2">Static GK Hub</p>
             <button class="nav-btn active w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold bg-indigo-600 text-white shadow-sm transition" data-target="tab-gk"><span>📚</span> Static GK Engine</button>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-gk-manage"><span>📖</span> Manage Static GK</button>
-            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-ca"><span>🗞️</span> CA Ingestion Hub</button>
-            <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-ca-manage"><span>📰</span> Manage Current Affairs</button>
             
             <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-2">Steno Engine</p>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-upload"><span>📝</span> Upload Dictation</button>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-library"><span>🗄️</span> Dictation Library</button>
             
-            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-2">Growth & SEO</p>
+            <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 mt-6 px-2">Growth &amp; SEO</p>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-blog-write"><span>✍️</span> Write SEO Blog</button>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-blog-manage"><span>📑</span> Manage Blogs</button>
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-store"><span>🛒</span> Store Manager</button>
@@ -83,16 +97,19 @@
             <button class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition" data-target="tab-settings"><span>🔧</span> Site Settings</button>
         </div>
         
-        <div class="p-4 border-t border-slate-800">
-            <a href="app.html" class="block text-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded text-sm transition font-bold">Go to App &rarr;</a>
+        <div class="p-4 border-t border-slate-800 space-y-2">
+            <a href="app.html" class="block text-center px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs transition font-bold">Go to App &rarr;</a>
         </div>
     </aside>
 
     <main class="flex-grow flex flex-col h-screen overflow-y-auto relative pt-16 md:pt-0">
-        <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 sticky top-0 z-10 hidden md:flex">
+        <header class="bg-white h-16 shadow-sm flex items-center justify-between px-6 sticky top-0 z-10 hidden md:flex border-b border-slate-100">
             <h1 id="headerTitle" class="text-xl font-black text-slate-800 uppercase tracking-tight">Static GK Engine</h1>
-            <div class="flex items-center gap-3 text-sm font-semibold text-slate-500">
-                <span id="dbStatus" class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-500 animate-pulse"></span> DB Disconnected</span>
+            <div class="flex items-center gap-4 text-sm font-semibold text-slate-500">
+                <a href="admin-ca.html" class="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 px-3.5 py-1.5 rounded-xl text-xs font-black transition shadow-xs">
+                    <span>🗞️</span> Switch to CA Studio &nearr;
+                </a>
+                <span id="dbStatus" class="flex items-center gap-2 text-xs font-bold"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span> DB Disconnected</span>
             </div>
         </header>
 
@@ -103,8 +120,8 @@
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-6">
                         <div>
-                            <h2 class="text-2xl font-black text-slate-900">Bilingual Static GK Ingestion & Authoring</h2>
-                            <p class="text-slate-500 text-sm mt-1">1-Click Bulk JSON Ingestion, Full Manual Polish, Diagrams & Branded PDF Stamping.</p>
+                            <h2 class="text-2xl font-black text-slate-900">Bilingual Static GK Ingestion &amp; Authoring</h2>
+                            <p class="text-slate-500 text-sm mt-1">1-Click Bulk JSON Ingestion, Full Manual Polish, Diagrams &amp; Branded PDF Stamping.</p>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button onclick="ingestGKFromClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2.5 px-4 rounded-xl shadow-md transition flex items-center gap-1.5">
@@ -172,21 +189,21 @@
                     <div id="editor-flashcards" class="hidden space-y-4">
                         <div id="flashcardsContainer" class="space-y-4"></div>
                         <button onclick="addFlashcardUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
-                            + Add New Flashcard Manually (EN & HI)
+                            + Add New Flashcard Manually (EN &amp; HI)
                         </button>
                     </div>
 
                     <div id="editor-practice" class="hidden space-y-4">
                         <div id="practiceContainer" class="space-y-4"></div>
                         <button onclick="addPracticeUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
-                            + Add New Practice Question Manually (EN & HI)
+                            + Add New Practice Question Manually (EN &amp; HI)
                         </button>
                     </div>
 
                     <div id="editor-mcqs" class="hidden space-y-4">
                         <div id="mcqsContainer" class="space-y-4"></div>
                         <button onclick="addMcqUI()" class="w-full border-2 border-dashed border-slate-300 text-slate-600 hover:text-indigo-600 hover:border-indigo-400 hover:bg-indigo-50 font-black text-xs py-4 rounded-2xl transition">
-                            + Add New PYQ / MCQ Drill Manually (EN & HI)
+                            + Add New PYQ / MCQ Drill Manually (EN &amp; HI)
                         </button>
                     </div>
 
@@ -238,208 +255,7 @@
                 </div>
             </div>
 
-            <!-- 3. TAB: CA INGESTION HUB -->
-            <div id="tab-ca" class="tab-content space-y-6">
-                <div class="bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-6 mb-6">
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-900">Current Affairs Ingestion Hub</h2>
-                            <p class="text-sm text-slate-500">1-Click Clipboard Ingestion, Automated Segregation, PDF Stamping & Scheduled Releases.</p>
-                        </div>
-                        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-black">
-                            <button onclick="switchCACadence('daily')" id="btnCADailyTab" class="px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition">📅 Daily (25+)</button>
-                            <button onclick="switchCACadence('drills')" id="btnCADrillsTab" class="px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition">⚡ Weekly / Monthly Drills</button>
-                        </div>
-                    </div>
-
-                    <div id="caDailyControls" class="flex flex-wrap items-end gap-4">
-                        <div>
-                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Target Date</label>
-                            <input type="date" id="caTargetDate" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Release Schedule</label>
-                            <select id="caReleaseSchedule" class="bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                                <option value="6am">⏰ Sharp 06:00 AM Drop</option>
-                                <option value="instant">⚡ Immediate Live Release</option>
-                            </select>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="ingestFromClipboard()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                                <span>📥</span> Ingest Clipboard
-                            </button>
-                            <button onclick="openPasteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 transition">
-                                📋 Paste Box
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="caDrillControls" class="hidden space-y-4">
-                        <div class="flex gap-6 mb-2 border-b border-slate-100 pb-4">
-                            <label class="flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition" id="lblDrillNew">
-                                <input type="radio" name="drillMode" value="new" checked onchange="toggleDrillMode(this.value)" class="accent-indigo-600"> ➕ Create New Drill
-                            </label>
-                            <label class="flex items-center gap-2 font-bold text-sm cursor-pointer text-slate-500 hover:text-indigo-600 transition" id="lblDrillEdit">
-                                <input type="radio" name="drillMode" value="edit" onchange="toggleDrillMode(this.value)" class="accent-indigo-600"> ✏️ Edit / Overwrite Existing
-                            </label>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            <div>
-                                <label class="block text-[11px] font-black uppercase text-slate-400 mb-1">Drill Cadence</label>
-                                <select id="drillCadenceType" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                                    <option value="weekly">⚡ Weekly Speed Drill (50 MCQs)</option>
-                                    <option value="monthly">📥 Monthly Mega Mock (100 MCQs)</option>
-                                    <option value="special">🎯 Special Topic (Nobel, Games)</option>
-                                </select>
-                            </div>
-                           <div>
-                                <div class="flex justify-between items-center mb-1">
-                                    <label class="block text-[11px] font-black uppercase text-slate-400">Identifier / Tag</label>
-                                    <button onclick="openBrowseDrillsModal()" class="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded transition flex items-center gap-1 shadow-sm">
-                                        🔍 Browse Drills
-                                    </button>
-                                </div>
-                                <input type="text" id="drillIdentifier" placeholder="e.g., 2026-W40" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-black uppercase text-indigo-600 mb-1">PDF Drive Link (English)</label>
-                                <input type="url" id="drillPdfEmbedUrl_en" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-black uppercase text-emerald-600 mb-1">PDF Drive Link (Hindi)</label>
-                                <input type="url" id="drillPdfEmbedUrl_hi" placeholder="https://drive.google.com/..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-emerald-500">
-                            </div>
-                        </div>
-                        
-                        <div class="flex gap-2" id="drillActionBtnsNew">
-                            <button onclick="ingestDrillFromClipboard()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                                <span>⚡</span> Ingest Drill from Clipboard
-                            </button>
-                            <button onclick="openPasteModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-sm px-4 py-2.5 rounded-xl border border-slate-300 transition">
-                                📋 Paste Box
-                            </button>
-                        </div>
-
-                        <div class="flex gap-2 hidden" id="drillActionBtnsEdit">
-                            <button onclick="fetchExistingDrill()" class="bg-amber-500 hover:bg-amber-400 text-white font-black text-sm px-6 py-2.5 rounded-xl shadow-md transition flex items-center gap-2">
-                                <span>📥</span> Fetch Drill
-                            </button>
-                            <button onclick="deleteEntireDrill()" class="bg-rose-100 hover:bg-rose-200 text-rose-700 border border-rose-300 font-bold text-sm px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm">
-                                <span>🗑️</span> Delete Entire Drill
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="caStagingArea" class="hidden space-y-6">
-                    <div class="bg-slate-900 text-white p-6 rounded-3xl shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                        <div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-emerald-400 text-2xl font-black" id="stagedCount">0</span>
-                                <span class="text-sm font-bold uppercase tracking-wider text-slate-400">Cards Ready in Staging</span>
-                            </div>
-                            <p class="text-xs text-slate-400 mt-1" id="stagedScheduleBadge">Configured for 06:00 AM</p>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-3">
-                            <button onclick="clearStagingArea()" class="bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 font-bold py-2.5 px-3 rounded-xl border border-slate-700 transition text-xs flex items-center gap-1.5 shadow-sm">
-                                <span>🧹</span> Clear Staging
-                            </button>
-                            <button onclick="autoTranslateCA()" id="btnAutoTranslateCA" class="bg-yellow-400 hover:bg-yellow-300 text-slate-950 font-bold py-2.5 px-3 rounded-xl shadow transition text-xs flex items-center gap-1.5">
-                                <span>⚡</span> Re-Translate
-                            </button>
-                            
-                            <div class="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
-                                <select id="stagingPdfType" class="bg-transparent text-slate-200 text-xs font-bold outline-none px-2 py-1.5 cursor-pointer">
-                                    <option value="daily_en" class="text-slate-900">📄 Daily/Weekly PDF (EN)</option>
-                                    <option value="daily_hi" class="text-slate-900">📄 Daily/Weekly PDF (HI)</option>
-                                    <option value="cheat_en" class="text-slate-900">📑 Cheat Sheet (EN)</option>
-                                    <option value="cheat_hi" class="text-slate-900">📑 Cheat Sheet (HI)</option>
-                                </select>
-                                <button onclick="triggerUniversalPDF('staging')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-1.5 px-4 rounded-lg shadow-sm transition text-xs ml-1">
-                                    Generate
-                                </button>
-                            </div>
-
-                            <button onclick="publishStagedNews()" id="btnPublishCA" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-2.5 px-4 rounded-xl shadow transition text-xs flex items-center gap-2">
-                                <span>🚀</span> Commit Drop
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap items-center gap-2 mt-4" id="stagingCategoryPills"></div>
-                    <div id="caCardsContainer" class="space-y-6 mt-6"></div>
-                </div>
-            </div>
-
-            <!-- 4. TAB: MANAGE CURRENT AFFAIRS (UPGRADED VISUAL EDITOR) -->
-            <div id="tab-ca-manage" class="tab-content space-y-6">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
-                    
-                    <div class="flex flex-col sm:flex-row justify-between sm:items-end mb-4 gap-4">
-                        <div>
-                            <h2 class="text-2xl font-black text-slate-900">Manage Published Current Affairs</h2>
-                            <p class="text-slate-500 text-sm mt-1">Audit, edit instantly, and regenerate PDFs for any past date.</p>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <button onclick="purgeSelectedDay()" class="bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 font-bold px-4 py-2 rounded-xl text-xs transition">
-                                🗑️ Purge Entire Day
-                            </button>
-                            <button id="btnRefreshCAManage" class="text-xs font-bold text-indigo-600 bg-indigo-50 px-4 py-2 rounded-xl hover:bg-indigo-100 transition">🔄 Refresh</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between shadow-sm">
-                        <div class="flex items-center gap-3">
-                            <span class="text-[10px] font-black uppercase text-slate-400 tracking-wider">Regenerate Selected Date:</span>
-                            <div class="flex items-center bg-white rounded-lg p-1 border border-slate-300">
-                                <select id="managePdfType" class="bg-transparent text-slate-700 text-xs font-bold outline-none px-2 py-1 cursor-pointer">
-                                    <option value="daily_en">📄 Daily PDF (EN)</option>
-                                    <option value="daily_hi">📄 Daily PDF (HI)</option>
-                                    <option value="cheat_en">📑 Cheat Sheet (EN)</option>
-                                    <option value="cheat_hi">📑 Cheat Sheet (HI)</option>
-                                </select>
-                                <button onclick="triggerUniversalPDF('manage')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1.5 px-4 rounded shadow-sm transition text-xs ml-2">
-                                    Generate PDF
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Inspect Date (Calendar)</label>
-                            <input type="date" id="caManageDate" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Filter Category</label>
-                            <select id="caManageCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold outline-none focus:border-indigo-500">
-                                <option value="all">All Categories</option>
-                                <option value="Banking & Economy">Banking & Economy</option>
-                                <option value="National & Global">National & Global</option>
-                                <option value="Science & Defence">Science & Defence</option>
-                                <option value="Sports">Sports</option>
-                                <option value="Persons in News">Persons in News</option>
-                                <option value="Awards & Honours">Awards & Honours</option>
-                            </select>
-                        </div>
-                        <div class="flex items-end">
-                            <div id="caDayStatusBadge" class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-600 text-center">
-                                Status: Select date to load
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="caManageCardsContainer" class="space-y-6 mt-6">
-                        <div class="text-center py-12 text-slate-400 font-bold border border-dashed border-slate-200 rounded-2xl">
-                            Select a date from the calendar to load editable cards...
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- 5. TAB: UPLOAD DICTATION -->
+            <!-- 3. TAB: UPLOAD DICTATION -->
             <div id="tab-upload" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <h2 class="text-2xl font-black text-slate-900 mb-6">Upload Dictation</h2>
@@ -481,7 +297,7 @@
                 </div>
             </div>
 
-            <!-- 6. TAB: DICTATION LIBRARY -->
+            <!-- 4. TAB: DICTATION LIBRARY -->
             <div id="tab-library" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-8">
@@ -495,7 +311,7 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
                                 <tr>
-                                    <th class="px-6 py-4 font-bold">Title & Category</th>
+                                    <th class="px-6 py-4 font-bold">Title &amp; Category</th>
                                     <th class="px-6 py-4 font-bold">Words</th>
                                     <th class="px-6 py-4 font-bold text-right">Actions</th>
                                 </tr>
@@ -508,7 +324,7 @@
                 </div>
             </div>
 
-            <!-- 7. TAB: WRITE SEO BLOG -->
+            <!-- 5. TAB: WRITE SEO BLOG -->
             <div id="tab-blog-write" class="tab-content space-y-6">
                 <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6">
                     <h2 class="text-xl font-black text-slate-900">Publish New Blog Post</h2>
@@ -577,7 +393,7 @@
                 </div>
             </div>
 
-            <!-- 8. TAB: MANAGE BLOGS -->
+            <!-- 6. TAB: MANAGE BLOGS -->
             <div id="tab-blog-manage" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-8">
@@ -591,7 +407,7 @@
                         <table class="w-full text-left text-sm">
                             <thead class="bg-slate-50 text-slate-500 uppercase text-xs">
                                 <tr>
-                                    <th class="px-6 py-4 font-bold">Article Title & Category</th>
+                                    <th class="px-6 py-4 font-bold">Article Title &amp; Category</th>
                                     <th class="px-6 py-4 font-bold">Publish Date</th>
                                     <th class="px-6 py-4 font-bold text-right">Actions</th>
                                 </tr>
@@ -604,7 +420,7 @@
                 </div>
             </div>
 
-            <!-- 9. TAB: STORE MANAGER -->
+            <!-- 7. TAB: STORE MANAGER -->
             <div id="tab-store" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="mb-8">
@@ -620,11 +436,11 @@
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Category Aisle</label>
                             <select id="prodCategory" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-sm font-semibold outline-none focus:border-indigo-500 cursor-pointer">
                                 <option value="Writing Tools ✏">Writing Tools ✏</option>
-                                <option value="Notebooks & Paper 📓">Notebooks & Paper 📓</option>
+                                <option value="Notebooks & Paper 📓">Notebooks &amp; Paper 📓</option>
                                 <option value="Mechanical Keyboards ⌨️">Mechanical Keyboards ⌨️</option>
                                 <option value="Audio Gear 🎧">Audio Gear 🎧</option>
                                 <option value="Recommended Books 📚">Recommended Books 📚</option>
-                                <option value="Ergonomics & Desk 🪑">Ergonomics & Desk 🪑</option>
+                                <option value="Ergonomics & Desk 🪑">Ergonomics &amp; Desk 🪑</option>
                             </select>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -647,7 +463,7 @@
                 </div>
             </div>
 
-            <!-- 10. TAB: PLATFORM ANALYTICS -->
+            <!-- 8. TAB: PLATFORM ANALYTICS -->
             <div id="tab-analytics" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8">
                     <div class="flex justify-between items-end mb-8">
@@ -677,7 +493,7 @@
                 </div>
             </div>
 
-            <!-- 11. TAB: SITE SETTINGS -->
+            <!-- 9. TAB: SITE SETTINGS -->
             <div id="tab-settings" class="tab-content space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 md:p-8 max-w-3xl">
                     <h2 class="text-2xl font-black text-slate-900 mb-6">Global Announcements</h2>
@@ -705,24 +521,6 @@
         </div>
     </main>
 
-    <!-- MODAL: CURRENT AFFAIRS JSON PASTE -->
-    <div id="jsonPasteModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 modal-bg" onclick="closePasteModal()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 flex flex-col">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center">
-                <h3 class="text-xl font-black text-slate-800">Paste Daily/Drill CA JSON</h3>
-                <button onclick="closePasteModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
-            </div>
-            <div class="p-6">
-                <textarea id="rawJsonInput" rows="12" placeholder="Paste Current Affairs JSON array here..." class="w-full bg-[#FCFBF7] border border-slate-200 rounded-xl p-4 font-mono text-xs outline-none focus:border-indigo-500 resize-y shadow-inner"></textarea>
-            </div>
-            <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
-                <button onclick="closePasteModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
-                <button onclick="processPastedJson()" class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Load Cards</button>
-            </div>
-        </div>
-    </div>
-
     <!-- MODAL: STATIC GK JSON PASTE -->
     <div id="jsonGkPasteModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 modal-bg" onclick="closeGKPasteModal()"></div>
@@ -737,38 +535,6 @@
             <div class="p-6 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end gap-3">
                 <button onclick="closeGKPasteModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
                 <button onclick="processPastedGKJson()" class="px-6 py-2 rounded-xl text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-md transition">Load Topic Package</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: BROWSE LIVE DRILLS -->
-    <div id="browseDrillsModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 modal-bg" onclick="closeBrowseDrillsModal()"></div>
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl relative z-10 flex flex-col max-h-[90vh]">
-            <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50 rounded-t-2xl">
-                <div>
-                    <h3 class="text-xl font-black text-slate-800">Browse Live Drills</h3>
-                    <p class="text-xs text-slate-500 font-bold mt-1">Select a past compilation to fetch and edit.</p>
-                </div>
-                <button onclick="closeBrowseDrillsModal()" class="text-slate-400 hover:text-rose-500 text-2xl leading-none">&times;</button>
-            </div>
-            <div class="p-0 overflow-y-auto flex-grow bg-white">
-                <table class="w-full text-left text-sm">
-                    <thead class="bg-slate-50 text-slate-500 uppercase text-[10px] sticky top-0 shadow-sm">
-                        <tr>
-                            <th class="px-6 py-4 font-black">Cadence / Type</th>
-                            <th class="px-6 py-4 font-black">Identifier (Date/Tag)</th>
-                            <th class="px-6 py-4 font-black">Card Count</th>
-                            <th class="px-6 py-4 font-black text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="browseDrillsTableBody" class="divide-y divide-slate-100">
-                        <!-- Populated by JS -->
-                    </tbody>
-                </table>
-            </div>
-            <div class="p-4 border-t border-slate-100 bg-slate-50 rounded-b-2xl flex justify-end">
-                <button onclick="closeBrowseDrillsModal()" class="px-6 py-2 rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-200 transition">Cancel</button>
             </div>
         </div>
     </div>
@@ -816,7 +582,7 @@
         </div>
     </div>
 
-    <!-- MODAL: EDIT BLOG (UPGRADED) -->
+    <!-- MODAL: EDIT BLOG -->
     <div id="editBlogModal" class="fixed inset-0 z-[999] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 modal-bg" id="editBlogModalCloseBg"></div>
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl relative z-10 flex flex-col max-h-[95vh]">
@@ -867,8 +633,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-        // IMPORT getDoc to read Master Bundles perfectly
-        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, getDoc, doc, deleteDoc, updateDoc, setDoc, query, where, orderBy, writeBatch } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, serverTimestamp, getDocs, doc, deleteDoc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyCilbp4K3EXNZbG2a4R-CeZQk7ijtqQh10", authDomain: "stenogym.firebaseapp.com", projectId: "stenogym" };
         const app = initializeApp(firebaseConfig); 
@@ -876,12 +641,21 @@
         const db = getFirestore(app);
 
         // Security Bouncer
+        let authResolved = false;
+        setTimeout(() => {
+            if (!authResolved) {
+                const sub = document.getElementById('authOverlaySub');
+                if (sub) sub.textContent = "Still waiting for Firebase Auth... check internet connection or refresh.";
+            }
+        }, 7000);
+
         onAuthStateChanged(auth, (user) => {
+            authResolved = true;
             if (user && user.email === "subhashisdeysarkar1998@gmail.com") {
                 document.getElementById('securityOverlay').style.opacity = '0';
                 setTimeout(() => { document.getElementById('securityOverlay').classList.add('hidden'); document.body.classList.remove('overflow-hidden'); }, 500);
                 const stat = document.getElementById('dbStatus');
-                if(stat) stat.innerHTML = '<span class="w-3 h-3 rounded-full bg-emerald-500"></span> Live DB';
+                if(stat) stat.innerHTML = '<span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> Live DB';
             } else { window.location.href = "login.html"; }
         });
 
@@ -909,7 +683,6 @@
                 closeSidebar();
                 
                 if(target.id === 'tab-gk-manage') fetchGKManage();
-                if(target.id === 'tab-ca-manage') fetchCAManage();
                 if(target.id === 'tab-library') fetchLibrary();
                 if(target.id === 'tab-blog-manage') fetchBlogs();
                 if(target.id === 'tab-analytics') fetchAnalytics();
@@ -932,15 +705,13 @@
             return clean;
         }
 
-       /* ========================================================= */
+        /* ========================================================= */
         /* 2. TRANSLATION ENGINE & QUILL EDITORS                     */
         /* ========================================================= */
-        
         const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
         async function translateEnToHi(text) {
             if (!text || text.trim() === "") return "";
-            
             await delay(300); 
 
             if (text.length < 1200) {
@@ -1045,11 +816,11 @@
             document.getElementById('editor-'+m).classList.remove('hidden');
         };
 
-        function updateGKCounts() {
+        window.updateGKCounts = function() {
             document.getElementById('countGkFlashcards').textContent = document.querySelectorAll('.fc-entry').length;
             document.getElementById('countGkPractice').textContent = document.querySelectorAll('.practice-entry').length;
             document.getElementById('countGkMcqs').textContent = document.querySelectorAll('.mcq-entry').length;
-        }
+        };
 
         window.openGKPasteModal = () => document.getElementById('jsonGkPasteModal').classList.remove('hidden');
         window.closeGKPasteModal = () => document.getElementById('jsonGkPasteModal').classList.add('hidden');
@@ -1182,7 +953,7 @@
                             <div class="grid grid-cols-2 gap-2">
                                 <input class="prac-hi-o1 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प A" value="${escapeHtml(o1Hi)}">
                                 <input class="prac-hi-o2 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प B" value="${escapeHtml(o2Hi)}">
-                                <input class="prac-hi-o3 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प C" value="${escapeHtml(o2Hi)}">
+                                <input class="prac-hi-o3 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प C" value="${escapeHtml(o3Hi)}">
                                 <input class="prac-hi-o4 border border-emerald-200 rounded-lg p-1.5 text-xs bg-white" placeholder="विकल्प D" value="${escapeHtml(o4Hi)}">
                             </div>
                             <input class="prac-hi-exp w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white text-slate-600" placeholder="व्याख्या (हिंदी)" value="${escapeHtml(expHi)}">
@@ -1345,7 +1116,7 @@
             
             const practiceQs = []; const practiceQs_hi = [];
             document.querySelectorAll('.practice-entry').forEach(el => {
-                const ans = parseInt(el.querySelector('.prac-ans').value) || 0; 
+                const ans = parseInt(el.querySelector('.prac-ans').value, 10) || 0; 
                 const src = el.querySelector('.prac-src').value.trim();
                 
                 practiceQs.push({ 
@@ -1376,7 +1147,7 @@
 
             const mcqs = []; const mcqs_hi = [];
             document.querySelectorAll('.mcq-entry').forEach(el => {
-                const ans = parseInt(el.querySelector('.mq-ans').value) || 0; 
+                const ans = parseInt(el.querySelector('.mq-ans').value, 10) || 0; 
                 const src = el.querySelector('.mq-src').value.trim();
                 
                 mcqs.push({ 
@@ -1449,7 +1220,7 @@
                 practiceQs.push({
                     q: el.querySelector('.prac-en-q').value.trim(),
                     opts: [el.querySelector('.prac-en-o1').value, el.querySelector('.prac-en-o2').value, el.querySelector('.prac-en-o3').value, el.querySelector('.prac-en-o4').value],
-                    ans: parseInt(el.querySelector('.prac-ans').value) || 0,
+                    ans: parseInt(el.querySelector('.prac-ans').value, 10) || 0,
                     exp: el.querySelector('.prac-en-exp').value.trim(),
                     src: el.querySelector('.prac-src').value.trim() || "Concept Check"
                 });
@@ -1460,7 +1231,7 @@
                 mcqs.push({
                     q: el.querySelector('.mq-en-q').value.trim(),
                     opts: [el.querySelector('.mq-en-o1').value, el.querySelector('.mq-en-o2').value, el.querySelector('.mq-en-o3').value, el.querySelector('.mq-en-o4').value],
-                    ans: parseInt(el.querySelector('.mq-ans').value) || 0,
+                    ans: parseInt(el.querySelector('.mq-ans').value, 10) || 0,
                     exp: el.querySelector('.mq-en-exp').value.trim(),
                     src: el.querySelector('.mq-src').value.trim() || "SSC / Banking"
                 });
@@ -1613,7 +1384,7 @@
                 allGkTopicsCache = [];
                 snap.forEach(d => allGkTopicsCache.push({ id: d.id, ...d.data() }));
                 renderGKManageTable();
-            } catch (err) { gkManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+            } catch (err) { gkManageTableBody.innerHTML = `<tr><td colspan="4" class="text-center py-8 text-rose-500">Error: ${escapeHtml(err.message)}</td></tr>`; }
         };
 
         function renderGKManageTable() {
@@ -1667,1121 +1438,7 @@
         document.getElementById('btnRefreshGKManage').addEventListener('click', fetchGKManage);
 
         /* ========================================================= */
-        /* 4. CURRENT AFFAIRS INGESTION HUB & BRANDED PDF           */
-        /* ========================================================= */
-        document.getElementById('caTargetDate').value = new Date().toISOString().split('T')[0];
-        document.getElementById('caManageDate').value = new Date().toISOString().split('T')[0];
-        
-        let currentCACadence = "daily";
-        window.stagedNewsItems = [];
-        window.activeStagingFilter = "all";
-        window.isEditingDrill = false;
-
-        window.clearStagingArea = function() {
-            if(window.stagedNewsItems.length === 0) return;
-            if(!confirm("Are you sure you want to completely clear the staging area? All unstaged cards will be removed.")) return;
-            window.stagedNewsItems = [];
-            document.getElementById('stagedCount').textContent = "0";
-            document.getElementById('caCardsContainer').innerHTML = "";
-            document.getElementById('caStagingArea').classList.add('hidden');
-        };
-
-        window.switchCACadence = function(mode) {
-            currentCACadence = mode;
-            const isDaily = mode === 'daily';
-            document.getElementById('caDailyControls').classList.toggle('hidden', !isDaily);
-            document.getElementById('caDrillControls').classList.toggle('hidden', isDaily);
-            document.getElementById('btnCADailyTab').className = isDaily ? 'px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition' : 'px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition';
-            document.getElementById('btnCADrillsTab').className = !isDaily ? 'px-4 py-2 bg-indigo-600 text-white rounded-lg shadow-sm transition' : 'px-4 py-2 text-slate-500 hover:text-slate-900 rounded-lg transition';
-        };
-
-        window.toggleDrillMode = function(mode) {
-            window.isEditingDrill = (mode === 'edit');
-            document.getElementById('lblDrillNew').className = mode === 'new' ? 'flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition' : 'flex items-center gap-2 font-bold text-sm cursor-pointer text-slate-500 hover:text-indigo-600 transition';
-            document.getElementById('lblDrillEdit').className = mode === 'edit' ? 'flex items-center gap-2 font-bold text-sm cursor-pointer text-indigo-700 transition' : 'flex items-center gap-2 font-bold text-sm cursor-pointer text-slate-500 hover:text-indigo-600 transition';
-            
-            document.getElementById('drillActionBtnsNew').style.display = mode === 'new' ? 'flex' : 'none';
-            document.getElementById('drillActionBtnsEdit').style.display = mode === 'edit' ? 'flex' : 'none';
-            
-            const btnPublish = document.getElementById('btnPublishCA');
-            btnPublish.innerHTML = mode === 'edit' ? '<span>💾</span> Overwrite Live Drill' : '<span>🚀</span> Commit & Schedule Drop';
-            btnPublish.classList.toggle('bg-amber-500', mode === 'edit');
-            btnPublish.classList.toggle('hover:bg-amber-400', mode === 'edit');
-            btnPublish.classList.toggle('bg-emerald-500', mode === 'new');
-            btnPublish.classList.toggle('hover:bg-emerald-400', mode === 'new');
-        };
-
-        // NEW: 1-Read Master Bundle Fetcher (Sniper Mode)
-        window.fetchExistingDrill = async function() {
-            const tag = document.getElementById('drillIdentifier').value.trim();
-            if(!tag) return alert("Please enter an Identifier / Tag to fetch.");
-            
-            const btn = document.querySelector('#drillActionBtnsEdit button');
-            const origText = btn.innerHTML;
-            btn.innerHTML = "Fetching..."; btn.disabled = true;
-            
-            try {
-                const FIREBASE_PROJECT_ID = "stenogym";
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(tag)}`;
-                const res = await fetch(url);
-                
-                if (!res.ok) {
-                    alert(`No Master Bundle found for Tag: ${tag}. Make sure you typed the exact tag.`);
-                    return;
-                }
-                const json = await res.json();
-                
-                function parseRestValue(val) {
-                    if (val.stringValue !== undefined) return val.stringValue;
-                    if (val.booleanValue !== undefined) return val.booleanValue;
-                    if (val.integerValue !== undefined) return parseInt(val.integerValue);
-                    if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
-                    if (val.arrayValue !== undefined) return val.arrayValue.values ? val.arrayValue.values.map(parseRestValue) : [];
-                    if (val.mapValue !== undefined && val.mapValue.fields) {
-                        const mapObj = {};
-                        for (const [k, v] of Object.entries(val.mapValue.fields)) { mapObj[k] = parseRestValue(v); }
-                        return mapObj;
-                    }
-                    return null;
-                }
-                
-                const d = {};
-                for (const [key, val] of Object.entries(json.fields || {})) {
-                    d[key] = parseRestValue(val);
-                }
-
-                if (!d.cards || !Array.isArray(d.cards)) {
-                    alert("This document exists but is not formatted as a Master Bundle array. Wipe database and re-upload.");
-                    return;
-                }
-
-                document.getElementById('drillCadenceType').value = d.cadence || 'weekly';
-                document.getElementById('drillPdfEmbedUrl_en').value = d.pdfEmbedUrl_en || d.pdfEmbedUrl || '';
-                document.getElementById('drillPdfEmbedUrl_hi').value = d.pdfEmbedUrl_hi || '';
-
-                window.stagedNewsItems = d.cards;
-                renderStagingCards();
-                alert(`✅ Instant Sniper Fetch complete! Loaded ${d.cards.length} cards into the visual editor.`);
-            } catch(e) {
-                alert("Error fetching drill: " + e.message);
-            } finally {
-                btn.innerHTML = origText; btn.disabled = false;
-            }
-        };
-
-        // NEW: Instant Direct Deletion (1 Document)
-        window.deleteEntireDrill = async function() {
-            const tag = document.getElementById('drillIdentifier').value.trim();
-            if(!tag) return alert("Please enter the Identifier / Tag to delete.");
-            if(!confirm(`DANGER: Are you sure you want to completely wipe the Master Bundle "${tag}"? This cannot be undone.`)) return;
-            
-            try {
-                const FIREBASE_PROJECT_ID = "stenogym";
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/ca_drills/${encodeURIComponent(tag)}`;
-                
-                const res = await fetch(url, { method: 'DELETE' });
-                
-                if (res.ok) {
-                    alert(`✅ Master Bundle "${tag}" completely wiped in 1 millisecond using REST API.`);
-                    document.getElementById('caStagingArea').classList.add('hidden');
-                    window.stagedNewsItems = [];
-                    document.getElementById('drillIdentifier').value = "";
-                } else {
-                    throw new Error("Failed to delete. Drill may not exist.");
-                }
-            } catch (err) {
-                alert("Error deleting drill: " + err.message);
-            }
-        };
-
-        window.openBrowseDrillsModal = async function() {
-            const modal = document.getElementById('browseDrillsModal');
-            const tbody = document.getElementById('browseDrillsTableBody');
-            modal.classList.remove('hidden');
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-400 font-bold animate-pulse">Fetching drills using secret tag...</td></tr>';
-            
-            try {
-                const FIREBASE_PROJECT_ID = "stenogym"; 
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
-                const payload = {
-                    structuredQuery: {
-                        from: [{ collectionId: "ca_drills" }],
-                        where: { fieldFilter: { field: { fieldPath: "docType" }, op: "EQUAL", value: { stringValue: "summary" } } }
-                    }
-                };
-                const res = await fetch(url, { method: 'POST', body: JSON.stringify(payload) });
-                const json = await res.json();
-                
-                const docs = [];
-                if (json && json.length > 0 && json[0].document) {
-                    json.filter(item => item.document).forEach(item => {
-                        const fields = item.document.fields;
-                        docs.push({
-                            date: fields.date?.stringValue,
-                            cadence: fields.cadence?.stringValue,
-                            count: fields.count?.integerValue,
-                            pdfEmbedUrl_en: fields.pdfEmbedUrl_en?.stringValue || fields.pdfEmbedUrl?.stringValue,
-                            pdfEmbedUrl_hi: fields.pdfEmbedUrl_hi?.stringValue,
-                            timestamp: { seconds: fields.timestamp?.timestampValue ? new Date(fields.timestamp.timestampValue).getTime()/1000 : 0 }
-                        });
-                    });
-                }
-                
-                if (docs.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-10 text-slate-500 font-bold">No drills found. Publish one first!</td></tr>';
-                    return;
-                }
-                
-                let html = "";
-                docs.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-                docs.forEach(data => {
-                    const tag = escapeHtml(data.date || 'Unknown');
-                    const cadence = escapeHtml(data.cadence || 'weekly');
-                    const count = data.count || '--';
-                    const pdfUrl_en = escapeHtml(data.pdfEmbedUrl_en || data.pdfEmbedUrl || '');
-                    const pdfUrl_hi = escapeHtml(data.pdfEmbedUrl_hi || '');
-                    
-                    let cadenceStyle = "bg-slate-100 text-slate-600";
-                    if(cadence === 'weekly') cadenceStyle = "bg-indigo-100 text-indigo-700";
-                    if(cadence === 'monthly') cadenceStyle = "bg-purple-100 text-purple-700";
-                    if(cadence === 'special') cadenceStyle = "bg-emerald-100 text-emerald-700";
-                    
-                    html += `
-                        <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="selectDrillFromBrowse('${tag}', '${cadence}', '${pdfUrl_en}', '${pdfUrl_hi}')">
-                            <td class="px-6 py-4"><span class="text-[10px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${cadenceStyle}">${cadence}</span></td>
-                            <td class="px-6 py-4 font-bold text-slate-800">${tag}</td>
-                            <td class="px-6 py-4 font-bold text-slate-500">${count} items</td>
-                            <td class="px-6 py-4 text-right"><button class="bg-indigo-50 hover:bg-indigo-600 hover:text-white text-indigo-600 font-bold text-xs px-4 py-1.5 rounded transition shadow-sm">Select</button></td>
-                        </tr>
-                    `;
-                });
-                tbody.innerHTML = html;
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center py-10 text-rose-500 font-bold">Error: ${err.message}</td></tr>`;
-            }
-        };
-
-        window.closeBrowseDrillsModal = () => document.getElementById('browseDrillsModal').classList.add('hidden');
-
-        window.selectDrillFromBrowse = function(tag, cadence, pdfUrl_en, pdfUrl_hi) {
-            document.getElementById('drillIdentifier').value = tag;
-            document.getElementById('drillCadenceType').value = cadence;
-            document.getElementById('drillPdfEmbedUrl_en').value = pdfUrl_en || '';
-            document.getElementById('drillPdfEmbedUrl_hi').value = pdfUrl_hi || '';
-            
-            document.querySelector('input[name="drillMode"][value="edit"]').checked = true;
-            toggleDrillMode('edit');
-            
-            closeBrowseDrillsModal();
-        };
-
-        window.openPasteModal = () => document.getElementById('jsonPasteModal').classList.remove('hidden');
-        window.closePasteModal = () => document.getElementById('jsonPasteModal').classList.add('hidden');
-
-        window.ingestFromClipboard = async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (!text) throw new Error("Clipboard is empty.");
-                parseAndStagePayload(text);
-            } catch (err) {
-                alert("Cannot read clipboard automatically. Opening Manual Paste Box.");
-                openPasteModal();
-            }
-        };
-
-        window.ingestDrillFromClipboard = async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                if (!text) throw new Error("Clipboard is empty.");
-                parseAndStagePayload(text);
-            } catch (err) {
-                alert("Clipboard blocked. Use manual paste.");
-                openPasteModal();
-            }
-        };
-
-        window.processPastedJson = () => {
-            const raw = document.getElementById('rawJsonInput').value;
-            parseAndStagePayload(raw);
-            closePasteModal();
-        };
-
-        // UNIVERSAL TAG ERASER
-        function parseAndStagePayload(rawText) {
-            try {
-                rawText = rawText.replace(/\[cite:[^\]]*\]/g, "").replace(/\[\d+\]/g, "");
-                rawText = rawText.replace(/\$\$(B|R|G)\$\$/g, "").replace(/\$\$\/(B|R|G)\$\$/g, "");
-                rawText = rawText.replace(/\$(B|R|G)\$/g, "").replace(/\$\/(B|R|G)\$/g, "");
-
-                let clean = rawText.trim();
-                const start = clean.indexOf('[');
-                const end = clean.lastIndexOf(']');
-                if (start !== -1 && end !== -1) clean = clean.substring(start, end + 1);
-
-                const parsed = JSON.parse(clean);
-                const cards = Array.isArray(parsed) ? parsed : (parsed.news || parsed.data || Object.values(parsed)[0]);
-                if (!Array.isArray(cards) || cards.length === 0) throw new Error("Invalid format: expected array of cards.");
-
-                window.stagedNewsItems = [...window.stagedNewsItems, ...cards];
-                renderStagingCards();
-            } catch (err) { 
-                alert("Failed to ingest payload. Ensure JSON is valid: " + err.message); 
-            }
-        }
-
-        // ANTI-FREEZE RENDERING CHUNKING
-        function renderStagingCards() {
-            document.getElementById('caStagingArea').classList.remove('hidden');
-            document.getElementById('stagedCount').textContent = window.stagedNewsItems.length;
-
-            const categories = Array.from(new Set(window.stagedNewsItems.map(i => i.category || 'General'))).sort();
-            
-            const pillsContainer = document.getElementById('stagingCategoryPills');
-            pillsContainer.innerHTML = `<button onclick="setStagingFilter('all')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">All (${window.stagedNewsItems.length})</button>`;
-            categories.forEach(cat => {
-                const count = window.stagedNewsItems.filter(i => (i.category || 'General') === cat).length;
-                pillsContainer.innerHTML += `<button onclick="setStagingFilter('${cat}')" class="px-3 py-1.5 rounded-xl font-bold text-xs ${window.activeStagingFilter === cat ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">${cat} (${count})</button>`;
-            });
-
-            const list = document.getElementById('caCardsContainer');
-            const visible = window.activeStagingFilter === 'all' ? window.stagedNewsItems : window.stagedNewsItems.filter(i => (i.category || 'General') === window.activeStagingFilter);
-
-            let cardsHtmlBuilder = "";
-            visible.forEach((card, i) => {
-                const exams = (card.targetExams || ["SSC CGL", "IBPS PO"]).join(", ");
-                const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
-                const mcqHi = card.mcq_hi || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
-
-                cardsHtmlBuilder += `
-                <div class="bg-slate-50 border border-slate-300 p-6 rounded-2xl ca-staged-card space-y-4 shadow-sm" data-index="${i}">
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                        <span class="text-sm font-black text-indigo-700 uppercase">Card #${i + 1} &bull; ${escapeHtml(card.emoji || '📰')} ${escapeHtml(card.category || '')}</span>
-                        <div class="flex gap-2">
-                            <input type="text" class="ca-exams border rounded-lg px-2 py-1 text-xs font-bold w-48" value="${escapeHtml(exams)}">
-                            <button onclick="this.closest('.ca-staged-card').remove(); document.getElementById('stagedCount').textContent = document.querySelectorAll('.ca-staged-card').length;" class="text-rose-500 font-bold text-xs px-2">🗑️ Remove</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <div class="font-black text-xs text-indigo-600 uppercase">English Content</div>
-                            <input type="hidden" class="ca-cat" value="${escapeHtml(card.category || 'National & Global')}">
-                            <input type="hidden" class="ca-sub" value="${escapeHtml(card.subCategory || 'General')}">
-                            <input type="hidden" class="ca-emj" value="${escapeHtml(card.emoji || '📰')}">
-                            <textarea class="ca-dataTable hidden">${card.dataTable ? escapeHtml(JSON.stringify(card.dataTable)) : ''}</textarea>
-                            
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Headline</label>
-                            <input type="text" class="ca-en-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bullets</label>
-                            <textarea class="ca-en-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets||[]).join('\n')}</textarea></div>
-                            
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Exam Impact</label>
-                            <input type="text" class="ca-en-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Static Linkage Facts</label>
-                            <input type="text" class="ca-en-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox?.facts || '')}"></div>
-                        </div>
-
-                        <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
-                            <div class="font-black text-xs text-emerald-700 uppercase">Hindi Content (हिंदी)</div>
-                            <input type="hidden" class="ca-sub-hi" value="${escapeHtml(card.subCategory_hi || card.subCategory || 'सामान्य')}">
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Category (HI)</label>
-                            <input type="text" class="ca-hi-cat w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.category_hi || card.category || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Headline (HI)</label>
-                            <input type="text" class="ca-hi-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner_hi || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Bullets (HI)</label>
-                            <textarea class="ca-hi-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets_hi||[]).join('\n')}</textarea></div>
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Exam Impact (HI)</label>
-                            <input type="text" class="ca-hi-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact_hi || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Static Facts (HI)</label>
-                            <input type="text" class="ca-hi-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox_hi?.facts || '')}"></div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-slate-200">
-                        <div class="font-bold text-xs text-purple-700 uppercase mb-2">⚡ Linked Verification Quiz (MCQ)</div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-2 bg-purple-50/50 p-3 rounded-xl border border-purple-100">
-                                <input type="text" class="ca-mcq-en-q w-full border rounded p-1.5 text-xs font-bold bg-white" placeholder="EN Question" value="${escapeHtml(mcqEn.question || '')}">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" class="ca-mcq-en-o0 border rounded p-1 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(mcqEn.options?.[0] || '')}">
-                                    <input type="text" class="ca-mcq-en-o1 border rounded p-1 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(mcqEn.options?.[1] || '')}">
-                                    <input type="text" class="ca-mcq-en-o2 border rounded p-1 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(mcqEn.options?.[2] || '')}">
-                                    <input type="text" class="ca-mcq-en-o3 border rounded p-1 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(mcqEn.options?.[3] || '')}">
-                                </div>
-                                <input type="text" class="ca-mcq-en-exp w-full border rounded p-1 text-xs bg-white" placeholder="Explanation" value="${escapeHtml(mcqEn.explanation || '')}">
-                            </div>
-
-                            <div class="space-y-2 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
-                                <input type="text" class="ca-mcq-hi-q w-full border rounded p-1.5 text-xs font-bold bg-white" placeholder="HI Question" value="${escapeHtml(mcqHi.question || '')}">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" class="ca-mcq-hi-o0 border rounded p-1 text-xs bg-white" placeholder="Opt A" value="${escapeHtml(mcqHi.options?.[0] || '')}">
-                                    <input type="text" class="ca-mcq-hi-o1 border rounded p-1 text-xs bg-white" placeholder="Opt B" value="${escapeHtml(mcqHi.options?.[1] || '')}">
-                                    <input type="text" class="ca-mcq-hi-o2 border rounded p-1 text-xs bg-white" placeholder="Opt C" value="${escapeHtml(mcqHi.options?.[2] || '')}">
-                                    <input type="text" class="ca-mcq-hi-o3 border rounded p-1 text-xs bg-white" placeholder="Opt D" value="${escapeHtml(mcqHi.options?.[3] || '')}">
-                                </div>
-                                <input type="text" class="ca-mcq-hi-exp w-full border rounded p-1 text-xs bg-white" placeholder="Explanation (HI)" value="${escapeHtml(mcqHi.explanation || '')}">
-                            </div>
-                        </div>
-                        <div class="mt-2 text-xs font-bold flex items-center gap-2 text-slate-700">
-                            Correct Option Index (0-3):
-                            <input type="number" class="ca-mcq-ans w-14 border rounded p-1 text-center font-mono font-bold" min="0" max="3" value="${mcqEn.correctIndex ?? 0}">
-                        </div>
-                    </div>
-                </div>`;
-            });
-            
-            list.innerHTML = "";
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = cardsHtmlBuilder;
-            const allNewCards = Array.from(tempDiv.children);
-
-            let chunkIndex = 0;
-            const chunkSize = 10; 
-
-            function renderChunk() {
-                const end = Math.min(chunkIndex + chunkSize, allNewCards.length);
-                for (let i = chunkIndex; i < end; i++) {
-                    list.appendChild(allNewCards[i]);
-                }
-                chunkIndex += chunkSize;
-                if (chunkIndex < allNewCards.length) {
-                    requestAnimationFrame(renderChunk);
-                }
-            }
-            requestAnimationFrame(renderChunk);
-        }
-
-        window.setStagingFilter = (cat) => { window.activeStagingFilter = cat; renderStagingCards(); };
-
-        window.autoTranslateCA = async function() {
-            const cards = document.querySelectorAll('.ca-staged-card');
-            if(cards.length === 0) return alert("No cards in staging to translate.");
-            
-            const btn = document.getElementById('btnAutoTranslateCA');
-            const origHtml = btn.innerHTML;
-            btn.innerHTML = "<span>⏳</span> Translating..."; 
-            btn.disabled = true;
-
-            try {
-                for (let i = 0; i < cards.length; i++) {
-                    const card = cards[i];
-                    
-                    btn.innerHTML = `<span>⏳</span> Translating ${i+1}/${cards.length}...`;
-                    
-                    const cat = card.querySelector('.ca-cat').value;
-                    const hLine = card.querySelector('.ca-en-h').value;
-                    const bulletsStr = card.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b).join(' | ');
-                    const imp = card.querySelector('.ca-en-imp').value;
-                    const st = card.querySelector('.ca-en-st').value;
-                    
-                    const mq = card.querySelector('.ca-mcq-en-q').value;
-                    const mo0 = card.querySelector('.ca-mcq-en-o0').value;
-                    const mo1 = card.querySelector('.ca-mcq-en-o1').value;
-                    const mo2 = card.querySelector('.ca-mcq-en-o2').value;
-                    const mo3 = card.querySelector('.ca-mcq-en-o3').value;
-                    const mexp = card.querySelector('.ca-mcq-en-exp').value;
-
-                    const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
-
-                    if (payload.trim() !== "") {
-                        const translatedStr = await translateEnToHi(payload);
-                        const parts = translatedStr.split(' ||| ');
-
-                        card.querySelector('.ca-hi-cat').value = parts[0] ? parts[0].trim() : '';
-                        card.querySelector('.ca-hi-h').value = parts[1] ? parts[1].trim() : '';
-                        
-                        let rawBullets = parts[2] ? parts[2].trim() : '';
-                        const translatedBullets = rawBullets.split(/\s*\|\s*/).map(b => b.trim()).filter(b=>b);
-                        card.querySelector('.ca-hi-c').value = translatedBullets.join('\n');
-                        
-                        card.querySelector('.ca-hi-imp').value = parts[3] ? parts[3].trim() : '';
-                        card.querySelector('.ca-hi-st').value = parts[4] ? parts[4].trim() : '';
-                        card.querySelector('.ca-mcq-hi-q').value = parts[5] ? parts[5].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o0').value = parts[6] ? parts[6].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o1').value = parts[7] ? parts[7].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o2').value = parts[8] ? parts[8].trim() : '';
-                        card.querySelector('.ca-mcq-hi-o3').value = parts[9] ? parts[9].trim() : '';
-                        card.querySelector('.ca-mcq-hi-exp').value = parts[10] ? parts[10].trim() : '';
-                    }
-                    
-                    // Small delay to prevent API rate limiting on large batches
-                    await new Promise(r => setTimeout(r, 400));
-                }
-                alert("Translation Complete! All cards successfully converted to Hindi.");
-            } catch(e) { 
-                alert("Translation error: " + e.message); 
-            } finally { 
-                btn.innerHTML = origHtml; 
-                btn.disabled = false; 
-            }
-        };
-
-        window.triggerUniversalPDF = function(sourceContext) {
-            const dropdown = document.getElementById(sourceContext === 'staging' ? 'stagingPdfType' : 'managePdfType');
-            const [pdfFormat, langCode] = dropdown.value.split('_');
-            
-            let rawData = [];
-            if (sourceContext === 'staging') {
-                document.querySelectorAll('.ca-staged-card').forEach((el, index) => {
-                    let item = { ...window.stagedNewsItems[index] };
-                    item.oneLiner = el.querySelector('.ca-en-h').value;
-                    item.oneLiner_hi = el.querySelector('.ca-hi-h').value;
-                    item.contextBullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
-                    item.contextBullets_hi = el.querySelector('.ca-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
-                    item.staticBox = { facts: el.querySelector('.ca-en-st').value };
-                    item.staticBox_hi = { facts: el.querySelector('.ca-hi-st').value };
-                    item.mcq = { question: el.querySelector('.ca-mcq-en-q').value, options: [el.querySelector('.ca-mcq-en-o0').value, el.querySelector('.ca-mcq-en-o1').value, el.querySelector('.ca-mcq-en-o2').value, el.querySelector('.ca-mcq-en-o3').value], correctIndex: parseInt(el.querySelector('.ca-mcq-ans').value) || 0, explanation: el.querySelector('.ca-mcq-en-exp').value };
-                    item.mcq_hi = { question: el.querySelector('.ca-mcq-hi-q').value, options: [el.querySelector('.ca-mcq-hi-o0').value, el.querySelector('.ca-mcq-hi-o1').value, el.querySelector('.ca-mcq-hi-o2').value, el.querySelector('.ca-mcq-hi-o3').value], correctIndex: parseInt(el.querySelector('.ca-mcq-ans').value) || 0, explanation: el.querySelector('.ca-mcq-hi-exp').value };
-                    rawData.push(item);
-                });
-            } else {
-                rawData = caInspectCache;
-            }
-
-            if (!rawData || rawData.length === 0) return alert(`No cards loaded in ${sourceContext} area.`);
-
-            const isDaily = currentCACadence === 'daily';
-            let targetDate = "Unknown Date";
-            let reportTitle = "DAILY CURRENT AFFAIRS DIGEST";
-            let cheatSubTitle = "DAILY COMPILATION";
-
-            if (sourceContext === 'staging') {
-                targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
-                const ctype = document.getElementById('drillCadenceType').value;
-                if (!isDaily) {
-                    if (ctype === 'weekly') { reportTitle = "WEEKLY SPEED DRILL"; cheatSubTitle = "WEEKLY COMPILATION"; }
-                    else if (ctype === 'monthly') { reportTitle = "MONTHLY MEGA DIGEST"; cheatSubTitle = "MONTHLY COMPILATION"; }
-                    else if (ctype === 'special') { reportTitle = "SPECIAL TOPIC MOCK"; cheatSubTitle = "SPECIAL EDITION"; }
-                }
-            } else {
-                targetDate = document.getElementById('caManageDate').value;
-            }
-
-            const btn = sourceContext === 'staging' ? document.querySelector(`button[onclick="triggerUniversalPDF('staging')"]`) : document.querySelector(`button[onclick="triggerUniversalPDF('manage')"]`);
-            const origText = btn.innerHTML;
-            btn.innerHTML = "Generating..."; btn.disabled = true;
-
-            const isHi = langCode === 'hi';
-            const logoDataUrl = typeof stenogymLogoBase64 !== 'undefined' ? stenogymLogoBase64 : '';
-            
-            const formatHighlight = (text) => {
-                if(!text) return "";
-                let safeText = escapeHtml(text).replace(/\*\*(.*?)\*\*/g, (match, p1) => {
-                    const cleanStr = p1.trim();
-                    if (/^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(cleanStr) || !isNaN(parseFloat(cleanStr))) {
-                        return `<strong style="color: #e11d48; font-weight: 900;">${p1}</strong>`; 
-                    }
-                    return `<strong style="color: #2563eb; font-weight: 900;">${p1}</strong>`; 
-                });
-                return safeText.replace(/\$\$(B|R|G)\$\$/g, '').replace(/\$\$\/(B|R|G)\$\$/g, '').replace(/\$(B|R|G)\$/g, '').replace(/\$\/(B|R|G)\$/g, '');
-            };
-
-            const deduplicatedData = [];
-            rawData.forEach(card => {
-                if (pdfFormat === 'cheat') {
-                    const isDup = deduplicatedData.some(existing => {
-                        if (existing.category !== card.category || existing.subCategory !== card.subCategory) return false;
-                        const clean1 = (existing.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
-                        const clean2 = (card.oneLiner || "").toLowerCase().replace(/[^a-z0-9\s]/g, '');
-                        const overlap = clean1.split(/\s+/).filter(w => w.length > 3).filter(w => clean2.split(/\s+/).includes(w)).length;
-                        return (overlap / Math.min(clean1.split(/\s+/).length || 1, clean2.split(/\s+/).length || 1)) > 0.6;
-                    });
-                    if (!isDup) deduplicatedData.push(card);
-                } else {
-                    deduplicatedData.push(card); 
-                }
-            });
-
-            const groupedData = deduplicatedData.reduce((acc, item) => {
-                const c = (isHi ? item.category_hi : item.category) || (item.category || "General");
-                if(!acc[c]) acc[c] = [];
-                acc[c].push(item);
-                return acc;
-            }, {});
-
-            const sortedCategories = Object.keys(groupedData).sort();
-            const themeColors = ['4f46e5', '059669', 'd97706', '7c3aed', 'e11d48', '0284c7'];
-            
-            let htmlContent = `<div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #ffffff; padding: 0;">`;
-            htmlContent += `<div style="page-break-after: always; padding: 20px 40px;">`;
-            
-            if (pdfFormat === 'daily') {
-                htmlContent += `
-                    <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; letter-spacing: 2px;">STENOGYM</h1>
-                            <h2 style="margin: 4px 0 0 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${isHi ? (reportTitle === 'DAILY CURRENT AFFAIRS DIGEST' ? 'दैनिक करेंट अफेयर्स' : reportTitle) : reportTitle}</h2>
-                        </div>
-                        ${logoDataUrl ? `<img src="${logoDataUrl}" style="width: 50px; height: 50px; object-fit: contain;">` : ''}
-                    </div>
-                    <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                        📅 ${targetDate} &nbsp;&bull;&nbsp; ${deduplicatedData.length} Total Cards
-                    </div>
-                    <div style="margin-bottom: 40px;">
-                        <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Document Index</h3>
-                `;
-                sortedCategories.forEach(cat => {
-                    htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
-                        <span>📁 ${escapeHtml(cat)}</span> <span style="color: #4f46e5;">${groupedData[cat].length} Cards</span>
-                    </div>`;
-                });
-            } else {
-                htmlContent += `
-                    <div style="border-left: 8px solid #0f172a; padding-left: 24px; margin-bottom: 40px;">
-                        <h2 style="margin: 0 0 6px 0; color: #e11d48; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.5px;">${isHi ? 'दैनिक संकलन' : cheatSubTitle} &bull; ${targetDate}</h2>
-                        <h1 style="margin: 0; color: #0f172a; font-size: 32px; font-weight: 900; line-height: 1.2;">${isHi ? 'करेंट अफेयर्स<br>रिवीजन शीट' : 'CURRENT AFFAIRS<br>REVISION SHEET'}</h1>
-                    </div>
-                    <div style="margin-bottom: 30px; font-size: 14px; font-weight: 800; color: #334155; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-                        ${sortedCategories.length} Categories &nbsp;&bull;&nbsp; ${deduplicatedData.length} Verified Facts
-                    </div>
-                    <div style="margin-bottom: 40px;">
-                        <h3 style="margin-top: 0; color: #0f172a; font-size: 16px; text-transform: uppercase; margin-bottom: 16px;">Category Index</h3>
-                `;
-                sortedCategories.forEach(cat => {
-                    htmlContent += `<div style="padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 13px; font-weight: 700; color: #334155; display: flex; justify-content: space-between;">
-                        <span>📁 ${escapeHtml(cat)}</span> <span style="color: #e11d48;">${groupedData[cat].length} Facts</span>
-                    </div>`;
-                });
-            }
-
-            htmlContent += `</div>
-                <div style="text-align: center; margin-top: auto; padding-top: 20px;">
-                    <a href="https://www.stenogym.com" style="display: inline-block; background-color: #f8fafc; border: 2px solid #4f46e5; color: #4f46e5; text-decoration: none; font-weight: 900; font-size: 13px; padding: 12px 24px; border-radius: 6px; margin-bottom: 10px;">🎯 Practice as Timed Mock on Stenogym</a>
-                </div>
-            </div>`;
-
-            let colorIndex = 0;
-            sortedCategories.forEach((category) => {
-                const items = groupedData[category];
-                const catEmoji = items[0]?.emoji || '📌';
-                const catColor = pdfFormat === 'cheat' ? themeColors[colorIndex % themeColors.length] : '4f46e5';
-                
-                htmlContent += `
-                    <div style="background-color: #${catColor}; color: #ffffff; padding: 10px 16px; border-radius: 4px; margin-top: 20px; margin-bottom: 16px; page-break-after: avoid; page-break-inside: avoid; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                        <h2 style="margin: 0; font-size: 16px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">${catEmoji} ${escapeHtml(category)}</h2>
-                    </div>
-                `;
-
-                items.forEach((card, index) => {
-                    const hLine = isHi ? (card.oneLiner_hi || card.oneLiner) : card.oneLiner;
-                    const cBullets = isHi ? (card.contextBullets_hi || card.contextBullets || []) : (card.contextBullets || []);
-                    const subCat = isHi ? (card.subCategory_hi || card.subCategory) : card.subCategory;
-                    const statBox = isHi ? (card.staticBox_hi?.facts || card.staticBox?.facts) : card.staticBox?.facts;
-                    const mcq = isHi ? (card.mcq_hi || card.mcq || {}) : (card.mcq || {});
-                    const bgRowColor = (pdfFormat === 'cheat' && index % 2 !== 0) ? '#f8fafc' : '#ffffff';
-
-                    if (pdfFormat === 'cheat') {
-                        htmlContent += `
-                            <div style="page-break-inside: avoid; background-color: ${bgRowColor}; padding: 10px; display: flex; align-items: flex-start; gap: 10px; border-bottom: 1px solid #f1f5f9; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                                <div style="font-size: 12px; flex-shrink: 0; width: 20px; text-align: center;">${card.emoji || '📌'}</div>
-                                <div style="font-size: 11.5px; color: #1e293b; line-height: 1.6; font-weight: 500;">
-                                    <strong style="color: #${catColor}; text-transform: uppercase; margin-right: 6px;">${escapeHtml(subCat || 'NEWS')}</strong>
-                                    ${formatHighlight(hLine || '')}
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        const bullets = cBullets.filter(b => b.trim() !== "").map(b => `<li style="page-break-inside: avoid; margin: 6px 0; padding-left: 2px;">${formatHighlight(b)}</li>`).join('');
-                        const staticFacts = statBox ? `<div style="page-break-inside: avoid; background-color: #f8fafc; border-left: 3px solid #94a3b8; padding: 8px 12px; font-size: 11px; color: #475569; margin: 12px 0; font-weight: 600; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">🧠 <strong>Static:</strong> ${formatHighlight(statBox)}</div>` : '';
-
-                        let mcqHtml = '';
-                        if (mcq && mcq.question) {
-                            const ansIdx = mcq.correctIndex || 0;
-                            const ansChar = String.fromCharCode(65 + ansIdx);
-                            const ansText = mcq.options ? mcq.options[ansIdx] : '';
-                            const qPrefix = isHi ? 'प्रश्न:' : 'Q.';
-                            const ansPrefix = isHi ? 'उत्तर:' : 'Ans:';
-                            mcqHtml = `
-                            <div style="page-break-inside: avoid; border-left: 3px solid #059669; background-color: #f0fdf4; padding: 10px 14px; margin-top: 12px; border-radius: 4px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;">
-                                <div style="font-size: 11.5px; font-weight: 800; color: #065f46; margin-bottom: 6px;">${qPrefix} ${formatHighlight(mcq.question)}</div>
-                                <div style="font-size: 11px; font-weight: 700; color: #047857; margin-bottom: 6px;">${ansPrefix} ${ansChar}. ${formatHighlight(ansText)}</div>
-                                <div style="font-size: 10.5px; color: #334155; line-height: 1.5; border-top: 1px dashed #a7f3d0; padding-top: 6px;"><em>${formatHighlight(mcq.explanation)}</em></div>
-                            </div>`;
-                        }
-                        
-                        htmlContent += `
-                            <div style="margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0;">
-                                <div style="page-break-inside: avoid; page-break-after: avoid;">
-                                    <div style="font-size: 10px; font-weight: 900; color: #e11d48; margin-bottom: 4px; text-transform: uppercase;">#${index + 1} &bull; ${escapeHtml(subCat || 'NEWS')}</div>
-                                    <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-bottom: 10px; line-height: 1.4;">${formatHighlight(hLine)}</div>
-                                </div>
-                                <ul style="font-size: 11.5px; color: #334155; line-height: 1.6; margin-top: 0; padding-left: 18px; list-style-type: disc;">${bullets}</ul>
-                                ${staticFacts}
-                                ${mcqHtml}
-                            </div>`;
-                    }
-                });
-                colorIndex++;
-            });
-            htmlContent += `</div>`;
-
-            const element = document.createElement('div');
-            element.innerHTML = htmlContent;
-
-            const opt = {
-                margin: [0.5, 0.5, 0.8, 0.5], 
-                filename: `Stenogym_${pdfFormat.charAt(0).toUpperCase() + pdfFormat.slice(1)}_${langCode.toUpperCase()}_${targetDate.replace(/\s+/g, '_')}.pdf`,
-                image: { type: 'jpeg', quality: 0.95 }, // Bumped quality for crisp printing
-                pagebreak: { mode: ['css', 'legacy'] },
-                enableLinks: true, 
-                html2canvas: { scale: 1.5, useCORS: true, logging: false }, // The Goldilocks zone: High quality, no RAM crash
-                jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compress: true }
-            };
-
-            html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-                const totalPages = pdf.internal.getNumberOfPages();
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                const imgSize = 4;
-                
-                for (let i = 1; i <= totalPages; i++) {
-                    pdf.setPage(i);
-                    pdf.setDrawColor(15, 23, 42); 
-                    pdf.setLineWidth(0.02); 
-                    pdf.rect(0.25, 0.25, pageWidth - 0.5, pageHeight - 0.5);
-
-                    if (logoDataUrl) {
-                        try {
-                            pdf.setGState(new pdf.GState({ opacity: 0.03 }));
-                            pdf.addImage(logoDataUrl, 'PNG', (pageWidth - imgSize)/2, (pageHeight - imgSize)/2, imgSize, imgSize);
-                            pdf.setGState(new pdf.GState({ opacity: 1.0 }));
-                        } catch(e) {}
-                    }
-                    
-                    pdf.setDrawColor(226, 232, 240); 
-                    pdf.setLineWidth(0.01);
-                    pdf.line(0.25, pageHeight - 0.65, pageWidth - 0.25, pageHeight - 0.65);
-
-                    pdf.setFontSize(9);
-                    pdf.setFont("helvetica", "bold");
-                    pdf.setTextColor(15, 23, 42);
-                    pdf.textWithLink("STENOGYM.COM", 0.5, pageHeight - 0.45, { url: 'https://www.stenogym.com' });
-
-                    pdf.setFont("helvetica", "normal");
-                    pdf.setTextColor(100, 116, 139);
-                    pdf.textWithLink("Official Telegram: t.me/stenogym", 2.2, pageHeight - 0.45, { url: 'https://t.me/stenogym' });
-
-                    pdf.setFont("helvetica", "bold");
-                    pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 0.9, pageHeight - 0.45);
-                }
-            }).save().then(() => { btn.innerHTML = origText; btn.disabled = false; });
-        };
-        // --- END MASTER UNIVERSAL PDF ENGINE ---
-
-        window.publishStagedNews = async function() {
-            const cardElements = document.querySelectorAll('.ca-staged-card');
-            if (cardElements.length === 0) return alert("No cards in staging.");
-
-            const isDaily = currentCACadence === 'daily';
-            const targetDate = isDaily ? document.getElementById('caTargetDate').value : document.getElementById('drillIdentifier').value.trim();
-            const collectionName = isDaily ? "daily_news" : "ca_drills";
-
-            if(!targetDate) return alert("Error: Please provide a Date or Identifier Tag.");
-
-            if (isDaily || !window.isEditingDrill) {
-                try {
-                    const checkQuery = query(collection(db, collectionName), where("date", "==", targetDate));
-                    const existingSnap = await getDocs(checkQuery);
-                    
-                    if (!existingSnap.empty) {
-                        const confirmAppend = confirm(`⚠️ EXISTING NEWS DETECTED!\\n\\nThere are already ${existingSnap.size} cards published for "${targetDate}".\\n\\nAre you sure you want to ADD these ${cardElements.length} staged cards to the existing ones?`);
-                        if (!confirmAppend) return;
-                    }
-                } catch (checkErr) { console.warn("Pre-check warning:", checkErr); }
-            }
-
-            const btn = document.getElementById('btnPublishCA');
-            btn.innerHTML = "Scheduling Drop..."; btn.disabled = true;
-
-            const scheduleMode = isDaily ? document.getElementById('caReleaseSchedule').value : 'instant';
-            const pdfEmbedLink_en = !isDaily ? document.getElementById('drillPdfEmbedUrl_en').value.trim() : "";
-            const pdfEmbedLink_hi = !isDaily ? document.getElementById('drillPdfEmbedUrl_hi').value.trim() : "";
-
-            let publishTimestamp = new Date();
-            if (isDaily && scheduleMode === '6am') {
-                const [y, m, d] = targetDate.split('-').map(Number);
-                publishTimestamp = new Date(Date.UTC(y, m - 1, d, 0, 30, 0));
-            }
-
-            try {
-                const bundledCards = [];
-                cardElements.forEach(el => {
-                    const enBullets = el.querySelector('.ca-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
-                    const hiBullets = el.querySelector('.ca-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b);
-                    const exams = el.querySelector('.ca-exams').value.split(',').map(s=>s.trim()).filter(s=>s);
-                    const ansIdx = parseInt(el.querySelector('.ca-mcq-ans').value) || 0;
-                    
-                    const dtVal = el.querySelector('.ca-dataTable')?.value;
-                    const dtParsed = dtVal ? JSON.parse(dtVal) : null;
-
-                    bundledCards.push({
-                        emoji: el.querySelector('.ca-emj').value,
-                        category: el.querySelector('.ca-cat').value,
-                        category_hi: el.querySelector('.ca-hi-cat').value || el.querySelector('.ca-cat').value,
-                        subCategory: el.querySelector('.ca-sub').value,
-                        subCategory_hi: el.querySelector('.ca-sub-hi')?.value || el.querySelector('.ca-sub').value,
-                        targetExams: exams.length > 0 ? exams : ["SSC CGL", "IBPS PO"],
-                        oneLiner: el.querySelector('.ca-en-h').value,
-                        oneLiner_hi: el.querySelector('.ca-hi-h').value,
-                        contextBullets: enBullets,
-                        contextBullets_hi: hiBullets,
-                        dataTable: dtParsed,
-                        impact: el.querySelector('.ca-en-imp').value,
-                        impact_hi: el.querySelector('.ca-hi-imp').value,
-                        staticBox: { facts: el.querySelector('.ca-en-st').value },
-                        staticBox_hi: { facts: el.querySelector('.ca-hi-st').value },
-                        mcq: {
-                            question: el.querySelector('.ca-mcq-en-q').value,
-                            options: [el.querySelector('.ca-mcq-en-o0').value, el.querySelector('.ca-mcq-en-o1').value, el.querySelector('.ca-mcq-en-o2').value, el.querySelector('.ca-mcq-en-o3').value],
-                            correctIndex: ansIdx,
-                            explanation: el.querySelector('.ca-mcq-en-exp').value
-                        },
-                        mcq_hi: {
-                            question: el.querySelector('.ca-mcq-hi-q').value,
-                            options: [el.querySelector('.ca-mcq-hi-o0').value, el.querySelector('.ca-mcq-hi-o1').value, el.querySelector('.ca-mcq-hi-o2').value, el.querySelector('.ca-mcq-hi-o3').value],
-                            correctIndex: ansIdx,
-                            explanation: el.querySelector('.ca-mcq-hi-exp').value
-                        }
-                    });
-                });
-
-                if (isDaily) {
-                    const batch = writeBatch(db);
-                    bundledCards.forEach(cardData => {
-                        const docRef = doc(collection(db, collectionName));
-                        batch.set(docRef, { date: targetDate, cadence: 'daily', publishAt: publishTimestamp.toISOString(), timestamp: serverTimestamp(), ...cardData });
-                    });
-                    await batch.commit();
-                } else {
-                    // ONE DOCUMENT PER DRILL (THE BILLING FIX)
-                    const docRef = doc(db, collectionName, targetDate); 
-                    await setDoc(docRef, {
-                        docType: "summary", // Required for shelf query
-                        date: targetDate,
-                        cadence: document.getElementById('drillCadenceType').value,
-                        pdfEmbedUrl_en: pdfEmbedLink_en || null,
-                        pdfEmbedUrl_hi: pdfEmbedLink_hi || null,
-                        count: bundledCards.length,
-                        cards: bundledCards, // The entire 150-card drill is bundled in this array
-                        timestamp: serverTimestamp()
-                    });
-                }
-
-                alert(`✅ Successfully published & scheduled ${cardElements.length} items!`);
-                document.getElementById('caStagingArea').classList.add('hidden');
-                document.getElementById('caCardsContainer').innerHTML = "";
-                window.stagedNewsItems = [];
-            } catch (err) { alert("Error publishing cards: " + err.message); } finally {
-                btn.innerHTML = window.isEditingDrill && !isDaily ? '<span>💾</span> Overwrite Live Drill' : '<span>🚀</span> Commit & Schedule Drop'; 
-                btn.disabled = false;
-            }
-        };
-
-        /* ========================================================= */
-        /* 5. MANAGE CURRENT AFFAIRS (DATE & CATEGORY INSPECTOR)     */
-        /* ========================================================= */
-        let caInspectCache = [];
-
-        window.fetchCAManage = async function() {
-            const targetDate = document.getElementById('caManageDate').value;
-            if(!targetDate) return;
-            document.getElementById('caManageCardsContainer').innerHTML = '<div class="text-center py-8 text-slate-400 font-bold animate-pulse">Loading cards via Express REST API...</div>';
-
-            try {
-                const FIREBASE_PROJECT_ID = "stenogym"; 
-                const queryPayload = {
-                    structuredQuery: {
-                        from: [{ collectionId: "daily_news" }],
-                        where: { fieldFilter: { field: { fieldPath: "date" }, op: "EQUAL", value: { stringValue: targetDate } } }
-                    }
-                };
-                const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery`;
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(queryPayload)
-                });
-
-                if (!response.ok) throw new Error("Network Error");
-                const json = await response.json();
-                
-                caInspectCache = [];
-
-                function parseValue(val) {
-                    if (val.stringValue !== undefined) return val.stringValue;
-                    if (val.booleanValue !== undefined) return val.booleanValue;
-                    if (val.integerValue !== undefined) return parseInt(val.integerValue);
-                    if (val.doubleValue !== undefined) return parseFloat(val.doubleValue);
-                    if (val.timestampValue !== undefined) return val.timestampValue;
-                    if (val.arrayValue !== undefined) return val.arrayValue.values ? val.arrayValue.values.map(parseValue) : [];
-                    if (val.mapValue !== undefined && val.mapValue.fields) {
-                        const mapObj = {};
-                        for (const [k, v] of Object.entries(val.mapValue.fields)) { mapObj[k] = parseValue(v); }
-                        return mapObj;
-                    }
-                    return null;
-                }
-
-                if (json && json.length > 0 && json[0].document) {
-                    json.filter(item => item.document).forEach(item => {
-                        const data = {};
-                        if (item.document.fields) {
-                            for (const [key, val] of Object.entries(item.document.fields)) {
-                                data[key] = parseValue(val);
-                            }
-                        }
-                        caInspectCache.push({ id: item.document.name.split('/').pop(), ...data });
-                    });
-                }
-
-                const badge = document.getElementById('caDayStatusBadge');
-                if (caInspectCache.length === 0) {
-                    badge.innerHTML = `<span class="text-slate-500 font-bold">No cards found for ${targetDate}</span>`;
-                } else {
-                    const first = caInspectCache[0];
-                    const isLocked = first.publishAt && new Date(first.publishAt) > new Date();
-                    badge.innerHTML = isLocked ? `<span class="text-amber-600 font-bold">⏰ Scheduled (Releasing at 6:00 AM)</span>` : `<span class="text-emerald-600 font-bold">🟢 Live to Students (${caInspectCache.length} Cards)</span>`;
-                }
-
-                renderCAManageCards();
-                
-            } catch (err) { 
-                console.error("Fetch Error:", err);
-                document.getElementById('caManageCardsContainer').innerHTML = `<div class="text-center py-8 text-rose-500 font-bold">Network Timeout. Please refresh.</div>`; 
-            }
-        };
-
-        function renderCAManageCards() {
-            const container = document.getElementById('caManageCardsContainer');
-            const filterCat = document.getElementById('caManageCategory').value;
-            const filtered = filterCat === 'all' ? caInspectCache : caInspectCache.filter(c => c.category === filterCat);
-
-            if(filtered.length === 0) {
-                container.innerHTML = '<div class="text-center py-12 text-slate-400 font-bold border border-dashed border-slate-200 rounded-2xl">No cards matching filter.</div>';
-                return;
-            }
-
-            let cardsHtml = "";
-            filtered.forEach((card, i) => {
-                const mcqEn = card.mcq || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
-                const mcqHi = card.mcq_hi || { question: "", options: ["","","",""], correctIndex: 0, explanation: "" };
-
-                cardsHtml += `
-                <div class="bg-slate-50 border border-slate-300 p-6 rounded-2xl manage-staged-card space-y-4 shadow-sm" data-docid="${card.id}">
-                    <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm font-black text-indigo-700 uppercase">Card #${i + 1} &bull; ${escapeHtml(card.emoji || '📰')} ${escapeHtml(card.category || '')}</span>
-                            <button onclick="autoTranslateManageCard(this)" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-800 border border-yellow-300 font-bold py-1 px-3 rounded-lg shadow-sm transition flex items-center gap-1 text-[10px]">
-                                <span>⚡</span> Auto-Translate
-                            </button>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="saveManageCard(this)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs px-4 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
-                                <span>💾</span> Update Live Database
-                            </button>
-                            <button onclick="deleteCACard('${card.id}')" class="text-rose-500 font-bold text-xs px-2">🗑️ Delete</button>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <div class="font-black text-xs text-indigo-600 uppercase">English Content</div>
-                            <input type="hidden" class="m-cat" value="${escapeHtml(card.category || 'National & Global')}">
-                            <input type="hidden" class="m-sub" value="${escapeHtml(card.subCategory || 'General')}">
-                            
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Headline</label>
-                            <input type="text" class="m-en-h w-full border rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-slate-500 uppercase">Bullets</label>
-                            <textarea class="m-en-c w-full border rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets||[]).join('\n')}</textarea></div>
-                            
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Exam Impact</label>
-                                <input type="text" class="m-en-imp w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-slate-500 uppercase">Static Facts</label>
-                                <input type="text" class="m-en-st w-full border rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox?.facts || '')}"></div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-2 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100">
-                            <div class="font-black text-xs text-emerald-700 uppercase">Hindi Content (हिंदी)</div>
-                            <input type="hidden" class="m-hi-cat" value="${escapeHtml(card.category_hi || card.category || '')}">
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Headline (HI)</label>
-                            <input type="text" class="m-hi-h w-full border border-emerald-200 rounded-lg p-2 text-sm font-bold bg-white" value="${escapeHtml(card.oneLiner_hi || '')}"></div>
-                            
-                            <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Bullets (HI)</label>
-                            <textarea class="m-hi-c w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white" rows="3">${(card.contextBullets_hi||[]).join('\n')}</textarea></div>
-                            
-                            <div class="grid grid-cols-2 gap-2">
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Exam Impact (HI)</label>
-                                <input type="text" class="m-hi-imp w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.impact_hi || '')}"></div>
-                                
-                                <div><label class="text-[10px] font-bold text-emerald-800 uppercase">Static Facts (HI)</label>
-                                <input type="text" class="m-hi-st w-full border border-emerald-200 rounded-lg p-2 text-xs bg-white" value="${escapeHtml(card.staticBox_hi?.facts || '')}"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-slate-200">
-                        <div class="font-bold text-xs text-purple-700 uppercase mb-2">⚡ Linked Verification Quiz (MCQ)</div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="space-y-2 bg-purple-50/50 p-3 rounded-xl border border-purple-100">
-                                <input type="text" class="m-mcq-en-q w-full border rounded p-1.5 text-xs font-bold bg-white" value="${escapeHtml(mcqEn.question || '')}">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" class="m-mcq-en-o0 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[0] || '')}">
-                                    <input type="text" class="m-mcq-en-o1 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[1] || '')}">
-                                    <input type="text" class="m-mcq-en-o2 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[2] || '')}">
-                                    <input type="text" class="m-mcq-en-o3 border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.options?.[3] || '')}">
-                                </div>
-                                <input type="text" class="m-mcq-en-exp w-full border rounded p-1 text-xs bg-white" value="${escapeHtml(mcqEn.explanation || '')}">
-                            </div>
-
-                            <div class="space-y-2 bg-emerald-50/50 p-3 rounded-xl border border-emerald-100">
-                                <input type="text" class="m-mcq-hi-q w-full border border-emerald-200 rounded p-1.5 text-xs font-bold bg-white" value="${escapeHtml(mcqHi.question || '')}">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <input type="text" class="m-mcq-hi-o0 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[0] || '')}">
-                                    <input type="text" class="m-mcq-hi-o1 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[1] || '')}">
-                                    <input type="text" class="m-mcq-hi-o2 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[2] || '')}">
-                                    <input type="text" class="m-mcq-hi-o3 border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.options?.[3] || '')}">
-                                </div>
-                                <input type="text" class="m-mcq-hi-exp w-full border border-emerald-200 rounded p-1 text-xs bg-white" value="${escapeHtml(mcqHi.explanation || '')}">
-                            </div>
-                        </div>
-                        <div class="mt-2 text-xs font-bold flex items-center gap-2 text-slate-700">
-                            Correct Option Index (0-3):
-                            <input type="number" class="m-mcq-ans w-14 border rounded p-1 text-center font-mono font-black" min="0" max="3" value="${mcqEn.correctIndex ?? 0}">
-                        </div>
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = cardsHtml;
-        }
-
-        window.autoTranslateManageCard = async function(btnEl) {
-            const btnOrig = btnEl.innerHTML;
-            btnEl.innerHTML = "⚡ Translating..."; btnEl.disabled = true;
-            const card = btnEl.closest('.manage-staged-card');
-            try {
-                const cat = card.querySelector('.m-cat').value;
-                const hLine = card.querySelector('.m-en-h').value;
-                const bulletsStr = card.querySelector('.m-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b).join(' | ');
-                const imp = card.querySelector('.m-en-imp').value;
-                const st = card.querySelector('.m-en-st').value;
-                
-                const mq = card.querySelector('.m-mcq-en-q').value;
-                const mo0 = card.querySelector('.m-mcq-en-o0').value;
-                const mo1 = card.querySelector('.m-mcq-en-o1').value;
-                const mo2 = card.querySelector('.m-mcq-en-o2').value;
-                const mo3 = card.querySelector('.m-mcq-en-o3').value;
-                const mexp = card.querySelector('.m-mcq-en-exp').value;
-
-                const payload = [cat, hLine, bulletsStr, imp, st, mq, mo0, mo1, mo2, mo3, mexp].join(' ||| ');
-
-                if (payload.trim() !== "") {
-                    const translatedStr = await translateEnToHi(payload);
-                    const parts = translatedStr.split(' ||| ');
-
-                    card.querySelector('.m-hi-cat').value = parts[0] ? parts[0].trim() : '';
-                    card.querySelector('.m-hi-h').value = parts[1] ? parts[1].trim() : '';
-                    
-                    let rawBullets = parts[2] ? parts[2].trim() : '';
-                    const translatedBullets = rawBullets.split(/\\s*\\|\\s*/).map(b => b.trim()).filter(b=>b);
-                    card.querySelector('.m-hi-c').value = translatedBullets.join('\n');
-                    
-                    card.querySelector('.m-hi-imp').value = parts[3] ? parts[3].trim() : '';
-                    card.querySelector('.m-hi-st').value = parts[4] ? parts[4].trim() : '';
-                    card.querySelector('.m-mcq-hi-q').value = parts[5] ? parts[5].trim() : '';
-                    card.querySelector('.m-mcq-hi-o0').value = parts[6] ? parts[6].trim() : '';
-                    card.querySelector('.m-mcq-hi-o1').value = parts[7] ? parts[7].trim() : '';
-                    card.querySelector('.m-mcq-hi-o2').value = parts[8] ? parts[8].trim() : '';
-                    card.querySelector('.m-mcq-hi-o3').value = parts[9] ? parts[9].trim() : '';
-                    card.querySelector('.m-mcq-hi-exp').value = parts[10] ? parts[10].trim() : '';
-                }
-            } catch(e) { alert("Translation error: " + e.message); } finally { btnEl.innerHTML = btnOrig; btnEl.disabled = false; }
-        };
-
-        window.saveManageCard = async function(btnEl) {
-            const btnOrig = btnEl.innerHTML;
-            btnEl.innerHTML = "💾 Saving..."; btnEl.disabled = true;
-            
-            const card = btnEl.closest('.manage-staged-card');
-            const docId = card.getAttribute('data-docid');
-            const ansIdx = parseInt(card.querySelector('.m-mcq-ans').value) || 0;
-
-            const payloadToSave = {
-                oneLiner: card.querySelector('.m-en-h').value.trim(),
-                oneLiner_hi: card.querySelector('.m-hi-h').value.trim(),
-                contextBullets: card.querySelector('.m-en-c').value.split('\n').map(b=>b.trim()).filter(b=>b),
-                contextBullets_hi: card.querySelector('.m-hi-c').value.split('\n').map(b=>b.trim()).filter(b=>b),
-                impact: card.querySelector('.m-en-imp').value.trim(),
-                impact_hi: card.querySelector('.m-hi-imp').value.trim(),
-                "staticBox.facts": card.querySelector('.m-en-st').value.trim(),
-                "staticBox_hi.facts": card.querySelector('.m-hi-st').value.trim(),
-                "mcq.question": card.querySelector('.m-mcq-en-q').value.trim(),
-                "mcq.options": [card.querySelector('.m-mcq-en-o0').value.trim(), card.querySelector('.m-mcq-en-o1').value.trim(), card.querySelector('.m-mcq-en-o2').value.trim(), card.querySelector('.m-mcq-en-o3').value.trim()],
-                "mcq.correctIndex": ansIdx,
-                "mcq.explanation": card.querySelector('.m-mcq-en-exp').value.trim(),
-                "mcq_hi.question": card.querySelector('.m-mcq-hi-q').value.trim(),
-                "mcq_hi.options": [card.querySelector('.m-mcq-hi-o0').value.trim(), card.querySelector('.m-mcq-hi-o1').value.trim(), card.querySelector('.m-mcq-hi-o2').value.trim(), card.querySelector('.m-mcq-hi-o3').value.trim()],
-                "mcq_hi.correctIndex": ansIdx,
-                "mcq_hi.explanation": card.querySelector('.m-mcq-hi-exp').value.trim()
-            };
-
-            try {
-                await updateDoc(doc(db, "daily_news", docId), payloadToSave);
-                
-                const cachedCardIndex = caInspectCache.findIndex(c => c.id === docId);
-                if (cachedCardIndex > -1) {
-                    caInspectCache[cachedCardIndex] = { ...caInspectCache[cachedCardIndex], ...payloadToSave };
-                }
-
-                btnEl.innerHTML = "✅ Saved!"; 
-                setTimeout(() => { btnEl.innerHTML = btnOrig; btnEl.disabled = false; }, 2000);
-            } catch(e) { 
-                alert("Save error: " + e.message); 
-                btnEl.innerHTML = btnOrig; btnEl.disabled = false; 
-            }
-        };
-
-        window.deleteCACard = async function(id) {
-            if(!confirm("Permanently delete this Current Affairs card?")) return;
-            try {
-                await deleteDoc(doc(db, "daily_news", id));
-                caInspectCache = caInspectCache.filter(c => c.id !== id);
-                renderCAManageCards();
-            } catch(e) { alert("Delete error: " + e.message); }
-        };
-
-        window.purgeSelectedDay = async function() {
-            const targetDate = document.getElementById('caManageDate').value;
-            if(!confirm(`DANGER: Are you sure you want to permanently delete ALL Current Affairs cards for ${targetDate}?`)) return;
-
-            try {
-                const batch = writeBatch(db);
-                caInspectCache.forEach(c => batch.delete(doc(db, "daily_news", c.id)));
-                await batch.commit();
-                alert(`Purged all cards for ${targetDate}!`);
-                fetchCAManage();
-            } catch(e) { alert("Purge error: " + e.message); }
-        };
-
-        document.getElementById('caManageDate').addEventListener('change', fetchCAManage);
-        document.getElementById('caManageCategory').addEventListener('change', renderCAManageCards);
-        document.getElementById('btnRefreshCAManage').addEventListener('click', fetchCAManage);
-
-        /* ========================================================= */
-        /* 6. BLOG PUBLISHER & MANAGER                               */
+        /* 4. BLOG PUBLISHER & MANAGER                               */
         /* ========================================================= */
         window.autoTranslateBlog = async function() {
             const btn = document.getElementById('btnAutoTranslateBlog'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
@@ -2793,7 +1450,7 @@
                 const contentEn = window.quillBlogEn.root.innerHTML;
                 if(contentEn && contentEn !== "<p><br></p>") window.quillBlogHi.clipboard.dangerouslyPasteHTML(await translateEnToHi(contentEn));
                 alert("Translation Complete!");
-            } catch (e) { alert("Translation failed. Check connection."); } finally { btn.innerHTML = "⚡ Auto-Translate"; btn.disabled = false; }
+            } catch (e) { alert("Translation failed. Check connection."); } finally { btn.innerHTML = "<span>⚡</span> Auto-Translate"; btn.disabled = false; }
         };
         window.autoTranslateEditBlog = async function() {
             const btn = document.getElementById('btnAutoTranslateEditBlog'); btn.innerHTML = "⚡ Translating..."; btn.disabled = true;
@@ -2843,11 +1500,11 @@
             try {
                 const q = query(collection(db, "blogs"), orderBy("createdAt", "desc"));
                 const snap = await getDocs(q); let html = "";
-                snap.forEach(doc => {
-                    const data = doc.data(); const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Just now';
-                    html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="px-6 py-4"><div class="font-bold text-slate-900 line-clamp-1">${data.title}</div><div class="text-xs text-emerald-600 font-bold mt-1">${data.category}</div></td><td class="px-6 py-4 text-slate-500 text-sm">${dateStr}</td><td class="px-6 py-4 text-right whitespace-nowrap">
-                    <button class="btn-blog-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${doc.id}" data-title_en="${safeEscape(data.title)}" data-title_hi="${safeEscape(data.title_hi)}" data-content_en="${safeEscape(data.content)}" data-content_hi="${safeEscape(data.content_hi)}" data-slug="${safeEscape(data.slug)}" data-meta_en="${safeEscape(data.meta)}" data-meta_hi="${safeEscape(data.meta_hi)}" data-tags="${safeEscape(data.tags)}" data-category="${safeEscape(data.category)}" data-image="${safeEscape(data.image)}">Edit</button>
-                    <button class="btn-blog-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${doc.id}">Delete</button></td></tr>`;
+                snap.forEach(docItem => {
+                    const data = docItem.data(); const dateStr = data.createdAt ? data.createdAt.toDate().toLocaleDateString() : 'Just now';
+                    html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100"><td class="px-6 py-4"><div class="font-bold text-slate-900 line-clamp-1">${escapeHtml(data.title)}</div><div class="text-xs text-emerald-600 font-bold mt-1">${escapeHtml(data.category)}</div></td><td class="px-6 py-4 text-slate-500 text-sm">${dateStr}</td><td class="px-6 py-4 text-right whitespace-nowrap">
+                    <button class="btn-blog-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${docItem.id}" data-title_en="${safeEscape(data.title)}" data-title_hi="${safeEscape(data.title_hi)}" data-content_en="${safeEscape(data.content)}" data-content_hi="${safeEscape(data.content_hi)}" data-slug="${safeEscape(data.slug)}" data-meta_en="${safeEscape(data.meta)}" data-meta_hi="${safeEscape(data.meta_hi)}" data-tags="${safeEscape(data.tags)}" data-category="${safeEscape(data.category)}" data-image="${safeEscape(data.image)}">Edit</button>
+                    <button class="btn-blog-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${docItem.id}">Delete</button></td></tr>`;
                 });
                 blogTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">No blog posts found.</td></tr>';
                 
@@ -2866,7 +1523,7 @@
                     window.quillEditBlogHi.clipboard.dangerouslyPasteHTML(e.target.getAttribute('data-content_hi') || '');
                     document.getElementById('editBlogModal').classList.remove('hidden'); 
                 }); });
-            } catch (err) { blogTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+            } catch (err) { blogTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${escapeHtml(err.message)}</td></tr>`; }
         };
         const closeBlogModal = () => document.getElementById('editBlogModal').classList.add('hidden');
         document.getElementById('btnBlogModalClose').addEventListener('click', closeBlogModal); document.getElementById('btnBlogModalCancel').addEventListener('click', closeBlogModal); document.getElementById('editBlogModalCloseBg').addEventListener('click', closeBlogModal);
@@ -2893,7 +1550,7 @@
         document.getElementById('btnRefreshBlogs').addEventListener('click', fetchBlogs);
 
         /* ========================================================= */
-        /* 7. DICTATION & STORE MANAGEMENT                           */
+        /* 5. DICTATION & STORE MANAGEMENT (FIXED WORD COUNT REGEX)  */
         /* ========================================================= */
         function setupDictation(btnId, quillInstance, langCode) {
             const btn = document.getElementById(btnId);
@@ -2925,12 +1582,13 @@
             e.preventDefault(); 
             const btn = document.getElementById('btnPublishDict'); btn.innerHTML = "Publishing...";
             try { 
+                const rawText = document.getElementById('dictationText').value.trim();
                 await addDoc(collection(db, "lessons"), { 
                     mainCategory: document.getElementById('mainCategory').value, 
                     subCategory: document.getElementById('subCategory').value, 
                     title: document.getElementById('dictationTitle').value, 
-                    text: document.getElementById('dictationText').value, 
-                    wordCount: document.getElementById('dictationText').value.trim().split(/\\s+/).length, 
+                    text: rawText, 
+                    wordCount: rawText ? rawText.split(/\s+/).length : 0, 
                     timestamp: serverTimestamp() 
                 }); 
                 alert("Dictation Live!"); e.target.reset(); document.getElementById('wordCountDisplay').textContent = "0 Words";
@@ -2938,7 +1596,7 @@
         });
 
         document.getElementById('dictationText').addEventListener('input', (e) => {
-            const count = e.target.value.trim() ? e.target.value.trim().split(/\\s+/).length : 0;
+            const count = e.target.value.trim() ? e.target.value.trim().split(/\s+/).length : 0;
             document.getElementById('wordCountDisplay').textContent = `${count} Words`;
         });
 
@@ -2947,22 +1605,22 @@
             libraryTableBody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-slate-400 animate-pulse">Fetching dictations...</td></tr>';
             try {
                 const snap = await getDocs(collection(db, "lessons")); let dictations = [];
-                snap.forEach(doc => { dictations.push({ id: doc.id, ...doc.data() }); });
+                snap.forEach(docItem => { dictations.push({ id: docItem.id, ...docItem.data() }); });
                 dictations.sort((a, b) => (a.mainCategory || "").localeCompare(b.mainCategory || ""));
                 let html = "";
-                dictations.forEach(data => { html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0"><td class="px-6 py-4"><div class="font-bold text-slate-900">${data.title}</div><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${data.mainCategory} &rarr; ${data.subCategory}</div></td><td class="px-6 py-4 font-mono text-indigo-600 font-bold">${data.wordCount}</td><td class="px-6 py-4 text-right whitespace-nowrap"><button class="btn-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${data.id}" data-title="${data.title.replace(/"/g, '&quot;')}" data-text="${data.text.replace(/"/g, '&quot;')}" data-main="${data.mainCategory}" data-sub="${data.subCategory ? data.subCategory.replace(/"/g, '&quot;') : ''}">Edit</button><button class="btn-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${data.id}">Delete</button></td></tr>`; });
+                dictations.forEach(data => { html += `<tr class="hover:bg-slate-50 transition border-b border-slate-100 last:border-0"><td class="px-6 py-4"><div class="font-bold text-slate-900">${escapeHtml(data.title)}</div><div class="text-xs font-semibold text-slate-500 uppercase tracking-wider">${escapeHtml(data.mainCategory)} &rarr; ${escapeHtml(data.subCategory)}</div></td><td class="px-6 py-4 font-mono text-indigo-600 font-bold">${data.wordCount}</td><td class="px-6 py-4 text-right whitespace-nowrap"><button class="btn-edit text-amber-600 hover:text-amber-800 font-bold mr-3" data-id="${data.id}" data-title="${safeEscape(data.title)}" data-text="${safeEscape(data.text)}" data-main="${safeEscape(data.mainCategory)}" data-sub="${safeEscape(data.subCategory)}">Edit</button><button class="btn-delete text-rose-500 hover:text-rose-700 font-bold" data-id="${data.id}">Delete</button></td></tr>`; });
                 libraryTableBody.innerHTML = html || '<tr><td colspan="3" class="text-center py-8 text-slate-400">Library is empty.</td></tr>';
                 
                 document.querySelectorAll('.btn-delete').forEach(btn => { btn.addEventListener('click', async (e) => { if(confirm("Permanently delete this dictation?")) { await deleteDoc(doc(db, "lessons", e.target.getAttribute('data-id'))); fetchLibrary(); } }); });
                 document.querySelectorAll('.btn-edit').forEach(btn => { btn.addEventListener('click', (e) => { document.getElementById('editDocId').value = e.target.getAttribute('data-id'); document.getElementById('editTitle').value = e.target.getAttribute('data-title'); document.getElementById('editText').value = e.target.getAttribute('data-text'); document.getElementById('editMainCategory').value = e.target.getAttribute('data-main'); document.getElementById('editSubCategory').value = e.target.getAttribute('data-sub'); document.getElementById('editDictModal').classList.remove('hidden'); }); });
-            } catch (err) { libraryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${err.message}</td></tr>`; }
+            } catch (err) { libraryTableBody.innerHTML = `<tr><td colspan="3" class="text-center py-8 text-rose-500">Error: ${escapeHtml(err.message)}</td></tr>`; }
         };
         const closeDictModal = () => document.getElementById('editDictModal').classList.add('hidden');
         document.getElementById('btnDictModalClose').addEventListener('click', closeDictModal); document.getElementById('btnDictModalCancel').addEventListener('click', closeDictModal); document.getElementById('editDictModalCloseBg').addEventListener('click', closeDictModal);
         document.getElementById('btnDictModalSave').addEventListener('click', async () => {
             const id = document.getElementById('editDocId').value; const newText = document.getElementById('editText').value.trim();
             const btn = document.getElementById('btnDictModalSave'); btn.textContent = "Saving..."; btn.disabled = true;
-            try { await updateDoc(doc(db, "lessons", id), { title: document.getElementById('editTitle').value.trim(), text: newText, wordCount: newText.split(/\\s+/).length, mainCategory: document.getElementById('editMainCategory').value, subCategory: document.getElementById('editSubCategory').value.trim() }); closeDictModal(); fetchLibrary(); } 
+            try { await updateDoc(doc(db, "lessons", id), { title: document.getElementById('editTitle').value.trim(), text: newText, wordCount: newText ? newText.split(/\s+/).length : 0, mainCategory: document.getElementById('editMainCategory').value, subCategory: document.getElementById('editSubCategory').value.trim() }); closeDictModal(); fetchLibrary(); } 
             catch (err) { alert("Error saving: " + err.message); } finally { btn.textContent = "Save Changes"; btn.disabled = false; }
         });
         document.getElementById('btnRefreshLibrary').addEventListener('click', fetchLibrary);
@@ -2984,7 +1642,7 @@
         });
 
         /* ========================================================= */
-        /* 8. ANALYTICS & SETTINGS                                   */
+        /* 6. ANALYTICS & SETTINGS                                   */
         /* ========================================================= */
         window.fetchAnalytics = async function() {
             try { const usersSnap = await getDocs(collection(db, "users")); document.getElementById('statUsers').textContent = usersSnap.size; } catch (err) { document.getElementById('statUsers').textContent = "Err"; }
