@@ -1907,11 +1907,14 @@ window.saveFolderPdfLinks = async function (cadence, folderName, enInputId, hiIn
 // ==========================================
 function formatVectorHighlight(txt) {
     if (!txt) return "";
-    return escapeHtml(txt).replace(/\*\*(.*?)\*\*/g, (_, p1) => {
-        const c = p1.trim();
-        const isNum = /^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(c) || !isNaN(parseFloat(c));
-        return `<strong style="color:${isNum ? "#e11d48" : "#1d4ed8"};font-weight:800;">${p1}</strong>`;
-    });
+    return escapeHtml(txt)
+        .replace(/\*\*\*(.+?)\*\*\*/g, "**$1**")
+        .replace(/\*\*(.+?)\*\*(?!\*)/g, (_, p1) => {
+            const c = p1.replace(/\*/g, "").trim();
+            const isNum = /^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(c) || !isNaN(parseFloat(c));
+            return `<strong style="color:${isNum ? "#e11d48" : "#1d4ed8"};font-weight:800;">${p1}</strong>`;
+        })
+        .replace(/(^|[\s(\['"“‘>—–:\/\-])\*([^*\n]+?)\*/g, (_, pre, inner) => `${pre}${inner.trim()}`);
 }
 
 function openVectorPrintStudio({ docTitle, subtitle, coverMeta, sections, mode, lang, totalCards }) {

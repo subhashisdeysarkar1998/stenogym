@@ -414,15 +414,21 @@ function escapeJsStr(v) {
 }
 
 function stripBoldMarkers(str) {
-    return String(str ?? "").replace(/\*\*/g, "");
+    return String(str ?? "")
+        .replace(/\*\*\*(.+?)\*\*\*/g, "$1")
+        .replace(/\*\*(.+?)\*\*(?!\*)/g, "$1")
+        .replace(/(^|[\s(\['"“‘—–:\/\-])\*([^*\n]+?)\*/g, (_, pre, txt) => `${pre}${txt.trim()}`);
 }
 
 function formatUIText(str) {
     if (!str) return "";
-    return escapeHtml(str).replace(
-        /\*\*(.*?)\*\*/g,
-        '<span class="bg-yellow-200 dark:bg-yellow-900/40 px-1 rounded text-slate-900 dark:text-yellow-100 font-bold">$1</span>'
-    );
+    return escapeHtml(str)
+        .replace(/\*\*\*(.+?)\*\*\*/g, "**$1**")
+        .replace(
+            /\*\*(.+?)\*\*(?!\*)/g,
+            '<span class="bg-yellow-200 dark:bg-yellow-900/40 px-1 rounded text-slate-900 dark:text-yellow-100 font-bold">$1</span>'
+        )
+        .replace(/(^|[\s(\['"“‘>—–:\/\-])\*([^*\n]+?)\*/g, (_, pre, txt) => `${pre}${txt.trim()}`);
 }
 
 function getCleanDeckTitle(ed) {
@@ -1272,11 +1278,14 @@ window.generateDailyPDF = function () {
 
     const formatHighlight = (text) => {
         if (!text) return "";
-        return escapeHtml(text).replace(/\*\*(.*?)\*\*/g, (_, p1) => {
-            const c = p1.trim();
-            const isNum = /^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(c) || !isNaN(parseFloat(c));
-            return `<strong style="color:${isNum ? "#e11d48" : "#2563eb"};font-weight:900;">${p1}</strong>`;
-        });
+        return escapeHtml(text)
+            .replace(/\*\*\*(.+?)\*\*\*/g, "**$1**")
+            .replace(/\*\*(.+?)\*\*(?!\*)/g, (_, p1) => {
+                const c = p1.replace(/\*/g, "").trim();
+                const isNum = /^[\₹\$€£]?\d+[\d.,]*%?(st|nd|rd|th)?(\s*(Crore|Lakh|Million|Billion))?$/i.test(c) || !isNaN(parseFloat(c));
+                return `<strong style="color:${isNum ? "#e11d48" : "#2563eb"};font-weight:900;">${p1}</strong>`;
+            })
+            .replace(/(^|[\s(\['"“‘>—–:\/\-])\*([^*\n]+?)\*/g, (_, pre, txt) => `${pre}${txt.trim()}`);
     };
 
     const groupedData = allArticlesCache.reduce((acc, item) => {
@@ -2176,9 +2185,9 @@ function renderCompilationPage(targetPage = currentCompilationPage) {
             html += `
             <div class="perspective-1000 w-full" id="compCardContainer-${idx}" data-docid="${escapeHtml(docId)}">
                 <div class="flip-card-inner relative w-full transform-style-3d rounded-3xl transition-all duration-500">
-                    <div class="flip-card-front flex flex-col justify-between min-h-[400px] bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm">
-                        <div class="p-5 md:p-7">
-                            <div class="flex flex-wrap justify-between items-center mb-3 pb-2 border-b border-slate-100 dark:border-slate-700 gap-2">
+                    <div class="flip-card-front flex flex-col justify-between min-h-[400px] max-h-[540px] md:max-h-[600px] overflow-hidden bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm hover:shadow-md transition">
+                        <div class="flex-grow min-h-0 drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
+                            <div class="flex flex-wrap justify-between items-center mb-3 pb-2.5 border-b border-slate-100 dark:border-slate-700/80 gap-2">
                                 <div class="flex items-center gap-2">
                                     <span class="bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded-md">CARD #${globalIndex}</span>
                                     <span class="text-xl hidden md:inline">${safeEmoji}</span>
@@ -2189,7 +2198,7 @@ function renderCompilationPage(targetPage = currentCompilationPage) {
                                 </div>
                                 <div class="flex items-center gap-2">
                                     <span class="text-slate-500 dark:text-slate-400 text-[9px] font-black tracking-widest bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 px-2.5 py-0.5 rounded-full uppercase">🎯 ${escapeHtml(exams)}</span>
-                                    <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${escapeJsStr(docId)}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded transition ${bkmrkClass}">${bkmrkText}</button>
+                                    <button id="btnBookmarkComp-${idx}" onclick="event.stopPropagation(); toggleBookmark(event, '${escapeJsStr(docId)}', 'btnBookmarkComp-${idx}');" class="text-[10px] font-bold border border-slate-200 dark:border-slate-600 px-2 py-0.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700 transition ${bkmrkClass} cursor-pointer">${bkmrkText}</button>
                                 </div>
                             </div>
                             ${displayImpact ? `<div class="bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[10px] font-bold px-2.5 py-1 rounded-lg inline-block mb-3">${impactLabel} ${escapeHtml(displayImpact)}</div>` : ""}
@@ -2197,30 +2206,30 @@ function renderCompilationPage(targetPage = currentCompilationPage) {
                             <ul class="space-y-2 mb-2">${bulletsHtml}</ul>
                             ${staticBoxHtml}
                         </div>
-                        <div class="border-t border-slate-200 dark:border-slate-700 text-center w-full p-4 cursor-pointer bg-slate-50 dark:bg-slate-900 rounded-b-3xl" onclick="toggleCompCard(${idx})">
-                            <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition"><span>🔄</span> ${testFactLabel}</button>
+                        <div class="flex-shrink-0 border-t border-slate-100 dark:border-slate-700/80 text-center w-full p-4 md:p-5 cursor-pointer bg-slate-50/50 dark:bg-slate-800 rounded-b-3xl" onclick="toggleCompCard(${idx})">
+                            <button class="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition"><span>🔄</span> ${testFactLabel}</button>
                         </div>
                     </div>
 
-                    <div class="flip-card-back flex flex-col justify-between min-h-[400px] bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-slate-700 rounded-3xl">
-                        <div class="p-5 md:p-7">
+                    <div class="flip-card-back flex flex-col justify-between min-h-[400px] max-h-[540px] md:max-h-[600px] overflow-hidden bg-slate-50 dark:bg-slate-900 border border-indigo-200 dark:border-indigo-700 rounded-3xl shadow-sm hover:shadow-md transition">
+                        <div class="flex-grow min-h-0 drag-scroll-zone hide-scrollbar p-5 md:p-6 pb-2">
                             <span class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-900/50 px-2 py-1 rounded-md mb-3 block w-max">Verification Quiz #${globalIndex}</span>
-                            <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3">${formatUIText(mcqData?.question)}</h4>
+                            <h4 class="font-black text-slate-900 dark:text-white text-sm md:text-base mb-3 leading-snug">${formatUIText(mcqData?.question)}</h4>
                             <div id="compMcqOptions-${idx}" class="space-y-2">
                                 ${(mcqData?.options || [])
                                     .map(
                                         (opt, oIdx) => `
-                                    <button onclick="handleCompFlipAnswer(event, '${escapeJsStr(docId)}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 font-bold text-xs md:text-sm p-3 rounded-xl transition flex justify-between">
+                                    <button onclick="handleCompFlipAnswer(event, '${escapeJsStr(docId)}', ${idx}, ${oIdx}, ${correctIdx}, '${safeExp}')" class="w-full text-left bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-600 hover:border-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 font-bold text-xs md:text-sm p-3 rounded-xl transition flex items-center justify-between shadow-xs cursor-pointer disabled:cursor-not-allowed">
                                         <span>${String.fromCharCode(65 + oIdx)}. ${formatUIText(opt)}</span><span class="status-marker text-xs font-black"></span>
                                     </button>`
                                     )
                                     .join("")}
                             </div>
-                            <div id="compMcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs font-semibold shadow-inner flex-col gap-1.5 bg-indigo-50 border border-indigo-100 dark:border-indigo-800"><div id="compMcqFeedbackText-${idx}"></div></div>
+                            <div id="compMcqFeedback-${idx}" class="hidden mt-3 p-3 rounded-xl text-xs md:text-sm leading-relaxed font-semibold shadow-inner flex-col gap-1.5 items-start bg-indigo-50 border border-indigo-100 dark:border-indigo-800"><div id="compMcqFeedbackText-${idx}"></div></div>
                         </div>
-                        <div class="border-t border-indigo-100 dark:border-indigo-800 p-4 flex gap-2 cursor-pointer bg-white dark:bg-slate-800 rounded-b-3xl" onclick="toggleCompCard(${idx})">
-                            <button id="btnTryAgainComp-${idx}" onclick="event.stopPropagation(); resetCompFlipQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition border border-slate-300 dark:border-slate-600 cursor-pointer"><span>🔄</span> ${tryAgainLabel}</button>
-                            <button class="flex-1 justify-center bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600">&larr; ${backToNotesLabel}</button>
+                        <div class="flex-shrink-0 border-t border-indigo-100 dark:border-indigo-800 p-4 md:p-5 flex items-center justify-between w-full gap-2 cursor-pointer bg-slate-100/50 dark:bg-slate-900 rounded-b-3xl" onclick="toggleCompCard(${idx})">
+                            <button id="btnTryAgainComp-${idx}" onclick="event.stopPropagation(); resetCompFlipQuiz(${idx});" class="hidden flex-1 justify-center items-center gap-1 bg-white dark:bg-slate-800 hover:bg-slate-100 text-slate-800 dark:text-slate-200 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs border border-slate-200 dark:border-slate-700 cursor-pointer"><span>🔄</span> ${tryAgainLabel}</button>
+                            <button class="flex-1 justify-center items-center text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-bold bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 shadow-xs px-4 py-2.5 rounded-xl transition">&larr; ${backToNotesLabel}</button>
                         </div>
                     </div>
                 </div>
